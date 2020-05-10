@@ -1,9 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 
@@ -11,9 +8,12 @@ import java.util.Objects;
 public class Employee {
 
 
-   // @OneToOne(targetEntity = User.class,mappedBy = "username")
     @Id
     private String username;
+
+    @OneToOne
+    @PrimaryKeyJoinColumn
+    private UserLogin userLogin;
 
     @Column(nullable = false)
     private String name;
@@ -94,4 +94,14 @@ public class Employee {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    public UserLogin getUserLogin() {
+        return userLogin;
+    }
+
+    public void setUserLogin(UserLogin userLogin) {
+        this.userLogin = userLogin;
+    }
+
+
 }
