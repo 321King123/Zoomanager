@@ -139,5 +139,8 @@
       }
     }
   },
-  "defaultProject": "sepm-group-phase"
+  "defaultProject": "sepm-group-phase",
+  "cli": {
+    "analytics": "44fcc08c-3890-4423-867d-2ad8b5859d96"
+  }
 }

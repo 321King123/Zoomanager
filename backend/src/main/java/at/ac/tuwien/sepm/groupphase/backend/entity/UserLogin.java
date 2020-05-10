@@ -6,7 +6,7 @@ import javax.persistence.Id;
 import java.util.Objects;
 
 @Entity
-public class User {
+public class UserLogin {
 
     @Id
     private String username;
@@ -21,7 +21,7 @@ public class User {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
+        UserLogin user = (UserLogin) o;
         return isAdmin == user.isAdmin &&
             Objects.equals(username, user.username) &&
             Objects.equals(password, user.password);
@@ -63,5 +63,42 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public static final class UserBuilder {
+        private String username;
+        private boolean isAdmin;
+        private String password;
+
+        private UserBuilder() {
+        }
+
+        public static UserLogin.UserBuilder aUser() {
+            return new UserLogin.UserBuilder();
+        }
+
+        public UserLogin.UserBuilder withUsername(String username) {
+            this.username = username;
+            return this;
+        }
+
+        public UserLogin.UserBuilder withIsAdmin(boolean isAdmin) {
+            this.isAdmin = isAdmin;
+            return this;
+        }
+
+        public UserLogin.UserBuilder withPassword(String password) {
+            this.password = password;
+            return this;
+        }
+
+
+        public UserLogin build() {
+            UserLogin user = new UserLogin();
+            user.setUsername(username);
+            user.setAdmin(isAdmin);
+            user.setPassword(password);
+            return user;
+        }
     }
 }
