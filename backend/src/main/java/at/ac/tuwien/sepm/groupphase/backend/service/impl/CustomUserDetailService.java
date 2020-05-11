@@ -53,6 +53,6 @@ public class CustomUserDetailService implements UserService {
         LOGGER.debug("Find application user by username");
         UserLogin userLogin = userRepository.findUserByUsername(username);
         if (userLogin != null) return userLogin;
-        throw new NotFoundException(String.format("Could not find the user with the email address %s", username));
+        throw new NotFoundException(String.format("Could not find the user with the username %s", username));
     }
 }
