@@ -6,19 +6,19 @@ import java.util.Objects;
 
 public class UserLoginDto {
 
-    @NotNull(message = "Username must not be null")
-    private String username;
+    @NotNull(message = "Email must not be null")
+    @Email
+    private String email;
 
     @NotNull(message = "Password must not be null")
     private String password;
 
-
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {
@@ -29,33 +29,31 @@ public class UserLoginDto {
         this.password = password;
     }
 
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof UserLoginDto)) return false;
         UserLoginDto userLoginDto = (UserLoginDto) o;
-        return Objects.equals(username, userLoginDto.username) &&
+        return Objects.equals(email, userLoginDto.email) &&
             Objects.equals(password, userLoginDto.password);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(username, password);
+        return Objects.hash(email, password);
     }
 
     @Override
     public String toString() {
         return "UserLoginDto{" +
-            "username='" + username + '\'' +
+            "email='" + email + '\'' +
             ", password='" + password + '\'' +
             '}';
     }
 
 
     public static final class UserLoginDtoBuilder {
-        private String username;
+        private String email;
         private String password;
 
         private UserLoginDtoBuilder() {
@@ -65,8 +63,8 @@ public class UserLoginDto {
             return new UserLoginDtoBuilder();
         }
 
-        public UserLoginDtoBuilder withUsername(String username) {
-            this.username = username;
+        public UserLoginDtoBuilder withEmail(String email) {
+            this.email = email;
             return this;
         }
 
@@ -75,10 +73,9 @@ public class UserLoginDto {
             return this;
         }
 
-
         public UserLoginDto build() {
             UserLoginDto userLoginDto = new UserLoginDto();
-            userLoginDto.setUsername(username);
+            userLoginDto.setEmail(email);
             userLoginDto.setPassword(password);
             return userLoginDto;
         }

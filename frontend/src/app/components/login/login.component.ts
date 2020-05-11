@@ -44,10 +44,10 @@ export class LoginComponent implements OnInit {
    * @param authRequest authentication data from the user login form
    */
   authenticateUser(authRequest: AuthRequest) {
-    console.log('Try to authenticate user: ' + authRequest.username);
+    console.log('Try to authenticate user: ' + authRequest.email);
     this.authService.loginUser(authRequest).subscribe(
       () => {
-        console.log('Successfully logged in user: ' + authRequest.username);
+        console.log('Successfully logged in user: ' + authRequest.email);
         this.router.navigate(['/message']);
       },
       error => {
