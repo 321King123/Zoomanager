@@ -14,12 +14,12 @@ public interface UserService extends UserDetailsService {
      * For more information have a look at this tutorial:
      * https://www.baeldung.com/spring-security-authentication-with-a-database
      *
-     * @param email the email address
+     * @param username the email address
      * @return a Spring Security user
      * @throws UsernameNotFoundException is thrown if the specified user does not exists
      */
     @Override
-    UserDetails loadUserByUsername(String email) throws UsernameNotFoundException;
+    UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 
     /**
      * Find a application user based on the email address
