@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.lang.invoke.MethodHandles;
 
 @RestController
@@ -40,7 +41,7 @@ public class EmployeeEndpoint {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(value = "")
     @ApiOperation(value = "Create new employee", authorizations = {@Authorization(value = "apiKey")})
-    public EmployeeDto createEmployee(@RequestBody EmployeeDto employeeDto){
+    public EmployeeDto createEmployee(@RequestBody @Valid EmployeeDto employeeDto){
         LOGGER.info("POST /api/v1/employee body: {}",employeeDto);
         userService.createNewUser(userLoginMapper.eployeeDtoToUserLogin(employeeDto));
         return employeeMapper.employeeToEmployeeDto(employeeService.createEmployee(employeeMapper.employeeDtoToEmployee(employeeDto)));
