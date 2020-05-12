@@ -5,6 +5,7 @@ export class Employee {
     public username: string,
     public email: string,
     public password: string,
+    public name: string,
     public birthday: Date,
     public employeeType: EmployeeType) {
   }
