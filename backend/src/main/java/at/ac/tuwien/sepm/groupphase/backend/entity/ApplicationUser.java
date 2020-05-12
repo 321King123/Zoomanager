@@ -3,25 +3,25 @@ package at.ac.tuwien.sepm.groupphase.backend.entity;
 //TODO: replace this class with a correct ApplicationUser Entity implementation
 public class ApplicationUser {
 
-    private String email;
+    private String username;
     private String password;
     private Boolean admin;
 
     public ApplicationUser() {
     }
 
-    public ApplicationUser(String email, String password, Boolean admin) {
-        this.email = email;
+    public ApplicationUser(String username, String password, Boolean admin) {
+        this.username = username;
         this.password = password;
         this.admin = admin;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String email) {
+        this.username = email;
     }
 
     public String getPassword() {
