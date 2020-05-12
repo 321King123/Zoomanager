@@ -28,4 +28,11 @@ public interface UserService extends UserDetailsService {
      * @return a application user
      */
     UserLogin findApplicationUserByUsername(String username);
+
+    /**
+     * Create a new user in the database
+     *
+     * @param userLogin to be saved
+     */
+    UserLogin createNewUser(UserLogin userLogin);
 }
