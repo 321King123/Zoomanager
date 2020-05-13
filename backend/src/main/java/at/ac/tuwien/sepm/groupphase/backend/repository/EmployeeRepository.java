@@ -17,6 +17,4 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
      * @return employee with the corresponding username
      */
     Employee findEmployeeByUsername(String username);
-
-    List<Employee> findAllByNameContainsAndTypeEqualsOrderByName(String name, EmployeeType type);
 }

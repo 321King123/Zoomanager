@@ -45,7 +45,12 @@ public class CustomEmployeeService implements EmployeeService {
     //This function will be the general search List function right now only Name and Type fill be filtered
     public List<Employee> findByNameAndType(Employee employee){
         LOGGER.debug("Getting filtered List of employees.");
-        List<Employee> employees = employeeRepository.findAllByNameContainsAndTypeEqualsOrderByName(employee.getName(), employee.getType());
+        LOGGER.debug("Getting filtered List of employees.");
+        ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAll().withIgnoreNullValues().withIgnoreCase()
+            .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains())
+            .withMatcher("type", ExampleMatcher.GenericPropertyMatchers.exact());
+        Example<Employee> example = Example.of(Employee.EmployeeBuilder.anEmployee().withName(employee.getName()).withType(employee.getType()).build(), customExampleMatcher);
+        List<Employee> employees = employeeRepository.findAll(example);
         if(employees.isEmpty())
             throw new NotFoundException();
         return employees;
