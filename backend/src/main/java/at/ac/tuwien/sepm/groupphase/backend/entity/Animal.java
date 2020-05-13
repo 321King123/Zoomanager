@@ -14,7 +14,7 @@ public class Animal implements Serializable{
     private String name;
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
     @Column(nullable = false)
@@ -23,9 +23,8 @@ public class Animal implements Serializable{
     @Column(nullable = false)
     private String species;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)  //prije je stajalo false
-    @JoinColumn(nullable = true) //prije je stajalo false
-    private Enclosure enclosure;
+    @Column
+    private String enclosure;
 
     @Column
     private String publicInformation;
@@ -54,9 +53,9 @@ public class Animal implements Serializable{
 
     public void setSpecies(String species) { this.species = species; }
 
-    public Enclosure getEnclosure() { return enclosure; }
+    public String getEnclosure() { return enclosure; }
 
-    public void setEnclosure(Enclosure enclosure) { this.enclosure = enclosure; }
+    public void setEnclosure(String enclosure) { this.enclosure = enclosure; }
 
     public String getPublicInformation() { return publicInformation; }
 
@@ -99,7 +98,7 @@ public class Animal implements Serializable{
         private String name;
         private String description;
         private String species;
-        private Enclosure enclosure;
+        private String enclosure;
         private String publicInformation;
 
         private AnimalBuilder() {
@@ -129,7 +128,7 @@ public class Animal implements Serializable{
             return this;
         }
 
-        public AnimalBuilder withEnclosure(Enclosure enclosure) {
+        public AnimalBuilder withEnclosure(String enclosure) {
             this.enclosure = enclosure;
             return this;
         }

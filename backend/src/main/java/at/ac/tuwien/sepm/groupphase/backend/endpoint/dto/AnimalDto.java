@@ -20,7 +20,7 @@ public class AnimalDto {
     @NotNull(message = "Species must not be null")
     private String species;
 
-    private Enclosure enclosure;
+    private String enclosure;
 
     private String publicInformation;
 
@@ -41,9 +41,9 @@ public class AnimalDto {
 
     public void setSpecies(String species) { this.species = species; }
 
-    public Enclosure getEnclosure() { return enclosure; }
+    public String getEnclosure() { return enclosure; }
 
-    public void setEnclosure(Enclosure enclosure) { this.enclosure = enclosure; }
+    public void setEnclosure(String enclosure) { this.enclosure = enclosure; }
 
     public String getPublicInformation() { return publicInformation; }
 
@@ -85,7 +85,7 @@ public class AnimalDto {
         private Long id;
         private String description;
         private String species;
-        private Enclosure enclosure;
+        private String enclosure;
         private String publicInformation;
 
         private AnimalDtoBuilder() {
@@ -113,7 +113,7 @@ public class AnimalDto {
             return this;
         }
 
-        public AnimalDtoBuilder withEnclosure(Enclosure enclosure) {
+        public AnimalDtoBuilder withEnclosure(String enclosure) {
             this.enclosure = enclosure;
             return this;
         }

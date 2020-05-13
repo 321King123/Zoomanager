@@ -14,8 +14,8 @@ public class Enclosure {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "enclosure")
-    private List<Animal> animals;
+
+    //private List<Animal> animals;
 
     public Long getId() { return id; }
 
@@ -25,16 +25,16 @@ public class Enclosure {
 
     public void setName(String name) { this.name = name; }
 
-    public List<Animal> getAnimals() { return animals;  }
+    //public List<Animal> getAnimals() { return animals;  }
 
-    public void setAnimals(List<Animal> animals) { this.animals = animals; }
+    //public void setAnimals(List<Animal> animals) { this.animals = animals; }
 
 
     public static final class EnclosureBuilder {
 
         private Long id;
         private String name;
-        private List<Animal> animals;
+        //private List<Animal> animals;
 
         private EnclosureBuilder() { }
 
@@ -50,16 +50,16 @@ public class Enclosure {
             return this;
         }
 
-        public EnclosureBuilder withAnimals(List<Animal> animals) {
+        /*public EnclosureBuilder withAnimals(List<Animal> animals) {
             this.animals = animals;
             return this;
-        }
+        }*/
 
         public Enclosure build() {
             Enclosure enclosure = new Enclosure();
             enclosure.setId(id);
             enclosure.setName(name);
-            enclosure.setAnimals(animals);
+           // enclosure.setAnimals(animals);
             return enclosure;
         }
 

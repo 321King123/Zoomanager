@@ -35,10 +35,8 @@ public class AnimalEndpoint {
     }
 
 
-    @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    @ApiOperation(value = " ", authorizations = {@Authorization(value = "apiKey")})
     public AnimalDto create(@Valid @RequestBody AnimalDto animalDto) {
         LOGGER.info("POST /api/v1/authentication/animal body: {}", animalDto);
         Animal animal1 = animalMapper.AnimalDtoToAnimal(animalDto);
