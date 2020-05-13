@@ -6,8 +6,8 @@ import {Injectable} from '@angular/core';
 export class Globals {
   readonly backendUri: string = 'http://localhost:8080/api/v1';
 }
-export enum EmployeeType {
-  ANIMAL_CARE,
-  DOCTOR,
-  JANITOR
+export enum type {
+  ANIMAL_CARE = 'ANIMAL_CARE',
+  DOCTOR = 'DOCTOR',
+  JANITOR = 'JANITOR'
 }

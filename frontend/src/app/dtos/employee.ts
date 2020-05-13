@@ -1,4 +1,4 @@
-import {EmployeeType} from '../global/globals';
+import {type} from '../global/globals';
 
 export class Employee {
   constructor(
@@ -7,6 +7,6 @@ export class Employee {
     public password: string,
     public name: string,
     public birthday: Date,
-    public employeeType: EmployeeType) {
+    public type: type) {
   }
 }
