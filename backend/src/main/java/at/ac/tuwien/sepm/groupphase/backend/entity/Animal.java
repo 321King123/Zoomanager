@@ -7,15 +7,15 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
+
 public class Animal implements Serializable{
 
     @Column(nullable = false)
     private String name;
 
-    @Column
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private int id;
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false)
     private String description;
@@ -23,28 +23,28 @@ public class Animal implements Serializable{
     @Column(nullable = false)
     private String species;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)  //prije je stajalo false
+    @JoinColumn(nullable = true) //prije je stajalo false
     private Enclosure enclosure;
 
     @Column
     private String publicInformation;
 
-    public Animal( String name, String description, String species) {
+   /* public Animal( String name, String description, String species) {
         this.name = name;
         this.description = description;
         this.species = species;
     }
-
-   protected Animal () {}
+*/
+   public Animal () {  }
 
     public String getName() { return name; }
 
     public void setName(String name) { this.name = name; }
 
-    public int getId() { return id; }
+    public Long getId() { return id; }
 
-    public void setId(int id) { this.id = id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getDescription() { return description; }
 
@@ -67,7 +67,7 @@ public class Animal implements Serializable{
         if (this == o) return true;
         if (!( o instanceof Animal)) return false;
         Animal animal = (Animal) o;
-        return getId() == animal.getId() &&
+        return getId().equals(animal.getId()) &&
             Objects.equals(getName(), animal.getName()) &&
             Objects.equals(getDescription(), animal.getDescription()) &&
             Objects.equals(getSpecies(), animal.getSpecies()) &&
@@ -91,4 +91,66 @@ public class Animal implements Serializable{
             ", publicInformation='" + publicInformation + '\'' +
             '}';
     }
+
+
+    public static final class AnimalBuilder {
+
+        private Long id;
+        private String name;
+        private String description;
+        private String species;
+        private Enclosure enclosure;
+        private String publicInformation;
+
+        private AnimalBuilder() {
+        }
+
+        public static AnimalBuilder anAnimal() {
+            return new AnimalBuilder();
+        }
+
+        public AnimalBuilder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public AnimalBuilder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public AnimalBuilder withDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public AnimalBuilder withSpecies(String species) {
+            this.species = species;
+            return this;
+        }
+
+        public AnimalBuilder withEnclosure(Enclosure enclosure) {
+            this.enclosure = enclosure;
+            return this;
+        }
+
+        public AnimalBuilder withPublicInformation(String publicInformation) {
+            this.publicInformation = publicInformation;
+            return this;
+        }
+
+        public Animal build() {
+            Animal animal = new Animal();
+
+            animal.setId(id);
+            animal.setDescription(description);
+            animal.setEnclosure(enclosure);
+            animal.setName(name);
+            animal.setPublicInformation(publicInformation);
+
+            return animal;
+        }
+
+   }
+
 }

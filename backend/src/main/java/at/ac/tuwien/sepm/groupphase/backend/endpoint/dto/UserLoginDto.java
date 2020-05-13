@@ -75,7 +75,6 @@ public class UserLoginDto {
             return this;
         }
 
-
         public UserLoginDto build() {
             UserLoginDto userLoginDto = new UserLoginDto();
             userLoginDto.setUsername(username);
