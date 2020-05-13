@@ -52,9 +52,10 @@ public class EmployeeEndpoint {
 
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/listofemployees")
+    @GetMapping
+    @ApiOperation(value = "Get list of employees without details", authorizations = {@Authorization(value = "apiKey")})
     public List<EmployeeDto> getAllEmployees(){
-        LOGGER.info("GET /api/v1/employee/listofemployees");
+        LOGGER.info("GET /api/v1/employee");
         List<Employee> employees = employeeService.getAll();
         List<EmployeeDto> employeeDtos = new LinkedList<>();
         for(Employee e: employees){
@@ -66,6 +67,7 @@ public class EmployeeEndpoint {
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/search")
+    @ApiOperation(value = "Get list of employees matching name and type", authorizations = {@Authorization(value = "apiKey")})
     public List<EmployeeDto> searchEmployees(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "type", required = false) EmployeeType type){
         LOGGER.info("GET /api/v1/employee/search");
         Employee searchEmployee = Employee.EmployeeBuilder.anEmployee().withName(name).withType(type).build();
