@@ -16,7 +16,7 @@
   <div class="employee-creation-body">
     <form class="form" [formGroup]="employeeCreationForm" (ngSubmit)="addEmployee()">
       <div class="row">
-        <div class="form-group pr-2 col-md-4 col-sm-6 col-lg-2 col-xs-12">
+        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-2 col-xs-12">
           <label for="inputUsername">Username</label>
           <input type="text" name="username" formControlName="username" class="form-control" id="inputUsername"
                  aria-describedby="usernameHelp" placeholder="Enter username">
@@ -28,7 +28,7 @@
           </div>
         </div>
 
-        <div class="form-group pr-2 col-md-4 col-sm-6 col-lg-2 col-xs-12">
+        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-2 col-xs-12">
           <label for="inputEmail">Email <small class="text-secondary">(Optional)</small></label>
           <input type="text" name="email" formControlName="email" class="form-control" id="inputEmail"
                  aria-describedby="emailHelp" placeholder="Enter User Email">
@@ -40,7 +40,7 @@
           </div>
         </div>
 
-        <div class="form-group pr-2 col-md-4 col-sm-6 col-lg-2 col-xs-12">
+        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-2 col-xs-12">
           <label for="inputPassword">Password</label>
           <input type="password" name="password" formControlName="password" class="form-control" id="inputPassword"
                  aria-describedby="passwordHelp" placeholder="Enter password">
@@ -61,7 +61,7 @@
           </div>
         </div>
 
-        <div class="form-group col-md-4 pr-2 col-sm-6 col-lg-2 col-xs-12">
+        <div class="form-group col-md-4 pr-1 col-sm-6 col-lg-2 col-xs-12">
           <label for="inputName">Name</label>
           <input type="text" name="name" formControlName="name" class="form-control" id="inputName"
                  aria-describedby="nameHelp" placeholder="Enter name">
@@ -72,7 +72,7 @@
           </div>
         </div>
 
-        <div class="form-group pr-2 col-md-4 col-sm-6 col-lg-2 col-xs-12">
+        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-2 col-xs-12">
           <label for="inputBirthday">Birthday</label>
           <input type="date" name="birthday" formControlName="birthday" class="form-control" id="inputBirthday">
           <div *ngIf="submittedEmployee && employeeCreationForm.controls.birthday.errors" class="error">
@@ -97,6 +97,49 @@
       </div>
       <button type="button" (click)="addEmployee()" class="btn btn-success my-1 float-right">Add Employee</button>
     </form>
+  </div>
+
+  <div class="employee-list-header mt-5">
+    <div class="row">
+      <div class="col-12">
+        <h5>Current Employees</h5>
+      </div>
+    </div>
+    <div class="row justify-content-end m-sm-0">
+      <div class="form-group col-lg-2 col-md-4 col-sm-12 m-1 px-0">
+        <input type="text" [(ngModel)]="searchEmployee.name" name="name" class="form-control" id="searchName"
+               aria-describedby="nameHelp" placeholder="Enter name">
+      </div>
+      <div class="form-group col-lg-2 col-md-4 col-sm-12 m-1 px-0">
+        <select class="form-control" [(ngModel)]="searchEmployee.type" name="employeeType">
+          <option *ngFor="let type of typeValues" [ngValue]="employeeTypes[type]">{{type}}</option>
+          <option [ngValue]="null">All</option>
+        </select>
+      </div>
+      <button type="button" (click)="getFilteredEmployees()" class="btn btn-success m-1 ">Filter Employees
+      </button>
+    </div>
+
+  </div>
+  <div class="employee-list-header mt-4">
+    <table class="table table-striped table-hover">
+      <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Username</th>
+        <th scope="col">Email</th>
+        <th scope="col">Birthday</th>
+      </tr>
+      </thead>
+      <tbody *ngIf="employeeList">
+      <tr class="employee-list-item" *ngFor="let e of employeeList">
+        <td>{{e.name}}</td>
+        <td>{{e.username}}</td>
+        <td>{{e.email}}</td>
+        <td>{{displayDate(e.birthday)}}</td>
+      </tr>
+      </tbody>
+    </table>
   </div>
 
 </div>
