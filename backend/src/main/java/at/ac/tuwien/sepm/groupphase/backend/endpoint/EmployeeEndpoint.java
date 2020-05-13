@@ -50,6 +50,11 @@ public class EmployeeEndpoint {
         return employeeMapper.employeeToEmployeeDto(employeeService.createEmployee(employeeMapper.employeeDtoToEmployee(employeeDto)));
     }
 
+
+    /**
+     * Get Method for all current employees only Admin has permissions to see the list of employees
+     * @return a List of All current employees
+     */
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
@@ -64,12 +69,19 @@ public class EmployeeEndpoint {
         return employeeDtos;
     }
 
+    /**
+     * Get Method for filtered list of all current employees only Admin has permissions to see the list of employees
+     * search fields can be combined. If a field is null it is not taken into consideration
+     * @param name search for substring of employee name
+     * @param type search for employee type
+     * @return a List of All current employees
+     */
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/search")
     @ApiOperation(value = "Get list of employees matching name and type", authorizations = {@Authorization(value = "apiKey")})
     public List<EmployeeDto> searchEmployees(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "type", required = false) EmployeeType type){
-        LOGGER.info("GET /api/v1/employee/search");
+        LOGGER.info("GET /api/v1/employee/search Name: {} Type: {}", name, type);
         Employee searchEmployee = Employee.EmployeeBuilder.anEmployee().withName(name).withType(type).build();
         List<Employee> employees = employeeService.findByNameAndType(searchEmployee);
         List<EmployeeDto> employeeDtos = new LinkedList<>();

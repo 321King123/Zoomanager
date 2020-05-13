@@ -10,9 +10,20 @@ public interface EmployeeService  {
      * Used for creating new employees
      * @param employee to be created
      * */
-    public Employee createEmployee(Employee employee);
+    Employee createEmployee(Employee employee);
 
-    public List<Employee> getAll();
+    /**
+     * Method to get all current employees
+     * @return a List of All current employees
+     */
+    List<Employee> getAll();
 
-    public List<Employee> findByNameAndType(Employee employee);
+    /**
+     * Method for filtered list of all current employees search fields can be combined.
+     * If a field is null it is not taken into consideration
+     * @param employee field name and type are taken into consideration for search
+     * if name is specified all Employees that contain the substring are returned
+     * @return a List of All current employees
+     */
+    List<Employee> findByNameAndType(Employee employee);
 }

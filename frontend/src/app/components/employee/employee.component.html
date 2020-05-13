@@ -99,6 +99,45 @@
     </form>
   </div>
 
+  <div class="employee-list-header row">
+    <div class="col-12">
+      <h5 style="margin-top: 50px; margin-left: -15px;">Current Employees</h5>
+      <div class="row float-right" style="width: 410px; margin-right: -145px;">
+        <div>
+          <input style="width: 120px; margin-top: 4px; margin-left: 5px;" type="text" [(ngModel)]="searchEmployee.name" name="name" class="form-control" id="searchName"
+           aria-describedby="nameHelp" placeholder="Enter name">
+        </div>
+        <div>
+          <select style="width: 120px; margin-top: 4px; margin-left: 5px;" class="form-control" [(ngModel)]="searchEmployee.type" name="employeeType">
+            <option *ngFor="let type of typeValues" [ngValue]="employeeTypes[type]">{{type}}</option>
+            <option [ngValue]="null" >All</option>
+          </select>
+        </div>
+        <button style="width: 150px; margin-left: 10px;" type="button" (click)="getFilteredEmployees()" class="btn btn-success my-1 float float-right">Filter Employees</button>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top: 15px;" class="employee-list-header" *ngIf="employeeList">
+    <table class="table">
+      <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Username</th>
+        <th scope="col">Email</th>
+        <th scope="col">Birthday</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr class = "employee-list-item" *ngFor="let e of employeeList">
+        <td>{{e.name}}</td>
+        <td>{{e.username}}</td>
+        <td>{{e.email}}</td>
+        <td>{{displayDate(e.birthday)}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
 </div>
 
 <div *ngIf="!isAdmin()">
