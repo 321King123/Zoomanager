@@ -18,7 +18,7 @@ export class EmployeeComponent implements OnInit {
 
   employeeCreationForm: FormGroup;
 
-  searchEmployee = new Employee(null, null, null, '', null, type.ANIMAL_CARE)
+  searchEmployee = new Employee(null, null, null, '', null, null);
 
   submittedEmployee: boolean = false;
 
@@ -132,7 +132,7 @@ export class EmployeeComponent implements OnInit {
   /**
    * Displays a Date Object as yyyy-mm-dd
    */
-  displayDate(date: Date): string{
+  displayDate(date: Date): string {
     let dateString: string;
     dateString = String(date).substring(0, 10);
     return dateString;
