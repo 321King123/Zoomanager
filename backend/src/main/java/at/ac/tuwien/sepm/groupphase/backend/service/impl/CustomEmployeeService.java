@@ -38,7 +38,7 @@ public class CustomEmployeeService implements EmployeeService {
         LOGGER.debug("Getting List of all employees.");
         List<Employee> employees = employeeRepository.findAll();
         if(employees.isEmpty())
-            throw new NotFoundException();
+            throw new NotFoundException("There are currently no employees");
         return employees;
     }
 
@@ -52,7 +52,7 @@ public class CustomEmployeeService implements EmployeeService {
         Example<Employee> example = Example.of(Employee.EmployeeBuilder.anEmployee().withName(employee.getName()).withType(employee.getType()).build(), customExampleMatcher);
         List<Employee> employees = employeeRepository.findAll(example);
         if(employees.isEmpty())
-            throw new NotFoundException();
+            throw new NotFoundException("No employee fits the given criteria");
         return employees;
     }
 }

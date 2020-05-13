@@ -18,7 +18,7 @@ export class EmployeeComponent implements OnInit {
 
   employeeCreationForm: FormGroup;
 
-  searchEmployee = new Employee(null, null, null, '', null, type.ANIMAL_CARE)
+  searchEmployee = new Employee(null, null, null, '', null, null)
 
   submittedEmployee: boolean = false;
 
