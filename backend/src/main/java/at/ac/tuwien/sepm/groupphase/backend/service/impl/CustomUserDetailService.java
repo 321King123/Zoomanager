@@ -2,6 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
+import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.UserLoginRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.UserRepository;
@@ -14,8 +15,10 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.OneToOne;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
@@ -24,10 +27,12 @@ public class CustomUserDetailService implements UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final UserLoginRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public CustomUserDetailService(UserLoginRepository userRepository) {
+    public CustomUserDetailService(UserLoginRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -55,4 +60,17 @@ public class CustomUserDetailService implements UserService {
         if (userLogin != null) return userLogin;
         throw new NotFoundException(String.format("Could not find the user with the username %s", username));
     }
+
+    @Override
+    public UserLogin createNewUser(UserLogin userLogin){
+        LOGGER.debug("Crating new user.");
+        UserLogin exists = userRepository.findUserByUsername(userLogin.getUsername());
+        if(exists==null){
+            String encoded = passwordEncoder.encode(userLogin.getPassword());
+            userLogin.setPassword(encoded);
+            return userRepository.save(userLogin);
+        }
+        throw new AlreadyExistsException("User with such username already exists.");
+    }
+
 }
