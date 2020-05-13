@@ -2,6 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
+import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.UserLoginRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.UserRepository;
@@ -63,9 +64,13 @@ public class CustomUserDetailService implements UserService {
     @Override
     public UserLogin createNewUser(UserLogin userLogin){
         LOGGER.debug("Crating new user.");
-        String encoded = passwordEncoder.encode(userLogin.getPassword());
-        userLogin.setPassword(encoded);
-        return userRepository.save(userLogin);
+        UserLogin exists = userRepository.findUserByUsername(userLogin.getUsername());
+        if(exists==null){
+            String encoded = passwordEncoder.encode(userLogin.getPassword());
+            userLogin.setPassword(encoded);
+            return userRepository.save(userLogin);
+        }
+        throw new AlreadyExistsException("User with such username already exists.");
     }
 
 }

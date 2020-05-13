@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
@@ -24,6 +25,8 @@ public class CustomEmployeeService implements EmployeeService {
     @Override
     public Employee createEmployee(Employee employee) {
         LOGGER.debug("Creating new employee.");
-        return employeeRepository.save(employee);
+        Employee exists = employeeRepository.findEmployeeByUsername(employee.getUsername());
+        if(exists==null) return employeeRepository.save(employee);
+        throw new AlreadyExistsException("Employee with this username already exists");
     }
 }
