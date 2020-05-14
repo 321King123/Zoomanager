@@ -6,6 +6,7 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.UserLoginMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
+import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.slf4j.Logger;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.lang.invoke.MethodHandles;
+import java.util.LinkedList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/employee")
@@ -45,6 +48,47 @@ public class EmployeeEndpoint {
         LOGGER.info("POST /api/v1/employee body: {}",employeeDto);
         userService.createNewUser(userLoginMapper.eployeeDtoToUserLogin(employeeDto));
         return employeeMapper.employeeToEmployeeDto(employeeService.createEmployee(employeeMapper.employeeDtoToEmployee(employeeDto)));
+    }
+
+
+    /**
+     * Get Method for all current employees only Admin has permissions to see the list of employees
+     * @return a List of All current employees
+     */
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping
+    @ApiOperation(value = "Get list of employees without details", authorizations = {@Authorization(value = "apiKey")})
+    public List<EmployeeDto> getAllEmployees(){
+        LOGGER.info("GET /api/v1/employee");
+        List<Employee> employees = employeeService.getAll();
+        List<EmployeeDto> employeeDtos = new LinkedList<>();
+        for(Employee e: employees){
+            employeeDtos.add(employeeMapper.employeeToEmployeeDto(e));
+        }
+        return employeeDtos;
+    }
+
+    /**
+     * Get Method for filtered list of all current employees only Admin has permissions to see the list of employees
+     * search fields can be combined. If a field is null it is not taken into consideration
+     * @param name search for substring of employee name
+     * @param type search for employee type
+     * @return a List of All current employees
+     */
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/search")
+    @ApiOperation(value = "Get list of employees matching name and type", authorizations = {@Authorization(value = "apiKey")})
+    public List<EmployeeDto> searchEmployees(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "type", required = false) EmployeeType type){
+        LOGGER.info("GET /api/v1/employee/search Name: {} Type: {}", name, type);
+        Employee searchEmployee = Employee.EmployeeBuilder.anEmployee().withName(name).withType(type).build();
+        List<Employee> employees = employeeService.findByNameAndType(searchEmployee);
+        List<EmployeeDto> employeeDtos = new LinkedList<>();
+        for(Employee e: employees){
+            employeeDtos.add(employeeMapper.employeeToEmployeeDto(e));
+        }
+        return employeeDtos;
     }
 
 }

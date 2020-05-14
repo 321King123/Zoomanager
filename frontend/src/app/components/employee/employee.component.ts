@@ -1,5 +1,5 @@
-import { Component, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {Component, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {EmployeeService} from '../../services/employee.service';
 import {AuthService} from '../../services/auth.service';
 import {Employee} from '../../dtos/employee';
@@ -18,6 +18,8 @@ export class EmployeeComponent implements OnInit {
 
   employeeCreationForm: FormGroup;
 
+  searchEmployee = new Employee(null, null, null, '', null, null);
+
   submittedEmployee: boolean = false;
 
   employeeTypes = type;
@@ -25,6 +27,8 @@ export class EmployeeComponent implements OnInit {
   types = type;
 
   typeValues = [];
+
+  employeeList: Employee[];
 
   constructor(private employeeService: EmployeeService, private formBuilder: FormBuilder, private authService: AuthService) {
     this.typeValues = Object.keys(type);
@@ -47,7 +51,7 @@ export class EmployeeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
+    this.getAllEmployees();
   }
 
   /**
@@ -90,6 +94,48 @@ export class EmployeeComponent implements OnInit {
         this.defaultServiceErrorHandling(error);
       }
     );
+  }
+
+  /**
+   * Get All current employees
+   */
+  getAllEmployees() {
+    this.employeeService.getAllEmployees().subscribe(
+      employees => {
+        this.employeeList = employees;
+      },
+      error => {
+        console.log('Failed to load all employees');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  /**
+   * Get filtered list of current Employees
+   * The filters are saved in searchEmployee
+   * currently only Name as substring filter and
+   * type as Type filter supported
+   */
+  getFilteredEmployees() {
+    this.employeeService.searchEmployees(this.searchEmployee).subscribe(
+      employees => {
+        this.employeeList = employees;
+      },
+      error => {
+        console.log('Failed to load all employees');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  /**
+   * Displays a Date Object as yyyy-mm-dd
+   */
+  displayDate(date: Date): string {
+    let dateString: string;
+    dateString = String(date).substring(0, 10);
+    return dateString;
   }
 
   /**
