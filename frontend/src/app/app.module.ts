@@ -14,6 +14,7 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {httpInterceptorProviders} from './interceptors';
 import { EmployeeComponent } from './components/employee/employee.component';
 import { AnimalComponent } from './components/animal/animal.component';
+import { AnimalListComponent } from './components/animal-list/animal-list.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { AnimalComponent } from './components/animal/animal.component';
     MessageComponent,
     EmployeeComponent,
     AnimalComponent,
+    AnimalListComponent,
   ],
   imports: [
     BrowserModule,

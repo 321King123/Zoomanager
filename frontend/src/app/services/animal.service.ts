@@ -11,10 +11,16 @@ export class AnimalService {
 
   private animalBaseUri: string = this.globals.backendUri + '/animals';
 
-  constructor(private httpClient: HttpClient, private globals: Globals) { }
+  constructor(private httpClient: HttpClient, private globals: Globals) {
+  }
 
   createAnimal(animal: Animal): Observable<Animal> {
     console.log('Create animal:' + JSON.stringify(animal));
     return this.httpClient.post<Animal>(this.animalBaseUri, animal);
+  }
+
+  getAnimals(): Observable<Animal[]> {
+    console.log('Getting all animals');
+    return this.httpClient.get<Animal[]>(this.animalBaseUri);
   }
 }
