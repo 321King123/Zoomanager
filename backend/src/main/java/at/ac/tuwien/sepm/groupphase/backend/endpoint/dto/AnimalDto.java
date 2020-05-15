@@ -3,6 +3,7 @@ import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
@@ -10,14 +11,17 @@ import java.util.Objects;
 public class AnimalDto {
 
     @NotNull(message = "Name must not be null")
+    @NotBlank(message = "Name must not be empty")
     private String name;
 
     private Long id;
 
     @NotNull(message = "Description must not be null")
+    @NotBlank(message = "Description must not be empty")
     private String description;
 
     @NotNull(message = "Species must not be null")
+    @NotBlank(message = "Species must not be empty")
     private String species;
 
     private String enclosure;

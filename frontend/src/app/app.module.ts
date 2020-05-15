@@ -13,6 +13,7 @@ import {MessageComponent} from './components/message/message.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {httpInterceptorProviders} from './interceptors';
 import { EmployeeComponent } from './components/employee/employee.component';
+import { AnimalComponent } from './components/animal/animal.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { EmployeeComponent } from './components/employee/employee.component';
     LoginComponent,
     MessageComponent,
     EmployeeComponent,
+    AnimalComponent,
   ],
   imports: [
     BrowserModule,
