@@ -100,6 +100,19 @@ export class AnimalComponent implements OnInit {
     }
   }
 
-
+  /**
+   * Get All current animals
+   */
+  getAllAnimals() {
+    this.animalService.getAllAnimals().subscribe(
+      animals => {
+        this.animalList = animals;
+      },
+      error => {
+        console.log('Failed to load all animals');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
 
 }
