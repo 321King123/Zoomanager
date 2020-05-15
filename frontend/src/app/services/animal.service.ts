@@ -17,4 +17,11 @@ export class AnimalService {
     console.log('Create animal:' + JSON.stringify(animal));
     return this.httpClient.post<Animal>(this.animalBaseUri, animal);
   }
+  /**
+   * Get List of all current animals
+   */
+  getAllAnimals(): Observable<Animal[]> {
+    console.log('Getting all animals');
+    return this.httpClient.get<Animal[]>(this.animalBaseUri);
+  }
 }

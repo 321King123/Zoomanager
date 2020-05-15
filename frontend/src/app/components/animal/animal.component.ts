@@ -14,6 +14,7 @@ export class AnimalComponent implements OnInit {
   errorMessage: string = '';
   animalCreationForm: FormGroup;
   submittedAnimal = false;
+  animalList: Animal[];
 
 
   constructor(private animalService: AnimalService, private formBuilder: FormBuilder, private authService: AuthService) {
@@ -26,6 +27,7 @@ export class AnimalComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.getAllAnimals();
   }
 
   /**
@@ -86,6 +88,19 @@ export class AnimalComponent implements OnInit {
     }
   }
 
-
+  /**
+   * Get All current animals
+   */
+  getAllAnimals() {
+    this.animalService.getAllAnimals().subscribe(
+      animals => {
+        this.animalList = animals;
+      },
+      error => {
+        console.log('Failed to load all animals');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
 
 }
