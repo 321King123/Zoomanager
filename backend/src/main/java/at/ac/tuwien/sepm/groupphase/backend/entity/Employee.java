@@ -4,6 +4,7 @@ import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -27,6 +28,9 @@ public class Employee {
 
     @Column(nullable = false)
     private String email;
+
+    @ManyToMany
+    private List<Animal> assignedAnimals;
 
     @Override
     public boolean equals(Object o) {
@@ -65,6 +69,7 @@ public class Employee {
         private Date birthday;
         private EmployeeType type;
         private String email;
+        private List<Animal> assignedAnimals;
 
         private EmployeeBuilder() {
         }
@@ -81,6 +86,7 @@ public class Employee {
             employee.setBirthday(birthday);
             employee.setType(type);
             employee.setEmail(email);
+            employee.setAssignedAnimals(assignedAnimals);
             return employee;
         }
 
@@ -111,6 +117,10 @@ public class Employee {
 
         public EmployeeBuilder withUserLogin(UserLogin userLogin){
             this.userLogin=userLogin;
+            return this;
+        }
+        public EmployeeBuilder withAssignedAnimals(List<Animal> assignedAnimals){
+            this.assignedAnimals=assignedAnimals;
             return this;
         }
     }
@@ -163,5 +173,8 @@ public class Employee {
         this.userLogin = userLogin;
     }
 
+    public List<Animal> getAssignedAnimals() { return assignedAnimals; }
+
+    public void setAssignedAnimals(List<Animal> assignedAnimals) { this.assignedAnimals = assignedAnimals; }
 
 }

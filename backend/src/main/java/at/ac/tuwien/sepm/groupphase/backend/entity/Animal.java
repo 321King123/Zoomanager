@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.entity;
 
+import java.util.List;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,6 +29,9 @@ public class Animal implements Serializable{
 
     @Column
     private String publicInformation;
+
+    @ManyToMany(mappedBy = "assignedAnimals")
+    private List<Employee> caretakers;
 
    /* public Animal( String name, String description, String species) {
         this.name = name;
@@ -60,6 +64,14 @@ public class Animal implements Serializable{
     public String getPublicInformation() { return publicInformation; }
 
     public void setPublicInformation(String publicInformation) { this.publicInformation = publicInformation; }
+
+    public List<Employee> getCaretakers() {
+        return caretakers;
+    }
+
+    public void setCaretakers(List<Employee> caretakers) {
+        this.caretakers = caretakers;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -100,6 +112,7 @@ public class Animal implements Serializable{
         private String species;
         private String enclosure;
         private String publicInformation;
+        private List<Employee> caretakers;
 
         private AnimalBuilder() {
         }
@@ -138,6 +151,11 @@ public class Animal implements Serializable{
             return this;
         }
 
+        public AnimalBuilder withCaretakers(List<Employee> caretakers) {
+            this.caretakers = caretakers;
+            return this;
+        }
+
         public Animal build() {
             Animal animal = new Animal();
 
@@ -146,6 +164,7 @@ public class Animal implements Serializable{
             animal.setEnclosure(enclosure);
             animal.setName(name);
             animal.setPublicInformation(publicInformation);
+            animal.setCaretakers(caretakers);
 
             return animal;
         }
