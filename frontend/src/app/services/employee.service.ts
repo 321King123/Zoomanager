@@ -79,6 +79,6 @@ export class EmployeeService {
    * @param employee the animal will be assigned to
    */
   assignAnimalToEmployee(animal: Animal, employee: Employee): Observable<any> {
-    return this.httpClient.put(this.employeeBaseUri + '/animal/' + employee.username, animal);
+    return this.httpClient.post(this.employeeBaseUri + '/animal/' + employee.username, animal);
   }
 }
