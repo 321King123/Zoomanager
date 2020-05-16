@@ -139,7 +139,7 @@
         <td>{{e.email}}</td>
         <td>{{displayDate(e.birthday)}}</td>
       </tr>
-        <ng-container *ngIf="selectedEmployee == e">
+        <ng-container *ngIf="selectedEmployee == e && e.type == employeeTypes.ANIMAL_CARE">
           <tr *ngIf="assignedAnimals != null && assignedAnimals.length != 0">
             <td>assigned animals:</td>
             <td colspan="3">

@@ -175,12 +175,20 @@ export class EmployeeComponent implements OnInit {
    * Selects an employee from the table to display assigned animals
    */
   selectEmployee(employee: Employee) {
-    this.selectedEmployee = employee;
-    this.employeeService.getAnimals(employee).subscribe(
-      animals => {
-        this.assignedAnimals = animals;
-      }
-    );
+    this.selectedEmployee = null;
+    this.assignedAnimals = null;
+    if (employee.type === this.employeeTypes.ANIMAL_CARE) {
+      this.selectedEmployee = employee;
+      this.employeeService.getAnimals(employee).subscribe(
+        animals => {
+          this.assignedAnimals = animals;
+        },
+        error => {
+          console.log('Failed to load animals of ' + this.selectedEmployee.username);
+          this.defaultServiceErrorHandling(error);
+        }
+      );
+    }
   }
 
   /**
@@ -192,7 +200,7 @@ export class EmployeeComponent implements OnInit {
         this.animalList = animals;
       },
       error => {
-        console.log('Failed to load animals of ' + this.selectedEmployee.username);
+        console.log('Failed to load animals');
         this.defaultServiceErrorHandling(error);
       }
     );
@@ -205,8 +213,10 @@ export class EmployeeComponent implements OnInit {
     this.employeeService.assignAnimalToEmployee(this.selectedAnimal, this.selectedEmployee).subscribe(
       () => {},
       error => {
+        console.log('Failed to assign animal');
         this.defaultServiceErrorHandling(error);
       }
     );
+    this.selectEmployee(this.selectedEmployee);
   }
 }
