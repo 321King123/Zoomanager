@@ -29,7 +29,7 @@ public class Employee {
     @Column(nullable = false)
     private String email;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Animal> assignedAnimals;
 
     @Override

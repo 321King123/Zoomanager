@@ -30,7 +30,7 @@ public class Animal implements Serializable{
     @Column
     private String publicInformation;
 
-    @ManyToMany(mappedBy = "assignedAnimals")
+    @ManyToMany(mappedBy = "assignedAnimals", fetch = FetchType.EAGER)
     private List<Employee> caretakers;
 
    /* public Animal( String name, String description, String species) {

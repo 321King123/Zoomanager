@@ -2,6 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EmployeeDto;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.UserLoginMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
@@ -31,14 +32,17 @@ public class EmployeeEndpoint {
     private final UserService userService;
     private final EmployeeMapper employeeMapper;
     private final UserLoginMapper userLoginMapper;
+    private final AnimalMapper animalMapper;
 
     @Autowired
-    public EmployeeEndpoint(EmployeeService employeeService,UserService userService,
-                            EmployeeMapper employeeMapper, UserLoginMapper userLoginMapper){
+    public EmployeeEndpoint(EmployeeService employeeService, UserService userService,
+                            EmployeeMapper employeeMapper, UserLoginMapper userLoginMapper,
+                            AnimalMapper animalMapper){
         this.employeeService=employeeService;
         this.userService=userService;
         this.employeeMapper=employeeMapper;
         this.userLoginMapper=userLoginMapper;
+        this.animalMapper = animalMapper;
     }
 
 
@@ -99,13 +103,11 @@ public class EmployeeEndpoint {
     @ApiOperation(value = "Get list of animals assigned to employee", authorizations = {@Authorization(value = "apiKey")})
     public List<AnimalDto> searchAnimals(@PathVariable String employeeUsername) {
         LOGGER.info("GET /api/v1/employee/animal/{}", employeeUsername);
-//        List<Animal> animals = employeeService.getAnimalsOfEmployee(employeeUsername);
+        List<Animal> animals = employeeService.findAssignedAnimals(employeeUsername);
         List<AnimalDto> animalDtos = new LinkedList<>();
-//        for(Animal a: animals) {
-//            animalDtos.add(animalMapper.AnimalDtoToAnimal(a));
-//        }
-        animalDtos.add(AnimalDto.AnimalDtoBuilder.anAnimalDtoBuilder().withName("Test").withSpecies("Testing").build());
-        animalDtos.add(AnimalDto.AnimalDtoBuilder.anAnimalDtoBuilder().withName("Test2").withSpecies("TestingToo").build());
+        for(Animal a: animals) {
+           animalDtos.add(animalMapper.animalToAnimalDto(a));
+       }
         return animalDtos;
     }
 
@@ -113,9 +115,8 @@ public class EmployeeEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @PostMapping(value = "/animal/{employeeUsername}")
     @ApiOperation(value = "Assign animal to Employee", authorizations = {@Authorization(value = "apiKey")})
-    public Boolean assignAnimal(@PathVariable String employeeUsername, @RequestBody AnimalDto animal) {
+    public void assignAnimal(@PathVariable String employeeUsername, @RequestBody AnimalDto animal) {
         LOGGER.info("Post /api/v1/employee/animal/{} Animal: {}", employeeUsername, animal.getId());
-//        employeeService.assignAnimal(employeeUsername, animal.getId());
-        return true;
+        employeeService.assignAnimal(employeeUsername, animal.getId());
     }
 }
