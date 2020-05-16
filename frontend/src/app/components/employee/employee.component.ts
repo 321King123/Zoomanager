@@ -4,6 +4,8 @@ import {EmployeeService} from '../../services/employee.service';
 import {AuthService} from '../../services/auth.service';
 import {Employee} from '../../dtos/employee';
 import {type} from '../../global/globals';
+import {Animal} from '../../dtos/animal';
+import {AnimalService} from '../../services/animal.service';
 
 
 @Component({
@@ -30,7 +32,15 @@ export class EmployeeComponent implements OnInit {
 
   employeeList: Employee[];
 
-  constructor(private employeeService: EmployeeService, private formBuilder: FormBuilder, private authService: AuthService) {
+  selectedEmployee: Employee;
+
+  animalList: Animal[];
+
+  selectedAnimal: Animal;
+
+  assignedAnimals: Animal[];
+
+  constructor(private employeeService: EmployeeService, private animalService: AnimalService, private formBuilder: FormBuilder, private authService: AuthService) {
     this.typeValues = Object.keys(type);
     for (const t of this.typeValues) {
       console.log(t);
@@ -52,6 +62,7 @@ export class EmployeeComponent implements OnInit {
 
   ngOnInit(): void {
     this.getAllEmployees();
+    this.getAllAnimals();
   }
 
   /**
@@ -158,6 +169,45 @@ export class EmployeeComponent implements OnInit {
   private clearForm() {
     this.employeeCreationForm.reset();
     this.submittedEmployee = false;
+  }
+
+  /**
+   * Selects an employee from the table to display assigned animals
+   */
+  private onSelect(employee: Employee) {
+    this.selectedEmployee = employee;
+    this.employeeService.getAnimals(employee).subscribe(
+      animals => {
+        this.assignedAnimals = animals;
+      }
+    );
+  }
+
+  /**
+   * Get All current animals
+   */
+  getAllAnimals() {
+    this.animalService.getAnimals().subscribe(
+      animals => {
+        this.animalList = animals;
+      },
+      error => {
+        console.log('Failed to load animals of ' + this.selectedEmployee.username);
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  /**
+   * Assigns animal to the selected employee
+   */
+  assignAnimal() {
+    this.employeeService.assignAnimalToEmployee(this.selectedAnimal, this.selectedEmployee).subscribe(
+      () => {},
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
   }
 
 }

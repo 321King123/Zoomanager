@@ -132,12 +132,40 @@
       </tr>
       </thead>
       <tbody *ngIf="employeeList">
-      <tr class="employee-list-item" *ngFor="let e of employeeList">
+      <ng-container *ngFor="let e of employeeList">
+      <tr class="employee-list-item" (click)="onSelect(e)">
         <td>{{e.name}}</td>
         <td>{{e.username}}</td>
         <td>{{e.email}}</td>
         <td>{{displayDate(e.birthday)}}</td>
       </tr>
+        <ng-container *ngIf="selectedEmployee == e">
+          <tr *ngIf="assignedAnimals != null && assignedAnimals.length != 0">
+            <td>assigned animals:</td>
+            <td colspan="3">
+              <app-animal-list [animals]="assignedAnimals"></app-animal-list>
+            </td>
+          </tr>
+          <tr *ngIf="assignedAnimals == null || assignedAnimals.length == 0">
+            <td colspan="4">{{e.name}} has no animals assigned yet.</td>
+          </tr>
+
+          <tr>
+            <td>
+              assign new animal:
+            </td>
+            <td colspan="2">
+              <select class="" [(ngModel)]="selectedAnimal" name="selectedAnimal">
+                <option *ngFor="let animal of animalList" [ngValue]="animal">{{animal.name}}; {{animal.species}}</option>
+              </select>
+            </td>
+            <td>
+              <button type="button" (click)="assignAnimal()" class="btn btn-success m-1 ">assign animal
+              </button>
+            </td>
+          </tr>
+        </ng-container>
+      </ng-container>
       </tbody>
     </table>
   </div>
