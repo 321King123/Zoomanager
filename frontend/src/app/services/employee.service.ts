@@ -63,4 +63,8 @@ export class EmployeeService {
     query = query.substring(0, query.length - 1);
     return this.httpClient.get<Employee[]>(this.employeeBaseUri + query);
   }
+
+  getEmployeeByUsername(username: string): Observable<Employee> {
+    return this.httpClient.get<Employee>(this.employeeBaseUri + '/' + username);
+  }
 }

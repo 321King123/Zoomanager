@@ -26,4 +26,12 @@ public interface EmployeeService  {
      * @return a List of All current employees
      */
     List<Employee> findByNameAndType(Employee employee);
+
+    /**
+     * Find a single employee by username.
+     *
+     * @param username the username of the employee to find
+     * @return the employee
+     */
+    Employee findByUsername(String username);
 }

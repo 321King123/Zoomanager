@@ -91,4 +91,12 @@ public class EmployeeEndpoint {
         return employeeDtos;
     }
 
+    @GetMapping(value = "/{username}")
+    @ApiOperation(value = "Get detailed information about a specific employee",
+        authorizations = {@Authorization(value = "apiKey")})
+    public EmployeeDto find(@PathVariable String username) {
+        LOGGER.info("GET /api/v1/employees/{}", username);
+        return employeeMapper.employeeToEmployeeDto(employeeService.findByUsername(username));
+    }
+
 }

@@ -55,4 +55,11 @@ public class CustomEmployeeService implements EmployeeService {
             throw new NotFoundException("No employee fits the given criteria");
         return employees;
     }
+
+    @Override
+    public Employee findByUsername(String username) {
+        LOGGER.debug("Getting Specific employee: " + username);
+        Employee employee = employeeRepository.findEmployeeByUsername(username);
+        return employee;
+    }
 }

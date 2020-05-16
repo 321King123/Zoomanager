@@ -4,7 +4,7 @@ import {EmployeeService} from '../../services/employee.service';
 import {AuthService} from '../../services/auth.service';
 import {Employee} from '../../dtos/employee';
 import {type} from '../../global/globals';
-
+import {Router } from '@angular/router';
 
 @Component({
   selector: 'app-employee',
@@ -30,7 +30,7 @@ export class EmployeeComponent implements OnInit {
 
   employeeList: Employee[];
 
-  constructor(private employeeService: EmployeeService, private formBuilder: FormBuilder, private authService: AuthService) {
+  constructor(private employeeService: EmployeeService, private formBuilder: FormBuilder, private authService: AuthService, private route: Router ) {
     this.typeValues = Object.keys(type);
     for (const t of this.typeValues) {
       console.log(t);
@@ -160,4 +160,7 @@ export class EmployeeComponent implements OnInit {
     this.submittedEmployee = false;
   }
 
+  showInfo(e: Employee) {
+    this.route.navigate(['/employee-view/' + e.username ]);
+  }
 }
