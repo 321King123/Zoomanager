@@ -17,6 +17,7 @@ public class AnimalMapper {
 
         AnimalDto animalDto = new AnimalDto();
 
+        animalDto.setId(animal.getId());
         animalDto.setName(animal.getName());
         animalDto.setDescription(animal.getDescription());
         animalDto.setSpecies(animal.getSpecies());
@@ -33,6 +34,7 @@ public class AnimalMapper {
 
         Animal animal = new Animal();
 
+        animal.setId(animalDto.getId());
         animal.setName(animalDto.getName());
         animal.setDescription(animalDto.getDescription());
         animal.setSpecies(animalDto.getSpecies());

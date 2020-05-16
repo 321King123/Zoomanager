@@ -1,8 +1,10 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EmployeeDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.UserLoginMapper;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
@@ -91,4 +93,29 @@ public class EmployeeEndpoint {
         return employeeDtos;
     }
 
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/animal/{employeeUsername}")
+    @ApiOperation(value = "Get list of animals assigned to employee", authorizations = {@Authorization(value = "apiKey")})
+    public List<AnimalDto> searchAnimals(@PathVariable String employeeUsername) {
+        LOGGER.info("GET /api/v1/employee/animal/{}", employeeUsername);
+//        List<Animal> animals = employeeService.getAnimalsOfEmployee(employeeUsername);
+        List<AnimalDto> animalDtos = new LinkedList<>();
+//        for(Animal a: animals) {
+//            animalDtos.add(animalMapper.AnimalDtoToAnimal(a));
+//        }
+        animalDtos.add(AnimalDto.AnimalDtoBuilder.anAnimalDtoBuilder().withName("Test").withSpecies("Testing").build());
+        animalDtos.add(AnimalDto.AnimalDtoBuilder.anAnimalDtoBuilder().withName("Test2").withSpecies("TestingToo").build());
+        return animalDtos;
+    }
+
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(value = "/animal/{employeeUsername}")
+    @ApiOperation(value = "Assign animal to Employee", authorizations = {@Authorization(value = "apiKey")})
+    public Boolean assignAnimal(@PathVariable String employeeUsername, @RequestBody AnimalDto animal) {
+        LOGGER.info("Post /api/v1/employee/animal/{} Animal: {}", employeeUsername, animal.getId());
+//        employeeService.assignAnimal(employeeUsername, animal.getId());
+        return true;
+    }
 }

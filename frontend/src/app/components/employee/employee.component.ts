@@ -36,7 +36,7 @@ export class EmployeeComponent implements OnInit {
 
   animalList: Animal[];
 
-  selectedAnimal: Animal;
+  selectedAnimal: Animal = null;
 
   assignedAnimals: Animal[];
 
@@ -174,7 +174,7 @@ export class EmployeeComponent implements OnInit {
   /**
    * Selects an employee from the table to display assigned animals
    */
-  private onSelect(employee: Employee) {
+  selectEmployee(employee: Employee) {
     this.selectedEmployee = employee;
     this.employeeService.getAnimals(employee).subscribe(
       animals => {
@@ -209,5 +209,4 @@ export class EmployeeComponent implements OnInit {
       }
     );
   }
-
 }
