@@ -3,11 +3,13 @@ package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
+import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,11 +74,12 @@ public class CustomEmployeeService implements EmployeeService {
     @Override
     public void assignAnimal(String employeeUsername, long animalId) {
         LOGGER.debug("Assigning  " + employeeUsername);
-        //Animal animal = animalRepository.findById(animalId);
-        //animal.getCaretakers().add(employeeRepository.findEmployeeByUsername(employeeUsername));
-        //animalRepository.save(animal);
-
-        animalRepository.assignAnimalToCaretaker(employeeUsername, animalId);
+        Employee employee = employeeRepository.findEmployeeByUsername(employeeUsername);
+        if(employee.getType() == EmployeeType.ANIMAL_CARE) {
+            animalRepository.assignAnimalToCaretaker(employeeUsername, animalId);
+        } else {
+            throw new IncorrectTypeException("Trying to assign Animal to Employee that is not ANIMAL_CARE.");
+        }
     }
 
 
