@@ -1,0 +1,20 @@
+<div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+  <strong>Error! </strong> {{ errorMessage }}
+  <button type="button" (click)="vanishError()" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<br>
+<md-button *ngIf="isAdmin()" class="float-md-right md-primary pull-right btn btn-secondary" type ="button" (click)="backClicked()">BACK</md-button>
+<br>
+
+<div class="info" style="width: 30rem;">
+  <div class="info-body">
+    <h5 class="info-title">Name: {{employee.name}}</h5>
+    <h6 class="info-subtitle mb-2 ">Role: {{employee.type}}</h6>
+    <p class="info-text">E-mail: {{employee.email}}</p>
+    <p class="info-text">Birthday: {{displayDate(employee.birthday)}}</p>
+  </div>
+</div>
+<hr>
