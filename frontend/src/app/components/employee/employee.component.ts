@@ -102,7 +102,8 @@ export class EmployeeComponent implements OnInit {
    */
   createEmployee(employee: Employee) {
     this.employeeService.createEmployee(employee).subscribe(
-      () => {
+      (res: any) => {
+        this.getAllEmployees();
       },
       error => {
         this.defaultServiceErrorHandling(error);

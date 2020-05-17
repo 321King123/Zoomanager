@@ -1,4 +1,4 @@
-# SEPM Group Phase
+# Zoo Manager
 
 ## First Steps
 
