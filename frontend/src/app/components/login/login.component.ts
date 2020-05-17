@@ -46,9 +46,14 @@ export class LoginComponent implements OnInit {
   authenticateUser(authRequest: AuthRequest) {
     console.log('Try to authenticate user: ' + authRequest.username);
     this.authService.loginUser(authRequest).subscribe(
-      () => {
+      (res: any) => {
         console.log('Successfully logged in user: ' + authRequest.username);
-        this.router.navigate(['/message']);
+        if (this.authService.getUserRole() === 'ADMIN') {
+          this.router.navigate(['/employee']);
+        } else {
+          localStorage.setItem('currentUser', JSON.stringify(authRequest.username));
+          this.router.navigate(['/employee-view/' + authRequest.username]);
+        }
       },
       error => {
         console.log('Could not log in due to:');

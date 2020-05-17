@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.entity;
 
+import java.util.List;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -7,15 +8,15 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
+
 public class Animal implements Serializable{
 
     @Column(nullable = false)
     private String name;
 
-    @Column
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    private int id;
+    private Long id;
 
     @Column(nullable = false)
     private String description;
@@ -23,28 +24,30 @@ public class Animal implements Serializable{
     @Column(nullable = false)
     private String species;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(nullable = false)
-    private Enclosure enclosure;
+    @Column
+    private String enclosure;
 
     @Column
     private String publicInformation;
 
-    public Animal( String name, String description, String species) {
+    @ManyToMany(mappedBy = "assignedAnimals", fetch = FetchType.EAGER)
+    private List<Employee> caretakers;
+
+   /* public Animal( String name, String description, String species) {
         this.name = name;
         this.description = description;
         this.species = species;
     }
-
-   protected Animal () {}
+*/
+   public Animal () {  }
 
     public String getName() { return name; }
 
     public void setName(String name) { this.name = name; }
 
-    public int getId() { return id; }
+    public Long getId() { return id; }
 
-    public void setId(int id) { this.id = id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getDescription() { return description; }
 
@@ -54,20 +57,28 @@ public class Animal implements Serializable{
 
     public void setSpecies(String species) { this.species = species; }
 
-    public Enclosure getEnclosure() { return enclosure; }
+    public String getEnclosure() { return enclosure; }
 
-    public void setEnclosure(Enclosure enclosure) { this.enclosure = enclosure; }
+    public void setEnclosure(String enclosure) { this.enclosure = enclosure; }
 
     public String getPublicInformation() { return publicInformation; }
 
     public void setPublicInformation(String publicInformation) { this.publicInformation = publicInformation; }
+
+    public List<Employee> getCaretakers() {
+        return caretakers;
+    }
+
+    public void setCaretakers(List<Employee> caretakers) {
+        this.caretakers = caretakers;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!( o instanceof Animal)) return false;
         Animal animal = (Animal) o;
-        return getId() == animal.getId() &&
+        return getId().equals(animal.getId()) &&
             Objects.equals(getName(), animal.getName()) &&
             Objects.equals(getDescription(), animal.getDescription()) &&
             Objects.equals(getSpecies(), animal.getSpecies()) &&
@@ -91,4 +102,73 @@ public class Animal implements Serializable{
             ", publicInformation='" + publicInformation + '\'' +
             '}';
     }
+
+
+    public static final class AnimalBuilder {
+
+        private Long id;
+        private String name;
+        private String description;
+        private String species;
+        private String enclosure;
+        private String publicInformation;
+        private List<Employee> caretakers;
+
+        private AnimalBuilder() {
+        }
+
+        public static AnimalBuilder anAnimal() {
+            return new AnimalBuilder();
+        }
+
+        public AnimalBuilder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public AnimalBuilder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public AnimalBuilder withDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public AnimalBuilder withSpecies(String species) {
+            this.species = species;
+            return this;
+        }
+
+        public AnimalBuilder withEnclosure(String enclosure) {
+            this.enclosure = enclosure;
+            return this;
+        }
+
+        public AnimalBuilder withPublicInformation(String publicInformation) {
+            this.publicInformation = publicInformation;
+            return this;
+        }
+
+        public AnimalBuilder withCaretakers(List<Employee> caretakers) {
+            this.caretakers = caretakers;
+            return this;
+        }
+
+        public Animal build() {
+            Animal animal = new Animal();
+
+            animal.setId(id);
+            animal.setDescription(description);
+            animal.setEnclosure(enclosure);
+            animal.setName(name);
+            animal.setPublicInformation(publicInformation);
+            animal.setCaretakers(caretakers);
+
+            return animal;
+        }
+
+   }
+
 }
