@@ -15,6 +15,7 @@ import {httpInterceptorProviders} from './interceptors';
 import { EmployeeComponent } from './components/employee/employee.component';
 import { AnimalComponent } from './components/animal/animal.component';
 import { AnimalListComponent } from './components/animal-list/animal-list.component';
+import { EmployeeViewComponent } from './components/employee-view/employee-view.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { AnimalListComponent } from './components/animal-list/animal-list.compon
     EmployeeComponent,
     AnimalComponent,
     AnimalListComponent,
+    EmployeeViewComponent,
   ],
   imports: [
     BrowserModule,

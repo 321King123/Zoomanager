@@ -4,6 +4,7 @@ import {Employee} from '../dtos/employee';
 import {Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {Message} from '../dtos/message';
+import {Animal} from '../dtos/animal';
 
 @Injectable({
   providedIn: 'root'
@@ -62,5 +63,26 @@ export class EmployeeService {
     }
     query = query.substring(0, query.length - 1);
     return this.httpClient.get<Employee[]>(this.employeeBaseUri + query);
+  }
+
+  /**
+   * Get all assigned animals of the employee
+   * @param employee whose assigned animals will be returned
+   */
+  getAnimals(employee: Employee): Observable<Animal[]> {
+    return this.httpClient.get<Animal[]>(this.employeeBaseUri + '/animal/' + employee.username);
+  }
+
+  /**
+   * Assigns an animal to an employee
+   * @param animal to be assigned
+   * @param employee the animal will be assigned to
+   */
+  assignAnimalToEmployee(animal: Animal, employee: Employee): Observable<any> {
+    return this.httpClient.post(this.employeeBaseUri + '/animal/' + employee.username, animal);
+  }
+
+  getEmployeeByUsername(username: string): Observable<Employee> {
+    return this.httpClient.get<Employee>(this.employeeBaseUri + '/' + username);
   }
 }

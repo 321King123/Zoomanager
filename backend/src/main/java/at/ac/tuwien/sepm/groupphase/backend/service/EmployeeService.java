@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.service;
 
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 
 import java.util.List;
@@ -26,4 +27,24 @@ public interface EmployeeService  {
      * @return a List of All current employees
      */
     List<Employee> findByNameAndType(Employee employee);
+
+
+    /**
+     * Method to get all assigned animals of the employee
+     * @return a List of All assigned animals
+     */
+    List<Animal> findAssignedAnimals(String employeeUsername);
+
+    /**
+     * Assigns the animal to the Employee
+     */
+    void assignAnimal(String employeeUsername, long AnimalId);
+
+    /**
+     * Find a single employee by username.
+     *
+     * @param username the username of the employee to find
+     * @return the employee
+     */
+    Employee findByUsername(String username);
 }

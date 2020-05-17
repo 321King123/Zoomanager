@@ -132,12 +132,14 @@
       </tr>
       </thead>
       <tbody *ngIf="employeeList">
-      <tr class="employee-list-item" *ngFor="let e of employeeList">
+      <ng-container *ngFor="let e of employeeList">
+      <tr class="employee-list-item" (click)="showInfo(e)">
         <td>{{e.name}}</td>
         <td>{{e.username}}</td>
         <td>{{e.email}}</td>
         <td>{{displayDate(e.birthday)}}</td>
       </tr>
+      </ng-container>
       </tbody>
     </table>
   </div>

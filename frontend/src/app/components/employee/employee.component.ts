@@ -4,6 +4,10 @@ import {EmployeeService} from '../../services/employee.service';
 import {AuthService} from '../../services/auth.service';
 import {Employee} from '../../dtos/employee';
 import {type} from '../../global/globals';
+import {Animal} from '../../dtos/animal';
+import {AnimalService} from '../../services/animal.service';
+import {Router } from '@angular/router';
+
 
 
 @Component({
@@ -30,7 +34,16 @@ export class EmployeeComponent implements OnInit {
 
   employeeList: Employee[];
 
-  constructor(private employeeService: EmployeeService, private formBuilder: FormBuilder, private authService: AuthService) {
+  selectedEmployee: Employee;
+
+  animalList: Animal[];
+
+  selectedAnimal: Animal = null;
+
+  assignedAnimals: Animal[];
+
+  constructor(private employeeService: EmployeeService, private animalService: AnimalService, private formBuilder: FormBuilder,
+              private authService: AuthService, private route: Router ) {
     this.typeValues = Object.keys(type);
     for (const t of this.typeValues) {
       console.log(t);
@@ -52,6 +65,7 @@ export class EmployeeComponent implements OnInit {
 
   ngOnInit(): void {
     this.getAllEmployees();
+    this.getAllAnimals();
   }
 
   /**
@@ -88,7 +102,8 @@ export class EmployeeComponent implements OnInit {
    */
   createEmployee(employee: Employee) {
     this.employeeService.createEmployee(employee).subscribe(
-      () => {
+      (res: any) => {
+        this.getAllEmployees();
       },
       error => {
         this.defaultServiceErrorHandling(error);
@@ -160,4 +175,56 @@ export class EmployeeComponent implements OnInit {
     this.submittedEmployee = false;
   }
 
+  /**
+   * Selects an employee from the table to display assigned animals
+   */
+  selectEmployee(employee: Employee) {
+    this.selectedEmployee = null;
+    this.assignedAnimals = null;
+    if (employee.type === this.employeeTypes.ANIMAL_CARE) {
+      this.selectedEmployee = employee;
+      this.employeeService.getAnimals(employee).subscribe(
+        animals => {
+          this.assignedAnimals = animals;
+        },
+        error => {
+          console.log('Failed to load animals of ' + this.selectedEmployee.username);
+          this.defaultServiceErrorHandling(error);
+        }
+      );
+    }
+  }
+
+  /**
+   * Get All current animals
+   */
+  getAllAnimals() {
+    this.animalService.getAnimals().subscribe(
+      animals => {
+        this.animalList = animals;
+      },
+      error => {
+        console.log('Failed to load animals');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  /**
+   * Assigns animal to the selected employee
+   */
+  assignAnimal() {
+    this.employeeService.assignAnimalToEmployee(this.selectedAnimal, this.selectedEmployee).subscribe(
+      () => {},
+      error => {
+        console.log('Failed to assign animal');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+    this.selectEmployee(this.selectedEmployee);
+  }
+
+  showInfo(e: Employee) {
+    this.route.navigate(['/employee-view/' + e.username ]);
+  }
 }
