@@ -76,6 +76,13 @@ public class CustomEmployeeService implements EmployeeService {
         LOGGER.debug("Assigning  " + employeeUsername);
         Employee employee = employeeRepository.findEmployeeByUsername(employeeUsername);
         if(employee.getType() == EmployeeType.ANIMAL_CARE) {
+            List<Animal> assignedAnimals = animalRepository.findAllByCaretakers(employee);
+            for(Animal a: assignedAnimals){
+                if(a.getId() == animalId)
+                {
+                    throw new AlreadyExistsException("Animal is already assigned to this Caretaker");
+                }
+            }
             animalRepository.assignAnimalToCaretaker(employeeUsername, animalId);
         } else {
             throw new IncorrectTypeException("Trying to assign Animal to Employee that is not ANIMAL_CARE.");
