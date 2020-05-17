@@ -97,7 +97,7 @@ public class EmployeeEndpoint {
         return employeeDtos;
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/animal/{employeeUsername}")
     @ApiOperation(value = "Get list of animals assigned to employee", authorizations = {@Authorization(value = "apiKey")})
@@ -118,5 +118,13 @@ public class EmployeeEndpoint {
     public void assignAnimal(@PathVariable String employeeUsername, @RequestBody AnimalDto animal) {
         LOGGER.info("Post /api/v1/employee/animal/{} Animal: {}", employeeUsername, animal.getId());
         employeeService.assignAnimal(employeeUsername, animal.getId());
+    }
+
+    @GetMapping(value = "/{username}")
+    @ApiOperation(value = "Get detailed information about a specific employee",
+        authorizations = {@Authorization(value = "apiKey")})
+    public EmployeeDto find(@PathVariable String username) {
+        LOGGER.info("GET /api/v1/employees/{}", username);
+        return employeeMapper.employeeToEmployeeDto(employeeService.findByUsername(username));
     }
 }

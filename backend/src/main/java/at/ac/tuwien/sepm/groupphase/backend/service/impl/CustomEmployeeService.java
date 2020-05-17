@@ -82,5 +82,12 @@ public class CustomEmployeeService implements EmployeeService {
         }
     }
 
+    @Override
+    public Employee findByUsername(String username) {
+        LOGGER.debug("Getting Specific employee: " + username);
+        Employee employee = employeeRepository.findEmployeeByUsername(username);
+        return employee;
+    }
+
 
 }

@@ -6,6 +6,8 @@ import {Employee} from '../../dtos/employee';
 import {type} from '../../global/globals';
 import {Animal} from '../../dtos/animal';
 import {AnimalService} from '../../services/animal.service';
+import {Router } from '@angular/router';
+
 
 
 @Component({
@@ -40,7 +42,8 @@ export class EmployeeComponent implements OnInit {
 
   assignedAnimals: Animal[];
 
-  constructor(private employeeService: EmployeeService, private animalService: AnimalService, private formBuilder: FormBuilder, private authService: AuthService) {
+  constructor(private employeeService: EmployeeService, private animalService: AnimalService, private formBuilder: FormBuilder,
+              private authService: AuthService, private route: Router ) {
     this.typeValues = Object.keys(type);
     for (const t of this.typeValues) {
       console.log(t);
@@ -218,5 +221,9 @@ export class EmployeeComponent implements OnInit {
       }
     );
     this.selectEmployee(this.selectedEmployee);
+  }
+
+  showInfo(e: Employee) {
+    this.route.navigate(['/employee-view/' + e.username ]);
   }
 }

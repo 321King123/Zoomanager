@@ -39,4 +39,12 @@ public interface EmployeeService  {
      * Assigns the animal to the Employee
      */
     void assignAnimal(String employeeUsername, long AnimalId);
+
+    /**
+     * Find a single employee by username.
+     *
+     * @param username the username of the employee to find
+     * @return the employee
+     */
+    Employee findByUsername(String username);
 }
