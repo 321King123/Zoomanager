@@ -126,12 +126,15 @@ export class EmployeeViewComponent implements OnInit {
    * Assigns animal to the selected employee
    */
   assignAnimal() {
-    for (let i = 0; i < this.assignedAnimals.length; i++) {
-      if (this.assignedAnimals[i].id === this.selectedAnimal.id) {
-        this.error = true;
-        this.errorMessage = 'This animal is already assigned to ' + this.employee.username;
-        return;
-      }
+    if (this.assignedAnimals !== undefined) {
+      for (let i = 0; i < this.assignedAnimals.length; i++) {
+        if (this.assignedAnimals[i].id === this.selectedAnimal.id) {
+          this.error = true;
+          this.errorMessage = 'This animal is already assigned to ' + this.employee.username;
+          return;
+        }
+    }
+    console.log('assigning ' + this.selectedAnimal + ' to ' + this.employee);
     }
     this.employeeService.assignAnimalToEmployee(this.selectedAnimal, this.employee).subscribe(
       () => {
