@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {EmployeeService} from '../../services/employee.service';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Employee} from '../../dtos/employee';
 import {AuthService} from '../../services/auth.service';
 import {Location} from '@angular/common';
@@ -23,14 +23,19 @@ export class EmployeeViewComponent implements OnInit {
   assignedAnimals: Animal[];
 
   constructor(private employeeService: EmployeeService, private authService: AuthService, private route: ActivatedRoute,
-              private _location: Location, private animalService: AnimalService) {
+              private _location: Location, private animalService: AnimalService, private router: Router) {
   }
 
   ngOnInit(): void {
     this.currentUser = (this.route.snapshot.paramMap.get('username'));
-    this.loadSpecificEmployee(this.currentUser);
-    if (this.isAdmin())  {
-      this.getAllAnimals();
+    if (!this.isAdmin() && JSON.parse(localStorage.getItem('currentUser')) !== this.currentUser) {
+      this.errorMessage = 'You are not authorized to see this users information';
+      this.error = true;
+    } else {
+      this.loadSpecificEmployee(this.currentUser);
+      if (this.isAdmin()) {
+        this.getAllAnimals();
+      }
     }
   }
 
@@ -99,7 +104,7 @@ export class EmployeeViewComponent implements OnInit {
           this.defaultServiceErrorHandling(error);
         }
       );
-  }
+    }
   }
 
   /**
