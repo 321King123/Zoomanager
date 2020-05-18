@@ -15,6 +15,7 @@ public interface EmployeeService  {
 
     /**
      * Method to get all current employees
+     * If empty an empty List gets returned
      * @return a List of All current employees
      */
     List<Employee> getAll();
