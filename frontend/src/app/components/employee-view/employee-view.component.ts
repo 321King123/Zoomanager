@@ -31,12 +31,7 @@ export class EmployeeViewComponent implements OnInit {
     this.currentUser = (this.route.snapshot.paramMap.get('username'));
     if (this.isAdmin() && this.currentUser != null) {
       this.loadSpecificEmployee(this.currentUser);
-      if (this.employee == null) {
-        this.error = true;
-        this.errorMessage = 'Employee with such username does not exist.';
-      } else {
-        this.getAllAnimals();
-      }
+      this.getAllAnimals();
     } else if (this.currentUser == null) {
       this.loadPersonalInfo();
     } else {
@@ -64,8 +59,13 @@ export class EmployeeViewComponent implements OnInit {
     this.employeeService.getEmployeeByUsername(username).subscribe(
       (employee: Employee) => {
         this.employee = employee;
-        console.log('employee: ' + JSON.stringify(this.employee));
-        this.showAssignedAnimalsEmployee();
+        if (this.employee == null) {
+          this.error = true;
+          this.errorMessage = 'Employee with such username does not exist.';
+        } else {
+          console.log('employee: ' + JSON.stringify(this.employee));
+          this.showAssignedAnimalsEmployee();
+        }
       },
       error => {
         this.defaultServiceErrorHandling(error);
