@@ -26,15 +26,15 @@ public class UserDataGenerator {
 
     @PostConstruct
     private void generateMessage() {
-        if (userRepository.findAll().size() > 0) {
+        if(userRepository.findAll().size() > 0) {
             LOGGER.debug("user already generated");
         } else {
             LOGGER.debug("generating {} user entries", 2);
 
-            UserLogin user = UserLogin.UserBuilder.aUser().withIsAdmin(true).withPassword(passwordEncoder.encode("password")).withUsername("admin").build();
+            UserLogin user = UserLogin.builder().isAdmin(true).password(passwordEncoder.encode("password")).username("admin").build();
             LOGGER.debug("saving user {}", user);
             userRepository.save(user);
-            user = UserLogin.UserBuilder.aUser().withIsAdmin(false).withPassword(passwordEncoder.encode("password")).withUsername("user").build();
+            user = UserLogin.builder().isAdmin(false).password(passwordEncoder.encode("password")).username("user").build();
             LOGGER.debug("saving user {}", user);
             userRepository.save(user);
 
