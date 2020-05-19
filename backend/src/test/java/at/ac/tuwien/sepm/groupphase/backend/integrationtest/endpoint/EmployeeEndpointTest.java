@@ -13,6 +13,7 @@ import at.ac.tuwien.sepm.groupphase.backend.repository.UserLoginRepository;
 import at.ac.tuwien.sepm.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -159,6 +160,12 @@ public class EmployeeEndpointTest implements TestData {
             .withType(TYPE_JANITOR_EMPLOYEE)
             .withEmail(EMAIL_JANITOR_EMPLOYEE)
             .build();
+    }
+
+    @AfterEach
+    public void afterEach(){
+        employeeRepository.deleteAll();
+        userLoginRepository.deleteAll();
     }
 
     @Test
