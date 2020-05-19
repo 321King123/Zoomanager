@@ -8,6 +8,7 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.UserLoginMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
@@ -125,21 +126,28 @@ public class EmployeeEndpoint {
         employeeService.assignAnimal(employeeUsername, animal.getId());
     }
 
+    @Secured("ROLE_ADMIN")
     @GetMapping(value = "/{username}")
     @ApiOperation(value = "Get detailed information about a specific employee",
         authorizations = {@Authorization(value = "apiKey")})
     public EmployeeDto find(@PathVariable String username,Authentication authentication) {
-        LOGGER.info("GET /api/v1/employees/{}", username);
-        String checkUsername=(String)authentication.getPrincipal();
-        if(isAdmin(authentication) || checkUsername.equals(username)){
-            return employeeMapper.employeeToEmployeeDto(employeeService.findByUsername(username));
-        }else{
-            throw new NotAuthorisedException("You are not authorised to see this information.");
-        }
+        LOGGER.info("GET /api/v1/employee/{}", username);
+        return employeeMapper.employeeToEmployeeDto(employeeService.findByUsername(username));
     }
 
-    private boolean isAdmin(Authentication authentication){
+    @Secured("ROLE_USER")
+    @GetMapping(value = "/info")
+    @ApiOperation(value = "Get detailed information about a myself",
+        authorizations = {@Authorization(value = "apiKey")})
+    public EmployeeDto personalInfo(Authentication authentication){
+        LOGGER.info("GET /api/v1/employee/info");
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        return authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+      if(isAdmin){
+          throw new NotFoundException("Administrators do not have an info page.");
+      }else{
+          String username = (String)authentication.getPrincipal();
+          return employeeMapper.employeeToEmployeeDto(employeeService.findByUsername(username));
+      }
     }
 }

@@ -85,4 +85,8 @@ export class EmployeeService {
   getEmployeeByUsername(username: string): Observable<Employee> {
     return this.httpClient.get<Employee>(this.employeeBaseUri + '/' + username);
   }
+
+  getPersonalInfo(): Observable<Employee> {
+    return this.httpClient.get<Employee>(this.employeeBaseUri + '/info');
+  }
 }
