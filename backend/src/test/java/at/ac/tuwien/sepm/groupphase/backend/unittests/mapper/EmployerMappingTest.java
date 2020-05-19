@@ -21,20 +21,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ActiveProfiles("test")
 public class EmployerMappingTest implements TestData {
 
-    private final Employee employee = Employee.EmployeeBuilder.anEmployee()
-        .withUsername(USERNAME_JANITOR_EMPLOYEE)
-        .withName(NAME_JANITOR_EMPLOYEE)
-        .withBirthday(BIRTHDAY_JANITOR_EMPLOYEE)
-        .withType(TYPE_JANITOR_EMPLOYEE)
-        .withEmail(EMAIL_JANITOR_EMPLOYEE)
+    private final Employee employee = Employee.builder()
+        .username(USERNAME_JANITOR_EMPLOYEE)
+        .name(NAME_JANITOR_EMPLOYEE)
+        .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
+        .type(TYPE_JANITOR_EMPLOYEE)
+        .email(EMAIL_JANITOR_EMPLOYEE)
         .build();
 
-    private final EmployeeDto employeeDto = EmployeeDto.EmployeeDtoBuilder.anEmployeeDto()
-        .withUsername(USERNAME_JANITOR_EMPLOYEE)
-        .withName(NAME_JANITOR_EMPLOYEE)
-        .withBirthday(BIRTHDAY_JANITOR_EMPLOYEE)
-        .withType(TYPE_JANITOR_EMPLOYEE)
-        .withEmail(EMAIL_JANITOR_EMPLOYEE)
+    private final EmployeeDto employeeDto = EmployeeDto.builder()
+        .username(USERNAME_JANITOR_EMPLOYEE)
+        .name(NAME_JANITOR_EMPLOYEE)
+        .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
+        .type(TYPE_JANITOR_EMPLOYEE)
+        .email(EMAIL_JANITOR_EMPLOYEE)
         .build();
 
     @Autowired

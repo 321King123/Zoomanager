@@ -20,12 +20,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 public class AnimalMappingTest implements TestData {
 
-    private final Animal animal= Animal.AnimalBuilder.anAnimal().withId(1L)
-        .withName("Horse")
-        .withDescription("Fast")
-        .withEnclosure("Barn")
-        .withSpecies("race")
-        .withPublicInformation("famous")
+    private final Animal animal= Animal.builder()
+        .id(1L)
+        .name("Horse")
+        .description("Fast")
+        .enclosure("Barn")
+        .species("race")
+        .publicInformation("famous")
         .build();
 
     @Autowired

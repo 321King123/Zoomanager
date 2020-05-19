@@ -7,25 +7,32 @@ import org.springframework.stereotype.Component;
 @Component
 public class EmployeeMapper {
 
-    public EmployeeMapper(){}
-
-    public EmployeeDto employeeToEmployeeDto(Employee employee){
-        return EmployeeDto.EmployeeDtoBuilder.anEmployeeDto()
-            .withUsername(employee.getUsername())
-            .withName(employee.getName())
-            .withBirthday(employee.getBirthday())
-            .withEmail(employee.getEmail())
-            .withType(employee.getType())
-            .withPassword("").build();
+    public EmployeeMapper() {
     }
 
-    public Employee employeeDtoToEmployee(EmployeeDto employeeDto){
-        return Employee.EmployeeBuilder.anEmployee()
-            .withName(employeeDto.getName())
-            .withUsername(employeeDto.getUsername())
-            .withBirthday(employeeDto.getBirthday())
-            .withEmail(employeeDto.getEmail())
-            .withType(employeeDto.getType()).build();
+    public EmployeeDto employeeToEmployeeDto(Employee employee) {
+        if(employee == null) {
+            return null;
+        }
+        return EmployeeDto.builder()
+            .username(employee.getUsername())
+            .name(employee.getName())
+            .birthday(employee.getBirthday())
+            .email(employee.getEmail())
+            .type(employee.getType())
+            .password("").build();
+    }
+
+    public Employee employeeDtoToEmployee(EmployeeDto employeeDto) {
+        if(employeeDto == null) {
+            return null;
+        }
+        return Employee.builder()
+            .name(employeeDto.getName())
+            .username(employeeDto.getUsername())
+            .birthday(employeeDto.getBirthday())
+            .email(employeeDto.getEmail())
+            .type(employeeDto.getType()).build();
     }
 
 }

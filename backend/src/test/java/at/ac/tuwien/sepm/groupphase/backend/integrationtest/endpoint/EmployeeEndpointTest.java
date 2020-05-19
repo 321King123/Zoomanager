@@ -72,46 +72,46 @@ public class EmployeeEndpointTest implements TestData {
 
     String GET_FILTERED_EMPLOYEES_URI = EMPLOYEE_BASE_URI + "/search";
 
-    private UserLogin animal_caretaker_login = UserLogin.UserBuilder.aUser()
-        .withIsAdmin(false)
-        .withUsername(USERNAME_ANIMAL_CARE_EMPLOYEE)
-        .withPassword(passwordEncoder.encode(VALID_TEST_PASSWORD))
+    private UserLogin animal_caretaker_login = UserLogin.builder()
+        .isAdmin(false)
+        .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
+        .password(passwordEncoder.encode(VALID_TEST_PASSWORD))
         .build();
 
-    private Employee anmial_caretaker = Employee.EmployeeBuilder.anEmployee()
-        .withUsername(USERNAME_ANIMAL_CARE_EMPLOYEE)
-        .withName(NAME_ANIMAL_CARE_EMPLOYEE)
-        .withBirthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
-        .withType(TYPE_ANIMAL_CARE_EMPLOYEE)
-        .withEmail(EMAIL_ANIMAL_CARE_EMPLOYEE)
+    private Employee anmial_caretaker = Employee.builder()
+        .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
+        .name(NAME_ANIMAL_CARE_EMPLOYEE)
+        .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
+        .type(TYPE_ANIMAL_CARE_EMPLOYEE)
+        .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
         .build();
 
-    private UserLogin doctor_login = UserLogin.UserBuilder.aUser()
-        .withIsAdmin(false)
-        .withUsername(USERNAME_DOCTOR_EMPLOYEE)
-        .withPassword(passwordEncoder.encode(VALID_TEST_PASSWORD))
+    private UserLogin doctor_login = UserLogin.builder()
+        .isAdmin(false)
+        .username(USERNAME_DOCTOR_EMPLOYEE)
+        .password(passwordEncoder.encode(VALID_TEST_PASSWORD))
         .build();
 
-    private Employee doctor = Employee.EmployeeBuilder.anEmployee()
-        .withUsername(USERNAME_DOCTOR_EMPLOYEE)
-        .withName(NAME_DOCTOR_EMPLOYEE)
-        .withBirthday(BIRTHDAY_DOCTOR_EMPLOYEE)
-        .withType(TYPE_DOCTOR_EMPLOYEE)
-        .withEmail(EMAIL_DOCTOR_EMPLOYEE)
+    private Employee doctor = Employee.builder()
+        .username(USERNAME_DOCTOR_EMPLOYEE)
+        .name(NAME_DOCTOR_EMPLOYEE)
+        .birthday(BIRTHDAY_DOCTOR_EMPLOYEE)
+        .type(TYPE_DOCTOR_EMPLOYEE)
+        .email(EMAIL_DOCTOR_EMPLOYEE)
         .build();
 
-    private UserLogin janitor_login = UserLogin.UserBuilder.aUser()
-        .withIsAdmin(false)
-        .withUsername(USERNAME_JANITOR_EMPLOYEE)
-        .withPassword(passwordEncoder.encode(VALID_TEST_PASSWORD))
+    private UserLogin janitor_login = UserLogin.builder()
+        .isAdmin(false)
+        .username(USERNAME_JANITOR_EMPLOYEE)
+        .password(passwordEncoder.encode(VALID_TEST_PASSWORD))
         .build();
 
-    private Employee janitor = Employee.EmployeeBuilder.anEmployee()
-        .withUsername(USERNAME_JANITOR_EMPLOYEE)
-        .withName(NAME_JANITOR_EMPLOYEE)
-        .withBirthday(BIRTHDAY_JANITOR_EMPLOYEE)
-        .withType(TYPE_JANITOR_EMPLOYEE)
-        .withEmail(EMAIL_JANITOR_EMPLOYEE)
+    private Employee janitor = Employee.builder()
+        .username(USERNAME_JANITOR_EMPLOYEE)
+        .name(NAME_JANITOR_EMPLOYEE)
+        .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
+        .type(TYPE_JANITOR_EMPLOYEE)
+        .email(EMAIL_JANITOR_EMPLOYEE)
         .build();
 
 
@@ -119,46 +119,46 @@ public class EmployeeEndpointTest implements TestData {
     public void beforeEach(){
         employeeRepository.deleteAll();
         userLoginRepository.deleteAll();
-        animal_caretaker_login = UserLogin.UserBuilder.aUser()
-            .withIsAdmin(false)
-            .withUsername(USERNAME_ANIMAL_CARE_EMPLOYEE)
-            .withPassword(passwordEncoder.encode(VALID_TEST_PASSWORD))
+        animal_caretaker_login = UserLogin.builder()
+            .isAdmin(false)
+            .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
+            .password(passwordEncoder.encode(VALID_TEST_PASSWORD))
             .build();
 
-        anmial_caretaker = Employee.EmployeeBuilder.anEmployee()
-            .withUsername(USERNAME_ANIMAL_CARE_EMPLOYEE)
-            .withName(NAME_ANIMAL_CARE_EMPLOYEE)
-            .withBirthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
-            .withType(TYPE_ANIMAL_CARE_EMPLOYEE)
-            .withEmail(EMAIL_ANIMAL_CARE_EMPLOYEE)
+        anmial_caretaker = Employee.builder()
+            .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
+            .name(NAME_ANIMAL_CARE_EMPLOYEE)
+            .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
+            .type(TYPE_ANIMAL_CARE_EMPLOYEE)
+            .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
             .build();
 
-        doctor_login = UserLogin.UserBuilder.aUser()
-            .withIsAdmin(false)
-            .withUsername(USERNAME_DOCTOR_EMPLOYEE)
-            .withPassword(passwordEncoder.encode(VALID_TEST_PASSWORD))
+        doctor_login = UserLogin.builder()
+            .isAdmin(false)
+            .username(USERNAME_DOCTOR_EMPLOYEE)
+            .password(passwordEncoder.encode(VALID_TEST_PASSWORD))
             .build();
 
-        doctor = Employee.EmployeeBuilder.anEmployee()
-            .withUsername(USERNAME_DOCTOR_EMPLOYEE)
-            .withName(NAME_DOCTOR_EMPLOYEE)
-            .withBirthday(BIRTHDAY_DOCTOR_EMPLOYEE)
-            .withType(TYPE_DOCTOR_EMPLOYEE)
-            .withEmail(EMAIL_DOCTOR_EMPLOYEE)
+        doctor = Employee.builder()
+            .username(USERNAME_DOCTOR_EMPLOYEE)
+            .name(NAME_DOCTOR_EMPLOYEE)
+            .birthday(BIRTHDAY_DOCTOR_EMPLOYEE)
+            .type(TYPE_DOCTOR_EMPLOYEE)
+            .email(EMAIL_DOCTOR_EMPLOYEE)
             .build();
 
-        janitor_login = UserLogin.UserBuilder.aUser()
-            .withIsAdmin(false)
-            .withUsername(USERNAME_JANITOR_EMPLOYEE)
-            .withPassword(passwordEncoder.encode(VALID_TEST_PASSWORD))
+        janitor_login = UserLogin.builder()
+            .isAdmin(false)
+            .username(USERNAME_JANITOR_EMPLOYEE)
+            .password(passwordEncoder.encode(VALID_TEST_PASSWORD))
             .build();
 
-        janitor = Employee.EmployeeBuilder.anEmployee()
-            .withUsername(USERNAME_JANITOR_EMPLOYEE)
-            .withName(NAME_JANITOR_EMPLOYEE)
-            .withBirthday(BIRTHDAY_JANITOR_EMPLOYEE)
-            .withType(TYPE_JANITOR_EMPLOYEE)
-            .withEmail(EMAIL_JANITOR_EMPLOYEE)
+        janitor = Employee.builder()
+            .username(USERNAME_JANITOR_EMPLOYEE)
+            .name(NAME_JANITOR_EMPLOYEE)
+            .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
+            .type(TYPE_JANITOR_EMPLOYEE)
+            .email(EMAIL_JANITOR_EMPLOYEE)
             .build();
     }
 

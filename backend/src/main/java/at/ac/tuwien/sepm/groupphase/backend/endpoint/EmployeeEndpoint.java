@@ -88,7 +88,7 @@ public class EmployeeEndpoint {
     @ApiOperation(value = "Get list of employees matching name and type", authorizations = {@Authorization(value = "apiKey")})
     public List<EmployeeDto> searchEmployees(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "type", required = false) EmployeeType type){
         LOGGER.info("GET /api/v1/employee/search Name: {} Type: {}", name, type);
-        Employee searchEmployee = Employee.EmployeeBuilder.anEmployee().withName(name).withType(type).build();
+        Employee searchEmployee = Employee.builder().name(name).type(type).build();
         List<Employee> employees = employeeService.findByNameAndType(searchEmployee);
         List<EmployeeDto> employeeDtos = new LinkedList<>();
         for(Employee e: employees){

@@ -51,7 +51,7 @@ public class CustomEmployeeService implements EmployeeService {
         ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAll().withIgnoreNullValues().withIgnoreCase()
             .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains())
             .withMatcher("type", ExampleMatcher.GenericPropertyMatchers.exact());
-        Example<Employee> example = Example.of(Employee.EmployeeBuilder.anEmployee().withName(employee.getName()).withType(employee.getType()).build(), customExampleMatcher);
+        Example<Employee> example = Example.of(Employee.builder().name(employee.getName()).type(employee.getType()).build(), customExampleMatcher);
         List<Employee> employees = employeeRepository.findAll(example);
         if(employees.isEmpty())
             throw new NotFoundException("No employee fits the given criteria");

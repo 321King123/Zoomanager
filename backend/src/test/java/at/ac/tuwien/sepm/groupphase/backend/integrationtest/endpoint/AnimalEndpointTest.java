@@ -48,23 +48,25 @@ public class AnimalEndpointTest implements TestData {
     @Autowired
     private SecurityProperties securityProperties;
 
-    private Animal animal= Animal.AnimalBuilder.anAnimal().withId(1L)
-        .withName("Horse")
-        .withDescription("Fast")
-        .withEnclosure("Barn")
-        .withSpecies("race")
-        .withPublicInformation("famous")
+    private Animal animal= Animal.builder()
+        .id(1L)
+        .name("Horse")
+        .description("Fast")
+        .enclosure("Barn")
+        .species("race")
+        .publicInformation("famous")
         .build();
 
     @BeforeEach
     public void beforeEach() {
         animalRepository.deleteAll();
-        animal = Animal.AnimalBuilder.anAnimal().withId(1L)
-            .withName("Horse")
-            .withDescription("Fast")
-            .withEnclosure("Barn")
-            .withSpecies("race")
-            .withPublicInformation("famous")
+        animal = Animal.builder()
+            .id(1L)
+            .name("Horse")
+            .description("Fast")
+            .enclosure("Barn")
+            .species("race")
+            .publicInformation("famous")
             .build();
     }
 
