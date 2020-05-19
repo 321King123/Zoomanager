@@ -31,10 +31,15 @@ export class EmployeeViewComponent implements OnInit {
     this.currentUser = (this.route.snapshot.paramMap.get('username'));
     if (this.isAdmin() && this.currentUser != null) {
       this.loadSpecificEmployee(this.currentUser);
-      this.getAllAnimals();
-    } else if(this.currentUser == null){
+      if (this.employee == null) {
+        this.error = true;
+        this.errorMessage = 'Employee with such username does not exist.';
+      } else {
+        this.getAllAnimals();
+      }
+    } else if (this.currentUser == null) {
       this.loadPersonalInfo();
-    } else{
+    } else {
       this.error = true;
       this.errorMessage = 'You are NOT authorised to see this users information!';
     }
@@ -109,7 +114,7 @@ export class EmployeeViewComponent implements OnInit {
    * Selects an employee from the table to display assigned animals
    */
   showAssignedAnimalsEmployee() {
-    if (this.employee.type === 'ANIMAL_CARE') {
+    if (this.employee !== null && this.employee.type === 'ANIMAL_CARE') {
       this.employeeService.getAnimals(this.employee).subscribe(
         animals => {
           this.assignedAnimals = animals;

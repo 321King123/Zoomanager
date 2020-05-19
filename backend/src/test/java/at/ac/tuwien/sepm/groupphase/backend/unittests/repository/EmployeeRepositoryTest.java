@@ -111,4 +111,28 @@ public class EmployeeRepositoryTest implements TestData {
         assertTrue(employees.contains(anmial_caretaker));
         assertTrue(employees.contains(doctor));
     }
+
+    @Test
+    public void findByUsername_returnsRightUser(){
+        userLoginRepository.save(animal_caretaker_login);
+        userLoginRepository.save(doctor_login);
+        userLoginRepository.save(janitor_login);
+        employeeRepository.save(anmial_caretaker);
+        employeeRepository.save(doctor);
+        employeeRepository.save(janitor);
+        Employee employee = employeeRepository.findEmployeeByUsername(doctor_login.getUsername());
+        assertEquals(employee.getUsername(),doctor_login.getUsername());
+    }
+
+    @Test
+    public void findByUsername_returnsNullIfNoSuchEmployeeExists(){
+        userLoginRepository.save(animal_caretaker_login);
+        userLoginRepository.save(doctor_login);
+        userLoginRepository.save(janitor_login);
+        employeeRepository.save(anmial_caretaker);
+        employeeRepository.save(doctor);
+        employeeRepository.save(janitor);
+        Employee employee = employeeRepository.findEmployeeByUsername("iDoNotExist");
+        assertEquals(employee,null);
+    }
 }

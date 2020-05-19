@@ -71,6 +71,27 @@ public class EmployeeEndpointTest implements TestData {
     private SecurityProperties securityProperties;
 
     String GET_FILTERED_EMPLOYEES_URI = EMPLOYEE_BASE_URI + "/search";
+    String EMPLOYEE_INFO_PAGE = EMPLOYEE_BASE_URI + "/info";
+
+    private UserLogin admin_login = UserLogin.builder()
+        .isAdmin(true)
+        .username(ADMIN_USER)
+        .password(passwordEncoder.encode(VALID_TEST_PASSWORD))
+        .build();
+
+    private UserLogin default_user_login = UserLogin.builder()
+        .isAdmin(false)
+        .username(DEFAULT_USER)
+        .password(passwordEncoder.encode(VALID_TEST_PASSWORD))
+        .build();
+
+    private Employee default_user = Employee.builder()
+        .username(DEFAULT_USER)
+        .name(NAME_JANITOR_EMPLOYEE)
+        .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
+        .type(TYPE_JANITOR_EMPLOYEE)
+        .email(EMAIL_JANITOR_EMPLOYEE)
+        .build();
 
     private UserLogin animal_caretaker_login = UserLogin.builder()
         .isAdmin(false)
@@ -349,4 +370,66 @@ public class EmployeeEndpointTest implements TestData {
 
         assertEquals(response.getContentAsString(), "No employee fits the given criteria");
     }
+
+    @Test
+    public void returnUserData_whenSearchEmployeeInfoAsAdmin_StatusOk() throws Exception{
+        userLoginRepository.save(animal_caretaker_login);
+        userLoginRepository.save(doctor_login);
+        userLoginRepository.save(janitor_login);
+        employeeRepository.save(anmial_caretaker);
+        employeeRepository.save(doctor);
+        employeeRepository.save(janitor);
+        MvcResult mvcResult = this.mockMvc.perform(get(EMPLOYEE_BASE_URI+"/"+anmial_caretaker.getUsername())
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(),response.getStatus());
+        assertEquals(response.getContentType(), MediaType.APPLICATION_JSON_VALUE);
+        EmployeeDto employeeDto = objectMapper.readValue(response.getContentAsString(),EmployeeDto.class);
+        assertEquals(employeeDto.getName(),anmial_caretaker.getName());
+    }
+
+    @Test
+    public void whenEmployeeAccessOtherUserInformation_statusForbidden() throws Exception{
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        MvcResult mvcResult = this.mockMvc.perform(get(EMPLOYEE_BASE_URI+"/"+anmial_caretaker.getUsername())
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertEquals(HttpStatus.FORBIDDEN.value(),response.getStatus());
+    }
+
+    @Test
+    public void whenAdminAccessInfoPage_statusNotFound() throws Exception{
+        userLoginRepository.save(admin_login);
+        MvcResult mvcResult = this.mockMvc.perform(get(EMPLOYEE_INFO_PAGE)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.NOT_FOUND.value(),response.getStatus());
+        assertEquals(response.getContentAsString(),"Administrators do not have an info page.");
+    }
+
+    @Test
+    public void whenEmployeeAccessInfoPage_statusOk() throws Exception{
+        userLoginRepository.save(default_user_login);
+        employeeRepository.save(default_user);
+        MvcResult mvcResult = this.mockMvc.perform(get(EMPLOYEE_INFO_PAGE)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(),response.getStatus());
+        assertEquals(response.getContentType(), MediaType.APPLICATION_JSON_VALUE);
+        EmployeeDto employeeDto = objectMapper.readValue(response.getContentAsString(),EmployeeDto.class);
+        assertEquals(employeeDto.getName(),default_user.getName());
+    }
+
 }
