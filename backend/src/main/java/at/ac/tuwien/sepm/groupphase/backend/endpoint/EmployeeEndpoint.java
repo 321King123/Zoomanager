@@ -7,6 +7,7 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.UserLoginMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
@@ -17,10 +18,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -123,8 +128,18 @@ public class EmployeeEndpoint {
     @GetMapping(value = "/{username}")
     @ApiOperation(value = "Get detailed information about a specific employee",
         authorizations = {@Authorization(value = "apiKey")})
-    public EmployeeDto find(@PathVariable String username) {
+    public EmployeeDto find(@PathVariable String username,Authentication authentication) {
         LOGGER.info("GET /api/v1/employees/{}", username);
-        return employeeMapper.employeeToEmployeeDto(employeeService.findByUsername(username));
+        String checkUsername=(String)authentication.getPrincipal();
+        if(isAdmin(authentication) || checkUsername.equals(username)){
+            return employeeMapper.employeeToEmployeeDto(employeeService.findByUsername(username));
+        }else{
+            throw new NotAuthorisedException("You are not authorised to see this information.");
+        }
+    }
+
+    private boolean isAdmin(Authentication authentication){
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        return authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
     }
 }
