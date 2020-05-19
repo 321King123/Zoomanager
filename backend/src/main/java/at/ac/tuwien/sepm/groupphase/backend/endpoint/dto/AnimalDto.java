@@ -1,10 +1,9 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint.dto;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -27,6 +26,8 @@ public class AnimalDto {
     private String enclosure;
 
     private String publicInformation;
+
+    private List<Employee> caretakers;
 
 
     public String getName() { return name; }
@@ -52,6 +53,10 @@ public class AnimalDto {
     public String getPublicInformation() { return publicInformation; }
 
     public void setPublicInformation(String publicInformation) { this.publicInformation = publicInformation; }
+
+    public List<Employee> getCaretakers() { return caretakers; }
+
+    public void setCaretakers(List<Employee> caretakers) { this.caretakers = caretakers; }
 
     @Override
     public boolean equals(Object o) {
@@ -83,6 +88,8 @@ public class AnimalDto {
             '}';
     }
 
+
+
     public static final class AnimalDtoBuilder{
 
         private String name;
@@ -91,6 +98,7 @@ public class AnimalDto {
         private String species;
         private String enclosure;
         private String publicInformation;
+        private List<Employee> caretakers;
 
         private AnimalDtoBuilder() {
         }
@@ -122,6 +130,11 @@ public class AnimalDto {
             return this;
         }
 
+        public AnimalDtoBuilder withCaretakers(List<Employee> caretakers) {
+            this.caretakers = caretakers;
+            return this;
+        }
+
         public AnimalDto build() {
             AnimalDto animalDto = new AnimalDto();
 
@@ -130,6 +143,7 @@ public class AnimalDto {
             animalDto.setSpecies(species);
             animalDto.setPublicInformation(publicInformation);
             animalDto.setEnclosure(enclosure);
+            animalDto.setCaretakers(caretakers);
             return animalDto;
         }
 

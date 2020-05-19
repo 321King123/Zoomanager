@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint.exceptionhandler;
 
 import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import org.slf4j.Logger;
@@ -45,6 +46,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         LOGGER.warn(ex.getMessage());
         return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
+
+    @ExceptionHandler(value = {IncorrectTypeException.class})
+    protected ResponseEntity<Object> handleIncorrectType(RuntimeException ex, WebRequest request) {
+        LOGGER.warn(ex.getMessage());
+        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY, request);
 
     @ExceptionHandler(value = NotAuthorisedException.class)
     protected ResponseEntity<Object> handleNotAuthorised(RuntimeException ex, WebRequest request) {
