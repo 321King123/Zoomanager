@@ -42,10 +42,7 @@ public class CustomEmployeeService implements EmployeeService {
 
     public List<Employee> getAll(){
         LOGGER.debug("Getting List of all employees.");
-        List<Employee> employees = employeeRepository.findAll();
-        if(employees.isEmpty())
-            throw new NotFoundException("There are currently no employees");
-        return employees;
+        return employeeRepository.findAll();
     }
 
     //This function will be the general search List function right now only Name and Type fill be filtered
@@ -92,8 +89,7 @@ public class CustomEmployeeService implements EmployeeService {
     @Override
     public Employee findByUsername(String username) {
         LOGGER.debug("Getting Specific employee: " + username);
-        Employee employee = employeeRepository.findEmployeeByUsername(username);
-        return employee;
+        return employeeRepository.findEmployeeByUsername(username);
     }
 
 
