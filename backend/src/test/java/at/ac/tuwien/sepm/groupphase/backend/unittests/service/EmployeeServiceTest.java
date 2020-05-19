@@ -3,6 +3,8 @@ package at.ac.tuwien.sepm.groupphase.backend.unittests.service;
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
+import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
+import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.impl.CustomUserDetailService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
@@ -11,8 +13,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
@@ -21,6 +25,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -34,6 +39,9 @@ public class EmployeeServiceTest implements TestData {
 
     @Autowired
     EmployeeService employeeService;
+
+    @MockBean
+    EmployeeRepository employeeRepository;
 
     private UserLogin animal_caretaker_login = UserLogin.builder()
         .isAdmin(false)
@@ -92,8 +100,8 @@ public class EmployeeServiceTest implements TestData {
      */
 
     //currently fails if the users/employees already exist
-    @Test
     public void filledRepository_combinedSearch_resultContainsSubstringAndType() {
+
         userDetailService.createNewUser(animal_caretaker_login);
         userDetailService.createNewUser(doctor_login);
         userDetailService.createNewUser(janitor_login);
@@ -103,5 +111,18 @@ public class EmployeeServiceTest implements TestData {
         List<Employee> employees = employeeService.findByNameAndType(Employee.builder().type(EmployeeType.JANITOR).name("aN").build());
         assertEquals(1, employees.size());
         assertEquals(employees.get(0).getUsername(), janitor.getUsername());
+    }
+
+    @Test
+    public void findEmployeeByUsername_returnsRightEmployee() throws Exception{
+        Mockito.when(employeeRepository.findEmployeeByUsername(animal_caretaker_login.getUsername())).thenReturn(anmial_caretaker);
+        Employee employee = employeeService.findByUsername(anmial_caretaker.getUsername());
+        assertEquals(anmial_caretaker.getUsername(),employee.getUsername());
+    }
+
+    @Test
+    public void createExistingEmployee_throwsAlreadyExistsException() throws Exception{
+        Mockito.when(employeeRepository.findEmployeeByUsername(anmial_caretaker.getUsername())).thenReturn(anmial_caretaker);
+        assertThrows(AlreadyExistsException.class,()->{employeeService.createEmployee(anmial_caretaker);});
     }
 }

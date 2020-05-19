@@ -8,7 +8,7 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a class="nav-link" *ngIf="!isAdmin()" [routerLink]="['/employee-view/',currentUser]" routerLinkActive="active">Info</a>
+        <a class="nav-link" *ngIf="!isAdmin()" routerLink="/personal-info" routerLinkActive="active">Info</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" *ngIf="isAdmin()" routerLink="/employee" routerLinkActive="active">Employees</a>
