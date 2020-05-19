@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepm.groupphase.backend.unittests;
+package at.ac.tuwien.sepm.groupphase.backend.unittests.repository;
 
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
@@ -25,12 +25,13 @@ public class AnimalRapositoryTest implements TestData {
 
     @Test
     public void givenNothing_whenSaveAnimal_thenFindAnimalById() {
-        Animal animal = Animal.AnimalBuilder.anAnimal().withId(1L)
-            .withName("Horse")
-            .withDescription("Fast")
-            .withEnclosure("Barn")
-            .withSpecies("race")
-            .withPublicInformation("famous")
+        Animal animal = Animal.builder()
+            .id(1L)
+            .name("Horse")
+            .description("Fast")
+            .enclosure("Barn")
+            .species("race")
+            .publicInformation("famous")
             .build();
 
         animalRepository.save(animal);
