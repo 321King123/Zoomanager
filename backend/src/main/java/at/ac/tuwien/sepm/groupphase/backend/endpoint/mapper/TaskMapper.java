@@ -9,13 +9,7 @@ import org.mapstruct.Mapper;
 @Mapper
 public interface TaskMapper {
 
-    AnimalTaskDto animalTaskToAnimalTaskDto(AnimalTask animalTask);
-
-    AnimalTask animalTaskDtoToAnimalTask(AnimalTaskDto animalTask);
-
     Task taskDtoToTask(TaskDto taskDto);
 
     TaskDto taskToTaskDto(Task task);
-
-    Task animalTaskToTask(AnimalTask animalTask);
 }

@@ -1,6 +1,9 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint.dto;
 
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import javax.validation.constraints.FutureOrPresent;
@@ -29,18 +32,23 @@ public class AnimalTaskDto {
 
     @NotNull(message = "startTime must not be null")
     @FutureOrPresent(message = "Task cant start in the past")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startTime;
 
     @NotNull(message = "Name must not be null")
     @FutureOrPresent(message = "Task cant end in the past")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
 
-    @NotNull(message = "Animal ID must not be null")
-    private Long animalId;
-
-
-    private String employeeName;
+    private String assignedEmployeeUsername;
 
     @NotNull(message = "Task Status must not be null")
     private TaskStatus status;
+
+    @NotNull(message = "Name must not be null")
+    @NotBlank(message = "Name must not be empty")
+    private String animalName;
+
+    @NotNull(message = "Name must not be null")
+    private Long animalId;
 }

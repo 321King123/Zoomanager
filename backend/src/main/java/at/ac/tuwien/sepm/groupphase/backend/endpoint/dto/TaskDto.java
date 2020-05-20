@@ -1,6 +1,8 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint.dto;
 
+import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import javax.validation.constraints.FutureOrPresent;
@@ -29,14 +31,15 @@ public class TaskDto {
 
     @NotNull(message = "startTime must not be null")
     @FutureOrPresent(message = "Task cant start in the past")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startTime;
 
     @NotNull(message = "Name must not be null")
     @FutureOrPresent(message = "Task cant end in the past")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endTime;
 
-
-    private String employeeName;
+    private String assignedEmployeeUsername;
 
     @NotNull(message = "Task Status must not be null")
     private TaskStatus status;

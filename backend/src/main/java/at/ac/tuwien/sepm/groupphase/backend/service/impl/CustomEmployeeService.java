@@ -107,6 +107,8 @@ public class CustomEmployeeService implements EmployeeService {
         LocalDateTime start = task.getStartTime();
         LocalDateTime end = task.getEndTime();
         for(Task t:tasks){
+            if(t.getStartTime().equals(start) && t.getEndTime().equals(end))
+                return false;
             if(t.getStartTime().isBefore(start) && t.getEndTime().isAfter(end))
                 return false;
             if(t.getStartTime().isAfter(start) && t.getStartTime().isBefore(end))
