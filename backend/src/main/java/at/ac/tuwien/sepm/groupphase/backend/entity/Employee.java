@@ -39,6 +39,9 @@ public class Employee {
 
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Animal> assignedAnimals;
+
+    @OneToMany(mappedBy = "assignedEmployee", fetch = FetchType.EAGER)
+    private List<AnimalTask> tasks;
 //
 //    @Override
 //    public boolean equals(Object o) {
