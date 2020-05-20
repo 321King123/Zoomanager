@@ -8,8 +8,8 @@ import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
-import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalTaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.TaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
@@ -29,13 +29,13 @@ public class CustomEmployeeService implements EmployeeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final EmployeeRepository employeeRepository;
     private final AnimalRepository animalRepository;
-    private final AnimalTaskRepository animalTaskRepository;
+    private final TaskRepository taskRepository;
 
     @Autowired
-    public CustomEmployeeService(UserService userService, EmployeeRepository employeeRepository, AnimalRepository animalRepository, AnimalTaskRepository animalTaskRepository) {
+    public CustomEmployeeService(UserService userService, EmployeeRepository employeeRepository, AnimalRepository animalRepository, TaskRepository taskRepository) {
         this.employeeRepository = employeeRepository;
         this.animalRepository = animalRepository;
-        this.animalTaskRepository = animalTaskRepository;
+        this.taskRepository = taskRepository;
     }
 
     @Override
@@ -100,16 +100,18 @@ public class CustomEmployeeService implements EmployeeService {
         return employeeRepository.findEmployeeByUsername(username);
     }
 
-    //TODO: once Enclosures exist also check for enclosure tasks
+
     @Override
-    public boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, LocalDateTime start, LocalDateTime end){
-        List<AnimalTask> animalTasks = animalTaskRepository.findAllByAssignedEmployee(employee);
-        for(AnimalTask a:animalTasks){
-            if(a.getStartTime().isBefore(start) && a.getEndTime().isAfter(end))
+    public boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task){
+        List<Task> tasks = taskRepository.findAllByAssignedEmployee(employee);
+        LocalDateTime start = task.getStartTime();
+        LocalDateTime end = task.getEndTime();
+        for(Task t:tasks){
+            if(t.getStartTime().isBefore(start) && t.getEndTime().isAfter(end))
                 return false;
-            if(a.getStartTime().isAfter(start) && a.getStartTime().isBefore(end))
+            if(t.getStartTime().isAfter(start) && t.getStartTime().isBefore(end))
                 return false;
-            if(a.getEndTime().isAfter(start) && a.getEndTime().isBefore(end))
+            if(t.getEndTime().isAfter(start) && t.getEndTime().isBefore(end))
                 return false;
         }
         return true;

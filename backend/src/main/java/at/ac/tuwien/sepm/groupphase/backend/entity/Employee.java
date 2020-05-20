@@ -41,7 +41,7 @@ public class Employee {
     private List<Animal> assignedAnimals;
 
     @OneToMany(mappedBy = "assignedEmployee", fetch = FetchType.EAGER)
-    private List<AnimalTask> tasks;
+    private List<Task> tasks;
 //
 //    @Override
 //    public boolean equals(Object o) {

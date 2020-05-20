@@ -23,25 +23,7 @@ public class AnimalTask {
     @PrimaryKeyJoinColumn
     private Task task;
 
-    @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false)
-    private String description;
-
-    @Column(nullable = false)
-    private LocalDateTime startTime;
-
-    @Column(nullable = false)
-    private LocalDateTime endTime;
-
     @NonNull
     @ManyToOne(fetch=FetchType.LAZY)
     private Animal subject;
-
-    @ManyToOne(fetch=FetchType.LAZY)
-    private Employee assignedEmployee;
-
-    @Column(nullable = false)
-    private TaskStatus status;
 }

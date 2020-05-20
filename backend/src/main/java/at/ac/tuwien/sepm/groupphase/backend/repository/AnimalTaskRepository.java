@@ -10,11 +10,4 @@ import java.util.List;
 @Repository
 public interface AnimalTaskRepository extends JpaRepository<AnimalTask, Long> {
 
-    /**
-     * Finds all AnimalTasks from a specific employee
-     *
-     * @param employee of the employee to be found
-     * @return employee with the corresponding username
-     */
-    List<AnimalTask> findAllByAssignedEmployee(Employee employee);
 }

@@ -22,4 +22,6 @@ public interface AnimalService {
      * @return a List of all current animals
      */
     List<Animal> getAll();
+
+    Animal getById(Long id);
 }

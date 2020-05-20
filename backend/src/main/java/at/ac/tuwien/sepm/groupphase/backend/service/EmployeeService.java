@@ -2,6 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -59,5 +60,5 @@ public interface EmployeeService  {
      * @param employee employee you want to check
      * @return true if time is free false if occupied
      */
-    boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, LocalDateTime start, LocalDateTime end);
+    boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task);
 }

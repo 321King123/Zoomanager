@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
@@ -35,17 +36,18 @@ public class CustomTaskService implements TaskService {
     }
 
     @Override
-    public AnimalTask createAnimalTask(AnimalTask animalTask) {
+    public AnimalTask createAnimalTask(Task task, Animal animal) {
         LOGGER.debug("Creating new Animal Task");
-        Employee employee = animalTask.getAssignedEmployee();
+        Employee employee = task.getAssignedEmployee();
         if(employee.getType() == EmployeeType.JANITOR){
             throw new IncorrectTypeException("A Janitor cant complete an animal Task");
         }
-        if(!employeeService.employeeIsFreeBetweenStartingAndEndtime(employee, animalTask.getStartTime(), animalTask.getEndTime())){
+        if(!employeeService.employeeIsFreeBetweenStartingAndEndtime(employee, task)){
             throw new NotFreeException("Employee already works on a task in the given time");
         }
-        taskRepository.save(Task.builder().id(animalTask.getId()).build());
-        animalTaskRepository.save(animalTask);
+        taskRepository.save(task);
+        //TODO: check maybe need to add task to builder
+        animalTaskRepository.save(AnimalTask.builder().id(task.getId()).subject(animal).build());
         return null;
     }
 }

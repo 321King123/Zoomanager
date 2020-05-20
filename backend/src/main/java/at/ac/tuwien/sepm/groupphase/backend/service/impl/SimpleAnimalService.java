@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -39,6 +40,15 @@ public class SimpleAnimalService implements AnimalService {
         if(animals.isEmpty())
             throw new NotFoundException("There are currently no animals");
         return animals;
+    }
+
+    @Override
+    public Animal getById(Long id){
+        LOGGER.debug("Getting Animal with id: " + id);
+        Optional<Animal> animal = animalRepository.findById(id);
+        if(animal.isPresent())
+            return animal.get();
+        throw new NotFoundException("Could not find the animal");
     }
 
 }
