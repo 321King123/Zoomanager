@@ -47,6 +47,7 @@ public class SimpleAnimalService implements AnimalService {
         Optional<Animal> animalOptional = findAnimalById(id);
 
         animalOptional.ifPresent(animal -> {
+            animalRepository.deleteAssignmentsOfAnimal(id);
             animalRepository.delete(animal);
         });
     }

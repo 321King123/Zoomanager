@@ -53,4 +53,10 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
         value = "INSERT INTO EMPLOYEE_ASSIGNED_ANIMALS(CARETAKERS_USERNAME, ASSIGNED_ANIMALS_ID) VALUES(:caretaker, :animalId)",
     nativeQuery = true)
     void assignAnimalToCaretaker( @Param("caretaker") String caretaker, @Param("animalId") long animalId);
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM EMPLOYEE_ASSIGNED_ANIMALS eaa where eaa.ASSIGNED_ANIMALS_ID=:animalId", nativeQuery = true)
+    void deleteAssignmentsOfAnimal(@Param("animalId") long animalId);
 }
