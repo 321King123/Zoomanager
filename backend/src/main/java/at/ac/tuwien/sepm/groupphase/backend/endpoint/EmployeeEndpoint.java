@@ -150,4 +150,14 @@ public class EmployeeEndpoint {
           return employeeMapper.employeeToEmployeeDto(employeeService.findByUsername(username));
       }
     }
+
+    @Secured("ROLE_ADMIN")
+    @GetMapping(value = "/delete/{username}")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "Delete a specific employee",
+        authorizations = {@Authorization(value = "apiKey")})
+    public void deleteEmployee(@PathVariable String username) {
+        LOGGER.info("GET /api/v1/employee/delete/{}", username);
+       employeeService.deleteEmployeeByUsername(username);
+    }
 }

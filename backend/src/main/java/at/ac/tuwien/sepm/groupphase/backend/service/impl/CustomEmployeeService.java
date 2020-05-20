@@ -25,11 +25,13 @@ public class CustomEmployeeService implements EmployeeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final EmployeeRepository employeeRepository;
     private final AnimalRepository animalRepository;
+    private final UserService userService;
 
     @Autowired
     public CustomEmployeeService(UserService userService, EmployeeRepository employeeRepository, AnimalRepository animalRepository) {
         this.employeeRepository = employeeRepository;
         this.animalRepository = animalRepository;
+        this.userService =userService;
     }
 
     @Override
@@ -92,5 +94,18 @@ public class CustomEmployeeService implements EmployeeService {
         return employeeRepository.findEmployeeByUsername(username);
     }
 
+    @Override
+    public void deleteEmployeeByUsername(String username){
+        if(this.findByUsername(username)!=null){
+            employeeRepository.deleteById(username);
+            if(this.userService.findApplicationUserByUsername(username)!=null){
+                this.userService.deleteUser(username);
+            }else{
+                throw new NotFoundException("No user to delete: " + username);
+            }
+        }else{
+            throw new NotFoundException("No employee to delete: " + username);
+        }
+    }
 
 }

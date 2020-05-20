@@ -48,4 +48,11 @@ public interface EmployeeService  {
      * @return the employee
      */
     Employee findByUsername(String username);
+
+    /**
+     * Delete a single employee by username.
+     *
+     * @param username the username of the employee to delete
+     */
+    void deleteEmployeeByUsername(String username);
 }
