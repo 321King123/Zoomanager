@@ -51,6 +51,7 @@ public interface TestData {
     String ANIMAL_PUBLIC_INFORMATION_FAMOUS = "famous";
 
 
+
     String VALID_TEST_PASSWORD = "$2a$10$Wlg9Rz/smx0T1ULlBFaGneTWjsTHNd6URL/odEdOoyZ63MpQv28vq";
 
     String ADMIN_USER = "admin";

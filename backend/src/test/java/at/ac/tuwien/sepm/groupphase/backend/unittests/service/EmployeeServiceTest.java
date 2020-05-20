@@ -40,7 +40,7 @@ public class EmployeeServiceTest implements TestData {
     @MockBean
     AnimalRepository animalRepository;
 
-    private Employee anmial_caretaker = Employee.builder()
+    private Employee animal_caretaker = Employee.builder()
         .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
         .name(NAME_ANIMAL_CARE_EMPLOYEE)
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
@@ -94,7 +94,7 @@ public class EmployeeServiceTest implements TestData {
         List<Employee> employees = new LinkedList<>();
         employees.add(janitor);
         employees.add(doctor);
-        employees.add(anmial_caretaker);
+        employees.add(animal_caretaker);
         Mockito.when(employeeRepository.findAll()).thenReturn(employees);
         List<Employee> returnedEmployees = employeeService.getAll();
         returnedEmployees.containsAll(employees);
@@ -103,24 +103,24 @@ public class EmployeeServiceTest implements TestData {
 
     @Test
     public void findEmployeeByUsername_returnsRightEmployee() throws Exception{
-        Mockito.when(employeeRepository.findEmployeeByUsername(anmial_caretaker.getUsername())).thenReturn(anmial_caretaker);
-        Employee employee = employeeService.findByUsername(anmial_caretaker.getUsername());
-        assertEquals(anmial_caretaker.getUsername(),employee.getUsername());
+        Mockito.when(employeeRepository.findEmployeeByUsername(animal_caretaker.getUsername())).thenReturn(animal_caretaker);
+        Employee employee = employeeService.findByUsername(animal_caretaker.getUsername());
+        assertEquals(animal_caretaker.getUsername(),employee.getUsername());
     }
 
     @Test
     public void createExistingEmployee_throwsAlreadyExistsException() throws Exception{
-        Mockito.when(employeeRepository.findEmployeeByUsername(anmial_caretaker.getUsername())).thenReturn(anmial_caretaker);
-        assertThrows(AlreadyExistsException.class,()->{employeeService.createEmployee(anmial_caretaker);});
+        Mockito.when(employeeRepository.findEmployeeByUsername(animal_caretaker.getUsername())).thenReturn(animal_caretaker);
+        assertThrows(AlreadyExistsException.class,()->{employeeService.createEmployee(animal_caretaker);});
     }
 
     @Test
     public void assignAnimalToEmployee(){
-        Mockito.when(employeeRepository.findEmployeeByUsername(anmial_caretaker.getUsername())).thenReturn(anmial_caretaker);
-        Employee employee = employeeService.findByUsername(anmial_caretaker.getUsername());
+        Mockito.when(employeeRepository.findEmployeeByUsername(animal_caretaker.getUsername())).thenReturn(animal_caretaker);
+        Employee employee = employeeService.findByUsername(animal_caretaker.getUsername());
         List<Animal> animalsWithEmployee = new LinkedList<>();
         animalsWithEmployee.add(horse);
-        Mockito.when(employeeRepository.findEmployeeByUsername(anmial_caretaker.getUsername())).thenReturn(anmial_caretaker);
+        Mockito.when(employeeRepository.findEmployeeByUsername(animal_caretaker.getUsername())).thenReturn(animal_caretaker);
         employeeService.assignAnimal(employee.getUsername(), horse.getId());
         Mockito.when(animalRepository.findAllByCaretakers(employee)).thenReturn(animalsWithEmployee);
         List<Animal> returnedAnimals = employeeService.findAssignedAnimals(employee.getUsername());
@@ -129,11 +129,18 @@ public class EmployeeServiceTest implements TestData {
 
     @Test
     public void assignAlreadyAssignedAnimalToEmployee()throws Exception{
-        Mockito.when(employeeRepository.findEmployeeByUsername(anmial_caretaker.getUsername())).thenReturn(anmial_caretaker);
-        Employee employee = employeeService.findByUsername(anmial_caretaker.getUsername());
+        Mockito.when(employeeRepository.findEmployeeByUsername(animal_caretaker.getUsername())).thenReturn(animal_caretaker);
+        Employee employee = employeeService.findByUsername(animal_caretaker.getUsername());
         List<Animal> animalsWithEmployee = new LinkedList<>();
         animalsWithEmployee.add(horse);
         Mockito.when(animalRepository.findAllByCaretakers(employee)).thenReturn(animalsWithEmployee);
         assertThrows(AlreadyExistsException.class,()->{employeeService.assignAnimal(employee.getUsername(), horse.getId());});
+    }
+
+    @Test
+    public void createNonExistentEmployeeValidDate_returnsCreatedEmployee() throws Exception{
+        Mockito.when(employeeRepository.findEmployeeByUsername(animal_caretaker.getUsername())).thenReturn(null);
+        Mockito.when(employeeRepository.save(animal_caretaker)).thenReturn(animal_caretaker);
+        assertEquals(employeeService.createEmployee(animal_caretaker), animal_caretaker);
     }
 }
