@@ -1,11 +1,14 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
+import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
 import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalTaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
@@ -18,6 +21,7 @@ import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -25,11 +29,13 @@ public class CustomEmployeeService implements EmployeeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final EmployeeRepository employeeRepository;
     private final AnimalRepository animalRepository;
+    private final AnimalTaskRepository animalTaskRepository;
 
     @Autowired
-    public CustomEmployeeService(UserService userService, EmployeeRepository employeeRepository, AnimalRepository animalRepository) {
+    public CustomEmployeeService(UserService userService, EmployeeRepository employeeRepository, AnimalRepository animalRepository, AnimalTaskRepository animalTaskRepository) {
         this.employeeRepository = employeeRepository;
         this.animalRepository = animalRepository;
+        this.animalTaskRepository = animalTaskRepository;
     }
 
     @Override
@@ -46,6 +52,7 @@ public class CustomEmployeeService implements EmployeeService {
     }
 
     //This function will be the general search List function right now only Name and Type fill be filtered
+    @Override
     public List<Employee> findByNameAndType(Employee employee){
         LOGGER.debug("Getting filtered List of employees.");
         ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAll().withIgnoreNullValues().withIgnoreCase()
@@ -58,6 +65,7 @@ public class CustomEmployeeService implements EmployeeService {
         return employees;
     }
 
+    @Override
     public List<Animal> findAssignedAnimals(String employeeUsername){
         LOGGER.debug("Getting List of all animals assigned to " + employeeUsername);
         Employee employee = employeeRepository.findEmployeeByUsername(employeeUsername);
@@ -90,6 +98,21 @@ public class CustomEmployeeService implements EmployeeService {
     public Employee findByUsername(String username) {
         LOGGER.debug("Getting Specific employee: " + username);
         return employeeRepository.findEmployeeByUsername(username);
+    }
+
+    //TODO: once Enclosures exist also check for enclosure tasks
+    @Override
+    public boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, LocalDateTime start, LocalDateTime end){
+        List<AnimalTask> animalTasks = animalTaskRepository.findAllByAssignedEmployee(employee);
+        for(AnimalTask a:animalTasks){
+            if(a.getStartTime().isBefore(start) && a.getEndTime().isAfter(end))
+                return false;
+            if(a.getStartTime().isAfter(start) && a.getStartTime().isBefore(end))
+                return false;
+            if(a.getEndTime().isAfter(start) && a.getEndTime().isBefore(end))
+                return false;
+        }
+        return true;
     }
 
 
