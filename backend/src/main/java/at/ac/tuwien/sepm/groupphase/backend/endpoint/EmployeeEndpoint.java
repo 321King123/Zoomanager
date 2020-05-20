@@ -118,7 +118,7 @@ public class EmployeeEndpoint {
     }
 
     @Secured("ROLE_ADMIN")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(value = "/animal/{employeeUsername}")
     @ApiOperation(value = "Assign animal to Employee", authorizations = {@Authorization(value = "apiKey")})
     public void assignAnimal(@PathVariable String employeeUsername, @RequestBody AnimalDto animal) {
