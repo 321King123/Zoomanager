@@ -4,9 +4,7 @@ import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Getter
@@ -39,6 +37,8 @@ public class Employee {
 
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Animal> assignedAnimals;
+
+
 //
 //    @Override
 //    public boolean equals(Object o) {

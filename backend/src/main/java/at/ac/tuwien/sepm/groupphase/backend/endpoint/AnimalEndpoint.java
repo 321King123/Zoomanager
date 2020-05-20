@@ -58,4 +58,13 @@ public class AnimalEndpoint {
         }
         return animalsDto;
     }
+
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public void deleteAnimal(@PathVariable("id") Long id){
+        LOGGER.info("DELETE /api/v1/authentication/animal/" + id );
+        animalService.deleteAnimal(id);
+    }
+
 }
