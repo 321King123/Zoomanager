@@ -10,15 +10,12 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AnimalTaskDto {
-
-    private Long id;
-
+public class AnimalTaskDto extends TaskDto{
 
     @NotNull(message = "Title must not be null")
     @NotBlank(message = "Title must not be empty")
