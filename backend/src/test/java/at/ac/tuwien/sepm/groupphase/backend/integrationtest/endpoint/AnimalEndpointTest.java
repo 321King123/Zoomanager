@@ -3,6 +3,8 @@ package at.ac.tuwien.sepm.groupphase.backend.integrationtest.endpoint;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.MessageInquiryDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
@@ -15,14 +17,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @ExtendWith(SpringExtension.class)
@@ -70,16 +79,54 @@ public class AnimalEndpointTest implements TestData {
             .build();
     }
 
-    //@Test
-    public void givenOneAnimal_whenGet_thenOk() throws Exception {
+    @Test
+    public void givenOneAnimal_whenGet_thenOK() throws Exception {
         animalRepository.save(animal);
-
         MvcResult mvcResult = this.mockMvc.perform(get(ANIMAL_BASE_URI)
             .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
-
         assertEquals(HttpStatus.OK.value(), response.getStatus());
     }
+
+    @Test
+    public void givenNothing_whenPostInvalid_then400() throws Exception {
+        animal.setName(null);
+        animal.setDescription(null);
+        animal.setSpecies(null);
+        AnimalDto animalDto = animalMapper.animalToAnimalDto(animal);
+        String body = objectMapper.writeValueAsString(animalDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(ANIMAL_BASE_URI)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertAll(
+            () -> assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus())
+        );
+    }
+
+    @Test
+    public void givenAnimal_whenPostSuccessed_then201() throws Exception {
+        AnimalDto animalDto = animalMapper.animalToAnimalDto(animal);
+        String body = objectMapper.writeValueAsString(animalDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(ANIMAL_BASE_URI)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertAll(
+            () -> assertEquals(HttpStatus.CREATED.value(), response.getStatus())
+        );
+    }
+
 }

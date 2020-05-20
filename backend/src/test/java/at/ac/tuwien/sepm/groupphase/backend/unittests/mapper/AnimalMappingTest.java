@@ -29,6 +29,15 @@ public class AnimalMappingTest implements TestData {
         .publicInformation("famous")
         .build();
 
+    private final AnimalDto animalDto= AnimalDto.builder()
+        .id(2L)
+        .name("Dog")
+        .description("Fast")
+        .enclosure(null)
+        .species("race")
+        .publicInformation(null)
+        .build();
+
     @Autowired
     private AnimalMapper animalMapper;
 
@@ -36,6 +45,20 @@ public class AnimalMappingTest implements TestData {
     @Test
     public void givenNothing_whenMapAnimalDtoToEntity_thenEntityHasAllProperties() {
         AnimalDto animalDto= animalMapper.animalToAnimalDto(animal);
+
+        assertAll(
+            () -> assertEquals(animal.getId(), animalDto.getId()),
+            () -> assertEquals(animal.getDescription(), animalDto.getDescription()),
+            () -> assertEquals(animal.getEnclosure(), animalDto.getEnclosure()),
+            () -> assertEquals(animal.getName(), animalDto.getName()),
+            () -> assertEquals(animal.getPublicInformation(), animalDto.getPublicInformation()),
+            () -> assertEquals(animal.getSpecies(), animalDto.getSpecies())
+        );
+    }
+
+    @Test
+    public void givenNothing_whenEntitytoMapAnimalDto_thenEntityHasAllProperties() {
+        Animal animal= animalMapper.AnimalDtoToAnimal(animalDto);
 
         assertAll(
             () -> assertEquals(animal.getId(), animalDto.getId()),
