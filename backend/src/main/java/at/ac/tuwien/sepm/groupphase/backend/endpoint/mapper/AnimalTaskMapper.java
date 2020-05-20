@@ -1,10 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper;
 
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalTaskDto;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.TaskDto;
 import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component

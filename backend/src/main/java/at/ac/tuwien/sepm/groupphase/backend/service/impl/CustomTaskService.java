@@ -42,16 +42,23 @@ public class CustomTaskService implements TaskService {
     public AnimalTask createAnimalTask(Task task, Animal animal) {
         LOGGER.debug("Creating new Animal Task");
         Employee employee = task.getAssignedEmployee();
+
+        if(animal == null)
+            throw new NotFoundException("Could not find animal with given Id");
+
         if(task.getStartTime().isAfter(task.getEndTime()))
             throw new ValidationException("Starting time of task cant be later than end time");
+
         if(employee == null) {
             task.setStatus(TaskStatus.NOT_ASSIGNED);
-        }else if(employee.getType() == EmployeeType.JANITOR){
+        }else if(employee.getType() != EmployeeType.ANIMAL_CARE && employee.getType() != EmployeeType.DOCTOR){
             throw new IncorrectTypeException("A Janitor cant complete an animal Task");
         }
+
         if(!employeeService.employeeIsFreeBetweenStartingAndEndtime(employee, task)){
             throw new NotFreeException("Employee already works on a task in the given time");
         }
+
         Task createdTask = taskRepository.save(task);
         AnimalTask animalTask = animalTaskRepository.save(AnimalTask.builder().id(createdTask.getId()).subject(animal).build());
         animalTask.setTask(createdTask);
