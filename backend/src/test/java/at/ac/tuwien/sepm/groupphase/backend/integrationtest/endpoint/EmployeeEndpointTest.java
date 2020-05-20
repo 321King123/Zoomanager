@@ -13,15 +13,21 @@ import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.UserLoginRepository;
 import at.ac.tuwien.sepm.groupphase.backend.security.JwtTokenizer;
+import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -33,6 +39,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.lang.invoke.MethodHandles;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -480,4 +490,85 @@ public class EmployeeEndpointTest implements TestData {
 
     }
 
+    @Test
+    public void whenAdminCreateEmployeeWithValidData_statusCreated() throws Exception{
+        userLoginRepository.save(admin_login);
+
+        EmployeeDto emp = EmployeeDto.builder()
+            .name("Test")
+            .type(EmployeeType.ANIMAL_CARE)
+            .birthday(Date.valueOf(LocalDate.now()))
+            .email("test@email.com")
+            .username("tester")
+            .password("Password1")
+            .build();
+
+        String body = objectMapper.writeValueAsString(emp);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(EMPLOYEE_BASE_URI)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .content(body))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.CREATED.value(),  response.getStatus());
+    }
+
+    @Test
+    public void whenAdminCreateEmployeeWithInvalidData_statusBadRequest() throws Exception{
+        userLoginRepository.save(admin_login);
+
+        EmployeeDto emp = EmployeeDto.builder()
+            .name("")
+            .type(EmployeeType.ANIMAL_CARE)
+            .birthday(Date.valueOf(LocalDate.now()))
+            .email("test@email.com")
+            .username("")
+            .password("")
+            .build();
+
+        String body = objectMapper.writeValueAsString(emp);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(EMPLOYEE_BASE_URI)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .content(body))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.BAD_REQUEST.value(),  response.getStatus());
+    }
+
+    @Test
+    public void whenEmployeeCreatEmploeeWithValidData_StatusForbidden() throws Exception{
+        userLoginRepository.save(default_user_login);
+        employeeRepository.save(default_user);
+
+        EmployeeDto emp = EmployeeDto.builder()
+            .name("Test")
+            .type(EmployeeType.ANIMAL_CARE)
+            .birthday(Date.valueOf(LocalDate.now()))
+            .email("test@email.com")
+            .username("tester")
+            .password("Password1")
+            .build();
+
+        String body = objectMapper.writeValueAsString(emp);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(EMPLOYEE_BASE_URI)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .content(body))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.FORBIDDEN.value(),  response.getStatus());
+    }
 }
