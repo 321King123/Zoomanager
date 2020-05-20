@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.unittests.service;
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import org.junit.jupiter.api.Test;
@@ -65,5 +66,12 @@ public class AnimalServiceTest implements TestData {
 
         List<Animal> animals = animalRepository.findAll();
         assertEquals(1, animals.size());
+    }
+
+    @Test
+    public void whenDeletingNotExistingAnimal_thenNotFoundException(){
+        animalRepository.deleteAll();
+        Mockito.when(animalRepository.findById(1L)).thenReturn(null);
+        assertThrows(NotFoundException.class, ()->{animalService.deleteAnimal(1L);});
     }
 }

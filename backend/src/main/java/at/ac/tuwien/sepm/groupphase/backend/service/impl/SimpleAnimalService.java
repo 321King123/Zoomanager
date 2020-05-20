@@ -46,10 +46,12 @@ public class SimpleAnimalService implements AnimalService {
         LOGGER.debug("Deleting an animal.");
         Optional<Animal> animalOptional = findAnimalById(id);
 
-        animalOptional.ifPresent(animal -> {
+        animalOptional.ifPresentOrElse(animal -> {
             animalRepository.deleteAssignmentsOfAnimal(id);
             animalRepository.delete(animal);
-        });
+        },()->{throw new NotFoundException("No such animal exists.");});
+
+
     }
 
     @Override
