@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepm.groupphase.backend.unittests.repository;
 
-
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
@@ -10,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,17 +28,56 @@ public class AnimalRapositoryTest implements TestData {
     public void givenNothing_whenSaveAnimal_thenFindAnimalById() {
         Animal animal = Animal.builder()
             .id(1L)
-            .name("Horse")
-            .description("Fast")
+            .name(null)
+            .description(null)
             .enclosure("Barn")
-            .species("race")
+            .species(null)
             .publicInformation("famous")
+            .build();
+
+        animalRepository.save(animal);
+        assertAll( () -> assertNotNull(animalRepository.findById(animal.getId())));
+    }
+
+    @Test
+    public void saveAnimalbyGivingOnlyMandatoryValues_thenFindAnimalById() {
+        Animal animal = Animal.builder()
+            .id(2L)
+            .name("Brandy")
+            .description("racing Horce")
+            .enclosure(null)
+            .species("race")
+            .publicInformation(null)
             .build();
 
         animalRepository.save(animal);
 
         assertAll(
-            () -> assertNotNull(animalRepository.findById(animal.getId()))
+            () -> assertEquals(animalRepository.findById(2L),animal)
         );
+    }
+
+    @Test
+    public void emptyRepository_whenFindAll_thenEmptyList() {
+        animalRepository.deleteAll();
+        List<Animal> animals = animalRepository.findAll();
+        assertEquals(0, animals.size());
+    }
+
+    @Test
+    public void ReturnsOneAnimal_whenSaveAnimal_thenFindAll_() {
+        animalRepository.deleteAll();
+        Animal animal = Animal.builder()
+            .id(2L)
+            .name("Brandy")
+            .description("racing Horce")
+            .enclosure(null)
+            .species("race")
+            .publicInformation(null)
+            .build();
+        animalRepository.save(animal);
+
+        List<Animal> animals = animalRepository.findAll();
+        assertEquals(1, animals.size());
     }
 }
