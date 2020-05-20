@@ -6,6 +6,7 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EmployeeDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
@@ -462,11 +463,12 @@ public class EmployeeEndpointTest implements TestData {
         userLoginRepository.save(animal_caretaker_login);
         employeeRepository.save(anmial_caretaker);
         animalRepository.save(horse);
+        horse = animalRepository.findAll().get(0);
         AnimalDto animalDto = animalMapper.animalToAnimalDto(horse);
         String body = objectMapper.writeValueAsString(animalDto);
 
-        MvcResult mvcResult = this.mockMvc.perform(post(EMPLOYEE_BASE_URI+"/animal/" + anmial_caretaker.getUsername())
-            .content(String.valueOf(body))
+        MvcResult mvcResult = this.mockMvc.perform(post(EMPLOYEE_BASE_URI + "/animal/" + anmial_caretaker.getUsername())
+            .content(body)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
