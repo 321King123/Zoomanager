@@ -2,7 +2,9 @@ package at.ac.tuwien.sepm.groupphase.backend.integrationtest.endpoint;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.config.properties.SecurityProperties;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EmployeeDto;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
@@ -29,12 +31,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @ExtendWith(SpringExtension.class)
@@ -63,6 +67,9 @@ public class EmployeeEndpointTest implements TestData {
 
     @Autowired
     private EmployeeMapper employeeMapper;
+
+    @Autowired
+    private AnimalMapper animalMapper;
 
     @Autowired
     private JwtTokenizer jwtTokenizer;
@@ -135,11 +142,20 @@ public class EmployeeEndpointTest implements TestData {
         .email(EMAIL_JANITOR_EMPLOYEE)
         .build();
 
+    private Animal horse = Animal.builder()
+        .id(ANIMAL_ID)
+        .name(ANIMAL_NAME_HORSE)
+        .description(ANIMAL_DESCRIPTION_FAST)
+        .species(ANIMAL_SPECIES_ARABIAN)
+        .publicInformation(ANIMAL_PUBLIC_INFORMATION_FAMOUS)
+        .build();
+
 
     @BeforeEach
     public void beforeEach(){
         employeeRepository.deleteAll();
         userLoginRepository.deleteAll();
+        animalRepository.deleteAll();
         animal_caretaker_login = UserLogin.builder()
             .isAdmin(false)
             .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
@@ -181,12 +197,21 @@ public class EmployeeEndpointTest implements TestData {
             .type(TYPE_JANITOR_EMPLOYEE)
             .email(EMAIL_JANITOR_EMPLOYEE)
             .build();
+
+        horse = Animal.builder()
+            .id(ANIMAL_ID)
+            .name(ANIMAL_NAME_HORSE)
+            .description(ANIMAL_DESCRIPTION_FAST)
+            .species(ANIMAL_SPECIES_ARABIAN)
+            .publicInformation(ANIMAL_PUBLIC_INFORMATION_FAMOUS)
+            .build();
     }
 
     @AfterEach
     public void afterEach(){
         employeeRepository.deleteAll();
         userLoginRepository.deleteAll();
+        animalRepository.deleteAll();
     }
 
     @Test
@@ -430,6 +455,27 @@ public class EmployeeEndpointTest implements TestData {
         assertEquals(response.getContentType(), MediaType.APPLICATION_JSON_VALUE);
         EmployeeDto employeeDto = objectMapper.readValue(response.getContentAsString(),EmployeeDto.class);
         assertEquals(employeeDto.getName(),default_user.getName());
+    }
+
+    @Test
+    public void assigningAnimalToEmployee() throws Exception {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        animalRepository.save(horse);
+        AnimalDto animalDto = animalMapper.animalToAnimalDto(horse);
+        String body = objectMapper.writeValueAsString(animalDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(EMPLOYEE_BASE_URI+"/animal/" + anmial_caretaker.getUsername())
+            .content(String.valueOf(body))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+
     }
 
 }
