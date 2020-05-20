@@ -20,6 +20,13 @@
     <p *ngIf="employee.birthday!=null" class="info-text">Birthday: {{displayDate(employee.birthday)}}</p>
   </div>
 </div>
+
+<br>
+<button *ngIf="isAdmin()" class="float-md-right md-primary btn btn-danger" type="button"
+        (click)="deleteEmployee()">Delete
+</button>
+<br>
+
 <hr>
 <ng-container *ngIf="employee!=null && employee.type=='ANIMAL_CARE'">
   <div class="row">

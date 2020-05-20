@@ -89,4 +89,8 @@ export class EmployeeService {
   getPersonalInfo(): Observable<Employee> {
     return this.httpClient.get<Employee>(this.employeeBaseUri + '/info');
   }
+
+  deleteEmployee(username: string): Observable<Employee> {
+    return this.httpClient.delete<Employee>(this.employeeBaseUri + '/' + username);
+  }
 }
