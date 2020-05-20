@@ -1,9 +1,11 @@
 package at.ac.tuwien.sepm.groupphase.backend.unittests.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
@@ -35,6 +37,9 @@ public class EmployeeServiceTest implements TestData {
     @MockBean
     EmployeeRepository employeeRepository;
 
+    @MockBean
+    AnimalRepository animalRepository;
+
     private Employee anmial_caretaker = Employee.builder()
         .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
         .name(NAME_ANIMAL_CARE_EMPLOYEE)
@@ -57,6 +62,14 @@ public class EmployeeServiceTest implements TestData {
         .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
         .type(TYPE_JANITOR_EMPLOYEE)
         .email(EMAIL_JANITOR_EMPLOYEE)
+        .build();
+
+    private Animal horse = Animal.builder()
+        .id(ANIMAL_ID)
+        .name(ANIMAL_NAME_HORSE)
+        .description(ANIMAL_DESCRIPTION_FAST)
+        .species(ANIMAL_SPECIES_ARABIAN)
+        .publicInformation(ANIMAL_PUBLIC_INFORMATION_FAMOUS)
         .build();
 
     @Test
@@ -99,5 +112,28 @@ public class EmployeeServiceTest implements TestData {
     public void createExistingEmployee_throwsAlreadyExistsException() throws Exception{
         Mockito.when(employeeRepository.findEmployeeByUsername(anmial_caretaker.getUsername())).thenReturn(anmial_caretaker);
         assertThrows(AlreadyExistsException.class,()->{employeeService.createEmployee(anmial_caretaker);});
+    }
+
+    @Test
+    public void assignAnimalToEmployee(){
+        Mockito.when(employeeRepository.findEmployeeByUsername(anmial_caretaker.getUsername())).thenReturn(anmial_caretaker);
+        Employee employee = employeeService.findByUsername(anmial_caretaker.getUsername());
+        List<Animal> animalsWithEmployee = new LinkedList<>();
+        animalsWithEmployee.add(horse);
+        Mockito.when(employeeRepository.findEmployeeByUsername(anmial_caretaker.getUsername())).thenReturn(anmial_caretaker);
+        employeeService.assignAnimal(employee.getUsername(), horse.getId());
+        Mockito.when(animalRepository.findAllByCaretakers(employee)).thenReturn(animalsWithEmployee);
+        List<Animal> returnedAnimals = employeeService.findAssignedAnimals(employee.getUsername());
+        assertEquals(1, returnedAnimals.size());
+    }
+
+    @Test
+    public void assignAlreadyAssignedAnimalToEmployee()throws Exception{
+        Mockito.when(employeeRepository.findEmployeeByUsername(anmial_caretaker.getUsername())).thenReturn(anmial_caretaker);
+        Employee employee = employeeService.findByUsername(anmial_caretaker.getUsername());
+        List<Animal> animalsWithEmployee = new LinkedList<>();
+        animalsWithEmployee.add(horse);
+        Mockito.when(animalRepository.findAllByCaretakers(employee)).thenReturn(animalsWithEmployee);
+        assertThrows(AlreadyExistsException.class,()->{employeeService.assignAnimal(employee.getUsername(), horse.getId());});
     }
 }

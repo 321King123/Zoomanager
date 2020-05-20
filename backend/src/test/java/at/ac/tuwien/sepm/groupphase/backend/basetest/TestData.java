@@ -44,6 +44,13 @@ public interface TestData {
     EmployeeType TYPE_JANITOR_EMPLOYEE = EmployeeType.JANITOR;
     String EMAIL_JANITOR_EMPLOYEE = "janitor@email.com";
 
+    Long ANIMAL_ID = 1L;
+    String ANIMAL_NAME_HORSE = "Horse";
+    String ANIMAL_DESCRIPTION_FAST = "Fast";
+    String ANIMAL_SPECIES_ARABIAN = "ARABIAN";
+    String ANIMAL_PUBLIC_INFORMATION_FAMOUS = "famous";
+
+
     String VALID_TEST_PASSWORD = "$2a$10$Wlg9Rz/smx0T1ULlBFaGneTWjsTHNd6URL/odEdOoyZ63MpQv28vq";
 
     String ADMIN_USER = "admin";
