@@ -20,7 +20,7 @@ export class AnimalComponent implements OnInit {
     this.animalCreationForm = this.formBuilder.group({
       name: ['', [Validators.required]],
       species: ['', [Validators.required]],
-      publicInformation: ['', [Validators.required]],
+      publicInformation: [''],
       description: ['', [Validators.required]]
     });
   }
@@ -83,6 +83,17 @@ export class AnimalComponent implements OnInit {
       },
       error => {
         console.log('Failed to load all animals');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  deleteAnimal(animal: Animal) {
+    this.animalService.deleteAnimal(animal).subscribe(
+      (res: any) => {
+        this.getAnimals();
+      },
+      error => {
         this.defaultServiceErrorHandling(error);
       }
     );
