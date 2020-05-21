@@ -40,10 +40,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.lang.invoke.MethodHandles;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -492,14 +492,13 @@ public class EmployeeEndpointTest implements TestData {
 
     @Test
     public void whenAdminCreateEmployeeWithValidData_statusCreated() throws Exception{
-        userLoginRepository.save(admin_login);
 
         EmployeeDto emp = EmployeeDto.builder()
-            .name("Test")
-            .type(EmployeeType.ANIMAL_CARE)
-            .birthday(Date.valueOf(LocalDate.now()))
-            .email("test@email.com")
-            .username("tester")
+            .name(NAME_ANIMAL_CARE_EMPLOYEE)
+            .type(TYPE_ANIMAL_CARE_EMPLOYEE)
+            .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
+            .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+            .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
             .password("Password1")
             .build();
 
@@ -524,7 +523,7 @@ public class EmployeeEndpointTest implements TestData {
         EmployeeDto emp = EmployeeDto.builder()
             .name("")
             .type(EmployeeType.ANIMAL_CARE)
-            .birthday(Date.valueOf(LocalDate.now()))
+            .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
             .email("test@email.com")
             .username("")
             .password("")
@@ -552,7 +551,7 @@ public class EmployeeEndpointTest implements TestData {
         EmployeeDto emp = EmployeeDto.builder()
             .name("Test")
             .type(EmployeeType.ANIMAL_CARE)
-            .birthday(Date.valueOf(LocalDate.now()))
+            .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
             .email("test@email.com")
             .username("tester")
             .password("Password1")

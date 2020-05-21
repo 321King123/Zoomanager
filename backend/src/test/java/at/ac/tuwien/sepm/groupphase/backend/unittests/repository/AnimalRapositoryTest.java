@@ -44,7 +44,6 @@ public class AnimalRapositoryTest implements TestData {
     @Test
     public void saveAnimalbyGivingOnlyMandatoryValues_thenFindAnimalById() {
         Animal animal = Animal.builder()
-            .id(2L)
             .name("Brandy")
             .description("racing Horce")
             .enclosure(null)
@@ -52,10 +51,14 @@ public class AnimalRapositoryTest implements TestData {
             .publicInformation(null)
             .build();
 
-        animalRepository.save(animal);
+        Animal returnedAnimal = animalRepository.save(animal);
 
         assertAll(
-            () -> assertEquals(animalRepository.findById(2L),animal)
+            () -> assertEquals(returnedAnimal.getName(),animal.getName()),
+            () -> assertEquals(returnedAnimal.getDescription(),animal.getDescription()),
+            () -> assertEquals(returnedAnimal.getSpecies(),animal.getSpecies()),
+            () -> assertEquals(returnedAnimal.getEnclosure(),animal.getEnclosure()),
+            () -> assertEquals(returnedAnimal.getPublicInformation(),animal.getPublicInformation())
         );
     }
 
