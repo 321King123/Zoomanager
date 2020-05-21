@@ -3,6 +3,8 @@ package at.ac.tuwien.sepm.groupphase.backend.unittests.repository;
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +30,10 @@ public class AnimalRapositoryTest implements TestData {
     public void givenNothing_whenSaveAnimal_thenFindAnimalById() {
         Animal animal = Animal.builder()
             .id(1L)
-            .name(null)
-            .description(null)
+            .name("name")
+            .description("description")
             .enclosure("Barn")
-            .species(null)
+            .species("species")
             .publicInformation("famous")
             .build();
 
@@ -42,7 +44,6 @@ public class AnimalRapositoryTest implements TestData {
     @Test
     public void saveAnimalbyGivingOnlyMandatoryValues_thenFindAnimalById() {
         Animal animal = Animal.builder()
-            .id(2L)
             .name("Brandy")
             .description("racing Horce")
             .enclosure(null)
@@ -50,10 +51,14 @@ public class AnimalRapositoryTest implements TestData {
             .publicInformation(null)
             .build();
 
-        animalRepository.save(animal);
+        Animal returnedAnimal = animalRepository.save(animal);
 
         assertAll(
-            () -> assertEquals(animalRepository.findById(2L),animal)
+            () -> assertEquals(returnedAnimal.getName(),animal.getName()),
+            () -> assertEquals(returnedAnimal.getDescription(),animal.getDescription()),
+            () -> assertEquals(returnedAnimal.getSpecies(),animal.getSpecies()),
+            () -> assertEquals(returnedAnimal.getEnclosure(),animal.getEnclosure()),
+            () -> assertEquals(returnedAnimal.getPublicInformation(),animal.getPublicInformation())
         );
     }
 
@@ -80,4 +85,34 @@ public class AnimalRapositoryTest implements TestData {
         List<Animal> animals = animalRepository.findAll();
         assertEquals(1, animals.size());
     }
+
+    @Test
+    public void deleteAnimalWorks(){
+        Animal animal = Animal.builder()
+            .id(2L)
+            .name("Brandy")
+            .description("racing Horce")
+            .enclosure(null)
+            .species("race")
+            .publicInformation(null)
+            .build();
+        animalRepository.save(animal);
+        List<Animal> animals = animalRepository.findAll();
+        animalRepository.deleteById(animals.get(0).getId());
+       List<Animal> animalsS = animalRepository.findAll();
+        assertEquals(0, animalsS.size());
+
+    }
+
+    @BeforeEach
+    public void beforeEach(){
+        animalRepository.deleteAll();
+    }
+
+    @AfterEach
+    public void afterEach(){
+        animalRepository.deleteAll();
+    }
+
+
 }
