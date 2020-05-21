@@ -82,6 +82,9 @@ export class AnimalComponent implements OnInit {
         this.animals = animals;
       },
       error => {
+        if (error.status === 404) {
+          this.animals.length = 0;
+        }
         console.log('Failed to load all animals');
         this.defaultServiceErrorHandling(error);
       }
