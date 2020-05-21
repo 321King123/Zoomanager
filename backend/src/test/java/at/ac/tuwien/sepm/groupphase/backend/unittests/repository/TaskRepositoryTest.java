@@ -38,11 +38,6 @@ public class TaskRepositoryTest implements TestData {
     @Autowired
     TaskRepository taskRepository;
 
-    @Autowired
-    UserLoginRepository userRepository;
-
-    @Autowired
-    EmployeeRepository employeeRepository;
 
     private final UserLogin animal_caretaker_login = UserLogin.builder()
         .isAdmin(false)
@@ -69,8 +64,6 @@ public class TaskRepositoryTest implements TestData {
     @BeforeEach
     public void beforeEach() {
         taskRepository.deleteAll();
-        employeeRepository.deleteAll();
-        userRepository.deleteAll();
 
         task = Task.builder()
             .title(TASK_TITLE)
@@ -83,8 +76,6 @@ public class TaskRepositoryTest implements TestData {
     /*
     @Test
     public void givenNothing_whenSaveTask_thenFindTaskById() {
-        userRepository.save(animal_caretaker_login);
-        employeeRepository.save(anmial_caretaker);
         task.setAssignedEmployee(anmial_caretaker);
         task.setStatus(TaskStatus.ASSIGNED);
         taskRepository.save(task);
@@ -94,8 +85,6 @@ public class TaskRepositoryTest implements TestData {
 
     @Test
     public void givenNothing_searchingForTasksOfEmployee_thenFindAllTasks() {
-        userRepository.save(animal_caretaker_login);
-        employeeRepository.save(anmial_caretaker);
         task.setAssignedEmployee(anmial_caretaker);
         task.setStatus(TaskStatus.ASSIGNED);
         taskRepository.save(task);
