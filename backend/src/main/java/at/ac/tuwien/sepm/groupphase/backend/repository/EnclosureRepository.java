@@ -9,7 +9,18 @@ import java.util.List;
 @Repository
 public interface EnclosureRepository extends JpaRepository<Enclosure, Long> {
 
+    /**
+     * Find enclosure with a specific id
+     *
+     * @param id of the enclosure
+     * @return enclosure with the specified id, if none exist null will be returned
+     */
     Enclosure findById(long id);
 
+    /**
+     * Finds all enclosures
+     *
+     * @return List of all enclosures in the database
+     */
     List<Enclosure> findAll();
 }

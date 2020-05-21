@@ -10,8 +10,8 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-@EqualsAndHashCode
-@ToString
+@EqualsAndHashCode(exclude = "animals")
+@ToString(exclude = "animals")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

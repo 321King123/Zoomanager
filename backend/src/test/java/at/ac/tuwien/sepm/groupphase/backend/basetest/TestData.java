@@ -68,4 +68,9 @@ public interface TestData {
         }
     };
 
+    String NAME_LION_ENCLOSURE = "Lion Enclosure";
+    String DESCRIPTION_LION_ENCLOSURE = "very dangerous";
+    String PUBLIC_INFO_LION_ENCLOSURE = "do not enter";
+    byte[] PICTURE_LION_ENCLOSURE = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD=".getBytes();
+
 }
