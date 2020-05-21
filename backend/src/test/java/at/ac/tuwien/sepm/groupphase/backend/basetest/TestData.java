@@ -3,11 +3,17 @@ package at.ac.tuwien.sepm.groupphase.backend.basetest;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
+import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 
 public interface TestData {
@@ -24,6 +30,7 @@ public interface TestData {
     String MESSAGE_BASE_URI = BASE_URI + "/messages";
     String ANIMAL_BASE_URI = BASE_URI + "/animals";
     String EMPLOYEE_BASE_URI = BASE_URI + "/employee";
+    String TASK_BASE_URI = BASE_URI + "/tasks";
 
     String USERNAME_ANIMAL_CARE_EMPLOYEE = "AnimalCarer";
     String NAME_ANIMAL_CARE_EMPLOYEE = "AnimalCarerName";
@@ -51,8 +58,20 @@ public interface TestData {
     String ANIMAL_PUBLIC_INFORMATION_FAMOUS = "famous";
 
 
+    String VALID_TEST_PASSWORD = "Password1";
 
-    String VALID_TEST_PASSWORD = "$2a$10$Wlg9Rz/smx0T1ULlBFaGneTWjsTHNd6URL/odEdOoyZ63MpQv28vq";
+
+    String TASK_TITLE = "Tasktitle";
+
+    String TASK_DESCRIPTION = "Taskdescription";
+
+    LocalDateTime TAST_START_TIME = LocalDateTime.of(2030, 1, 1, 12, 30);
+
+    LocalDateTime TAST_END_TIME = LocalDateTime.of(2030, 1, 1, 13, 30);
+
+    String TASK_ASSIGNED_EMPLOYEE_USERNAME = USERNAME_ANIMAL_CARE_EMPLOYEE;
+
+    TaskStatus TASK_STATUS = TaskStatus.ASSIGNED;
 
     String ADMIN_USER = "admin";
     List<String> ADMIN_ROLES = new ArrayList<>() {

@@ -53,10 +53,12 @@ public class CustomTaskService implements TaskService {
             task.setStatus(TaskStatus.NOT_ASSIGNED);
         }else if(employee.getType() != EmployeeType.ANIMAL_CARE && employee.getType() != EmployeeType.DOCTOR){
             throw new IncorrectTypeException("A Janitor cant complete an animal Task");
+        }else{
+            task.setStatus(TaskStatus.ASSIGNED);
         }
 
 
-        if(task.getStatus() != TaskStatus.NOT_ASSIGNED && !employeeService.employeeIsFreeBetweenStartingAndEndtime(employee, task)){
+        if(task.getStatus() == TaskStatus.ASSIGNED && !employeeService.employeeIsFreeBetweenStartingAndEndtime(employee, task)){
             throw new NotFreeException("Employee already works on a task in the given time");
         }
 

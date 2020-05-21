@@ -14,7 +14,7 @@ public class AnimalTaskMapper {
             .description(animalTask.getTask().getDescription())
             .startTime(animalTask.getTask().getStartTime())
             .endTime(animalTask.getTask().getEndTime())
-            .assignedEmployeeUsername(animalTask.getTask().getAssignedEmployee().getUsername())
+            .assignedEmployeeUsername(animalTask.getTask().getAssignedEmployee()==null?null:animalTask.getTask().getAssignedEmployee().getUsername())
             .status(animalTask.getTask().getStatus())
             .animalName(animalTask.getSubject().getName())
             .animalId(animalTask.getSubject().getId())
