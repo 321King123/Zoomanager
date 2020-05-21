@@ -35,7 +35,12 @@ public class Employee {
     @Column(nullable = false)
     private String email;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "ANIMALS_CARETAKERS",
+        joinColumns = @JoinColumn(name = "EMPLOYEE_USERNAME"),
+        inverseJoinColumns = @JoinColumn(name = "ANIMAL_ID")
+    )
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Animal> assignedAnimals;
 
 
