@@ -61,7 +61,7 @@ public class AnimalEndpointTest implements TestData {
         .id(1L)
         .name("Horse")
         .description("Fast")
-        .enclosure("Barn")
+        .enclosure(null)
         .species("race")
         .publicInformation("famous")
         .build();
@@ -73,7 +73,7 @@ public class AnimalEndpointTest implements TestData {
             .id(1L)
             .name("Horse")
             .description("Fast")
-            .enclosure("Barn")
+            .enclosure(null)
             .species("race")
             .publicInformation("famous")
             .build();

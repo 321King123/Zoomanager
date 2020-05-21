@@ -24,7 +24,7 @@ public class AnimalMappingTest implements TestData {
         .id(1L)
         .name("Horse")
         .description("Fast")
-        .enclosure("Barn")
+        .enclosure(null)
         .species("race")
         .publicInformation("famous")
         .build();
@@ -33,7 +33,6 @@ public class AnimalMappingTest implements TestData {
         .id(2L)
         .name("Dog")
         .description("Fast")
-        .enclosure(null)
         .species("race")
         .publicInformation(null)
         .build();
@@ -49,7 +48,6 @@ public class AnimalMappingTest implements TestData {
         assertAll(
             () -> assertEquals(animal.getId(), animalDto.getId()),
             () -> assertEquals(animal.getDescription(), animalDto.getDescription()),
-            () -> assertEquals(animal.getEnclosure(), animalDto.getEnclosure()),
             () -> assertEquals(animal.getName(), animalDto.getName()),
             () -> assertEquals(animal.getPublicInformation(), animalDto.getPublicInformation()),
             () -> assertEquals(animal.getSpecies(), animalDto.getSpecies())
@@ -63,7 +61,6 @@ public class AnimalMappingTest implements TestData {
         assertAll(
             () -> assertEquals(animal.getId(), animalDto.getId()),
             () -> assertEquals(animal.getDescription(), animalDto.getDescription()),
-            () -> assertEquals(animal.getEnclosure(), animalDto.getEnclosure()),
             () -> assertEquals(animal.getName(), animalDto.getName()),
             () -> assertEquals(animal.getPublicInformation(), animalDto.getPublicInformation()),
             () -> assertEquals(animal.getSpecies(), animalDto.getSpecies())
