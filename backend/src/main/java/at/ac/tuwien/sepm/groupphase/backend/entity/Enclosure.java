@@ -10,8 +10,8 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-@EqualsAndHashCode
-@ToString
+@EqualsAndHashCode(exclude = "animals")
+@ToString(exclude = "animals")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,6 +24,19 @@ public class Enclosure {
     @Column(nullable = false)
     private String name;
 
-    //private List<Animal> animals;
+    @Lob
+    @Column
+    private String description;
+
+    @Lob
+    @Column
+    private String publicInfo;
+
+    @Lob
+    @Column
+    private byte[] picture;
+
+    @OneToMany(mappedBy = "enclosure")
+    private List<Animal> animals;
 }
 

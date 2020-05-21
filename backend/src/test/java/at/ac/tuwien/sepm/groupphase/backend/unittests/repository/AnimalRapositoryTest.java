@@ -30,7 +30,7 @@ public class AnimalRapositoryTest implements TestData {
             .id(1L)
             .name(null)
             .description(null)
-            .enclosure("Barn")
+            .enclosure(null)
             .species(null)
             .publicInformation("famous")
             .build();
