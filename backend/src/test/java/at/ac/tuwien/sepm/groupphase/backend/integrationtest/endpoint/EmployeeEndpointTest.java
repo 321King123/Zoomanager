@@ -48,8 +48,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @ExtendWith(SpringExtension.class)
@@ -161,6 +160,11 @@ public class EmployeeEndpointTest implements TestData {
         .publicInformation(ANIMAL_PUBLIC_INFORMATION_FAMOUS)
         .build();
 
+    private UserLogin userAnimalCareEmployee= UserLogin.builder()
+        .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
+        .password("something6")
+        .build();
+
 
     @BeforeEach
     public void beforeEach(){
@@ -215,6 +219,11 @@ public class EmployeeEndpointTest implements TestData {
             .description(ANIMAL_DESCRIPTION_FAST)
             .species(ANIMAL_SPECIES_ARABIAN)
             .publicInformation(ANIMAL_PUBLIC_INFORMATION_FAMOUS)
+            .build();
+
+        userAnimalCareEmployee= UserLogin.builder()
+            .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
+            .password("something6")
             .build();
     }
 
@@ -570,5 +579,20 @@ public class EmployeeEndpointTest implements TestData {
         MockHttpServletResponse response = mvcResult.getResponse();
 
         assertEquals(HttpStatus.FORBIDDEN.value(),  response.getStatus());
+    }
+
+   // @Test
+    public void deletingEmployee() throws Exception {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+
+        MvcResult mvcResult = this.mockMvc.perform(delete(EMPLOYEE_BASE_URI +"/"+ animal_caretaker_login.getUsername()))
+            //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(),  response.getStatus());
+
     }
 }
