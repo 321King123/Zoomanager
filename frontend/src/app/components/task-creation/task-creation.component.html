@@ -1,0 +1,112 @@
+<button class="btn btn-success" data-toggle="modal" data-target="#exampleModal">Create a task</button>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Create a Task</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row p-3" *ngIf="error">
+          <div class="col">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Error! </strong> {{ errorMessage }}
+              <button type="button" (click)="vanishError()" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="row p-3">
+          <div class="col">
+            <form [formGroup]="taskCreationForm" (ngSubmit)="taskSubmitted()">
+              <div class="row">
+                <div class="form-group col-12">
+                  <label for="inputTitle">Title</label>
+                  <input type="text" name="title" formControlName="title" class="form-control" id="inputTitle"
+                         aria-describedby="TitleHelp" placeholder="Enter Task Title">
+                  <div *ngIf="submittedTask && taskCreationForm.controls.title.errors" class="error">
+                    <small class="form-text text-warning" *ngIf="taskCreationForm.controls.title.errors.required">
+                      Title cannot be empty
+                    </small>
+                  </div>
+                </div>
+                <div class="form-group col-12">
+                  <label for="inputDescription">Description</label>
+                  <textarea type="text" name="description" formControlName="description" class="form-control"
+                            id="inputDescription"
+                            aria-describedby="descriptionHelp" placeholder="Enter Task description"></textarea>
+                  <div *ngIf="submittedTask && taskCreationForm.controls.description.errors" class="error">
+                    <small class="form-text text-warning" *ngIf="taskCreationForm.controls.description.errors.required">
+                      Description cannot be empty
+                    </small>
+                  </div>
+                </div>
+                <div class="form-group col-6">
+                  <label for="inputStartTime">Start-Time</label>
+                  <input type="datetime-local" name="startTime" formControlName="startTime" class="form-control"
+                         id="inputStartTime"
+                         aria-describedby="startTimeHelp" placeholder="Enter Start-Time">
+                  <div *ngIf="submittedTask && taskCreationForm.controls.startTime.errors" class="error">
+                    <small class="form-text text-warning" *ngIf="taskCreationForm.controls.startTime.errors.required">
+                      Start-Time cannot be empty
+                    </small>
+                  </div>
+                </div>
+                <div class="form-group col-6">
+                  <label for="inputEndTime">End-Time</label>
+                  <input type="datetime-local" name="endTime" formControlName="endTime" class="form-control"
+                         id="inputEndTime"
+                         aria-describedby="endTimeHelp" placeholder="Enter Start Time">
+                  <div *ngIf="submittedTask && taskCreationForm.controls.endTime.errors" class="error">
+                    <small class="form-text text-warning" *ngIf="taskCreationForm.controls.endTime.errors.required">
+                      End-Time cannot be empty
+                    </small>
+                  </div>
+                </div>
+                <div class="form-group col-6">
+                  <label for="animalId">Select Animal</label>
+                  <select name="animalId" formControlName="animalId" class="form-control" id="animalId"
+                          aria-describedby="animalIdHelp">
+                    <option disabled [ngValue]="null">Select animal</option>
+                    <option *ngFor="let animal of allAnimals" [ngValue]="animal.id">{{animal.name}}
+                      ; {{animal.species}}</option>
+                  </select>
+                  <div *ngIf="submittedTask && taskCreationForm.controls.animalId.errors" class="error">
+                    <small class="form-text text-warning" *ngIf="taskCreationForm.controls.animalId.errors.required">
+                      Animal cannot be empty
+                    </small>
+                  </div>
+                </div>
+                <div class="form-group col-6">
+                  <label for="assignedEmployeeUsername">Assign to Employee</label>
+                  <select name="assignedEmployeeUsername" formControlName="assignedEmployeeUsername"
+                          class="form-control" id="assignedEmployeeUsername"
+                          aria-describedby="assignedEmployeeUsernameHelp">
+                    <option disabled [ngValue]="null">Select employee</option>
+                    <option *ngFor="let employee of allEmployees;" [ngValue]="employee.username">{{employee.username}}
+                      ; {{employee.name}}</option>
+                  </select>
+                  <div *ngIf="submittedTask && taskCreationForm.controls.assignedEmployeeUsername.errors" class="error">
+                    <small class="form-text text-warning"
+                           *ngIf="taskCreationForm.controls.assignedEmployeeUsername.errors.required">
+                      Animal cannot be empty
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" (click)="taskSubmitted()" class="btn btn-success">Create Task</button>
+      </div>
+    </div>
+  </div>
+</div>
