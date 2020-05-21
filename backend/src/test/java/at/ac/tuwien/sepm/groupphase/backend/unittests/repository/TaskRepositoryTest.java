@@ -38,6 +38,12 @@ public class TaskRepositoryTest implements TestData {
     @Autowired
     TaskRepository taskRepository;
 
+    @Autowired
+    EmployeeRepository employeeRepository;
+
+    @Autowired
+    UserLoginRepository userLoginRepository;
+
 
     private final UserLogin animal_caretaker_login = UserLogin.builder()
         .isAdmin(false)
@@ -53,7 +59,7 @@ public class TaskRepositoryTest implements TestData {
         .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
         .build();
 
-    private Task task = Task.builder()
+    private Task task_not_assigned = Task.builder()
         .title(TASK_TITLE)
         .description(TASK_DESCRIPTION)
         .startTime(TAST_START_TIME)
@@ -61,38 +67,70 @@ public class TaskRepositoryTest implements TestData {
         .status(TaskStatus.NOT_ASSIGNED)
         .build();
 
+    private Task task_assigned = Task.builder()
+        .id(null)
+        .title(TASK_TITLE)
+        .description(TASK_DESCRIPTION)
+        .startTime(TAST_START_TIME)
+        .endTime(TAST_END_TIME)
+        .status(TaskStatus.ASSIGNED)
+        .assignedEmployee(anmial_caretaker)
+        .build();
+
+    private Task task_assigned2 = Task.builder()
+        .id(null)
+        .title(TASK_TITLE)
+        .description(TASK_DESCRIPTION)
+        .startTime(TAST_START_TIME)
+        .endTime(TAST_END_TIME)
+        .status(TaskStatus.ASSIGNED)
+        .assignedEmployee(anmial_caretaker)
+        .build();
+
+    private Task task_assigned3 = Task.builder()
+        .id(null)
+        .title(TASK_TITLE)
+        .description(TASK_DESCRIPTION)
+        .startTime(TAST_START_TIME)
+        .endTime(TAST_END_TIME)
+        .status(TaskStatus.ASSIGNED)
+        .assignedEmployee(anmial_caretaker)
+        .build();
+
     @BeforeEach
     public void beforeEach() {
         taskRepository.deleteAll();
-
-        task = Task.builder()
-            .title(TASK_TITLE)
-            .description(TASK_DESCRIPTION)
-            .startTime(TAST_START_TIME)
-            .endTime(TAST_END_TIME)
-            .status(TaskStatus.NOT_ASSIGNED)
-            .build();
+        employeeRepository.deleteAll();
+        userLoginRepository.deleteAll();
     }
-    /*
+
     @Test
     public void givenNothing_whenSaveTask_thenFindTaskById() {
-        task.setAssignedEmployee(anmial_caretaker);
-        task.setStatus(TaskStatus.ASSIGNED);
-        taskRepository.save(task);
+        taskRepository.save(task_not_assigned);
         Task searchTask = taskRepository.findAll().get(0);
         assertNotNull(taskRepository.findById(searchTask.getId()));
     }
 
     @Test
     public void givenNothing_searchingForTasksOfEmployee_thenFindAllTasks() {
-        task.setAssignedEmployee(anmial_caretaker);
-        task.setStatus(TaskStatus.ASSIGNED);
-        taskRepository.save(task);
-        taskRepository.save(task);
-        taskRepository.save(task);
-        List<Task> searchTask = taskRepository.findAllByAssignedEmployee(anmial_caretaker);
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        Employee caretaker = employeeRepository.findAll().get(0);
+
+        task_assigned.setAssignedEmployee(caretaker);
+        task_assigned2.setAssignedEmployee(caretaker);
+        task_assigned3.setAssignedEmployee(caretaker);
+
+        taskRepository.save(task_assigned);  //all 3 get  saved as one row if same object for some reason
+        taskRepository.save(task_assigned2);
+        taskRepository.save(task_assigned3);
+
+        List<Task> searchTask = taskRepository.findAllByAssignedEmployee(caretaker);
         assertEquals(searchTask.size(), 3);
     }
 
-     */
+/*    @Test
+    public void searchForTasksOfEmployee*/
+
+
 }
