@@ -41,7 +41,6 @@ public class TaskDto {
 
     private String assignedEmployeeUsername;
 
-    @NotNull(message = "Task Status must not be null")
     private TaskStatus status;
 
 }
