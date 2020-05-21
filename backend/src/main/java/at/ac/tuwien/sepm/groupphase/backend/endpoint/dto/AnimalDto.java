@@ -30,8 +30,6 @@ public class AnimalDto {
     @NotBlank(message = "Species must not be empty")
     private String species;
 
-    private String enclosure;
-
     private String publicInformation;
 
     private List<Employee> caretakers;
