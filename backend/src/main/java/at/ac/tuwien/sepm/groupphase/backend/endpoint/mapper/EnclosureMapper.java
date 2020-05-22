@@ -29,7 +29,7 @@ public class EnclosureMapper {
             .name(enclosure.getName())
             .description(enclosure.getDescription())
             .publicInfo(enclosure.getPublicInfo())
-            .picture(Arrays.toString(enclosure.getPicture()))
+            .picture(new String(enclosure.getPicture()))
             .build();
     }
 
