@@ -7,7 +7,7 @@
 
 
 <div *ngIf="isAdmin()">
-  <app-animal-list [animals]="animals"></app-animal-list>
+  <app-animal-list (deleteAnimal)="deleteAnimal($event)" [animalPage]="true" [animals]="animals"></app-animal-list>
 
   <div class="employee-creation-header row">
     <div class="col-12">
