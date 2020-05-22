@@ -21,6 +21,16 @@
             </div>
           </div>
         </div>
+        <div class="row p-3" *ngIf="success">
+          <div class="col">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <strong>Success! </strong> Task was successfully created!
+              <button type="button" (click)="vanishSuccess()" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          </div>
+        </div>
         <div class="row p-3">
           <div class="col">
             <form [formGroup]="taskCreationForm" (ngSubmit)="taskSubmitted()">
@@ -70,13 +80,10 @@
                 </div>
                 <div class="form-group col-6">
                   <label for="animalId">Select Animal</label>
-                  <select name="animalId" formControlName="animalId" class="form-control" id="animalId"
+                  <select (change)="getEmployeesOfAnimal()" name="animalId" formControlName="animalId"
+                          class="form-control" id="animalId"
                           aria-describedby="animalIdHelp">
                     <option disabled [ngValue]="null">Select animal</option>
-                    <ng-container *ngIf="animalsOfEmployee==null">
-                      <option *ngFor="let animal of allAnimals" [ngValue]="animal.id">{{animal.name}}
-                        ; {{animal.species}}</option>
-                    </ng-container>
                     <ng-container *ngIf="animalsOfEmployee!=null">
                       <option *ngFor="let animal of animalsOfEmployee" [ngValue]="animal.id">{{animal.name}}
                         ; {{animal.species}}</option>
@@ -90,12 +97,21 @@
                 </div>
                 <div class="form-group col-6">
                   <label for="assignedEmployeeUsername">Assign to Employee</label>
+
                   <select name="assignedEmployeeUsername" formControlName="assignedEmployeeUsername"
                           class="form-control" id="assignedEmployeeUsername"
                           aria-describedby="assignedEmployeeUsernameHelp">
                     <option disabled [ngValue]="null">Select employee</option>
-                    <option *ngFor="let employee of allEmployees;" [ngValue]="employee.username">{{employee.username}}
-                      ; {{employee.name}}</option>
+                    <ng-container *ngIf="employeesFound">
+                      <option *ngFor="let employee of employeesOfAnimal;" [ngValue]="employee.username">
+                        {{employee.username}}; {{employee.name}}
+                      </option>
+                    </ng-container>
+                    <ng-container *ngIf="doctors!=null">
+                      <option *ngFor="let employee of doctors;" [ngValue]="employee.username">
+                        {{employee.username}}; {{employee.name}}
+                      </option>
+                    </ng-container>
                   </select>
                   <div *ngIf="submittedTask && taskCreationForm.controls.assignedEmployeeUsername.errors" class="error">
                     <small class="form-text text-warning"
