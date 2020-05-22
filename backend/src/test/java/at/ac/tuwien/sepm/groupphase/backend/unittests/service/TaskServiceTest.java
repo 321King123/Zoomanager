@@ -154,6 +154,8 @@ public class TaskServiceTest implements TestData {
 
     @Test
     public void testWithAssignedEmployee_expectStatusAssigned(){
+        Mockito.when(employeeService.isAssignedToAnimal(Mockito.any(String.class),
+            Mockito.any(Long.class))).thenReturn(true);
         task_not_assigned.setStatus(TaskStatus.NOT_ASSIGNED);
         task_not_assigned.setAssignedEmployee(anmial_caretaker);
         AnimalTask animalTask = taskService.createAnimalTask(task_not_assigned,animal);
