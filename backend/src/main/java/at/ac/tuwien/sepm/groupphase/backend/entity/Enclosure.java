@@ -38,5 +38,10 @@ public class Enclosure {
 
     @OneToMany(mappedBy = "enclosure")
     private List<Animal> animals;
+
+    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true)
+    private List<EnclosureTask> tasks;
 }
 
