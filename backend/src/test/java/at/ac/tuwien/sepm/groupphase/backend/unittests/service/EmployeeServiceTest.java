@@ -3,11 +3,14 @@ package at.ac.tuwien.sepm.groupphase.backend.unittests.service;
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
 import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
+import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,8 +26,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -34,8 +37,14 @@ public class EmployeeServiceTest implements TestData {
     @Autowired
     EmployeeService employeeService;
 
+    @Autowired
+    UserService userService;
+
     @MockBean
     EmployeeRepository employeeRepository;
+
+    @MockBean
+    UserRepository userRepository;
 
     @MockBean
     AnimalRepository animalRepository;
@@ -70,6 +79,11 @@ public class EmployeeServiceTest implements TestData {
         .description(ANIMAL_DESCRIPTION_FAST)
         .species(ANIMAL_SPECIES_ARABIAN)
         .publicInformation(ANIMAL_PUBLIC_INFORMATION_FAMOUS)
+        .build();
+
+    private UserLogin userAnimalCareEmployee= UserLogin.builder()
+        .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
+        .password("something6")
         .build();
 
     @Test
@@ -142,5 +156,31 @@ public class EmployeeServiceTest implements TestData {
         Mockito.when(employeeRepository.findEmployeeByUsername(animal_caretaker.getUsername())).thenReturn(null);
         Mockito.when(employeeRepository.save(animal_caretaker)).thenReturn(animal_caretaker);
         assertEquals(employeeService.createEmployee(animal_caretaker), animal_caretaker);
+    }
+
+    @Test
+    public void deleteEmployee(){
+        Mockito.when(employeeRepository.findEmployeeByUsername(animal_caretaker.getUsername())).thenReturn(animal_caretaker);
+        userService.createNewUser(userAnimalCareEmployee);
+        Employee employee = employeeService.findByUsername(animal_caretaker.getUsername());
+        employeeService.deleteEmployeeByUsername(employee.getUsername());
+        List<Employee> employees = employeeService.getAll();
+        assertEquals(0, employees.size());
+    }
+
+
+    @Test
+    public void givenNothing_whenSaveAnimal_thenFindAnimalById() {
+        Animal animal = Animal.builder()
+            .id(1L)
+            .name(null)
+            .description(null)
+            .enclosure(null)
+            .species(null)
+            .publicInformation("famous")
+            .build();
+
+        animalRepository.save(animal);
+        assertAll( () -> assertNotNull(animalRepository.findById(animal.getId())));
     }
 }

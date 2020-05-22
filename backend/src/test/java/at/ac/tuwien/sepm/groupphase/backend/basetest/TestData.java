@@ -24,6 +24,7 @@ public interface TestData {
     String MESSAGE_BASE_URI = BASE_URI + "/messages";
     String ANIMAL_BASE_URI = BASE_URI + "/animals";
     String EMPLOYEE_BASE_URI = BASE_URI + "/employee";
+    String ENCLOSURE_BASE_URI = BASE_URI + "/enclosure";
 
     String USERNAME_ANIMAL_CARE_EMPLOYEE = "AnimalCarer";
     String NAME_ANIMAL_CARE_EMPLOYEE = "AnimalCarerName";
@@ -65,5 +66,10 @@ public interface TestData {
             add("ROLE_USER");
         }
     };
+
+    String NAME_LION_ENCLOSURE = "Lion Enclosure";
+    String DESCRIPTION_LION_ENCLOSURE = "Lion Enclosure Desvription";
+    String PUBLIC_INFO_LION_ENCLOSURE = "do not enter";
+    byte[] PICTURE_LION_ENCLOSURE = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD=".getBytes();
 
 }

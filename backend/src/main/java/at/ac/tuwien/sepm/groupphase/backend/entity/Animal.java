@@ -32,8 +32,8 @@ public class Animal implements Serializable {
     @Column(nullable = false)
     private String species;
 
-    @Column
-    private String enclosure;
+    @ManyToOne
+    private Enclosure enclosure;
 
     @Column
     private String publicInformation;

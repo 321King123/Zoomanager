@@ -167,5 +167,30 @@ export class EmployeeViewComponent implements OnInit {
     );
   }
 
+  deleteEmployee() {
+    if (this.assignedAnimals !== undefined && this.assignedAnimals.length !== 0) {
+      if (confirm('Employee still has animals assigned, are you sure you want to delete?')) {
+        this.employeeService.deleteEmployee(this.employee.username).subscribe(
+          () => {
+            this.backClicked();
+          },
+          error => {
+            console.log('Failed to delete employee');
+            this.defaultServiceErrorHandling(error);
+          }
+        );
+      }
+    } else {
+      this.employeeService.deleteEmployee(this.employee.username).subscribe(
+        () => {
+          this._location.back();
+        },
+        error => {
+          console.log('Failed to delete employee');
+          this.defaultServiceErrorHandling(error);
+        }
+      );
+    }
+  }
 
 }
