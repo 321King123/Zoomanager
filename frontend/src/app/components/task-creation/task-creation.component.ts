@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {AnimalTask} from '../../dtos/animalTask';
 import {TaskService} from '../../services/task.service';
 import {AnimalService} from '../../services/animal.service';
@@ -6,6 +6,7 @@ import {EmployeeService} from '../../services/employee.service';
 import {Employee} from '../../dtos/employee';
 import {Animal} from '../../dtos/animal';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+
 
 @Component({
   selector: 'app-task-creation',
@@ -22,6 +23,11 @@ export class TaskCreationComponent implements OnInit {
   taskCreationForm: FormGroup;
   statusTypes = ['NOT_ASSIGNED', 'ASSIGNED', 'IN_PROCESS', 'DONE', 'ERROR'];
   submittedTask = false;
+  @Input() animalsOfEmployee;
+  @Input() employeesOfAnimal;
+
+  employeesInUse: Employee[];
+
 
   constructor(private taskService: TaskService, private animalService: AnimalService,
               private employeeService: EmployeeService, private formBuilder: FormBuilder) {
@@ -54,7 +60,11 @@ export class TaskCreationComponent implements OnInit {
   getAllEmployees() {
     this.employeeService.getAllEmployees().subscribe(
       (employees) => {
-        this.allEmployees = employees;
+
+        this.allEmployees = employees.filter(employee => {
+          return employee.type === 'DOCTOR' || employee.type === 'ANIMAL_CARE';
+        });
+
       },
       error => {
         this.defaultServiceErrorHandling(error);

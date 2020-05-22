@@ -73,8 +73,14 @@
                   <select name="animalId" formControlName="animalId" class="form-control" id="animalId"
                           aria-describedby="animalIdHelp">
                     <option disabled [ngValue]="null">Select animal</option>
-                    <option *ngFor="let animal of allAnimals" [ngValue]="animal.id">{{animal.name}}
-                      ; {{animal.species}}</option>
+                    <ng-container *ngIf="animalsOfEmployee==null">
+                      <option *ngFor="let animal of allAnimals" [ngValue]="animal.id">{{animal.name}}
+                        ; {{animal.species}}</option>
+                    </ng-container>
+                    <ng-container *ngIf="animalsOfEmployee!=null">
+                      <option *ngFor="let animal of animalsOfEmployee" [ngValue]="animal.id">{{animal.name}}
+                        ; {{animal.species}}</option>
+                    </ng-container>
                   </select>
                   <div *ngIf="submittedTask && taskCreationForm.controls.animalId.errors" class="error">
                     <small class="form-text text-warning" *ngIf="taskCreationForm.controls.animalId.errors.required">
