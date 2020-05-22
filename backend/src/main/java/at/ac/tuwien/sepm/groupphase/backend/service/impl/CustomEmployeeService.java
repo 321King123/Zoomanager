@@ -103,6 +103,7 @@ public class CustomEmployeeService implements EmployeeService {
 
     @Override
     public boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task){
+        LOGGER.debug("Checking if " + employee.getUsername() + " is free");
         List<Task> tasks = taskRepository.findAllByAssignedEmployee(employee);
         LocalDateTime start = task.getStartTime();
         LocalDateTime end = task.getEndTime();
@@ -121,6 +122,7 @@ public class CustomEmployeeService implements EmployeeService {
 
     @Override
     public boolean isAssignedToAnimal(String username, Long animalID) {
+        LOGGER.debug("Checking if " + username + " is assigned to animal with id " + animalID);
         Employee employee = employeeRepository.findEmployeeByUsername(username);
         for(Animal a: employee.getAssignedAnimals()){
             if(a.getId().equals(animalID))
@@ -131,11 +133,13 @@ public class CustomEmployeeService implements EmployeeService {
 
     @Override
     public List<Employee> getAllAssignedToAnimal(Animal animal) {
+        LOGGER.debug("Getting all employees assigned to animal with id " + animal.getId());
         return employeeRepository.findByAssignedAnimalsContains(animal);
     }
 
     @Override
     public List<Employee> getAllDocotrs() {
+        LOGGER.debug("Getting all employees of Type Doctor");
         return employeeRepository.findAllByType(EmployeeType.DOCTOR);
     }
 }

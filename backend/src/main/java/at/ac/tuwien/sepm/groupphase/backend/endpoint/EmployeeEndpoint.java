@@ -172,7 +172,7 @@ public class EmployeeEndpoint {
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/doctors")
-    @ApiOperation(value = "Get list of animals assigned to employee", authorizations = {@Authorization(value = "apiKey")})
+    @ApiOperation(value = "Get list of all Doctors", authorizations = {@Authorization(value = "apiKey")})
     public List<EmployeeDto> getAllDocotrs() {
         LOGGER.info("GET /api/v1/employee/doctors");
         List<Employee> employees = employeeService.getAllDocotrs();
