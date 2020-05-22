@@ -1,5 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Enclosure} from '../../dtos/enclosure';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-enclosure-list',
@@ -9,9 +10,13 @@ import {Enclosure} from '../../dtos/enclosure';
 export class EnclosureListComponent implements OnInit {
   @Input('enclosures') enclosures: Enclosure[];
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
+  }
+
+  showInfo(enclosure: Enclosure) {
+    this.router.navigate(['/enclosure-view/' + enclosure.id ]);
   }
 
 }

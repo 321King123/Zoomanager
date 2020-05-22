@@ -22,4 +22,9 @@ export class EnclosureService {
     console.log('Load all Enclosures.');
     return this.httpClient.get<Enclosure[]>(this.enclosureBaseUri);
   }
+
+  getById(enclosureId: number): Observable<Enclosure> {
+    console.log('Get Enclosure by id: ' + enclosureId);
+    return this.httpClient.get<Enclosure>(this.enclosureBaseUri + '/' + enclosureId);
+  }
 }

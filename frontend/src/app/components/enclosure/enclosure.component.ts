@@ -45,7 +45,7 @@ export class EnclosureComponent implements OnInit {
         this.enclosures = enclosures;
       },
       error => {
-        if(error.status === 404) {
+        if (error.status === 404) {
           this.enclosures.length = 0;
         }
         console.log('Failed to load all enclosures');

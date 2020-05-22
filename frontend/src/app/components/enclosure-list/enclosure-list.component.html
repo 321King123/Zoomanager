@@ -14,12 +14,14 @@
     </tr>
     </thead>
     <tbody *ngIf="enclosures">
-    <tr class="d-flex enclosure-list-item" *ngFor="let enclosure of enclosures">
-      <td class="col-1">{{enclosure.id}}</td>
-      <td class="col">{{enclosure.name}}</td>
-      <td class="col">{{enclosure.description}}</td>
-      <td class="col">{{enclosure.publicInfo}}</td>
-    </tr>
+    <ng-container *ngFor="let enclosure of enclosures">
+      <tr class="d-flex enclosure-list-item" (click)="showInfo(enclosure)" >
+        <td class="col-1">{{enclosure.id}}</td>
+        <td class="col">{{enclosure.name}}</td>
+        <td class="col">{{enclosure.description}}</td>
+        <td class="col">{{enclosure.publicInfo}}</td>
+      </tr>
+    </ng-container>
     </tbody>
   </table>
 </div>
