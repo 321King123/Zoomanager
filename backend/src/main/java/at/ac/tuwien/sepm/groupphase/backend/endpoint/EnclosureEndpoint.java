@@ -2,10 +2,12 @@ package at.ac.tuwien.sepm.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EnclosureDto;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EnclosureMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureRepository;
+import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
@@ -18,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.lang.invoke.MethodHandles;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,13 +33,17 @@ public class EnclosureEndpoint {
     private final EnclosureService enclosureService;
     private final EnclosureMapper enclosureMapper;
     private final EnclosureRepository enclosureRepository;
+    private final AnimalService animalService;
+    private final AnimalMapper animalMapper;
 
     @Autowired
-    public EnclosureEndpoint(EnclosureService enclosureService, EnclosureMapper enclosureMapper, EnclosureRepository enclosureRepository){
+    public EnclosureEndpoint(EnclosureService enclosureService, EnclosureMapper enclosureMapper, EnclosureRepository enclosureRepository, AnimalService animalService, AnimalMapper animalMapper){
 
         this.enclosureService = enclosureService;
         this.enclosureMapper = enclosureMapper;
         this.enclosureRepository = enclosureRepository;
+        this.animalService = animalService;
+        this.animalMapper = animalMapper;
     }
 
     @Secured("ROLE_ADMIN")
@@ -72,5 +79,15 @@ public class EnclosureEndpoint {
     public EnclosureDto getEnclosureById(@PathVariable Long enclosureId, Authentication authentication) {
         LOGGER.info("GET /api/v1/enclosure/{}", enclosureId);
         return enclosureMapper.enclosureToEnclosureDto(enclosureService.findById(enclosureId));
+    }
+
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(value = "/animal/{enclosureId]")
+    @ApiOperation(value = "Assign Animal to Enclosure",
+        authorizations = {@Authorization(value = "apiKey")})
+    public void assignAnimalToEnclosure(@RequestBody @NotNull AnimalDto animalDto, @PathVariable Long enclosureId) {
+        LOGGER.info("POST /api/v1/enclosure/animal/{}", enclosureId);
+        animalService.addAnimalToEnclosure(animalMapper.AnimalDtoToAnimal(animalDto), enclosureId);
     }
 }

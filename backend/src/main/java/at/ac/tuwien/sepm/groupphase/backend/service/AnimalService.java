@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,4 +35,29 @@ public interface AnimalService {
      * @return
      */
     Animal findAnimalById(Long id);
+
+    /**
+     * Assign an animal to an enclosure
+     *
+     * @param animal that will get assigned to the Enclosure
+     * @param enclosureId that the Animal will get assigned to
+     * @return animal with the assigned Enclosure
+     */
+    Animal addAnimalToEnclosure(Animal animal, long enclosureId);
+
+    /**
+     * Remove an animal from its enclosure
+     *
+     * @param animal that will be removed from its enclosure
+     * @return animal without the enclosure reference
+     */
+    Animal removeAnimalFromEnclosure(Animal animal);
+
+    /**
+     * Finds all Animals of a specific Enclosure
+     *
+     * @param enclosureId of the Enclosure inhabited by the requested Animals
+     * @return Animals that inhabit the Enclosure with the corresponding Id
+     */
+    List<Animal> findAnimalsByEnclosure(long enclosureId);
 }
