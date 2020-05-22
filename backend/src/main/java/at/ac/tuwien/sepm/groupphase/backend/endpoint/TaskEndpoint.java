@@ -27,6 +27,7 @@ import javax.validation.Valid;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/api/v1/tasks")
@@ -70,7 +71,7 @@ public class TaskEndpoint {
         task.setAssignedEmployee(employeeService.findByUsername(taskDto.getAssignedEmployeeUsername()));
 
         //find animal transmitted in Path
-        Animal animal = animalService.getById(animalId);
+        Animal animal = animalService.findAnimalById(animalId);
 
         //Only Admin and Employees that are assigned to the animal can create it
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();

@@ -33,5 +33,5 @@ public interface AnimalService {
      * @param id of animal to be deleted.
      * @return
      */
-    Optional<Animal> findAnimalById(Long id);
+    Animal findAnimalById(Long id);
 }

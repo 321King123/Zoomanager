@@ -44,7 +44,7 @@ public class SimpleAnimalService implements AnimalService {
     @Override
     public void deleteAnimal(Long id){
         LOGGER.debug("Deleting an animal.");
-        Optional<Animal> animalOptional = findAnimalById(id);
+        Optional<Animal> animalOptional = animalRepository.findById(id);
 
         animalOptional.ifPresentOrElse(animal -> {
             animalRepository.deleteAssignmentsOfAnimal(id);
@@ -55,9 +55,12 @@ public class SimpleAnimalService implements AnimalService {
     }
 
     @Override
-    public Optional<Animal> findAnimalById(Long id){
+    public Animal findAnimalById(Long id){
         LOGGER.debug("Find an animal by Id.");
-        return animalRepository.findById(id);
+        Optional<Animal> animal = animalRepository.findById(id);
+        if(animal.isEmpty())
+            throw new NotFoundException("Could not find animal with given id");
+        return animal.get();
     }
 
 }
