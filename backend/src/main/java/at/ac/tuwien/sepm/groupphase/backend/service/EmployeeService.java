@@ -51,6 +51,13 @@ public interface EmployeeService  {
      */
     Employee findByUsername(String username);
 
+    /**
+     * Delete a single employee by username.
+     *
+     * @param username the username of the employee to delete
+     */
+    void deleteEmployeeByUsername(String username);
+
 
     /**
      * Checks if an Employee is free between start and end
