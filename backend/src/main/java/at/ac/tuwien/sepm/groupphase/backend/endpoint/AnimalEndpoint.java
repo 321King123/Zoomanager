@@ -3,6 +3,7 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
+import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.slf4j.Logger;
@@ -23,10 +24,12 @@ public class AnimalEndpoint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final AnimalService animalService;
+    private final TaskService taskService;
     private final AnimalMapper animalMapper;
 
     @Autowired
-    public AnimalEndpoint(AnimalService animalService, AnimalMapper animalMapper) {
+    public AnimalEndpoint(AnimalService animalService, AnimalMapper animalMapper, TaskService taskService) {
+        this.taskService = taskService;
         this.animalService = animalService;
         this.animalMapper = animalMapper;
     }
@@ -64,6 +67,7 @@ public class AnimalEndpoint {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public void deleteAnimal(@PathVariable("id") Long id){
         LOGGER.info("DELETE /api/v1/authentication/animal/" + id );
+        taskService.deleteAnimalTasksBelongingToAnimal(id);
         animalService.deleteAnimal(id);
     }
 
