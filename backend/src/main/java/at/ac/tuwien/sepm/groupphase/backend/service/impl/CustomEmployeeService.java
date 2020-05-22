@@ -29,12 +29,14 @@ public class CustomEmployeeService implements EmployeeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final EmployeeRepository employeeRepository;
     private final AnimalRepository animalRepository;
+    private final UserService userService;
     private final TaskRepository taskRepository;
 
     @Autowired
     public CustomEmployeeService(UserService userService, EmployeeRepository employeeRepository, AnimalRepository animalRepository, TaskRepository taskRepository) {
         this.employeeRepository = employeeRepository;
         this.animalRepository = animalRepository;
+        this.userService =userService;
         this.taskRepository = taskRepository;
     }
 
@@ -100,6 +102,19 @@ public class CustomEmployeeService implements EmployeeService {
         return employeeRepository.findEmployeeByUsername(username);
     }
 
+    @Override
+    public void deleteEmployeeByUsername(String username){
+        if(this.findByUsername(username)!=null){
+            employeeRepository.deleteById(username);
+            if(this.userService.findApplicationUserByUsername(username)!=null){
+                this.userService.deleteUser(username);
+            }else{
+                throw new NotFoundException("No user to delete: " + username);
+            }
+        }else{
+            throw new NotFoundException("No employee to delete: " + username);
+        }
+    }
 
     @Override
     public boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task){

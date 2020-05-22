@@ -182,4 +182,14 @@ public class EmployeeEndpoint {
         }
         return employeeDtos;
     }
+
+    @Secured("ROLE_ADMIN")
+    @DeleteMapping(value = "/{username}")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "Delete a specific employee",
+        authorizations = {@Authorization(value = "apiKey")})
+    public void deleteEmployee(@PathVariable String username) {
+        LOGGER.info("DELETE /api/v1/employee/{}", username);
+       employeeService.deleteEmployeeByUsername(username);
+    }
 }

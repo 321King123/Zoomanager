@@ -32,7 +32,7 @@ public class Employee {
     @Column(nullable = false)
     private EmployeeType type;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String email;
 
     @JoinTable(
