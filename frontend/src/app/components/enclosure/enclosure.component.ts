@@ -3,14 +3,14 @@ import {AuthService} from '../../services/auth.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {EnclosureService} from '../../services/enclosure.service';
 import {Enclosure} from '../../dtos/enclosure';
-import {AlertsComponent} from '../alerts/alerts.component';
-
 @Component({
   selector: 'app-enclosure',
   templateUrl: './enclosure.component.html',
   styleUrls: ['./enclosure.component.css']
 })
 export class EnclosureComponent implements OnInit {
+  error: boolean = false;
+  errorMessage: string = '';
 
   enclosureCreationForm: FormGroup;
   submittedEnclosure = false;
@@ -64,12 +64,8 @@ export class EnclosureComponent implements OnInit {
       () => {
       },
       error => {
-        // this.errorMessageComponent.defaultServiceErrorHandling(error);
+          this.defaultServiceErrorHandling(error);
       });
-  }
-
-  onUpload(image: any) {
-
   }
 
   public OnImageFileSelected(event)  {
@@ -80,10 +76,12 @@ export class EnclosureComponent implements OnInit {
 
     if (files && file) {
       if (file.size > maxSize) {
-        console.log('File is to large. Max size is: ' + maxSize / 1000 + ' MB');
+        this.error = true;
+        this.errorMessage = 'File is to large. Max size is: ' + maxSize / 1000 + ' MB.';
       } else {
         if (!acceptedImageTypes.includes(file.type)) {
-          console.log('File has to either be jpeg or png');
+          this.error = true;
+          this.errorMessage = 'File has to either be jpeg or png.';
         } else {
           const reader = new FileReader();
 
@@ -109,4 +107,20 @@ export class EnclosureComponent implements OnInit {
     this.submittedEnclosure = false;
    }
 
+  /**
+   * Error flag will be deactivated, which clears the error message
+   */
+  vanishError() {
+    this.error = false;
+  }
+
+  private defaultServiceErrorHandling(error: any) {
+    console.log(error);
+    this.error = true;
+    if (typeof error.error === 'object') {
+      this.errorMessage = error.error.error;
+    } else {
+      this.errorMessage = error.error;
+    }
+  }
 }
