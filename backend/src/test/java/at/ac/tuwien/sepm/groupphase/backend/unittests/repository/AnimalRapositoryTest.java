@@ -27,12 +27,11 @@ public class AnimalRapositoryTest implements TestData {
     @Test
     public void givenNothing_whenSaveAnimal_thenFindAnimalById() {
         Animal animal = Animal.builder()
-            .id(1L)
             .name(null)
             .description(null)
             .enclosure(null)
             .species(null)
-            .publicInformation("famous")
+            .publicInformation(null)
             .build();
 
         animalRepository.save(animal);
@@ -53,7 +52,7 @@ public class AnimalRapositoryTest implements TestData {
         animalRepository.save(animal);
 
         assertAll(
-            () -> assertEquals(animalRepository.findById(2L),animal)
+            () -> assertNotNull(animalRepository.findById(animal.getId()))
         );
     }
 

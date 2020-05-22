@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.service;
 
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 
 import java.util.List;
@@ -36,4 +37,6 @@ public interface EnclosureService {
      * @return Enclosure inhabited by animal with specified id
      */
     Enclosure findByAnimalId(long animalId);
+
+
 }

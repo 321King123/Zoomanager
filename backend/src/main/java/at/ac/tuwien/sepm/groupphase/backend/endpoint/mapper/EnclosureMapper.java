@@ -14,6 +14,16 @@ public class EnclosureMapper {
             return null;
         }
 
+        if(enclosure.getPicture()==null){
+            return EnclosureDto.builder()
+                .id(enclosure.getId())
+                .name(enclosure.getName())
+                .description(enclosure.getDescription())
+                .publicInfo(enclosure.getPublicInfo())
+                .picture(null)
+                .build();
+        }
+
         return EnclosureDto.builder()
             .id(enclosure.getId())
             .name(enclosure.getName())
@@ -26,6 +36,16 @@ public class EnclosureMapper {
     public Enclosure enclosureDtoToEnclosure(EnclosureDto enclosureDto) {
         if(enclosureDto == null) {
             return null;
+        }
+
+        if(enclosureDto.getPicture()==null){
+            return Enclosure.builder()
+                .id(enclosureDto.getId())
+                .name(enclosureDto.getName())
+                .description(enclosureDto.getDescription())
+                .publicInfo(enclosureDto.getPublicInfo())
+                .picture(null)
+                .build();
         }
 
         return Enclosure.builder()

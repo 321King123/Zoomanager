@@ -1,7 +1,10 @@
 package at.ac.tuwien.sepm.groupphase.backend.unittests.repository;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,9 +17,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
 // This test slice annotation is used instead of @SpringBootTest to load only repository beans instead of
@@ -79,4 +81,28 @@ public class EnclosureRepositoryTest implements TestData {
         long id = enclosureRepository.save(enclosureDetailed).getId();
         assertNull(enclosureRepository.findById(id+1));
     }
+
+
+    @Test
+    public void saveEnclosurebyGivingOnlyMandatoryValues_thenFindAnimalById() {
+        Enclosure enclosure = Enclosure.builder()
+            .name("Brandy")
+            .build();
+
+        enclosureRepository.save(enclosure);
+
+        assertAll(
+            () -> assertNotNull( enclosureRepository.findById(enclosure.getId()))
+        );
+    }
+
+    @Test
+    public void saveEnclosurebyGivingAllValues() {
+
+        enclosureRepository.save(enclosureDetailed);
+        List<Enclosure> enclosures = enclosureRepository.findAll();
+        assertTrue(1 == enclosures.size());
+
+    }
+
 }

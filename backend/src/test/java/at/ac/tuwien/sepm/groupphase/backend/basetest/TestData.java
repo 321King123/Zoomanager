@@ -24,23 +24,24 @@ public interface TestData {
     String MESSAGE_BASE_URI = BASE_URI + "/messages";
     String ANIMAL_BASE_URI = BASE_URI + "/animals";
     String EMPLOYEE_BASE_URI = BASE_URI + "/employee";
+    String ENCLOSURE_BASE_URI = BASE_URI + "/enclosure";
 
     String USERNAME_ANIMAL_CARE_EMPLOYEE = "AnimalCarer";
     String NAME_ANIMAL_CARE_EMPLOYEE = "AnimalCarerName";
-    Date BIRTHDAY_ANIMAL_CARE_EMPLOYEE = new Date(2000,Calendar.JANUARY,1);
+    Date BIRTHDAY_ANIMAL_CARE_EMPLOYEE = new Date(0,Calendar.JANUARY,1);
     EmployeeType TYPE_ANIMAL_CARE_EMPLOYEE = EmployeeType.ANIMAL_CARE;
     String EMAIL_ANIMAL_CARE_EMPLOYEE = "animalcare@email.com";
     List<Animal> ASSIGNED_ANIMALS_ANIMAL_CARE_EMPLOYEE = new LinkedList<>();
 
     String USERNAME_DOCTOR_EMPLOYEE = "Doctor";
     String NAME_DOCTOR_EMPLOYEE = "DoctorName";
-    Date BIRTHDAY_DOCTOR_EMPLOYEE = new Date(2000,Calendar.JANUARY,1);
+    Date BIRTHDAY_DOCTOR_EMPLOYEE = new Date(0,Calendar.JANUARY,1);
     EmployeeType TYPE_DOCTOR_EMPLOYEE = EmployeeType.DOCTOR;
     String EMAIL_DOCTOR_EMPLOYEE = "doctor@email.com";
 
     String USERNAME_JANITOR_EMPLOYEE = "Janitor";
     String NAME_JANITOR_EMPLOYEE = "JanitorName";
-    Date BIRTHDAY_JANITOR_EMPLOYEE = new Date(2000,Calendar.JANUARY,1);
+    Date BIRTHDAY_JANITOR_EMPLOYEE = new Date(0,Calendar.JANUARY,1);
     EmployeeType TYPE_JANITOR_EMPLOYEE = EmployeeType.JANITOR;
     String EMAIL_JANITOR_EMPLOYEE = "janitor@email.com";
 
@@ -50,9 +51,7 @@ public interface TestData {
     String ANIMAL_SPECIES_ARABIAN = "ARABIAN";
     String ANIMAL_PUBLIC_INFORMATION_FAMOUS = "famous";
 
-
-
-    String VALID_TEST_PASSWORD = "$2a$10$Wlg9Rz/smx0T1ULlBFaGneTWjsTHNd6URL/odEdOoyZ63MpQv28vq";
+    String VALID_TEST_PASSWORD = "Password1";
 
     String ADMIN_USER = "admin";
     List<String> ADMIN_ROLES = new ArrayList<>() {
@@ -69,7 +68,7 @@ public interface TestData {
     };
 
     String NAME_LION_ENCLOSURE = "Lion Enclosure";
-    String DESCRIPTION_LION_ENCLOSURE = "very dangerous";
+    String DESCRIPTION_LION_ENCLOSURE = "Lion Enclosure Desvription";
     String PUBLIC_INFO_LION_ENCLOSURE = "do not enter";
     byte[] PICTURE_LION_ENCLOSURE = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD=".getBytes();
 
