@@ -17,4 +17,9 @@ export class EnclosureService {
     console.log('Create Enclosure: ' + JSON.stringify(enclosure));
     return this.httpClient.post<Enclosure>(this.enclosureBaseUri, enclosure);
   }
+
+  getAllEnclosures(): Observable<Enclosure[]> {
+    console.log('Load all Enclosures.');
+    return this.httpClient.get<Enclosure[]>(this.enclosureBaseUri);
+  }
 }

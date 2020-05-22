@@ -19,6 +19,8 @@ export class EnclosureComponent implements OnInit {
 
   private fileType: string;
 
+  enclosures: Enclosure[];
+
   constructor(private enclosureService: EnclosureService, private formBuilder: FormBuilder,
               private authService: AuthService) {
       this.initForm();
@@ -34,6 +36,22 @@ export class EnclosureComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.getAllEnclosures();
+  }
+
+  getAllEnclosures() {
+    this.enclosureService.getAllEnclosures().subscribe(
+      enclosures => {
+        this.enclosures = enclosures;
+      },
+      error => {
+        if(error.status === 404) {
+          this.enclosures.length = 0;
+        }
+        console.log('Failed to load all enclosures');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
   }
 
   /**
@@ -62,6 +80,7 @@ export class EnclosureComponent implements OnInit {
   createEnclosure(enclosure: Enclosure) {
     this.enclosureService.createEnclosure(enclosure).subscribe(
       () => {
+        this.getAllEnclosures();
       },
       error => {
           this.defaultServiceErrorHandling(error);

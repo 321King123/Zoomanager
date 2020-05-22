@@ -6,6 +6,8 @@
 </div>
 
 <div *ngIf="isAdmin()">
+  <app-enclosure-list [enclosures]="enclosures"></app-enclosure-list>
+
   <div class="enclosure-creation-header row">
     <div class="col-12">
       <h5 style="margin-top: 25px;">Create new Enclosure</h5>

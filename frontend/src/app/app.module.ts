@@ -17,6 +17,7 @@ import { AnimalComponent } from './components/animal/animal.component';
 import { AnimalListComponent } from './components/animal-list/animal-list.component';
 import { EmployeeViewComponent } from './components/employee-view/employee-view.component';
 import { EnclosureComponent } from './components/enclosure/enclosure.component';
+import { EnclosureListComponent } from './components/enclosure-list/enclosure-list.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { EnclosureComponent } from './components/enclosure/enclosure.component';
     AnimalListComponent,
     EmployeeViewComponent,
     EnclosureComponent,
+    EnclosureListComponent,
   ],
   imports: [
     BrowserModule,
