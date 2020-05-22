@@ -71,5 +71,6 @@ public interface TestData {
     String DESCRIPTION_LION_ENCLOSURE = "Lion Enclosure Desvription";
     String PUBLIC_INFO_LION_ENCLOSURE = "do not enter";
     byte[] PICTURE_LION_ENCLOSURE = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD=".getBytes();
+    String PICTURE_LION_ENCLOSURE_STRING = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD=";
 
 }
