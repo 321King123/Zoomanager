@@ -1,12 +1,15 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalTaskDto;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EmployeeDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.TaskDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalTaskMapper;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.TaskMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
@@ -36,12 +39,14 @@ public class TaskEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final TaskMapper taskMapper;
     private final AnimalTaskMapper animalTaskMapper;
+    private final EmployeeMapper employeeMapper;
     private final AnimalService animalService;
     private final TaskService taskService;
     private final EmployeeService employeeService;
 
     @Autowired
-    public TaskEndpoint(TaskMapper taskMapper, TaskService taskService, EmployeeService employeeService, AnimalService animalService, AnimalTaskMapper animalTaskMapper){
+    public TaskEndpoint(TaskMapper taskMapper, TaskService taskService, EmployeeService employeeService, AnimalService animalService, AnimalTaskMapper animalTaskMapper, EmployeeMapper employeeMapper){
+        this.employeeMapper = employeeMapper;
         this.animalTaskMapper = animalTaskMapper;
         this.animalService = animalService;
         this.employeeService = employeeService;
@@ -63,14 +68,12 @@ public class TaskEndpoint {
     @PostMapping(value = "/animal/{animalId}")
     @ApiOperation(value = "Create new Animal Task", authorizations = {@Authorization(value = "apiKey")})
     public AnimalTaskDto create(@Valid @RequestBody TaskDto taskDto, @PathVariable Long animalId, Authentication authentication) {
-        LOGGER.info("POST /api/v1/tasks body: {}", taskDto);
+        LOGGER.info("POST /api/v1/tasks/animal/{} body: {}", animalId, taskDto);
 
         Task task = taskMapper.taskDtoToTask(taskDto);
 
-        //set Employee from transmitted Username
+        //get Objects for Method call
         task.setAssignedEmployee(employeeService.findByUsername(taskDto.getAssignedEmployeeUsername()));
-
-        //find animal transmitted in Path
         Animal animal = animalService.findAnimalById(animalId);
 
         //Only Admin and Employees that are assigned to the animal can create it
@@ -84,7 +87,35 @@ public class TaskEndpoint {
             if(employeeService.isAssignedToAnimal(username, animalId))
                 return animalTaskMapper.animalTaskToAnimalTaskDto(taskService.createAnimalTask(task, animal));
 
-            //if no animal with transmitted Id is assigned to User
+            throw new NotAuthorisedException("You cant assign Tasks to Animals that are not assigned to you");
+        }
+    }
+
+    /**
+     * Put Method to assign Employee to Task
+     * Only Admin and Employees that are assigned to the animal/enclosure can assign other employees to a task
+     * Only unassigned task can be assigned
+     * @param employeeDto contains the employee you want to assign
+     * @param taskId contains the taskId for the task you want to assign
+     */
+    @ResponseStatus(HttpStatus.CREATED)
+    @PutMapping(value = "/{taskId}")
+    @ApiOperation(value = "Assign Employee to Task", authorizations = {@Authorization(value = "apiKey")})
+    public void assignEmployee(@RequestBody EmployeeDto employeeDto, @PathVariable Long taskId, Authentication authentication) {
+        LOGGER.info("PUT /api/v1/tasks/{} body{}", taskId, employeeDto);
+
+        Employee employee = employeeMapper.employeeDtoToEmployee(employeeDto);
+        //Only Admin and Employees that are assigned to the animal can create it
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if(isAdmin){
+            taskService.updateTask(taskId, employee);
+        }else{
+            String username = (String)authentication.getPrincipal();
+
+            if(employeeService.hasTaskAssignmentPermissions(username, taskId))
+                taskService.updateTask(taskId, employeeMapper.employeeDtoToEmployee(employeeDto));
+
             throw new NotAuthorisedException("You cant assign Tasks to Animals that are not assigned to you");
         }
     }
