@@ -55,6 +55,14 @@ public class TaskServiceTest implements TestData {
         .publicInformation(null)
         .build();
 
+    private Employee anmial_caretaker = Employee.builder()
+        .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
+        .name(NAME_ANIMAL_CARE_EMPLOYEE)
+        .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
+        .type(TYPE_ANIMAL_CARE_EMPLOYEE)
+        .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+        .build();
+
 
     private Task task_assigned = Task.builder()
         .id(2L)
@@ -137,10 +145,19 @@ public class TaskServiceTest implements TestData {
     }
 
    @Test
-    public void testReturnedAnimal_expectSuccess() {
+    public void testReturnedAnimal_expectStatusNotAssigned(){
+        task_assigned.setStatus(TaskStatus.ASSIGNED);
          AnimalTask animalTask = taskService.createAnimalTask(task_assigned,animal);
          Assertions.assertEquals(TaskStatus.NOT_ASSIGNED,animalTask.getTask().getStatus());
          task_assigned.setStatus(TaskStatus.ASSIGNED);
     }
 
+    @Test
+    public void testWithAssignedEmployee_expectStatusAssigned(){
+        task_not_assigned.setStatus(TaskStatus.NOT_ASSIGNED);
+        task_not_assigned.setAssignedEmployee(anmial_caretaker);
+        AnimalTask animalTask = taskService.createAnimalTask(task_not_assigned,animal);
+        Assertions.assertEquals(TaskStatus.ASSIGNED,animalTask.getTask().getStatus());
+        task_not_assigned.setStatus(TaskStatus.NOT_ASSIGNED);
+    }
 }
