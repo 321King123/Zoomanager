@@ -2,6 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.entity;
 
 import lombok.*;
 
+import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,7 +38,7 @@ public class Animal implements Serializable {
     @Column
     private String publicInformation;
 
-    @ManyToMany(mappedBy = "assignedAnimals")
+    @ManyToMany(mappedBy = "assignedAnimals",fetch = FetchType.EAGER)
     private List<Employee> caretakers;
 
     @OneToMany(mappedBy = "subject", fetch = FetchType.EAGER)

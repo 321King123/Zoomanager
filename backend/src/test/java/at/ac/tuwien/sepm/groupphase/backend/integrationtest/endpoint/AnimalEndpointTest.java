@@ -7,9 +7,14 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.MessageInquiryDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.UserLoginRepository;
 import at.ac.tuwien.sepm.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +24,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,8 +37,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @ExtendWith(SpringExtension.class)
@@ -39,6 +45,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 public class AnimalEndpointTest implements TestData {
+
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private UserLoginRepository userLoginRepository;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -66,9 +81,27 @@ public class AnimalEndpointTest implements TestData {
         .publicInformation("famous")
         .build();
 
+    private UserLogin default_user_login = UserLogin.builder()
+        .isAdmin(false)
+        .username(DEFAULT_USER)
+        .password(passwordEncoder.encode(VALID_TEST_PASSWORD))
+        .build();
+
+    private Employee default_user = Employee.builder()
+        .username(DEFAULT_USER)
+        .name(NAME_ANIMAL_CARE_EMPLOYEE)
+        .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
+        .type(TYPE_ANIMAL_CARE_EMPLOYEE)
+        .email(EMAIL_JANITOR_EMPLOYEE)
+        .build();
+
+
     @BeforeEach
     public void beforeEach() {
         animalRepository.deleteAll();
+        employeeRepository.deleteAll();
+        userLoginRepository.deleteAll();
+
         animal = Animal.builder()
             .id(1L)
             .name("Horse")
@@ -77,6 +110,13 @@ public class AnimalEndpointTest implements TestData {
             .species("race")
             .publicInformation("famous")
             .build();
+    }
+
+    @AfterEach
+    public void afterEach(){
+        animalRepository.deleteAll();
+        employeeRepository.deleteAll();
+        userLoginRepository.deleteAll();
     }
 
     @Test
@@ -128,5 +168,36 @@ public class AnimalEndpointTest implements TestData {
             () -> assertEquals(HttpStatus.CREATED.value(), response.getStatus())
         );
     }
+
+    @Test
+    public void deleteAssignedAnimal_StatusOk() throws Exception{
+        userLoginRepository.save(default_user_login);
+        employeeRepository.save(default_user);
+        animalRepository.save(animal);
+        Animal animalN=animalRepository.findByDescription(animal.getDescription()).get(0);
+        animalRepository.assignAnimalToCaretaker(default_user.getUsername(),animalN.getId());
+
+        MvcResult mvcResult = this.mockMvc.perform(delete(ANIMAL_BASE_URI+'/'+animalN.getId())
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertAll(
+            () -> assertEquals(HttpStatus.OK.value(), response.getStatus())
+        );
+    }
+
+    @Test
+    public void deleteNotExistingAnimal_statusNotFound() throws Exception{
+        MvcResult mvcResult = this.mockMvc.perform(delete(ANIMAL_BASE_URI+"/300")
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertAll(
+            () -> assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus())
+        );
+    }
+
 
 }

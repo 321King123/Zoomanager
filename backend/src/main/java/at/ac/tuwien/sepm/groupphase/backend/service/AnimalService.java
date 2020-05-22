@@ -1,16 +1,14 @@
 package at.ac.tuwien.sepm.groupphase.backend.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Message;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AnimalService {
 
     /**
      * Creates an single animal.
-     *
      * @param animal to save.
      * @return saved animal.
      */
@@ -23,5 +21,17 @@ public interface AnimalService {
      */
     List<Animal> getAll();
 
-    Animal getById(Long id);
+    /**
+     * Deletes an single animal.
+     * @param id of animal to be deleted.
+     */
+    void deleteAnimal(Long id);
+
+
+    /**
+     * finds an single animal.
+     * @param id of animal to be deleted.
+     * @return
+     */
+    Optional<Animal> findAnimalById(Long id);
 }

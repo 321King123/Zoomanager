@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
 
@@ -43,12 +42,22 @@ public class SimpleAnimalService implements AnimalService {
     }
 
     @Override
-    public Animal getById(Long id){
-        LOGGER.debug("Getting Animal with id: " + id);
-        Optional<Animal> animal = animalRepository.findById(id);
-        if(animal.isPresent())
-            return animal.get();
-        throw new NotFoundException("Could not find the animal");
+    public void deleteAnimal(Long id){
+        LOGGER.debug("Deleting an animal.");
+        Optional<Animal> animalOptional = findAnimalById(id);
+
+        animalOptional.ifPresentOrElse(animal -> {
+            animalRepository.deleteAssignmentsOfAnimal(id);
+            animalRepository.delete(animal);
+        },()->{throw new NotFoundException("No such animal exists.");});
+
+
+    }
+
+    @Override
+    public Optional<Animal> findAnimalById(Long id){
+        LOGGER.debug("Find an animal by Id.");
+        return animalRepository.findById(id);
     }
 
 }

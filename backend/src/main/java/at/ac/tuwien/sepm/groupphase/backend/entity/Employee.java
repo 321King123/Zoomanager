@@ -4,9 +4,7 @@ import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Getter
@@ -37,7 +35,12 @@ public class Employee {
     @Column(nullable = false)
     private String email;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "ANIMALS_CARETAKERS",
+        joinColumns = @JoinColumn(name = "EMPLOYEE_USERNAME"),
+        inverseJoinColumns = @JoinColumn(name = "ANIMAL_ID")
+    )
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Animal> assignedAnimals;
 
     @OneToMany(mappedBy = "assignedEmployee", fetch = FetchType.EAGER)
