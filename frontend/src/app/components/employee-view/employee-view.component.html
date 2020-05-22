@@ -5,41 +5,49 @@
   </button>
 </div>
 
-<br>
-<button *ngIf="isAdmin()" class="float-md-right md-primary pull-right btn btn-secondary" type="button"
-        (click)="backClicked()">BACK
-</button>
-<br>
+<div class="row mt-3 justify-content-end">
+  <div class="col-12 my-2">
+    <div class="row justify-content-end mx-1">
+      <button *ngIf="isAdmin()" class="btn-sm mr-1 btn btn-secondary" type="button"
+              (click)="backClicked()">BACK
+      </button>
+    </div>
+  </div>
+</div>
 
-<div *ngIf="employee!=null" class="info" style="width: 30rem;">
-  <div class="info-body">
-    <h5 *ngIf="employee.username!=null" class="info-title">Username: {{employee.username}}</h5>
-    <h6 *ngIf="employee.name!=null" class="info-title">Name: {{employee.name}}</h6>
-    <h6 *ngIf="employee.type!=null" class="info-subtitle mb-2 ">Role: {{employee.type}}</h6>
-    <p *ngIf="employee.email!=null" class="info-text">E-mail: {{employee.email}}</p>
-    <p *ngIf="employee.birthday!=null" class="info-text">Birthday: {{displayDate(employee.birthday)}}</p>
+<div class="row justify-content-around">
+  <div class="col-12">
+    <div *ngIf="employee!=null" class="info" style="width: 30rem;">
+      <div class="info-body">
+        <h5 *ngIf="employee.username!=null" class="info-title">Username: {{employee.username}}</h5>
+        <h6 *ngIf="employee.name!=null" class="info-title">Name: {{employee.name}}</h6>
+        <h6 *ngIf="employee.type!=null" class="info-subtitle mb-2 ">Role: {{employee.type}}</h6>
+        <p *ngIf="employee.email!=null" class="info-text">E-mail: {{employee.email}}</p>
+        <p *ngIf="employee.birthday!=null" class="info-text">Birthday: {{displayDate(employee.birthday)}}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 my-2">
+    <div class="row d-flex justify-content-lg-end justify-content-md-end justify-content-sm-end  justify-content-xl-start mx-0 ">
+      <app-task-creation [animalsOfEmployee]="assignedAnimals"></app-task-creation>
+    </div>
   </div>
 </div>
 <hr>
 <ng-container *ngIf="employee!=null && employee.type=='ANIMAL_CARE'">
-  <div class="row">
-    <div class="col-lg-12">
-      <h5>Assigned Animals:</h5>
-    </div>
-  </div>
   <div class="row">
     <div class="col-lg-12" *ngIf="assignedAnimals != null && assignedAnimals.length != 0">
       <app-animal-list [animals]="assignedAnimals"></app-animal-list>
     </div>
   </div>
   <ng-container *ngIf="isAdmin()">
-    <div class="row">
+    <div class="row my-3">
       <div class="col-lg-12">
         <h5>Assign new Animals:</h5>
       </div>
     </div>
-    <div class="row">
-      <div class="col-lg-12">
+    <div class="row mb-5">
+      <div class="col-lg-6">
         <div class="form-group">
           <select class="animal-select form-control" [(ngModel)]="selectedAnimal" name="selectedAnimal">
             <option disabled [ngValue]="null">Select animal to assign</option>

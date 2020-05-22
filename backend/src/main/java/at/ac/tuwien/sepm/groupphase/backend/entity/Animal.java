@@ -40,4 +40,7 @@ public class Animal implements Serializable {
 
     @ManyToMany(mappedBy = "assignedAnimals",fetch = FetchType.EAGER)
     private List<Employee> caretakers;
+
+    @OneToMany(mappedBy = "subject", fetch = FetchType.EAGER)
+    private List<AnimalTask> tasks;
 }

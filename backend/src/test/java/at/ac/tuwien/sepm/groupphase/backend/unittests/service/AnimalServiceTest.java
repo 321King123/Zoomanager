@@ -29,7 +29,7 @@ public class AnimalServiceTest implements TestData {
     @MockBean
     AnimalRepository animalRepository;
 
-    Animal animal = Animal.builder()
+    private Animal animal = Animal.builder()
         .id(2L)
         .name("Brandy")
         .description("racing Horce")
