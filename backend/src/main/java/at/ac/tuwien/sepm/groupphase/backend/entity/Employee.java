@@ -43,7 +43,7 @@ public class Employee {
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Animal> assignedAnimals;
 
-    @OneToMany(mappedBy = "assignedEmployee", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "assignedEmployee", fetch = FetchType.LAZY)
     private List<Task> tasks;
 //
 //    @Override

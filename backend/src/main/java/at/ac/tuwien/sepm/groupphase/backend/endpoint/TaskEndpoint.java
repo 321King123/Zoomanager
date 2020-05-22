@@ -27,6 +27,7 @@ import javax.validation.Valid;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/api/v1/tasks")
@@ -70,7 +71,7 @@ public class TaskEndpoint {
         task.setAssignedEmployee(employeeService.findByUsername(taskDto.getAssignedEmployeeUsername()));
 
         //find animal transmitted in Path
-        Animal animal = animalService.getById(animalId);
+        Animal animal = animalService.findAnimalById(animalId);
 
         //Only Admin and Employees that are assigned to the animal can create it
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
@@ -79,13 +80,10 @@ public class TaskEndpoint {
             return animalTaskMapper.animalTaskToAnimalTaskDto(taskService.createAnimalTask(task, animal));
         }else{
             String username = (String)authentication.getPrincipal();
-            List<Animal> assignedAnimals = employeeService.findAssignedAnimals(username);
-            for(Animal a: assignedAnimals){
-                if(a.getId().equals(animal.getId())) {
-                    AnimalTask animalTask = taskService.createAnimalTask(task, animal);
-                    return animalTaskMapper.animalTaskToAnimalTaskDto(taskService.createAnimalTask(task, animal));
-                }
-            }
+
+            if(employeeService.isAssignedToAnimal(username, animalId))
+                return animalTaskMapper.animalTaskToAnimalTaskDto(taskService.createAnimalTask(task, animal));
+
             //if no animal with transmitted Id is assigned to User
             throw new NotAuthorisedException("You cant assign Tasks to Animals that are not assigned to you");
         }

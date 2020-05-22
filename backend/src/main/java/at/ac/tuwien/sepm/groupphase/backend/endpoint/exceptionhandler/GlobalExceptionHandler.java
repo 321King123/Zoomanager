@@ -38,6 +38,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
+    @ExceptionHandler(value = {DeletionException.class})
+    protected ResponseEntity<Object> handleCantDelete(RuntimeException ex, WebRequest request) {
+        LOGGER.warn(ex.getMessage());
+        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
     @ExceptionHandler(value = {NotFreeException.class})
     protected ResponseEntity<Object> handleNotFree(RuntimeException ex, WebRequest request) {
         LOGGER.warn(ex.getMessage());
