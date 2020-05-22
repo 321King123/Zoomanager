@@ -63,11 +63,14 @@ public interface EmployeeService  {
 
     /**
      *Checks if Employee is Assigned to specific Animal
+     * @param username username of empoyee
+     * @param animalId id of animal
      */
     boolean isAssignedToAnimal(String username, Long animalId);
 
     /**
      * Gets all Employees assigned to specific Animal
+     * @param animal animal you want the infor for
      */
     List<Employee> getAllAssignedToAnimal(Animal animal);
 
