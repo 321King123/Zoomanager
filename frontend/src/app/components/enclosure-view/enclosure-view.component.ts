@@ -5,6 +5,7 @@ import {EnclosureService} from '../../services/enclosure.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
 import {Animal} from '../../dtos/animal';
+import {AnimalService} from '../../services/animal.service';
 
 @Component({
   selector: 'app-enclosure-view',
@@ -23,13 +24,30 @@ export class EnclosureViewComponent implements OnInit {
 
 
   constructor(private enclosureService: EnclosureService, private authService: AuthService,
-              private route: ActivatedRoute, private router: Router, private _location: Location) {
+              private route: ActivatedRoute, private router: Router, private _location: Location,
+              private animalService: AnimalService) {
 
   }
 
   ngOnInit(): void {
     const enclsureToViewId = Number(this.route.snapshot.paramMap.get('enclosureId'));
+    this.loadAnimals();
     this.loadEnclosureToView(enclsureToViewId);
+  }
+
+  loadAnimals() {
+    this.animalService.getAnimals().subscribe(
+      animals => {
+        this.animalList = animals;
+      },
+      error => {
+        if (error.status === 404) {
+          this.animalList.length = 0;
+        }
+        console.log('Failed to load all animals');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
   }
 
   loadEnclosureToView(enclosureId: number) {

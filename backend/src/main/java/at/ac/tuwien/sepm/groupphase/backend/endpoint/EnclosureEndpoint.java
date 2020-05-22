@@ -83,7 +83,7 @@ public class EnclosureEndpoint {
 
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping(value = "/animal/{enclosureId]")
+    @PostMapping(value = "/animal/{enclosureId}")
     @ApiOperation(value = "Assign Animal to Enclosure",
         authorizations = {@Authorization(value = "apiKey")})
     public void assignAnimalToEnclosure(@RequestBody @NotNull AnimalDto animalDto, @PathVariable Long enclosureId) {

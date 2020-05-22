@@ -12,7 +12,7 @@ import {Animal} from '../dtos/animal';
 export class EnclosureService {
 
   private enclosureBaseUri: string = this.globals.backendUri + '/enclosure';
-  private animalBaeseuri: string = this.globals.backendUri + 'animals';
+  private animalBaeseuri: string = this.globals.backendUri + '/animals';
 
   constructor(private httpClient: HttpClient, private globals: Globals) { }
 
