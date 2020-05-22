@@ -62,5 +62,6 @@ public class SimpleAnimalService implements AnimalService {
             throw new NotFoundException("Could not find animal with given id");
         return animal.get();
     }
+    
 
 }

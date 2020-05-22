@@ -16,4 +16,6 @@ public interface TaskService {
      * */
     AnimalTask createAnimalTask(Task task, Animal animal);
 
+    void deleteAnimalTasksBelongingToAnimal(Long animalId);
+
 }

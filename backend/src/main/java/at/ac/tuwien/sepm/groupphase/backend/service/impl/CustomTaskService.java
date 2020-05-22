@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 
 @Service
 public class CustomTaskService implements TaskService {
@@ -71,5 +72,12 @@ public class CustomTaskService implements TaskService {
         animalTask.setTask(createdTask);
         animalTask.setSubject(animal);
         return animalTask;
+    }
+
+    @Override
+    public void deleteAnimalTasksBelongingToAnimal(Long animalId) {
+        LOGGER.debug("Deleting Animal Task of Animal with Id " + animalId);
+        List<AnimalTask> assignedAnimalTasks = animalTaskRepository.findAllBySubject_Id(animalId);
+        animalTaskRepository.deleteAll(assignedAnimalTasks);
     }
 }

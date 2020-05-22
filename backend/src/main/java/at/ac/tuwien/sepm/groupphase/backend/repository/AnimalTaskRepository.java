@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.repository;
 
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,5 +10,8 @@ import java.util.List;
 
 @Repository
 public interface AnimalTaskRepository extends JpaRepository<AnimalTask, Long> {
+
+
+    List<AnimalTask> findAllBySubject_Id(Long animalId);
 
 }
