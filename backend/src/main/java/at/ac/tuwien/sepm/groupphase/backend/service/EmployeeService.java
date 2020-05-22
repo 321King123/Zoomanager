@@ -70,4 +70,9 @@ public interface EmployeeService  {
      * Gets all Employees assigned to specific Animal
      */
     List<Employee> getAllAssignedToAnimal(Animal animal);
+
+    /**
+     * Gets all Doctors
+     */
+    List<Employee> getAllDocotrs();
 }

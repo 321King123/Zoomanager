@@ -168,4 +168,18 @@ public class EmployeeEndpoint {
         }
         return employeeDtos;
     }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/doctors")
+    @ApiOperation(value = "Get list of animals assigned to employee", authorizations = {@Authorization(value = "apiKey")})
+    public List<EmployeeDto> getAllDocotrs() {
+        LOGGER.info("GET /api/v1/employee/doctors");
+        List<Employee> employees = employeeService.getAllDocotrs();
+        List<EmployeeDto> employeeDtos = new LinkedList<>();
+        for(Employee e: employees) {
+            employeeDtos.add(employeeMapper.employeeToEmployeeDto(e));
+        }
+        return employeeDtos;
+    }
 }

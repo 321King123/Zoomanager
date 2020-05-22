@@ -40,4 +40,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
      * @return List of Employees that are assigned to given animal
      */
     List<Employee> findByAssignedAnimalsContains(Animal animal);
+
+
+    /**
+     * Method to get all employees of specific Type
+     * @return List containing all Employees of specific Type
+     */
+    List<Employee> findAllByType(EmployeeType type);
 }

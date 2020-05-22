@@ -133,4 +133,9 @@ public class CustomEmployeeService implements EmployeeService {
     public List<Employee> getAllAssignedToAnimal(Animal animal) {
         return employeeRepository.findByAssignedAnimalsContains(animal);
     }
+
+    @Override
+    public List<Employee> getAllDocotrs() {
+        return employeeRepository.findAllByType(EmployeeType.DOCTOR);
+    }
 }
