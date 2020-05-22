@@ -1,0 +1,66 @@
+<div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+  <strong>Error! </strong> {{ errorMessage }}
+  <button type="button" (click)="vanishError()" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+
+
+<br>
+<button *ngIf="isAdmin() || isUser()" class="float-md-right md-primary pull-right btn btn-secondary" type="button"
+        (click)="backClicked()">BACK
+</button>
+<br>
+<br>
+<br>
+
+<div class="row no-gutters">
+  <div class="col">
+    <div class="card-block px-2">
+      <h2 *ngIf="enclosureToView.name!=null" class="info-title">
+        Enclosure Name: {{enclosureToView.name}}
+      </h2>
+      <span *ngIf="enclosureToView.id!=null" class="badge badge-secondary">Id: {{enclosureToView.id}}</span>
+    </div>
+  </div>
+  <div class="col-2">
+    <img *ngIf="enclosureToView.picture!=null" src="{{enclosureToView.picture}}" class="img-fluid" alt="">
+  </div>
+</div>
+
+<br>
+
+<div>
+  <h4 class="info-title">
+    Description
+  </h4>
+  <div class="card">
+    <div *ngIf="enclosureToView.description!=null" class="card-body">
+      {{enclosureToView.description}}
+    </div>
+    <div *ngIf="enclosureToView.description==null || enclosureToView.description==''" class="card-body text-muted">
+      Has no description.
+    </div>
+  </div>
+</div>
+
+<br>
+
+<div>
+  <h4 class="info-title">
+    Public Information
+  </h4>
+  <div class="card">
+    <div *ngIf="enclosureToView.publicInfo!=null" class="card-body">
+      {{enclosureToView.publicInfo}}
+    </div>
+    <div *ngIf="enclosureToView.publicInfo==null  || enclosureToView.publicInfo==''" class="card-body text-muted">
+      Has no public Information.
+    </div>
+  </div>
+</div>
+
+
+
+

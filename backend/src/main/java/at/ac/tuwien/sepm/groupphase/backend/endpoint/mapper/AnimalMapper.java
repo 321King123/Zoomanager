@@ -16,7 +16,6 @@ public class AnimalMapper {
             .name(animal.getName())
             .description(animal.getDescription())
             .species(animal.getSpecies())
-            .enclosure(animal.getEnclosure())
             .publicInformation(animal.getPublicInformation())
             .build();
     }
@@ -30,7 +29,6 @@ public class AnimalMapper {
             .name(animalDto.getName())
             .description(animalDto.getDescription())
             .species(animalDto.getSpecies())
-            .enclosure(animalDto.getEnclosure())
             .publicInformation(animalDto.getPublicInformation())
             .caretakers(animalDto.getCaretakers())
             .build();

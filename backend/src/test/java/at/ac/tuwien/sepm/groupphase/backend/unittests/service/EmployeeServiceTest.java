@@ -26,8 +26,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -166,5 +166,21 @@ public class EmployeeServiceTest implements TestData {
         employeeService.deleteEmployeeByUsername(employee.getUsername());
         List<Employee> employees = employeeService.getAll();
         assertEquals(0, employees.size());
+    }
+
+
+    @Test
+    public void givenNothing_whenSaveAnimal_thenFindAnimalById() {
+        Animal animal = Animal.builder()
+            .id(1L)
+            .name(null)
+            .description(null)
+            .enclosure(null)
+            .species(null)
+            .publicInformation("famous")
+            .build();
+
+        animalRepository.save(animal);
+        assertAll( () -> assertNotNull(animalRepository.findById(animal.getId())));
     }
 }

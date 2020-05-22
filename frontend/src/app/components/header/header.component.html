@@ -16,6 +16,9 @@
       <li class="nav-item">
         <a class="nav-link" *ngIf="isAdmin()" routerLink="/animal" routerLinkActive="active">Animals</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" *ngIf="isAdmin()" routerLink="/enclosure" routerLinkActive="active">Enclosures</a>
+      </li>
     </ul>
     <ul class="navbar-nav mr-5">
       <a class="nav-link" *ngIf="!authService.isLoggedIn()" routerLink="/login" routerLinkActive="active">Login</a>
