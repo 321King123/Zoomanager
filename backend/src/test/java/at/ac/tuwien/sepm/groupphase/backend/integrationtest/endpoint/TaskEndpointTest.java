@@ -67,6 +67,9 @@ public class TaskEndpointTest implements TestData {
     private UserLoginRepository userLoginRepository;
 
     @Autowired
+    private EnclosureRepository enclosureRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -117,10 +120,11 @@ public class TaskEndpointTest implements TestData {
         .email(EMAIL_JANITOR_EMPLOYEE)
         .build();
 
+    private final Enclosure barn = Enclosure.builder().name("Barn").build();
+
     private final Animal animal = Animal.builder()
         .name("Horse")
         .description("Fast")
-        .enclosure(Enclosure.builder().name("Barn").build())
         .species("race")
         .publicInformation("famous")
         .build();
@@ -139,6 +143,7 @@ public class TaskEndpointTest implements TestData {
         employeeRepository.deleteAll();
         userLoginRepository.deleteAll();
         animalRepository.deleteAll();
+        enclosureRepository.deleteAll();
 
         taskDto = TaskDto.builder()
             .title(TASK_TITLE)
@@ -150,6 +155,10 @@ public class TaskEndpointTest implements TestData {
 
     @Test
     public void validAnimalTask_createdByAdmin_returnsExpectedAnimalTaskDto() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
         animalRepository.save(animal);
         List<Animal> animals = new LinkedList<>();
         animals.add(animal);
@@ -186,6 +195,10 @@ public class TaskEndpointTest implements TestData {
 
     @Test
     public void invalidTimeAnimalTask_createdByAdmin_returnsBadRequest() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
         animalRepository.save(animal);
         userLoginRepository.save(animal_caretaker_login);
         employeeRepository.save(anmial_caretaker);
@@ -209,6 +222,10 @@ public class TaskEndpointTest implements TestData {
 
     @Test
     public void validAnimalTaskButInvalidAssignedWorker_createdByAdmin_returnsUnprocessableEntity() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
         animalRepository.save(animal);
         userLoginRepository.save(janitor_login);
         employeeRepository.save(janitor);
@@ -229,6 +246,10 @@ public class TaskEndpointTest implements TestData {
 
     @Test
     public void validTaskButAnimalDoesNotExist_createdByAdmin_returnsNotFound() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
         animalRepository.save(animal);
         userLoginRepository.save(animal_caretaker_login);
         employeeRepository.save(anmial_caretaker);
@@ -249,6 +270,10 @@ public class TaskEndpointTest implements TestData {
 
     @Test
     public void validTaskButEmployeeNotFree_createdByAdmin_returnsConflict() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
         animalRepository.save(animal);
         List<Animal> animals = new LinkedList<>();
         animals.add(animal);
@@ -273,9 +298,14 @@ public class TaskEndpointTest implements TestData {
 
     @Test
     public void validAnimalTaskNoGivenUsername_createdByAdmin_returnsNotAssignedAnimalTaskDto() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
         animalRepository.save(animal);
         userLoginRepository.save(animal_caretaker_login);
         employeeRepository.save(anmial_caretaker);
+
         taskDto.setAssignedEmployeeUsername(null);
         String body = objectMapper.writeValueAsString(taskDto);
         Animal savedAnimal = animalRepository.findAll().get(0);
