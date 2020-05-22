@@ -8,10 +8,7 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.MessageInquiryDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.TaskDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
-import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
+import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
@@ -123,7 +120,7 @@ public class TaskEndpointTest implements TestData {
     private final Animal animal = Animal.builder()
         .name("Horse")
         .description("Fast")
-        .enclosure("Barn")
+        .enclosure(Enclosure.builder().name("Barn").build())
         .species("race")
         .publicInformation("famous")
         .build();

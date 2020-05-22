@@ -44,10 +44,6 @@ public class AnimalEndpoint {
     }
 
 
-    /**
-     * Get Method for all current animals. Only Admin has permissions to see the list of animals.
-     * @return a List of All current animals.
-     */
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping

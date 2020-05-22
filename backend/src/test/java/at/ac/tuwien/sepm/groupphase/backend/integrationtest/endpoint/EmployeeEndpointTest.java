@@ -87,6 +87,7 @@ public class EmployeeEndpointTest implements TestData {
     @Autowired
     private SecurityProperties securityProperties;
 
+
     String GET_FILTERED_EMPLOYEES_URI = EMPLOYEE_BASE_URI + "/search";
     String EMPLOYEE_INFO_PAGE = EMPLOYEE_BASE_URI + "/info";
 
