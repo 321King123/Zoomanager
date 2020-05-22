@@ -3,6 +3,7 @@ import {AuthService} from '../../services/auth.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {EnclosureService} from '../../services/enclosure.service';
 import {Enclosure} from '../../dtos/enclosure';
+import {AlertsComponent} from '../alerts/alerts.component';
 
 @Component({
   selector: 'app-enclosure',
@@ -16,15 +17,6 @@ export class EnclosureComponent implements OnInit {
 
   uploadedPicture: string;
 
-  // constructor(private authService: AuthService, private errorMessageComponent: ErrorMessageComponent,
-  //             private enclosureService: EnclosureService, private formBuilder: FormBuilder) {
-  //   this.enclosureCreationForm = this.formBuilder.group({
-  //     name: ['', [Validators.required]],
-  //     description: [''],
-  //     publicInformation: ['' ],
-  //     picture: ['']
-  //   });
-  // }
   private fileType: string;
 
   constructor(private enclosureService: EnclosureService, private formBuilder: FormBuilder,
