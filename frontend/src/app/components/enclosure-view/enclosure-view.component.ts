@@ -4,6 +4,7 @@ import {Enclosure} from '../../dtos/enclosure';
 import {EnclosureService} from '../../services/enclosure.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
+import {Animal} from '../../dtos/animal';
 
 @Component({
   selector: 'app-enclosure-view',
@@ -16,6 +17,9 @@ export class EnclosureViewComponent implements OnInit {
   errorMessage: string = '';
 
   enclosureToView: Enclosure;
+  selectedAnimal: Animal = null;
+  assignedAnimals: Animal[];
+  animalList: Animal[];
 
 
   constructor(private enclosureService: EnclosureService, private authService: AuthService,
@@ -37,6 +41,7 @@ export class EnclosureViewComponent implements OnInit {
           this.error = true;
           this.errorMessage = 'Enclosure with such id does not exist.';
         }
+        this.showAssignedAnimalsEnclosure();
       },
       error => {
         this.defaultServiceErrorHandling(error);
@@ -80,5 +85,44 @@ export class EnclosureViewComponent implements OnInit {
    */
   vanishError() {
     this.error = false;
+  }
+
+  /**
+   * Selects an employee from the table to display assigned animals
+   */
+  showAssignedAnimalsEnclosure() {
+    if (this.enclosureToView !== null) {
+      this.enclosureService.getAssignedAnimals(this.enclosureToView).subscribe(
+        animals => {
+          this.assignedAnimals = animals;
+        },
+        error => {
+          console.log('Failed to load animals of ' + this.enclosureToView.id);
+          this.defaultServiceErrorHandling(error);
+        }
+      );
+    }
+  }
+
+  assignAnimaltoEnclosure() {
+    if (this.assignedAnimals !== undefined) {
+      for (let i = 0; i < this.assignedAnimals.length; i++) {
+        if (this.assignedAnimals[i].id === this.selectedAnimal.id) {
+          this.error = true;
+          this.errorMessage = 'This animal is already assigned to ' + this.enclosureToView.id;
+          return;
+        }
+      }
+      console.log('assigning ' + this.selectedAnimal + ' to ' + this.enclosureToView);
+    }
+    this.enclosureService.assignAnimalToEnclosure(this.selectedAnimal, this.enclosureToView).subscribe(
+      () => {
+        this.showAssignedAnimalsEnclosure();
+      },
+      error => {
+        console.log('Failed to assign animal');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
   }
 }
