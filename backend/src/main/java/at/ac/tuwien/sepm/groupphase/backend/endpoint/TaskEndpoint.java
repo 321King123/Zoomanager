@@ -98,7 +98,7 @@ public class TaskEndpoint {
      * @param employeeDto contains the employee you want to assign
      * @param taskId contains the taskId for the task you want to assign
      */
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping(value = "/{taskId}")
     @ApiOperation(value = "Assign Employee to Task", authorizations = {@Authorization(value = "apiKey")})
     public void assignEmployee(@RequestBody EmployeeDto employeeDto, @PathVariable Long taskId, Authentication authentication) {
