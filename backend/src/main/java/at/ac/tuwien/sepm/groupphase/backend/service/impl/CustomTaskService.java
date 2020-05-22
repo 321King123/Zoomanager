@@ -5,6 +5,7 @@ import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
 import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalTaskRepository;
@@ -51,9 +52,12 @@ public class CustomTaskService implements TaskService {
 
         if(employee == null) {
             task.setStatus(TaskStatus.NOT_ASSIGNED);
-        }else if(employee.getType() != EmployeeType.ANIMAL_CARE && employee.getType() != EmployeeType.DOCTOR){
+        }else if(employee.getType() == EmployeeType.JANITOR){
             throw new IncorrectTypeException("A Janitor cant complete an animal Task");
         }else{
+            if(employee.getType() == EmployeeType.ANIMAL_CARE && !employeeService.isAssignedToAnimal(employee.getUsername(), animal.getId())){
+                throw new NotAuthorisedException("You cant assign an animal caretaker that is not assigned to the animal.");
+            }
             task.setStatus(TaskStatus.ASSIGNED);
         }
 

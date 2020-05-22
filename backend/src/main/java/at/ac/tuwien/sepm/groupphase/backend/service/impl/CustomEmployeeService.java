@@ -119,5 +119,18 @@ public class CustomEmployeeService implements EmployeeService {
         return true;
     }
 
+    @Override
+    public boolean isAssignedToAnimal(String username, Long animalID) {
+        Employee employee = employeeRepository.findEmployeeByUsername(username);
+        for(Animal a: employee.getAssignedAnimals()){
+            if(a.getId().equals(animalID))
+                return true;
+        }
+        return false;
+    }
 
+    @Override
+    public List<Employee> getAllAssignedToAnimal(Animal animal) {
+        return employeeRepository.findByAssignedAnimalsContains(animal);
+    }
 }

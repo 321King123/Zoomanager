@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.repository;
 
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import org.springframework.data.domain.Example;
@@ -32,4 +33,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
      * @return List containing all Employees that match the Example
      */
     <S extends Employee> List<S> findAll(Example<S> example);
+
+    /**
+     *
+     * @param animal is the searched for animal
+     * @return List of Employees that are assigned to given animal
+     */
+    List<Employee> findByAssignedAnimalsContains(Animal animal);
 }
