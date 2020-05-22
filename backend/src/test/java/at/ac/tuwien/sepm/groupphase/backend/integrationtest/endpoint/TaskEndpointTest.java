@@ -33,6 +33,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -137,9 +139,9 @@ public class TaskEndpointTest implements TestData {
     public void beforeEach() {
         animalTaskRepository.deleteAll();
         taskRepository.deleteAll();
-        animalRepository.deleteAll();
         employeeRepository.deleteAll();
         userLoginRepository.deleteAll();
+        animalRepository.deleteAll();
 
         taskDto = TaskDto.builder()
             .title(TASK_TITLE)
@@ -152,7 +154,10 @@ public class TaskEndpointTest implements TestData {
     @Test
     public void validAnimalTask_createdByAdmin_returnsExpectedAnimalTaskDto() throws Exception {
         animalRepository.save(animal);
+        List<Animal> animals = new LinkedList<>();
+        animals.add(animal);
         userLoginRepository.save(animal_caretaker_login);
+        anmial_caretaker.setAssignedAnimals(animals);
         employeeRepository.save(anmial_caretaker);
         taskDto.setAssignedEmployeeUsername(USERNAME_ANIMAL_CARE_EMPLOYEE);
         String body = objectMapper.writeValueAsString(taskDto);
@@ -248,7 +253,10 @@ public class TaskEndpointTest implements TestData {
     @Test
     public void validTaskButEmployeeNotFree_createdByAdmin_returnsConflict() throws Exception {
         animalRepository.save(animal);
+        List<Animal> animals = new LinkedList<>();
+        animals.add(animal);
         userLoginRepository.save(animal_caretaker_login);
+        anmial_caretaker.setAssignedAnimals(animals);
         employeeRepository.save(anmial_caretaker);
         taskRepository.save(Task.builder().assignedEmployee(anmial_caretaker).status(TaskStatus.ASSIGNED).title(TASK_TITLE).description(TASK_DESCRIPTION).startTime(TAST_START_TIME).endTime(TAST_END_TIME).build());
         taskDto.setAssignedEmployeeUsername(USERNAME_ANIMAL_CARE_EMPLOYEE);

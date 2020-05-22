@@ -9,6 +9,7 @@ import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
@@ -39,11 +40,13 @@ public class EmployeeEndpoint {
     private final EmployeeMapper employeeMapper;
     private final UserLoginMapper userLoginMapper;
     private final AnimalMapper animalMapper;
+    private final AnimalService animalService;
 
     @Autowired
     public EmployeeEndpoint(EmployeeService employeeService, UserService userService,
                             EmployeeMapper employeeMapper, UserLoginMapper userLoginMapper,
-                            AnimalMapper animalMapper){
+                            AnimalMapper animalMapper, AnimalService animalService){
+        this.animalService = animalService;
         this.employeeService=employeeService;
         this.userService=userService;
         this.employeeMapper=employeeMapper;
@@ -149,5 +152,34 @@ public class EmployeeEndpoint {
           String username = (String)authentication.getPrincipal();
           return employeeMapper.employeeToEmployeeDto(employeeService.findByUsername(username));
       }
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/assigned/{animalId}")
+    @ApiOperation(value = "Get list of animals assigned to employee", authorizations = {@Authorization(value = "apiKey")})
+    public List<EmployeeDto> getAllAssignedToAnimal(@PathVariable Long animalId) {
+        LOGGER.info("GET /api/v1/employee/assigned/{}", animalId);
+        Animal animal = animalService.findAnimalById(animalId);
+        List<Employee> employees = employeeService.getAllAssignedToAnimal(animal);
+        List<EmployeeDto> employeeDtos = new LinkedList<>();
+        for(Employee e: employees) {
+            employeeDtos.add(employeeMapper.employeeToEmployeeDto(e));
+        }
+        return employeeDtos;
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/doctors")
+    @ApiOperation(value = "Get list of all Doctors", authorizations = {@Authorization(value = "apiKey")})
+    public List<EmployeeDto> getAllDocotrs() {
+        LOGGER.info("GET /api/v1/employee/doctors");
+        List<Employee> employees = employeeService.getAllDocotrs();
+        List<EmployeeDto> employeeDtos = new LinkedList<>();
+        for(Employee e: employees) {
+            employeeDtos.add(employeeMapper.employeeToEmployeeDto(e));
+        }
+        return employeeDtos;
     }
 }

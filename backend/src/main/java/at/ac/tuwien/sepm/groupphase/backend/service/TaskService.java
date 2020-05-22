@@ -16,4 +16,10 @@ public interface TaskService {
      * */
     AnimalTask createAnimalTask(Task task, Animal animal);
 
+    /**
+     * Delete all AnimalTasks belonging to an Animal
+     * @param animalId you want to delete all AnimalTasks for
+     * */
+    void deleteAnimalTasksBelongingToAnimal(Long animalId);
+
 }

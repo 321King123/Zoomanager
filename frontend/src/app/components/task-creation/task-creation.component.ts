@@ -14,28 +14,30 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
   styleUrls: ['./task-creation.component.css']
 })
 export class TaskCreationComponent implements OnInit {
-
   task: AnimalTask;
+
   error = false;
   errorMessage = '';
+
+  success = false;
+
   allEmployees: Employee[];
   allAnimals: Animal[];
   taskCreationForm: FormGroup;
-  statusTypes = ['NOT_ASSIGNED', 'ASSIGNED', 'IN_PROCESS', 'DONE', 'ERROR'];
+
   submittedTask = false;
+  @Input() currentEmployee;
   @Input() animalsOfEmployee;
-  @Input() employeesOfAnimal;
-
-  employeesInUse: Employee[];
-
+  employeesOfAnimal: Employee[];
+  doctors: Employee[];
+  employeesFound = false;
 
   constructor(private taskService: TaskService, private animalService: AnimalService,
               private employeeService: EmployeeService, private formBuilder: FormBuilder) {
   }
 
   ngOnInit(): void {
-    this.getAllAnimals();
-    this.getAllEmployees();
+    this.getDoctors();
     this.taskCreationForm = this.formBuilder.group({
       title: ['', Validators.required],
       description: ['', Validators.required],
@@ -57,14 +59,23 @@ export class TaskCreationComponent implements OnInit {
     );
   }
 
-  getAllEmployees() {
-    this.employeeService.getAllEmployees().subscribe(
+  getDoctors() {
+    this.employeeService.getDoctors().subscribe(
+      (doctors) => {
+        this.doctors = doctors;
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  getEmployeesOfAnimal() {
+    this.employeesFound = false;
+    this.employeeService.getEmployeesOfAnimal(this.taskCreationForm.controls.animalId.value).subscribe(
       (employees) => {
-
-        this.allEmployees = employees.filter(employee => {
-          return employee.type === 'DOCTOR' || employee.type === 'ANIMAL_CARE';
-        });
-
+        this.employeesOfAnimal = employees;
+        this.employeesFound = true;
       },
       error => {
         this.defaultServiceErrorHandling(error);
@@ -79,7 +90,13 @@ export class TaskCreationComponent implements OnInit {
     this.error = false;
   }
 
+  vanishSuccess() {
+    this.success = false;
+  }
+
   taskSubmitted() {
+    this.error = false;
+    this.success = false;
     this.submittedTask = true;
     if (this.taskCreationForm.valid) {
       const startTimeParsed = this.parseDate(this.taskCreationForm.controls.startTime.value);
@@ -129,7 +146,7 @@ export class TaskCreationComponent implements OnInit {
   createTask() {
     this.taskService.createNewTask(this.task).subscribe(
       (res: any) => {
-
+        this.success = true;
       },
       error => {
         this.defaultServiceErrorHandling(error);
