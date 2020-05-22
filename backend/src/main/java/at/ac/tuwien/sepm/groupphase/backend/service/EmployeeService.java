@@ -2,7 +2,9 @@ package at.ac.tuwien.sepm.groupphase.backend.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EmployeeService  {
@@ -15,6 +17,7 @@ public interface EmployeeService  {
 
     /**
      * Method to get all current employees
+     * If empty an empty List gets returned
      * @return a List of All current employees
      */
     List<Employee> getAll();
@@ -47,4 +50,15 @@ public interface EmployeeService  {
      * @return the employee
      */
     Employee findByUsername(String username);
+
+
+    /**
+     * Checks if an Employee is free between start and end
+     *
+     * @param start is the Time the task you want to assign starts
+     * @param end is the Time the task you want to assign ends
+     * @param employee employee you want to check
+     * @return true if time is free false if occupied
+     */
+    boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task);
 }

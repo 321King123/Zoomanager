@@ -15,17 +15,17 @@ public class EmployeeDataGenerator {
 
     private final EmployeeRepository employeeRepository;
 
-    public EmployeeDataGenerator(EmployeeRepository employeeRepository){
-        this.employeeRepository=employeeRepository;
+    public EmployeeDataGenerator(EmployeeRepository employeeRepository) {
+        this.employeeRepository = employeeRepository;
     }
 
-    private void generateEmployee(){
-        if(employeeRepository.findAll().size()>0){
+    private void generateEmployee() {
+        if(employeeRepository.findAll().size() > 0) {
             LOGGER.debug("Employee already generated.");
-        }else{
+        } else {
             LOGGER.debug("Generating 1 employees");
-            Employee employee = Employee.EmployeeBuilder.anEmployee().withName("employee").withUsername("user")
-                .withBirthday(new Date()).withEmail("user@email.com").withType(EmployeeType.ANIMAL_CARE).build();
+            Employee employee = Employee.builder().name("employee").username("user")
+                .birthday(new Date()).email("user@email.com").type(EmployeeType.ANIMAL_CARE).build();
             LOGGER.debug("Saving employee");
             employeeRepository.save(employee);
         }

@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepm.groupphase.backend.unittests;
+package at.ac.tuwien.sepm.groupphase.backend.unittests.mapper;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.DetailedMessageDto;

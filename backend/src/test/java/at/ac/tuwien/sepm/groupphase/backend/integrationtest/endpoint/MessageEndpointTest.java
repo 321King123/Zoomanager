@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepm.groupphase.backend.integrationtest;
+package at.ac.tuwien.sepm.groupphase.backend.integrationtest.endpoint;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.config.properties.SecurityProperties;

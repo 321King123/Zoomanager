@@ -18,6 +18,7 @@ export class EmployeeViewComponent implements OnInit {
   error: boolean = false;
   errorMessage: string = '';
   currentUser: string;
+  check: string;
   animalList: Animal[];
   selectedAnimal: Animal = null;
   assignedAnimals: Animal[];
@@ -28,15 +29,29 @@ export class EmployeeViewComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = (this.route.snapshot.paramMap.get('username'));
-    if (!this.isAdmin() && JSON.parse(localStorage.getItem('currentUser')) !== this.currentUser) {
-      this.errorMessage = 'You are not authorized to see this users information';
-      this.error = true;
-    } else {
+    if (this.isAdmin() && this.currentUser != null) {
       this.loadSpecificEmployee(this.currentUser);
-      if (this.isAdmin()) {
-        this.getAllAnimals();
-      }
+      this.getAllAnimals();
+    } else if (this.currentUser == null) {
+      this.loadPersonalInfo();
+    } else {
+      this.error = true;
+      this.errorMessage = 'You are NOT authorised to see this users information!';
     }
+
+  }
+
+  loadPersonalInfo() {
+    this.employeeService.getPersonalInfo().subscribe(
+      (employee: Employee) => {
+        this.employee = employee;
+        console.log('employee: ' + JSON.stringify(this.employee));
+        this.showAssignedAnimalsEmployee();
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
   }
 
   loadSpecificEmployee(username: string) {
@@ -44,8 +59,13 @@ export class EmployeeViewComponent implements OnInit {
     this.employeeService.getEmployeeByUsername(username).subscribe(
       (employee: Employee) => {
         this.employee = employee;
-        console.log('employee: ' + JSON.stringify(this.employee));
-        this.showAssignedAnimalsEmployee();
+        if (this.employee == null) {
+          this.error = true;
+          this.errorMessage = 'Employee with such username does not exist.';
+        } else {
+          console.log('employee: ' + JSON.stringify(this.employee));
+          this.showAssignedAnimalsEmployee();
+        }
       },
       error => {
         this.defaultServiceErrorHandling(error);
@@ -94,7 +114,7 @@ export class EmployeeViewComponent implements OnInit {
    * Selects an employee from the table to display assigned animals
    */
   showAssignedAnimalsEmployee() {
-    if (this.employee.type === 'ANIMAL_CARE') {
+    if (this.employee !== null && this.employee.type === 'ANIMAL_CARE') {
       this.employeeService.getAnimals(this.employee).subscribe(
         animals => {
           this.assignedAnimals = animals;
@@ -133,8 +153,8 @@ export class EmployeeViewComponent implements OnInit {
           this.errorMessage = 'This animal is already assigned to ' + this.employee.username;
           return;
         }
-    }
-    console.log('assigning ' + this.selectedAnimal + ' to ' + this.employee);
+      }
+      console.log('assigning ' + this.selectedAnimal + ' to ' + this.employee);
     }
     this.employeeService.assignAnimalToEmployee(this.selectedAnimal, this.employee).subscribe(
       () => {

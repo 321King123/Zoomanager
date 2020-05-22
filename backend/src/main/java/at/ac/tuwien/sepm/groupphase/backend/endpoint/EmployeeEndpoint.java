@@ -7,6 +7,8 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.UserLoginMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
@@ -17,10 +19,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -88,7 +94,7 @@ public class EmployeeEndpoint {
     @ApiOperation(value = "Get list of employees matching name and type", authorizations = {@Authorization(value = "apiKey")})
     public List<EmployeeDto> searchEmployees(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "type", required = false) EmployeeType type){
         LOGGER.info("GET /api/v1/employee/search Name: {} Type: {}", name, type);
-        Employee searchEmployee = Employee.EmployeeBuilder.anEmployee().withName(name).withType(type).build();
+        Employee searchEmployee = Employee.builder().name(name).type(type).build();
         List<Employee> employees = employeeService.findByNameAndType(searchEmployee);
         List<EmployeeDto> employeeDtos = new LinkedList<>();
         for(Employee e: employees){
@@ -120,11 +126,28 @@ public class EmployeeEndpoint {
         employeeService.assignAnimal(employeeUsername, animal.getId());
     }
 
+    @Secured("ROLE_ADMIN")
     @GetMapping(value = "/{username}")
     @ApiOperation(value = "Get detailed information about a specific employee",
         authorizations = {@Authorization(value = "apiKey")})
-    public EmployeeDto find(@PathVariable String username) {
-        LOGGER.info("GET /api/v1/employees/{}", username);
+    public EmployeeDto find(@PathVariable String username,Authentication authentication) {
+        LOGGER.info("GET /api/v1/employee/{}", username);
         return employeeMapper.employeeToEmployeeDto(employeeService.findByUsername(username));
+    }
+
+    @Secured("ROLE_USER")
+    @GetMapping(value = "/info")
+    @ApiOperation(value = "Get detailed information about a myself",
+        authorizations = {@Authorization(value = "apiKey")})
+    public EmployeeDto personalInfo(Authentication authentication){
+        LOGGER.info("GET /api/v1/employee/info");
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+      if(isAdmin){
+          throw new NotFoundException("Administrators do not have an info page.");
+      }else{
+          String username = (String)authentication.getPrincipal();
+          return employeeMapper.employeeToEmployeeDto(employeeService.findByUsername(username));
+      }
     }
 }

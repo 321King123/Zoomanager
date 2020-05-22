@@ -14,7 +14,8 @@ const routes: Routes = [
   {path: 'message', canActivate: [AuthGuard], component: MessageComponent},
   {path: 'employee', canActivate: [AuthGuard], component: EmployeeComponent},
   {path: 'animal', canActivate: [AuthGuard], component: AnimalComponent},
-  {path: 'employee-view/:username', canActivate: [AuthGuard], component: EmployeeViewComponent}
+  {path: 'employee-view/:username', canActivate: [AuthGuard], component: EmployeeViewComponent},
+  {path: 'personal-info', canActivate: [AuthGuard], component: EmployeeViewComponent},
 ];
 
 @NgModule({

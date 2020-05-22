@@ -8,38 +8,31 @@ import org.springframework.stereotype.Component;
 public class AnimalMapper {
 
     public AnimalDto animalToAnimalDto(Animal animal) {
-        if ( animal == null ) {
+        if(animal == null) {
             return null;
         }
 
-        AnimalDto animalDto = new AnimalDto();
-
-        animalDto.setId(animal.getId());
-        animalDto.setName(animal.getName());
-        animalDto.setDescription(animal.getDescription());
-        animalDto.setSpecies(animal.getSpecies());
-        animalDto.setEnclosure(animal.getEnclosure());
-        animalDto.setPublicInformation(animal.getPublicInformation());
-        //animalDto.setCaretakers(animal.getCaretakers());
-
-        return animalDto;
+        return AnimalDto.builder().id(animal.getId())
+            .name(animal.getName())
+            .description(animal.getDescription())
+            .species(animal.getSpecies())
+            .enclosure(animal.getEnclosure())
+            .publicInformation(animal.getPublicInformation())
+            .build();
     }
 
     public Animal AnimalDtoToAnimal(AnimalDto animalDto) {
-        if ( animalDto == null ) {
+        if(animalDto == null) {
             return null;
         }
 
-        Animal animal = new Animal();
-
-        animal.setId(animalDto.getId());
-        animal.setName(animalDto.getName());
-        animal.setDescription(animalDto.getDescription());
-        animal.setSpecies(animalDto.getSpecies());
-        animal.setEnclosure(animalDto.getEnclosure());
-        animal.setPublicInformation(animalDto.getPublicInformation());
-        animal.setCaretakers(animalDto.getCaretakers());
-
-        return animal;
+        return Animal.builder().id(animalDto.getId())
+            .name(animalDto.getName())
+            .description(animalDto.getDescription())
+            .species(animalDto.getSpecies())
+            .enclosure(animalDto.getEnclosure())
+            .publicInformation(animalDto.getPublicInformation())
+            .caretakers(animalDto.getCaretakers())
+            .build();
     }
 }

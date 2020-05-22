@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepm.groupphase.backend.unittests;
+package at.ac.tuwien.sepm.groupphase.backend.unittests.mapper;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
@@ -20,12 +20,22 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 public class AnimalMappingTest implements TestData {
 
-    private final Animal animal= Animal.AnimalBuilder.anAnimal().withId(1L)
-        .withName("Horse")
-        .withDescription("Fast")
-        .withEnclosure("Barn")
-        .withSpecies("race")
-        .withPublicInformation("famous")
+    private final Animal animal= Animal.builder()
+        .id(1L)
+        .name("Horse")
+        .description("Fast")
+        .enclosure("Barn")
+        .species("race")
+        .publicInformation("famous")
+        .build();
+
+    private final AnimalDto animalDto= AnimalDto.builder()
+        .id(2L)
+        .name("Dog")
+        .description("Fast")
+        .enclosure(null)
+        .species("race")
+        .publicInformation(null)
         .build();
 
     @Autowired
@@ -35,6 +45,20 @@ public class AnimalMappingTest implements TestData {
     @Test
     public void givenNothing_whenMapAnimalDtoToEntity_thenEntityHasAllProperties() {
         AnimalDto animalDto= animalMapper.animalToAnimalDto(animal);
+
+        assertAll(
+            () -> assertEquals(animal.getId(), animalDto.getId()),
+            () -> assertEquals(animal.getDescription(), animalDto.getDescription()),
+            () -> assertEquals(animal.getEnclosure(), animalDto.getEnclosure()),
+            () -> assertEquals(animal.getName(), animalDto.getName()),
+            () -> assertEquals(animal.getPublicInformation(), animalDto.getPublicInformation()),
+            () -> assertEquals(animal.getSpecies(), animalDto.getSpecies())
+        );
+    }
+
+    @Test
+    public void givenNothing_whenEntitytoMapAnimalDto_thenEntityHasAllProperties() {
+        Animal animal= animalMapper.AnimalDtoToAnimal(animalDto);
 
         assertAll(
             () -> assertEquals(animal.getId(), animalDto.getId()),
