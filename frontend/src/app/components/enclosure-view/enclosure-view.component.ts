@@ -169,4 +169,33 @@ export class EnclosureViewComponent implements OnInit {
         );
 
   }
+
+  deleteEnclosure() {
+    this.enclosureService.deleteEnclosure(this.enclosureToView).subscribe(
+      () => {
+        console.log('Deleted enclosure:' + this.enclosureToView.id);
+        this.backClicked();
+      },
+      error => {
+        console.log('Failed to delete enclosure');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  unassignAnimal(animal: Animal) {
+    if (animal != null) {
+      this.enclosureService.unassignAnimal(animal).subscribe(
+        () => {
+          console.log('Removed animal' + animal);
+          this.showAssignedAnimalsEnclosure();
+        },
+        error => {
+          console.log('Failed to remove animal');
+          this.defaultServiceErrorHandling(error);
+        }
+      );
+    }
+
+  }
 }

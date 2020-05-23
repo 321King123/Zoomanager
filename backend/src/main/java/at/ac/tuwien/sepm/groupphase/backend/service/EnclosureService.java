@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepm.groupphase.backend.service;
 
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 
 import java.util.List;
@@ -38,5 +37,11 @@ public interface EnclosureService {
      */
     Enclosure findByAnimalId(long animalId);
 
+    /**
+     * Delete enclosure if here are no animals in it
+     *
+     * @param enclosure to delete
+     */
+    void deleteEnclosure(Enclosure enclosure);
 
 }

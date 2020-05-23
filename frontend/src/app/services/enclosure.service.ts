@@ -54,4 +54,16 @@ export class EnclosureService {
   getAlreadyAssignedEnclosureToAnimal(selectedAnimal: Animal): Observable<Enclosure>  {
     return this.httpClient.get<Enclosure>(this.enclosureBaseUri + /animal/ + selectedAnimal.id) ;
   }
+
+  /**
+   * Delete enclosure that has no animal
+   * @param enclosureToView enclosure to delete
+   */
+  deleteEnclosure(enclosureToView: Enclosure): Observable<any> {
+    return this.httpClient.put<Enclosure>(this.enclosureBaseUri, enclosureToView);
+  }
+
+  unassignAnimal(selectedAnimal: Animal): Observable<any> {
+    return this.httpClient.put<Animal>(this.animalBaeseuri + '/removeEnclosure', selectedAnimal);
+  }
 }

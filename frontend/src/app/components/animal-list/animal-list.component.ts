@@ -13,6 +13,8 @@ export class AnimalListComponent implements OnInit {
   enableDelete: boolean = false;
   @Input() animalPage;
   @Output() deleteAnimal = new EventEmitter<Animal>();
+  @Input() enclosurePage;
+  @Output() unassignAnimal = new EventEmitter<Animal>();
 
 
   constructor(private authService: AuthService, private animalService: AnimalService) {

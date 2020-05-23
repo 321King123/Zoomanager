@@ -19,6 +19,7 @@
       <td class="col">{{animal.species}}</td>
       <td class="col">{{animal.description}}</td>
       <td class="col-1" *ngIf="animalPage"><button *ngIf="enableDelete&&animalPage" (click)="deleteAnimal.emit(animal)" class="btn-sm btn-outline-danger btn">Delete</button></td>
+      <td class="col-1" *ngIf="enclosurePage"><button *ngIf="enclosurePage" (click)="unassignAnimal.emit(animal)" class="btn-sm btn-outline-danger btn">remove</button></td>
     </tr>
     </tbody>
   </table>

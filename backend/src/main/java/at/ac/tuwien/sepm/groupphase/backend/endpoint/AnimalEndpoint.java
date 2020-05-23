@@ -81,4 +81,13 @@ public class AnimalEndpoint {
         }
         return animalDtos;
     }
+
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "/removeEnclosure")
+    @ApiOperation(value = "Remove animal from enclosure", authorizations = {@Authorization(value = "apiKey")})
+    public void removeEnclosure(@RequestBody @Valid AnimalDto animalDto){
+        LOGGER.info("PUT /api/v1/animals/removeEnclosure body: {}",animalDto);
+        animalService.removeAnimalFromEnclosure(animalMapper.AnimalDtoToAnimal(animalDto));
+    }
 }

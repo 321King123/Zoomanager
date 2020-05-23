@@ -4,7 +4,6 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EnclosureDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EnclosureMapper;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
@@ -100,4 +99,15 @@ public class EnclosureEndpoint {
         LOGGER.info("GET /api/v1/enclosure/animal/{}", animalId);
         return enclosureMapper.enclosureToEnclosureDto(enclosureService.findByAnimalId(animalId));
     }
+
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "")
+    @ApiOperation(value = "Delete enclosure", authorizations = {@Authorization(value = "apiKey")})
+    public void deleteEnclosure(@RequestBody @Valid EnclosureDto enclosureDto){
+        LOGGER.info("PUT /api/v1/enclosure body: {}",enclosureDto);
+        enclosureService.deleteEnclosure(enclosureMapper.enclosureDtoToEnclosure(enclosureDto));
+    }
+
+
 }
