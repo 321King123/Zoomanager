@@ -101,17 +101,6 @@ public class CustomTaskService implements TaskService {
 
     public List<AnimalTask> getAllTasksOfAnimal(Long animalId){
         LOGGER.debug("Get All Tasks belonging to Animal with id: {}", animalId);
-        List<AnimalTask> animalTasks = new LinkedList<>(animalTaskRepository.findAllBySubject_Id(animalId));
-        Optional<Task> t;
-        for(AnimalTask a: animalTasks){
-            t = taskRepository.findById(a.getId());
-            if(t.isPresent()) {
-                a.setTask(t.get());
-            }else{
-                //should not be reachable
-                throw new InvalidDatabaseStateException("There is an animal Task without a Task object assigned to this animal");
-            }
-        }
         return animalTaskRepository.findAllBySubject_Id(animalId);
     }
 }
