@@ -46,7 +46,9 @@
 <div class="row">
   <div class="col">
     <div class="btn-group" role="group" aria-label="Basic example">
-      <button (click)="toAnimalMode()" *ngIf="this.employee!=null && this.employee.type=='ANIMAL_CARE'" type="button" class="btn btn-dark">Assigned Animals</button>
+      <button (click)="toAnimalMode()" *ngIf="this.employee!=null && this.employee.type=='ANIMAL_CARE'" type="button"
+              class="btn btn-dark">Assigned Animals
+      </button>
       <button (click)="toTaskMode()" type="button" class="btn btn-dark">Assigned Tasks</button>
     </div>
   </div>
@@ -79,6 +81,10 @@
   </ng-container>
 </ng-container>
 
-<ng-container *ngIf="taskListMode">
-  <app-task-list [tasks]="tasks"></app-task-list>
+<ng-container *ngIf="employee!=null && taskListMode">
+  <div class="row mb-4">
+    <div class="col-lg-12">
+      <app-task-list [tasks]="tasks"></app-task-list>
+    </div>
+  </div>
 </ng-container>
