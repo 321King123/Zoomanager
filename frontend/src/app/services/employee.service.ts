@@ -59,6 +59,11 @@ export class EmployeeService {
     return this.httpClient.get<Employee[]>(this.employeeBaseUri + '/assigned/' + animalId);
   }
 
+  getEmployeesOfEnclosure(enclosureId): Observable<Employee[]> {
+    console.log('Getting employees of animal ' + JSON.stringify(enclosureId));
+    return this.httpClient.get<Employee[]>(this.employeeBaseUri + '/assignedEnc/' + enclosureId);
+  }
+
   /**
    * Get filtered List of current employees
    * @param employee contains search parameters (right now only name in form of substring and type relevant)

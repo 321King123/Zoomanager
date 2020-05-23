@@ -2,6 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
 
 import java.time.LocalDateTime;
@@ -37,6 +38,12 @@ public interface EmployeeService  {
      * @return a List of All assigned animals
      */
     List<Animal> findAssignedAnimals(String employeeUsername);
+
+    /**
+     * Method to get all assigned enclosures of the employee
+     * @return a List of All assigned enclosures
+     */
+    List<Enclosure> findAssignedEnclosures(String employeeUsername);
 
     /**
      * Assigns the animal to the Employee

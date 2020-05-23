@@ -93,7 +93,7 @@ public class CustomTaskService implements TaskService {
         validateStartAndEndTime(task);
 
         //TO-DO: Type Validation
-        task.setStatus(TaskStatus.NOT_ASSIGNED);
+        task.setStatus(TaskStatus.ASSIGNED);
 
         Task createdTask = taskRepository.save(task);
 

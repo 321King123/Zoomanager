@@ -79,11 +79,11 @@
                   </div>
                 </div>
                 <div class="form-group col-6">
-                  <label for="animalId">Select Animal</label>
-                  <select (change)="getEmployeesOfAnimal()" name="animalId" formControlName="animalId"
-                          class="form-control" id="animalId"
-                          aria-describedby="animalIdHelp">
-                    <option disabled [ngValue]="null">Select animal</option>
+                  <label for="enclosureId">Select Enclosure</label>
+                  <select (change)="getEmployeesOfEnclosure()" name="enclosureId" formControlName="enclosureId"
+                          class="form-control" id="enclosureId"
+                          aria-describedby="enclosureIdHelp">
+                    <option disabled [ngValue]="null">Select enclosure</option>
                     <ng-container *ngIf="animalsOfEmployee!=null">
                       <option *ngFor="let animal of animalsOfEmployee" [ngValue]="animal.id">{{animal.name}}
                         ; {{animal.species}}</option>
@@ -91,7 +91,7 @@
                   </select>
                   <div *ngIf="submittedTask && taskCreationForm.controls.animalId.errors" class="error">
                     <small class="form-text text-warning" *ngIf="taskCreationForm.controls.animalId.errors.required">
-                      Animal cannot be empty
+                      Enclosure cannot be empty
                     </small>
                   </div>
                 </div>
@@ -103,7 +103,7 @@
                           aria-describedby="assignedEmployeeUsernameHelp">
                     <option disabled [ngValue]="null">Select employee</option>
                     <ng-container *ngIf="employeesFound">
-                      <option *ngFor="let employee of employeesOfAnimal;" [ngValue]="employee.username">
+                      <option *ngFor="let employee of employeesOfEnclosure;" [ngValue]="employee.username">
                         {{employee.username}}; {{employee.name}}
                       </option>
                     </ng-container>
@@ -111,7 +111,7 @@
                   <div *ngIf="submittedTask && taskCreationForm.controls.assignedEmployeeUsername.errors" class="error">
                     <small class="form-text text-warning"
                            *ngIf="taskCreationForm.controls.assignedEmployeeUsername.errors.required">
-                      Employee cannot be empty
+                      Enclosure cannot be empty
                     </small>
                   </div>
                 </div>

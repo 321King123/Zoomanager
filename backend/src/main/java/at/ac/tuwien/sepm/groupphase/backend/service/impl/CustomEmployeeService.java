@@ -1,9 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
+import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
@@ -22,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -77,6 +75,25 @@ public class CustomEmployeeService implements EmployeeService {
             throw new NotFoundException("No Animals assigned to " +employeeUsername);
         return animals;
     }
+
+    @Override
+    public List<Enclosure> findAssignedEnclosures(String employeeUsername){
+        LOGGER.debug("Getting List of all enclosures assigned to " + employeeUsername);
+        Employee employee = employeeRepository.findEmployeeByUsername(employeeUsername);
+
+        List<Animal> animals = animalRepository.findAllByCaretakers(employee);
+        List  <Enclosure> enclosures = new LinkedList<>();
+
+        if(animals.isEmpty())
+            throw new NotFoundException("No Animals assigned to " +employeeUsername);
+        for (Animal a:animals) {
+            if(a.getEnclosure()!=null){
+                enclosures.add(a.getEnclosure());
+            }
+        }
+        return enclosures;
+    }
+
 
     @Override
     public void assignAnimal(String employeeUsername, long animalId) {

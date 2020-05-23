@@ -19,6 +19,9 @@ public class EnclosureTask {
     @Id
     private Long id;
 
+    @Column
+    private boolean priority;
+
     @OneToOne
     @PrimaryKeyJoinColumn
     private Task task;
@@ -26,6 +29,5 @@ public class EnclosureTask {
     @NonNull
     @ManyToOne(fetch= FetchType.LAZY)
     private Enclosure subject;
-
 
 }
