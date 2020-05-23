@@ -34,6 +34,9 @@ export class AnimalViewComponent implements OnInit {
     this.animalService.getAnimalById(id).subscribe(
       (a: Animal) => {
         this.currentAnimal = a;
+        this.getEmployeesOfAnimal();
+        this.getTasksOfAnimal();
+        this.getDoctors();
       },
       error => {
         this.defaultServiceErrorHandling(error);

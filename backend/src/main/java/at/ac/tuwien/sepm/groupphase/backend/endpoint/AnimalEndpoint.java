@@ -67,7 +67,7 @@ public class AnimalEndpoint {
         animalService.deleteAnimal(id);
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public AnimalDto getAnimalById(@PathVariable("id") Long id){

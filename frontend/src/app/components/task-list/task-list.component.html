@@ -14,8 +14,8 @@
     </tr>
     </thead>
     <tbody *ngIf="tasks">
-    <ng-container *ngFor="let task of tasks">
-      <tr  class="d-flex animal-list-item">
+    <ng-container *ngFor="let task of tasks; index as i;">
+      <tr class="d-flex animal-list-item">
         <td class="col">{{task.title}}</td>
         <td class="col">{{task.startTime}}</td>
         <td class="col">{{task.endTime}}</td>
@@ -23,10 +23,9 @@
           <td class="col">{{task.assignedEmployeeUsername}}</td>
         </ng-container>
         <ng-container *ngIf="task.assignedEmployeeUsername==null">
-          <td (click)="reassign()" class="col">
-            <select>
-
-            </select>
+          <td class="col">
+            <app-assign-task (assignmentSuccessful)="reloadTasks.emit()" [animal]="animal" [index]="i"
+                             [employees]="employees" [doctors]="doctors" [task]="task"></app-assign-task>
           </td>
         </ng-container>
       </tr>

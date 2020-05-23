@@ -123,7 +123,7 @@ public class TaskEndpoint {
         }
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/animal/{animalId}")
     @ApiOperation(value = "Get list of animal tasks belonging to an animal", authorizations = {@Authorization(value = "apiKey")})

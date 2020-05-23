@@ -22,6 +22,7 @@ import { EnclosureViewComponent } from './components/enclosure-view/enclosure-vi
 import { TaskCreationComponent } from './components/task-creation/task-creation.component';
 import { AnimalViewComponent } from './components/animal-view/animal-view.component';
 import { TaskListComponent } from './components/task-list/task-list.component';
+import { AssignTaskComponent } from './components/assign-task/assign-task.component';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import { TaskListComponent } from './components/task-list/task-list.component';
     TaskCreationComponent,
     AnimalViewComponent,
     TaskListComponent,
+    AssignTaskComponent,
   ],
   imports: [
     BrowserModule,
