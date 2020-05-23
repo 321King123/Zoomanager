@@ -67,4 +67,12 @@ public class AnimalEndpoint {
         animalService.deleteAnimal(id);
     }
 
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public AnimalDto getAnimalById(@PathVariable("id") Long id){
+        LOGGER.info("GET /api/v1/animal/" + id );
+        return animalMapper.animalToAnimalDto(animalService.findAnimalById(id));
+    }
+
 }

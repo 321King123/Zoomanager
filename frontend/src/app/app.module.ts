@@ -20,6 +20,8 @@ import { EnclosureComponent } from './components/enclosure/enclosure.component';
 import { EnclosureListComponent } from './components/enclosure-list/enclosure-list.component';
 import { EnclosureViewComponent } from './components/enclosure-view/enclosure-view.component';
 import { TaskCreationComponent } from './components/task-creation/task-creation.component';
+import { AnimalViewComponent } from './components/animal-view/animal-view.component';
+import { TaskListComponent } from './components/task-list/task-list.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +39,8 @@ import { TaskCreationComponent } from './components/task-creation/task-creation.
     EnclosureListComponent,
     EnclosureViewComponent,
     TaskCreationComponent,
+    AnimalViewComponent,
+    TaskListComponent,
   ],
   imports: [
     BrowserModule,
