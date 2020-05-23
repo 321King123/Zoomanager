@@ -130,27 +130,27 @@ public class EnclosureTaskRepositoryTest {
         assertEquals(createdTask, et.getTask());
     }
 
-//    @Test
-//    public void givenNothing_searchingForEnclosureAssignedToEnclosureTask_thenFindEnclosure() {
-//        userLoginRepository.save(animal_caretaker_login);
-//        employeeRepository.save(anmial_caretaker);
-//        Employee caretaker = employeeRepository.findAll().get(0);
-//
-//        task_assigned.setAssignedEmployee(caretaker);
-//
-//        Enclosure enclosure = enclosureRepository.save(barn);
-//
-//        Task createdTask = taskRepository.save(task_assigned);
-//
-//        enclosureTaskRepository.save(EnclosureTask.builder()
-//            .id(createdTask.getId())
-//            .subject(enclosure)
-//            .build());
-//
-//        Enclosure e = enclosureTaskRepository.getTaskSubjectById(createdTask.getId());
-//
-//        assertEquals(enclosure, e);
-//    }
+    @Test
+    public void givenNothing_searchingForEnclosureAssignedToEnclosureTask_thenFindEnclosure() {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        Employee caretaker = employeeRepository.findAll().get(0);
+
+        task_assigned.setAssignedEmployee(caretaker);
+
+        Enclosure enclosure = enclosureRepository.save(barn);
+
+        Task createdTask = taskRepository.save(task_assigned);
+
+        enclosureTaskRepository.save(EnclosureTask.builder()
+            .id(createdTask.getId())
+            .subject(enclosure)
+            .build());
+
+        Enclosure e = enclosureTaskRepository.getTaskSubjectById(createdTask.getId());
+
+        assertEquals(enclosure, e);
+    }
 
     @Test
     public void givenNothing_searchingForEnclosureTasksAssignedToEnclosure_thenFindAllEnclosureTasks() {

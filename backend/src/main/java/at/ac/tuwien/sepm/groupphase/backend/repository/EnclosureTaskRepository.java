@@ -23,12 +23,16 @@ public interface EnclosureTaskRepository extends JpaRepository<EnclosureTask, Lo
     List<EnclosureTask> findAllEnclosureTasksBySubject_Id(@Param("enclosureId")long enclosureIdLong);
 
 
-//    @Query("SELECT new at.ac.tuwien.sepm.groupphase.backend.entity" +
-//        ".Enclosure(et.subject.id, et.subject.name, et.subject.description, et.subject.publicInfo, et.subject.picture," +
-//        "et.subject.animals, et.subject.tasks) " +
-//        "FROM EnclosureTask et WHERE et.id=:taskId")
-//    Enclosure getTaskSubjectById(@Param("taskId") long taskIdLong);
-    
+    @Query("SELECT new at.ac.tuwien.sepm.groupphase.backend.entity" +
+        ".Enclosure(et.subject.id, et.subject.name, et.subject.description, et.subject.publicInfo, et.subject.picture) " +
+        "FROM EnclosureTask et WHERE et.id=:taskId")
+    Enclosure getTaskSubjectById_WithoutAssignedAnimalsAndTasks(@Param("taskId") long taskIdLong);
+
+    @Query("SELECT new at.ac.tuwien.sepm.groupphase.backend.entity" +
+        ".Enclosure(et.subject)" +
+        "FROM EnclosureTask et WHERE et.id=:taskId")
+    Enclosure getTaskSubjectById(@Param("taskId") long taskIdLong);
+
     /**
      *Finds the Tasks with the given ID
      * @param taskIdLong id of Task to find
