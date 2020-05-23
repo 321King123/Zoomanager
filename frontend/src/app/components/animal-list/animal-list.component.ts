@@ -2,6 +2,7 @@ import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {AuthService} from '../../services/auth.service';
 import {Animal} from '../../dtos/animal';
 import {AnimalService} from '../../services/animal.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-animal-list',
@@ -13,9 +14,11 @@ export class AnimalListComponent implements OnInit {
   enableDelete: boolean = false;
   @Input() animalPage;
   @Output() deleteAnimal = new EventEmitter<Animal>();
+  @Input() enclosurePage;
+  @Output() unassignAnimal = new EventEmitter<Animal>();
 
 
-  constructor(private authService: AuthService, private animalService: AnimalService) {
+  constructor(private authService: AuthService, private animalService: AnimalService, private route: Router) {
   }
 
   ngOnInit(): void {
@@ -30,6 +33,10 @@ export class AnimalListComponent implements OnInit {
 
   changeDeleteState() {
     this.enableDelete = !this.enableDelete;
+  }
+
+  showInfo(a: Animal) {
+    this.route.navigate(['/animal-view/' + a.id]);
   }
 }
 

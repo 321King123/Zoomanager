@@ -26,6 +26,8 @@ import static org.mockito.AdditionalAnswers.returnsFirstArg;
 
 import javax.validation.ValidationException;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -161,5 +163,45 @@ public class TaskServiceTest implements TestData {
         AnimalTask animalTask = taskService.createAnimalTask(task_not_assigned,animal);
         Assertions.assertEquals(TaskStatus.ASSIGNED,animalTask.getTask().getStatus());
         task_not_assigned.setStatus(TaskStatus.NOT_ASSIGNED);
+    }
+
+    @Test
+    public void validTaskAndEmployee_updateTask_expectNoErrors(){
+        Optional<Task> task = Optional.of(task_not_assigned);
+        Mockito.when(taskRepository.findById(Mockito.any(Long.class))).thenReturn(task);
+        Mockito.when(employeeService.canBeAssignedToTask(Mockito.any(Employee.class),
+            Mockito.any(Task.class))).thenReturn(true);
+        Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(anmial_caretaker);
+        taskService.updateTask(1L, anmial_caretaker);
+    }
+
+    @Test
+    public void validTaskButEmployeeNotFulfillingCriteria_updateTask_expectIncorrectTypeException(){
+        Optional<Task> task = Optional.of(task_not_assigned);
+        Mockito.when(taskRepository.findById(Mockito.any(Long.class))).thenReturn(task);
+        Mockito.when(employeeService.canBeAssignedToTask(Mockito.any(Employee.class),
+            Mockito.any(Task.class))).thenReturn(false);
+        Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(anmial_caretaker);
+        assertThrows(IncorrectTypeException.class, () -> taskService.updateTask(1L, anmial_caretaker));
+    }
+
+    @Test
+    public void TaskDoesNotExist_updateTask_expectNotFoundException(){
+        Optional<Task> task = Optional.empty();
+        Mockito.when(taskRepository.findById(Mockito.any(Long.class))).thenReturn(task);
+        Mockito.when(employeeService.canBeAssignedToTask(Mockito.any(Employee.class),
+            Mockito.any(Task.class))).thenReturn(false);
+        Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(anmial_caretaker);
+        assertThrows(NotFoundException.class, () -> taskService.updateTask(1L, anmial_caretaker));
+    }
+
+    @Test
+    public void validTaskButAlreadyAssigned_updateTask_expectIncorrectTypeException(){
+        Optional<Task> task = Optional.of(task_assigned);
+        Mockito.when(taskRepository.findById(Mockito.any(Long.class))).thenReturn(task);
+        Mockito.when(employeeService.canBeAssignedToTask(Mockito.any(Employee.class),
+            Mockito.any(Task.class))).thenReturn(true);
+        Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(anmial_caretaker);
+        assertThrows(IncorrectTypeException.class, () -> taskService.updateTask(1L, anmial_caretaker));
     }
 }

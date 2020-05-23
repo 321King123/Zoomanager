@@ -76,8 +76,19 @@ public interface EmployeeService  {
     boolean isAssignedToAnimal(String username, Long animalId);
 
     /**
+     *Checks if Employee has rights to change assignment of Task
+     * Will return false for admins they are handled separatly
+     * @param UsernameEmployee employee to check
+     * @param taskId task to check
+     */
+    boolean hasTaskAssignmentPermissions(String UsernameEmployee, Long taskId);
+
+
+    boolean canBeAssignedToTask(Employee employee, Task task);
+
+    /**
      * Gets all Employees assigned to specific Animal
-     * @param animal animal you want the infor for
+     * @param animal animal you want the information for
      */
     List<Employee> getAllAssignedToAnimal(Animal animal);
 

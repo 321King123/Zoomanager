@@ -10,16 +10,28 @@
       <th class="col" scope="col">Name</th>
       <th class="col" scope="col">Species</th>
       <th class="col" scope="col">Description</th>
-      <th class="col-1" scope="row" *ngIf="isAdmin()&&animalPage"><button (click)="changeDeleteState()" class="btn my-0 btn-secondary btn-sm">Options</button></th>
+      <th class="col-1" scope="row" *ngIf="isAdmin()&&animalPage">
+        <button (click)="changeDeleteState()" class="btn my-0 btn-secondary btn-sm">Options</button>
+      </th>
     </tr>
     </thead>
     <tbody *ngIf="animals">
-    <tr class="d-flex animal-list-item" *ngFor="let animal of animals">
-      <td class="col">{{animal.name}}</td>
-      <td class="col">{{animal.species}}</td>
-      <td class="col">{{animal.description}}</td>
-      <td class="col-1" *ngIf="animalPage"><button *ngIf="enableDelete&&animalPage" (click)="deleteAnimal.emit(animal)" class="btn-sm btn-outline-danger btn">Delete</button></td>
-    </tr>
+
+    <ng-container *ngFor="let animal of animals">
+      <tr  class="d-flex animal-list-item" (click)="showInfo(animal)">
+        <td class="col">{{animal.name}}</td>
+        <td class="col">{{animal.species}}</td>
+        <td class="col">{{animal.description}}</td>
+        <td class="col-1" *ngIf="animalPage">
+          <button *ngIf="enableDelete&&animalPage" (click)="deleteAnimal.emit(animal)"
+                  class="btn-sm btn-outline-danger btn">Delete
+          </button>
+         
+        </td>
+        <td class="col-1" *ngIf="enclosurePage"><button *ngIf="enclosurePage" (click)="unassignAnimal.emit(animal)" class="btn-sm btn-outline-danger btn">remove</button></td>
+      </tr>
+    </ng-container>
+
     </tbody>
   </table>
 </div>
