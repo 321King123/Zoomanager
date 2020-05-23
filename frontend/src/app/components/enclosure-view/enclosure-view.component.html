@@ -18,14 +18,14 @@
 <div class="row no-gutters">
   <div class="col">
     <div class="card-block px-2">
-      <h2 *ngIf="enclosureToView.name!=null" class="info-title">
+      <h2 *ngIf="enclosureToView && enclosureToView.name!=null" class="info-title">
         Enclosure Name: {{enclosureToView.name}}
       </h2>
-      <span *ngIf="enclosureToView.id!=null" class="badge badge-secondary">Id: {{enclosureToView.id}}</span>
+      <span *ngIf="enclosureToView &&enclosureToView.id!=null" class="badge badge-secondary">Id: {{enclosureToView.id}}</span>
     </div>
   </div>
   <div class="col-2">
-    <img *ngIf="enclosureToView.picture!=null" src="{{enclosureToView.picture}}" class="img-fluid" alt="">
+    <img *ngIf="enclosureToView &&enclosureToView.picture!=null" src="{{enclosureToView.picture}}" class="img-fluid" alt="">
   </div>
 </div>
 
@@ -36,10 +36,10 @@
     Description
   </h4>
   <div class="card">
-    <div *ngIf="enclosureToView.description!=null" class="card-body">
+    <div *ngIf="enclosureToView && enclosureToView.description!=null" class="card-body">
       {{enclosureToView.description}}
     </div>
-    <div *ngIf="enclosureToView.description==null || enclosureToView.description==''" class="card-body text-muted">
+    <div *ngIf="enclosureToView && (enclosureToView.description==null || enclosureToView.description=='')" class="card-body text-muted">
       Has no description.
     </div>
   </div>
@@ -52,10 +52,10 @@
     Public Information
   </h4>
   <div class="card">
-    <div *ngIf="enclosureToView.publicInfo!=null" class="card-body">
+    <div *ngIf="enclosureToView && enclosureToView.publicInfo!=null" class="card-body">
       {{enclosureToView.publicInfo}}
     </div>
-    <div *ngIf="enclosureToView.publicInfo==null  || enclosureToView.publicInfo==''" class="card-body text-muted">
+    <div *ngIf="enclosureToView && (enclosureToView.publicInfo==null  || enclosureToView.publicInfo=='')" class="card-body text-muted">
       Has no public Information.
     </div>
   </div>
