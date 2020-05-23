@@ -4,6 +4,8 @@ import {EmployeeService} from '../../services/employee.service';
 import {TaskService} from '../../services/task.service';
 import {Animal} from '../../dtos/animal';
 import {ActivatedRoute, Router} from '@angular/router';
+import {Employee} from '../../dtos/employee';
+import {AnimalTask} from '../../dtos/animalTask';
 
 @Component({
   selector: 'app-animal-view',
@@ -14,6 +16,10 @@ export class AnimalViewComponent implements OnInit {
   error = false;
   errorMessage = '';
   currentAnimal: Animal;
+
+  doctors: Employee[];
+  employees: Employee[];
+  tasks: AnimalTask[];
 
   constructor(private animalService: AnimalService, private employeeService: EmployeeService,
               private taskService: TaskService, private route: ActivatedRoute) {
@@ -36,7 +42,14 @@ export class AnimalViewComponent implements OnInit {
   }
 
   getTasksOfAnimal() {
-
+    this.taskService.getTasksOfAnimal(this.currentAnimal.id).subscribe(
+      (tasks: AnimalTask[]) => {
+        this.tasks = tasks;
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
   }
 
   private defaultServiceErrorHandling(error: any) {
@@ -51,5 +64,27 @@ export class AnimalViewComponent implements OnInit {
 
   vanishError() {
     this.error = false;
+  }
+
+  getDoctors() {
+    this.employeeService.getDoctors().subscribe(
+      (doctors) => {
+        this.doctors = doctors;
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  getEmployeesOfAnimal() {
+    this.employeeService.getEmployeesOfAnimal(this.currentAnimal.id).subscribe(
+      (employees) => {
+        this.employees = employees;
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
   }
 }

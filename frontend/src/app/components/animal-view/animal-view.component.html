@@ -12,11 +12,16 @@
         <h5 *ngIf="currentAnimal.name!=null" class="info-title">Name: {{currentAnimal.name}}</h5>
         <h6 *ngIf="currentAnimal.species!=null" class="info-title">Species: {{currentAnimal.species}}</h6>
         <p *ngIf="currentAnimal.description!=null" class="info-text">Description: {{currentAnimal.description}}</p>
-        <p *ngIf="currentAnimal.publicInformation!=null" class="info-text">Public information: {{currentAnimal.publicInformation}}</p>
+        <p *ngIf="currentAnimal.publicInformation!=null" class="info-text">Public
+          information: {{currentAnimal.publicInformation}}</p>
       </div>
     </div>
   </div>
 </div>
 <hr>
 
-
+<div class="row">
+  <div class="col">
+  <app-task-list [tasks]="tasks"></app-task-list>
+  </div>
+</div>

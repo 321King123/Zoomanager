@@ -19,7 +19,16 @@
         <td class="col">{{task.title}}</td>
         <td class="col">{{task.startTime}}</td>
         <td class="col">{{task.endTime}}</td>
-        <td (click)="reassign()" class="col">{{task.assignedEmployeeUsername}}</td>
+        <ng-container *ngIf="task.assignedEmployeeUsername!=null">
+          <td class="col">{{task.assignedEmployeeUsername}}</td>
+        </ng-container>
+        <ng-container *ngIf="task.assignedEmployeeUsername==null">
+          <td (click)="reassign()" class="col">
+            <select>
+
+            </select>
+          </td>
+        </ng-container>
       </tr>
     </ng-container>
     </tbody>

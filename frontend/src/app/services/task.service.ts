@@ -3,12 +3,14 @@ import {HttpClient} from '@angular/common/http';
 import {Globals} from '../global/globals';
 import {AnimalTask} from '../dtos/animalTask';
 import {Observable} from 'rxjs';
+import {Employee} from '../dtos/employee';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TaskService {
   private animalTaskBaseUri: string = this.globals.backendUri + '/tasks/animal';
+  private taskBaseUri: string = this.globals.backendUri + '/tasks';
 
   constructor(private httpClient: HttpClient, private globals: Globals) {
   }
@@ -18,5 +20,12 @@ export class TaskService {
     return this.httpClient.post<AnimalTask>(this.animalTaskBaseUri + '/' + task.animalId, task);
   }
 
+  assignTask(id, employee) {
+    console.log('Assign Task: ' + id + ' to ' + JSON.stringify(employee));
+    return this.httpClient.put<Employee>(this.taskBaseUri + '/' + id, employee);
+  }
 
+  getTasksOfAnimal(animalId): Observable<AnimalTask[]> {
+    return this.httpClient.get<AnimalTask[]>(this.animalTaskBaseUri + '/' + animalId);
+  }
 }
