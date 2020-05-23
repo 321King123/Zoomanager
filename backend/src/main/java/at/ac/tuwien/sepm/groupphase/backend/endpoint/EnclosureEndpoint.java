@@ -90,4 +90,14 @@ public class EnclosureEndpoint {
         LOGGER.info("POST /api/v1/enclosure/animal/{}", enclosureId);
         animalService.addAnimalToEnclosure(animalMapper.AnimalDtoToAnimal(animalDto), enclosureId);
     }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/animal/{animalId}")
+    @ApiOperation(value = "Get Enclosure of Animal",
+        authorizations = {@Authorization(value = "apiKey")})
+    public EnclosureDto getEnclosureByAnimalId(@PathVariable Long animalId) {
+        LOGGER.info("GET /api/v1/enclosure/animal/{}", animalId);
+        return enclosureMapper.enclosureToEnclosureDto(enclosureService.findByAnimalId(animalId));
+    }
 }
