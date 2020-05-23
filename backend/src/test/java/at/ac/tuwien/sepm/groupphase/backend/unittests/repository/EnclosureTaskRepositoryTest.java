@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.List;
+
 import static at.ac.tuwien.sepm.groupphase.backend.basetest.TestData.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -102,10 +104,11 @@ public class EnclosureTaskRepositoryTest {
         taskRepository.deleteAll();
         employeeRepository.deleteAll();
         userLoginRepository.deleteAll();
+        enclosureTaskRepository.deleteAll();
     }
 
     @Test
-    public void givenValidTaskAndEnclosure_createEnclosureTask() {
+    public void givenNothing_whenSaveEnclosureTask_createsEnclosureTask() {
         userLoginRepository.save(animal_caretaker_login);
         employeeRepository.save(anmial_caretaker);
         Employee caretaker = employeeRepository.findAll().get(0);
@@ -116,22 +119,74 @@ public class EnclosureTaskRepositoryTest {
 
         Task createdTask = taskRepository.save(task_assigned);
 
-//        EnclosureTask enclosureTask = enclosureTaskRepository.save(EnclosureTask.builder()
-//            .id(createdTask.getId())
-//            .subject(enclosure)
-//            .build());
-
-        enclosureTaskRepository.save(EnclosureTask.builder()
+       enclosureTaskRepository.save(EnclosureTask.builder()
             .id(createdTask.getId())
             .subject(enclosure)
             .build());
 
-        EnclosureTask et = enclosureTaskRepository.getComplete(createdTask.getId());
+        EnclosureTask et = enclosureTaskRepository.findEnclosureTaskById(createdTask.getId());
 
-        Task ot = taskRepository.getOne(et.getId());
-        //Enclosure ec = enclosureTaskRepository.getTaskSubjectById(createdTask.getId());
+        assertEquals(enclosure, et.getSubject());
+        assertEquals(createdTask, et.getTask());
+    }
 
-        assertEquals(et.getSubject(), enclosure);
-        assertEquals(ot, createdTask);
+//    @Test
+//    public void givenNothing_searchingForEnclosureAssignedToEnclosureTask_thenFindEnclosure() {
+//        userLoginRepository.save(animal_caretaker_login);
+//        employeeRepository.save(anmial_caretaker);
+//        Employee caretaker = employeeRepository.findAll().get(0);
+//
+//        task_assigned.setAssignedEmployee(caretaker);
+//
+//        Enclosure enclosure = enclosureRepository.save(barn);
+//
+//        Task createdTask = taskRepository.save(task_assigned);
+//
+//        enclosureTaskRepository.save(EnclosureTask.builder()
+//            .id(createdTask.getId())
+//            .subject(enclosure)
+//            .build());
+//
+//        Enclosure e = enclosureTaskRepository.getTaskSubjectById(createdTask.getId());
+//
+//        assertEquals(enclosure, e);
+//    }
+
+    @Test
+    public void givenNothing_searchingForEnclosureTasksAssignedToEnclosure_thenFindAllEnclosureTasks() {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        Employee caretaker = employeeRepository.findAll().get(0);
+
+        task_assigned.setAssignedEmployee(caretaker);
+
+        Enclosure enclosure = enclosureRepository.save(barn);
+
+        Task createdTask = taskRepository.save(task_assigned);
+        EnclosureTask ec1 = EnclosureTask.builder()
+            .id(createdTask.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec1);
+
+        Task createdTask2 = taskRepository.save(task_assigned2);
+        EnclosureTask ec2 = EnclosureTask.builder()
+            .id(createdTask2.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec2);
+
+        Task createdTask3 = taskRepository.save(task_assigned3);
+        EnclosureTask ec3 = EnclosureTask.builder()
+            .id(createdTask3.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec3);
+
+
+        List<EnclosureTask> etl = enclosureTaskRepository
+            .findAllEnclosureTasksBySubject_Id(enclosure.getId());
+
+        assertEquals(3, etl.size());
     }
 }

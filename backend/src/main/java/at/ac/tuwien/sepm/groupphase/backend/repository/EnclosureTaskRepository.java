@@ -2,6 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.repository;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.entity.EnclosureTask;
+import org.hibernate.sql.Select;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,41 +13,31 @@ import java.util.List;
 
 public interface EnclosureTaskRepository extends JpaRepository<EnclosureTask, Long> {
 
-//    /**
-//     *Finds all Tasks assigned to an Enclosure
-//     * @param enclosureId id of the enclosure to find associated tasks from
-//     * @return The tasks associated with the given enclosure
-//     */
-//    List<Enclosure> findAllBySubject_Id(Long enclosureId);
+    /**
+     *Finds all Tasks assigned to an Enclosure
+     * @param enclosureIdLong id of the enclosure to find associated tasks from
+     * @return The tasks associated with the given enclosure
+     */
+    @Query("SELECT new EnclosureTask(et.id, et.priority, t, et.subject) " +
+        "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE et.subject.id=:enclosureId")
+    List<EnclosureTask> findAllEnclosureTasksBySubject_Id(@Param("enclosureId")long enclosureIdLong);
 
-//    @Transactional
-//    @Query(
-//        value = "SELECT e.ID, e.NAME, e.DESCRIPTION, e.PICTURE, e.PUBLIC_INFO FROM ENCLOSURE e WHERE ID = (SELECT SUBJECT_ID FROM ENCLOSURE_TASK et WHERE et.ID=:taskId)",
-//        nativeQuery = true)
+
+//    @Query("SELECT new at.ac.tuwien.sepm.groupphase.backend.entity" +
+//        ".Enclosure(et.subject.id, et.subject.name, et.subject.description, et.subject.publicInfo, et.subject.picture," +
+//        "et.subject.animals, et.subject.tasks) " +
+//        "FROM EnclosureTask et WHERE et.id=:taskId")
 //    Enclosure getTaskSubjectById(@Param("taskId") long taskIdLong);
+    
+    /**
+     *Finds the Tasks with the given ID
+     * @param taskIdLong id of Task to find
+     * @return The EnclosureTask with the given id
+     */
+    @Query("SELECT new EnclosureTask(et.id, et.priority, t, et.subject) " +
+        "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE et.id=:taskId")
+    EnclosureTask findEnclosureTaskById(@Param("taskId") long taskIdLong);
 
-//    @Query(
-//        value = "SELECT et From ENCLOSURE_TASK et JOIN et.SUBJECT_ID WHERE et.ID=:taskId",
-//        nativeQuery = true)
-//    EnclosureTask getTaskAndSubjectById(@Param("taskId") long taskIdLong);
 
-//    @Transactional
-//    @Query("select * from EnclosureTask on")
-//    Enclosure getTaskById(@Param("taskId") long taskIdLong);
-
-    @Transactional
-    @Query(value =
-        "SELECT * FROM ENCLOSURE_TASK et " +
-            "INNER JOIN ENCLOSURE e ON et.SUBJECT_ID=e.ID " +
-            "INNER JOIN Task t ON et.id = t.id " +
-            "WHERE et.ID=:taskId",
-    nativeQuery = true)
-    EnclosureTask getEnclosureTaskWithEnclosureAndAssociatedTaskById(@Param("taskId") long taskIdLong);
-
-    @Transactional
-    @Query("FROM EnclosureTask et " +
-            "JOIN Task t ON et.id = t.id " +
-            "WHERE et.id=:taskId")
-    EnclosureTask getComplete(@Param("taskId") long taskIdLong);
 
 }
