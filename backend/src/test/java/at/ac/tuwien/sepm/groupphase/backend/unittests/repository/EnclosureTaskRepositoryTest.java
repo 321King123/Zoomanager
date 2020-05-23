@@ -126,7 +126,7 @@ public class EnclosureTaskRepositoryTest {
             .subject(enclosure)
             .build());
 
-        EnclosureTask et = enclosureTaskRepository.findById(createdTask.getId()).get();
+        EnclosureTask et = enclosureTaskRepository.getComplete(createdTask.getId());
 
         Task ot = taskRepository.getOne(et.getId());
         //Enclosure ec = enclosureTaskRepository.getTaskSubjectById(createdTask.getId());
