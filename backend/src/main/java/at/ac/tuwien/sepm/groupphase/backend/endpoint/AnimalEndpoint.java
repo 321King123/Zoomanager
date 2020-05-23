@@ -76,6 +76,7 @@ public class AnimalEndpoint {
         animalService.deleteAnimal(id);
     }
 
+
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -90,6 +91,31 @@ public class AnimalEndpoint {
             }
         }
         return animalMapper.animalToAnimalDto(animalService.findAnimalById(id));
+    }
+
+
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/enclosure/{enclosureId}")
+    @ApiOperation(value = "Get Animals assigned to Enclosure",
+        authorizations = {@Authorization(value = "apiKey")})
+    public List<AnimalDto> getAnimalsByEnclosure(@PathVariable Long enclosureId) {
+        LOGGER.info("GET /api/v1/animals/enclosure/{}", enclosureId);
+        List<Animal> animals = animalService.findAnimalsByEnclosure(enclosureId);
+        List<AnimalDto> animalDtos = new LinkedList<>();
+        for(Animal a: animals) {
+            animalDtos.add(animalMapper.animalToAnimalDto(a));
+        }
+        return animalDtos;
+    }
+
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "/removeEnclosure")
+    @ApiOperation(value = "Remove animal from enclosure", authorizations = {@Authorization(value = "apiKey")})
+    public void removeEnclosure(@RequestBody @Valid AnimalDto animalDto){
+        LOGGER.info("PUT /api/v1/animals/removeEnclosure body: {}",animalDto);
+        animalService.removeAnimalFromEnclosure(animalMapper.AnimalDtoToAnimal(animalDto));
     }
 
 }
