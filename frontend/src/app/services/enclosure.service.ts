@@ -46,4 +46,12 @@ export class EnclosureService {
   assignAnimalToEnclosure(animal: Animal, enclosure: Enclosure): Observable<any> {
     return this.httpClient.post(this.enclosureBaseUri + '/animal/' + enclosure.id, animal);
   }
+
+  /**
+   * Get enclosure where animal is already assigned
+   * @param animal to check if already assigned
+   */
+  getAlreadyAssignedEnclosureToAnimal(selectedAnimal: Animal): Observable<Enclosure>  {
+    return this.httpClient.get<Enclosure>(this.enclosureBaseUri + /animal/ + selectedAnimal.id) ;
+  }
 }

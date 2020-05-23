@@ -20,6 +20,7 @@ export class EnclosureViewComponent implements OnInit {
   enclosureToView: Enclosure;
   selectedAnimal: Animal = null;
   assignedAnimals: Animal[];
+  alreadyAssignedEnclosureOfSelectedAnimal: Enclosure;
   animalList: Animal[];
 
 
@@ -123,24 +124,49 @@ export class EnclosureViewComponent implements OnInit {
   }
 
   assignAnimaltoEnclosure() {
-    if (this.assignedAnimals !== undefined) {
-      for (let i = 0; i < this.assignedAnimals.length; i++) {
-        if (this.assignedAnimals[i].id === this.selectedAnimal.id) {
-          this.error = true;
-          this.errorMessage = 'This animal is already assigned to ' + this.enclosureToView.id;
-          return;
+      if (this.assignedAnimals !== undefined) {
+        for (let i = 0; i < this.assignedAnimals.length; i++) {
+          if (this.assignedAnimals[i].id === this.selectedAnimal.id) {
+            this.error = true;
+            this.errorMessage = 'This animal is already assigned to ' + this.enclosureToView.id;
+            return;
+          }
         }
       }
-      console.log('assigning ' + this.selectedAnimal + ' to ' + this.enclosureToView);
-    }
-    this.enclosureService.assignAnimalToEnclosure(this.selectedAnimal, this.enclosureToView).subscribe(
-      () => {
-        this.showAssignedAnimalsEnclosure();
-      },
-      error => {
-        console.log('Failed to assign animal');
-        this.defaultServiceErrorHandling(error);
-      }
-    );
+        this.enclosureService.getAlreadyAssignedEnclosureToAnimal(this.selectedAnimal).subscribe(
+          (enclosure) => {
+            this.alreadyAssignedEnclosureOfSelectedAnimal = enclosure;
+          },
+          error => {
+            console.log('Failed to get enclosure where animal assigned');
+            this.defaultServiceErrorHandling(error);
+          }
+        );
+        if (this.alreadyAssignedEnclosureOfSelectedAnimal !== undefined) {
+          if (confirm('Animal is already assigned to enclosure with id: ' + this.alreadyAssignedEnclosureOfSelectedAnimal.id + '. Do you want to move' + this.selectedAnimal.name + 'into this enclosure')) {
+            console.log('assigning ' + this.selectedAnimal + ' to ' + this.enclosureToView);
+            this.enclosureService.assignAnimalToEnclosure(this.selectedAnimal, this.enclosureToView).subscribe(
+              () => {
+                this.backClicked();
+                this.showAssignedAnimalsEnclosure();
+              },
+              error => {
+                console.log('Failed to assign animal');
+                this.defaultServiceErrorHandling(error);
+              }
+            );
+          }
+        } else {
+          console.log('assigning ' + this.selectedAnimal + ' to ' + this.enclosureToView);
+          this.enclosureService.assignAnimalToEnclosure(this.selectedAnimal, this.enclosureToView).subscribe(
+            () => {
+              this.showAssignedAnimalsEnclosure();
+            },
+            error => {
+              console.log('Failed to assign animal');
+              this.defaultServiceErrorHandling(error);
+            }
+          );
+        }
   }
 }
