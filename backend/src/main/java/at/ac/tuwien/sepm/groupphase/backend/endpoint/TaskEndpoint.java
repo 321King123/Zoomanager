@@ -116,10 +116,12 @@ public class TaskEndpoint {
         }else{
             String username = (String)authentication.getPrincipal();
 
-            if(employeeService.hasTaskAssignmentPermissions(username, taskId))
+            if(employeeService.hasTaskAssignmentPermissions(username, taskId)) {
                 taskService.updateTask(taskId, employeeMapper.employeeDtoToEmployee(employeeDto));
+            }else {
+                throw new NotAuthorisedException("You cant assign Tasks to Animals that are not assigned to you");
+            }
 
-            throw new NotAuthorisedException("You cant assign Tasks to Animals that are not assigned to you");
         }
     }
 
@@ -127,8 +129,16 @@ public class TaskEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/animal/{animalId}")
     @ApiOperation(value = "Get list of animal tasks belonging to an animal", authorizations = {@Authorization(value = "apiKey")})
-    public List<AnimalTaskDto> getAllAnimalTasksBelongingToAnimal(@PathVariable Long animalId){
+    public List<AnimalTaskDto> getAllAnimalTasksBelongingToAnimal(@PathVariable Long animalId, Authentication authentication){
         LOGGER.info("GET /api/v1/tasks/animal/ {}", animalId);
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String username = (String) authentication.getPrincipal();
+        if(!isAdmin){
+            if(!employeeService.isAssignedToAnimal(username,animalId)){
+                throw new NotAuthorisedException("You are not allowed to see this animals information.");
+            }
+        }
         List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllTasksOfAnimal(animalId));
         List<AnimalTaskDto> animalTaskDtoList = new LinkedList<>();
         for(AnimalTask a: animalTasks){
