@@ -100,6 +100,7 @@ public class CustomTaskService implements TaskService {
     }
 
     public List<AnimalTask> getAllTasksOfAnimal(Long animalId){
+        LOGGER.debug("Get All Tasks belonging to Animal with id: {}", animalId);
         List<AnimalTask> animalTasks = new LinkedList<>(animalTaskRepository.findAllBySubject_Id(animalId));
         Optional<Task> t;
         for(AnimalTask a: animalTasks){
