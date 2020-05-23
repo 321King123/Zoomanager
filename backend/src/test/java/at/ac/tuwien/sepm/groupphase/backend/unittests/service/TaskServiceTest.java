@@ -30,6 +30,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -203,5 +204,21 @@ public class TaskServiceTest implements TestData {
             Mockito.any(Task.class))).thenReturn(true);
         Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(anmial_caretaker);
         assertThrows(IncorrectTypeException.class, () -> taskService.updateTask(1L, anmial_caretaker));
+    }
+
+    @Test
+    public void deleteTask_whenNonExistingId_expectNotFoundException() {
+        Mockito.when(taskRepository.findById(1L)).thenReturn(Optional.empty());
+        Mockito.when(animalTaskRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class, () -> taskService.deleteTask(1L));
+    }
+
+    @Test
+    public void createdTaskThenDelete_whenGetAll_emptyList() {
+        AnimalTask animalTask = taskService.createAnimalTask(task_assigned, animal);
+        Mockito.when(taskRepository.findById(animalTask.getId())).thenReturn(Optional.ofNullable(task_assigned));
+        Mockito.when(animalTaskRepository.findById(animalTask.getId())).thenReturn(Optional.ofNullable(animalTask_not_assigned));
+        taskService.deleteTask(animalTask.getId());
+        assertTrue(taskService.getAllTasksOfAnimal(animal.getId()).isEmpty());
     }
 }
