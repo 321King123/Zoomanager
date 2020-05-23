@@ -1,6 +1,10 @@
 package at.ac.tuwien.sepm.groupphase.backend.unittests.service;
 
+import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
+import at.ac.tuwien.sepm.groupphase.backend.exception.DeletionException;
+import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import org.junit.jupiter.api.AfterEach;
@@ -23,13 +27,16 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles("test")
-public class EnclosureServiceTest {
+public class EnclosureServiceTest implements TestData {
 
     @Autowired
     EnclosureService enclosureService;
 
     @MockBean
     EnclosureRepository enclosureRepository;
+
+    @MockBean
+    AnimalRepository animalRepository;
 
     private Enclosure enclosureDetailed = Enclosure.builder()
         .name(NAME_LION_ENCLOSURE)
@@ -43,6 +50,23 @@ public class EnclosureServiceTest {
         .description(null)
         .publicInfo(null)
         .picture(null)
+        .build();
+
+    private Enclosure enclosureMinimal2 = Enclosure.builder()
+        .id(1L)
+        .name("Wolf Enclosure")
+        .description(null)
+        .publicInfo(null)
+        .picture(null)
+        .build();
+
+    private Animal animal = Animal.builder()
+        .id(2L)
+        .name("Brandy")
+        .description("racing Horce")
+        .enclosure(null)
+        .species("race")
+        .publicInformation(null)
         .build();
 
     @BeforeEach
@@ -95,6 +119,25 @@ public class EnclosureServiceTest {
         assertAll(
             () -> assertEquals(enclosureDetailed, enclosureService.create(enclosureDetailed))
         );
+    }
+
+    @Test
+    public void deleteEnclosureWithoutAssignedAnimals() {
+        Mockito.when(enclosureService.findById(enclosureMinimal2.getId())).thenReturn((enclosureMinimal2));
+        Enclosure enclosure = enclosureService.findById(enclosureMinimal2.getId());
+        enclosureService.deleteEnclosure(enclosure);
+        List<Enclosure> enclosures = enclosureService.getAll();
+        assertEquals(0, enclosures.size());
+    }
+
+    @Test
+    public void deleteEnclosureWithAssignedAnimals() {
+        List<Animal> animals= new LinkedList<>();
+        animals.add(animal);
+        Mockito.when(enclosureService.findById(enclosureMinimal2.getId())).thenReturn((enclosureMinimal2));
+        Mockito.when(animalRepository.findAllByEnclosure(enclosureMinimal2)).thenReturn((animals));
+        Enclosure enclosure = enclosureService.findById(enclosureMinimal2.getId());
+        assertThrows(DeletionException.class, ()->{enclosureService.deleteEnclosure(enclosure);});
     }
 
 
