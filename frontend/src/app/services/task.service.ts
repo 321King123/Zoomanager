@@ -17,4 +17,6 @@ export class TaskService {
     console.log('Creating Task: ' + JSON.stringify(task));
     return this.httpClient.post<AnimalTask>(this.animalTaskBaseUri + '/' + task.animalId, task);
   }
+
+
 }
