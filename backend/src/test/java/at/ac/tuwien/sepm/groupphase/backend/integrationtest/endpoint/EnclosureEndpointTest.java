@@ -2,11 +2,13 @@ package at.ac.tuwien.sepm.groupphase.backend.integrationtest.endpoint;
 
 import at.ac.tuwien.sepm.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.EnclosureEndpoint;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EmployeeDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EnclosureDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EnclosureMapper;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
@@ -73,6 +75,12 @@ public class EnclosureEndpointTest {
     private EnclosureMapper enclosureMapper;
 
     @Autowired
+    private AnimalMapper animalMapper;
+
+    @Autowired
+    private AnimalRepository animalRepository;
+
+    @Autowired
     private JwtTokenizer jwtTokenizer;
 
     @Autowired
@@ -92,13 +100,24 @@ public class EnclosureEndpointTest {
         .picture(null)
         .build();
 
+    private Animal animal= Animal.builder()
+        .id(1L)
+        .name("Horse")
+        .description("Fast")
+        .enclosure(null)
+        .species("race")
+        .publicInformation("famous")
+        .build();
+
     @BeforeEach
     public void beforeEach() {
+        animalRepository.deleteAll();
         enclosureRepository.deleteAll();
     }
 
     @AfterEach
     public void afterEach() {
+        animalRepository.deleteAll();
         enclosureRepository.deleteAll();
     }
 
@@ -189,6 +208,98 @@ public class EnclosureEndpointTest {
     }
 
 
+    @Test
+    public void assignAnimalToEnclosure_whenAnimalNonExisting_statusNotFound() throws Exception {
+        Enclosure savedEnclosure = enclosureRepository.save(enclosureDetailed);
 
+        EnclosureDto enclosureDto = enclosureMapper.enclosureToEnclosureDto(savedEnclosure);
+        String body = objectMapper.writeValueAsString(enclosureDto);
 
+        MvcResult mvcResult = this.mockMvc.perform(post(ENCLOSURE_BASE_URI + "/animal/1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
+    }
+
+    @Test
+    public void assignAnimalToEnclosure_whenNoEnclosure_statusNotFound() throws Exception {
+        Enclosure savedEnclosure = enclosureRepository.save(enclosureDetailed);
+        EnclosureDto enclosureDto = enclosureMapper.enclosureToEnclosureDto(savedEnclosure);
+        enclosureDto.setId(enclosureDto.getId() + 1);
+        String body = objectMapper.writeValueAsString(enclosureDto);
+
+        Long id = animalRepository.save(animal).getId();
+
+        MvcResult mvcResult = this.mockMvc.perform(post(ENCLOSURE_BASE_URI + "/animal/" + id)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
+    }
+
+    @Test
+    public void assignAnimalToEnclosure_whenSuccessful_statusOk() throws Exception {
+        Animal savedAnimal = animalRepository.save(animal);
+        AnimalDto animalDto = animalMapper.animalToAnimalDto(savedAnimal);
+        String body = objectMapper.writeValueAsString(animalDto);
+
+        Long id = enclosureRepository.save(enclosureDetailed).getId();
+
+        MvcResult mvcResult = this.mockMvc.perform(post(ENCLOSURE_BASE_URI + "/animal/" + id)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+    }
+
+    @Test
+    public void getEnclosureByAnimalId_whenNoAnimal_statusNotFound() throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(get(ENCLOSURE_BASE_URI + "/animal/1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
+    }
+
+    @Test
+    public void getEnclosureByAnimalId_whenSuccessful_statusOkAndReturnEnclosureDto() throws Exception {
+        Enclosure savedEnclosure = enclosureRepository.save(enclosureDetailed);
+
+        Animal newAnimal= Animal.builder()
+            .name("Horse")
+            .description("Fast")
+            .enclosure(savedEnclosure)
+            .species("race")
+            .publicInformation("famous")
+            .build();
+
+        Animal savedAnimal = animalRepository.save(newAnimal);
+
+        MvcResult mvcResult = this.mockMvc.perform(get(ENCLOSURE_BASE_URI + "/animal/" + savedAnimal.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        EnclosureDto enclosureDto = objectMapper.readValue(response.getContentAsString(), EnclosureDto.class);
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(enclosureMapper.enclosureToEnclosureDto(savedEnclosure), enclosureDto);
+    }
 }
