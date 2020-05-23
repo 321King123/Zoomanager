@@ -1,11 +1,11 @@
 package at.ac.tuwien.sepm.groupphase.backend.entity;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
-import java.util.List;
 
-
+@Entity
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+
 public class EnclosureTask {
 
     @Id
@@ -26,8 +26,9 @@ public class EnclosureTask {
     @PrimaryKeyJoinColumn
     private Task task;
 
+
     @NonNull
-    @ManyToOne(fetch= FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Enclosure subject;
 
 }
