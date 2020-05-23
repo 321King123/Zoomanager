@@ -93,6 +93,7 @@ public class CustomTaskService implements TaskService {
         Employee employee = employeeService.findByUsername(assignedEmployee.getUsername());
         if(employeeService.canBeAssignedToTask(employee, foundTask)){
             foundTask.setAssignedEmployee(employee);
+            foundTask.setStatus(TaskStatus.ASSIGNED);
             taskRepository.save(foundTask);
         }else{
             throw new IncorrectTypeException("Employee does not fulfill assignment criteria");
