@@ -116,13 +116,22 @@ public class EnclosureTaskRepositoryTest {
 
         Task createdTask = taskRepository.save(task_assigned);
 
-        EnclosureTask enclosureTask = enclosureTaskRepository.save(EnclosureTask.builder()
+//        EnclosureTask enclosureTask = enclosureTaskRepository.save(EnclosureTask.builder()
+//            .id(createdTask.getId())
+//            .subject(enclosure)
+//            .build());
+
+        enclosureTaskRepository.save(EnclosureTask.builder()
             .id(createdTask.getId())
             .subject(enclosure)
             .build());
-        enclosureTask.setTask(createdTask);
-        enclosureTask.setSubject(enclosure);
 
-        assertNotNull(enclosureTask);
+        EnclosureTask et = enclosureTaskRepository.findById(createdTask.getId()).get();
+
+        Task ot = taskRepository.getOne(et.getId());
+        //Enclosure ec = enclosureTaskRepository.getTaskSubjectById(createdTask.getId());
+
+        assertEquals(et.getSubject(), enclosure);
+        assertEquals(ot, createdTask);
     }
 }
