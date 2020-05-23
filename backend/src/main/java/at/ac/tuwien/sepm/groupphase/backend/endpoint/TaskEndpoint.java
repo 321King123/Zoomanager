@@ -146,4 +146,26 @@ public class TaskEndpoint {
         }
         return animalTaskDtoList;
     }
+
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping(value = "/{taskId}")
+    @ApiOperation(value = "Assign Employee to Task", authorizations = {@Authorization(value = "apiKey")})
+    public void deleteTask(@PathVariable Long taskId, Authentication authentication) {
+        LOGGER.info("DELETE /api/v1/tasks/{}", taskId);
+
+        //Only Admin and Employees that are assigned to the animal can delete it
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if(isAdmin){
+            taskService.deleteTask(taskId);
+        } else {
+            String username = (String)authentication.getPrincipal();
+
+            if(employeeService.hasTaskAssignmentPermissions(username, taskId)) {
+                taskService.deleteTask(taskId);
+            } else {
+                throw new NotAuthorisedException("You cant delete Tasks of Animals that are not assigned to you");
+            }
+        }
+    }
 }

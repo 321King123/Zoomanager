@@ -11,6 +11,7 @@ import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
+import org.aspectj.weaver.ast.Not;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,5 +104,23 @@ public class CustomTaskService implements TaskService {
     public List<AnimalTask> getAllTasksOfAnimal(Long animalId){
         LOGGER.debug("Get All Tasks belonging to Animal with id: {}", animalId);
         return animalTaskRepository.findAllBySubject_Id(animalId);
+    }
+
+    @Override
+    public void deleteTask(Long taskId) {
+        LOGGER.debug("Deleting Task with id {}", taskId);
+        Optional<Task> task = taskRepository.findById(taskId);
+        if(task.isEmpty()) {
+            throw new NotFoundException("Could not find Task with given Id");
+        }
+        Optional<AnimalTask> animalTask = animalTaskRepository.findById(taskId);
+        if(animalTask.isEmpty()) {
+            //TODO: add handling of EnclosureTasks
+            throw new NotFoundException("Could not find Task with given Id");
+        }
+        AnimalTask foundAnimalTask = animalTask.get();
+        Task foundTask = task.get();
+        animalTaskRepository.delete(foundAnimalTask);
+        taskRepository.delete(foundTask);
     }
 }
