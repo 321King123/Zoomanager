@@ -152,7 +152,7 @@ public class TaskEndpoint {
     @GetMapping(value = "/employee/{employeeUsername}")
     @ApiOperation(value = "Get list of animal tasks belonging to an employee", authorizations = {@Authorization(value = "apiKey")})
     public List<AnimalTaskDto> getAllAnimalTasksBelongingToEmployee(@PathVariable String employeeUsername, Authentication authentication){
-        LOGGER.info("GET /api/v1/tasks/employee/ {}", employeeUsername);
+        LOGGER.info("GET /api/v1/tasks/employee/{}", employeeUsername);
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
         String username = (String) authentication.getPrincipal();
@@ -161,7 +161,7 @@ public class TaskEndpoint {
                 throw new NotAuthorisedException("You are not allowed to see this employees information.");
             }
         }
-        List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllAnimalTasksOfEmployee(username));
+        List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllAnimalTasksOfEmployee(employeeUsername));
         List<AnimalTaskDto> animalTaskDtoList = new LinkedList<>();
         for(AnimalTask a: animalTasks){
             animalTaskDtoList.add(animalTaskMapper.animalTaskToAnimalTaskDto(a));
