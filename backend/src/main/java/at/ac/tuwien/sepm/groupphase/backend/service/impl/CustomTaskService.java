@@ -4,10 +4,7 @@ import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
-import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
-import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
-import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
-import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.*;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalTaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.TaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
@@ -21,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
 import java.lang.invoke.MethodHandles;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -96,8 +94,23 @@ public class CustomTaskService implements TaskService {
         if(employeeService.canBeAssignedToTask(employee, foundTask)){
             foundTask.setAssignedEmployee(employee);
             taskRepository.save(foundTask);
-        }else {
+        }else{
             throw new IncorrectTypeException("Employee does not fulfill assignment criteria");
         }
+    }
+
+    public List<AnimalTask> getAllTasksOfAnimal(Long animalId){
+        List<AnimalTask> animalTasks = new LinkedList<>(animalTaskRepository.findAllBySubject_Id(animalId));
+        Optional<Task> t;
+        for(AnimalTask a: animalTasks){
+            t = taskRepository.findById(a.getId());
+            if(t.isPresent()) {
+                a.setTask(t.get());
+            }else{
+                //should not be reachable
+                throw new InvalidDatabaseStateException("There is an animal Task without a Task object assigned to this animal");
+            }
+        }
+        return animalTaskRepository.findAllBySubject_Id(animalId);
     }
 }

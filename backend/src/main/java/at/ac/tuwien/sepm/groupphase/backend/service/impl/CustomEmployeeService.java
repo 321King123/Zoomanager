@@ -106,6 +106,7 @@ public class CustomEmployeeService implements EmployeeService {
 
     @Override
     public void deleteEmployeeByUsername(String username){
+        LOGGER.debug("Deleting employee with username: " + username);
         if(this.findByUsername(username)!=null){
             employeeRepository.deleteById(username);
             if(this.userService.findApplicationUserByUsername(username)!=null){

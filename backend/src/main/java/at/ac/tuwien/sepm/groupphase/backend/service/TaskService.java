@@ -5,6 +5,8 @@ import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
 
+import java.util.List;
+
 public interface TaskService {
 
     /**
@@ -29,4 +31,11 @@ public interface TaskService {
      * @param assignedEmployee employee you want to assign
      * */
     void updateTask(Long taskId, Employee assignedEmployee);
+
+    /**
+     * Get all tasks belonging to one animal
+     * @param animalId is the id of the animal
+     * @return list of animalTasks
+     */
+    List<AnimalTask> getAllTasksOfAnimal(Long animalId);
 }

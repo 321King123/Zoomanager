@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalTaskDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EmployeeDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.TaskDto;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -118,5 +121,19 @@ public class TaskEndpoint {
 
             throw new NotAuthorisedException("You cant assign Tasks to Animals that are not assigned to you");
         }
+    }
+
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/animal/{animalId}")
+    @ApiOperation(value = "Get list of animal tasks belonging to an animal", authorizations = {@Authorization(value = "apiKey")})
+    public List<AnimalTaskDto> getAllAnimalTasksBelongingToAnimal(@PathVariable Long animalId){
+        LOGGER.info("GET /api/v1/tasks/animal/ {}", animalId);
+        List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllTasksOfAnimal(animalId));
+        List<AnimalTaskDto> animalTaskDtoList = new LinkedList<>();
+        for(AnimalTask a: animalTasks){
+            animalTaskDtoList.add(animalTaskMapper.animalTaskToAnimalTaskDto(a));
+        }
+        return animalTaskDtoList;
     }
 }
