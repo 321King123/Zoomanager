@@ -6,6 +6,8 @@ import {AuthService} from '../../services/auth.service';
 import {Location} from '@angular/common';
 import {Animal} from '../../dtos/animal';
 import {AnimalService} from '../../services/animal.service';
+import {AnimalTask} from '../../dtos/animalTask';
+import {TaskService} from '../../services/task.service';
 
 @Component({
   selector: 'app-employee-view',
@@ -22,9 +24,14 @@ export class EmployeeViewComponent implements OnInit {
   animalList: Animal[];
   selectedAnimal: Animal = null;
   assignedAnimals: Animal[];
+  tasks: AnimalTask[];
+
+  taskListMode: boolean;
+  animalListMode: boolean;
 
   constructor(private employeeService: EmployeeService, private authService: AuthService, private route: ActivatedRoute,
-              private _location: Location, private animalService: AnimalService, private router: Router) {
+              private _location: Location, private animalService: AnimalService, private router: Router,
+              private taskService: TaskService) {
   }
 
   ngOnInit(): void {
@@ -47,6 +54,8 @@ export class EmployeeViewComponent implements OnInit {
         this.employee = employee;
         console.log('employee: ' + JSON.stringify(this.employee));
         this.showAssignedAnimalsEmployee();
+        this.loadTasksOfEmployee();
+        this.toAnimalMode();
       },
       error => {
         this.defaultServiceErrorHandling(error);
@@ -65,7 +74,20 @@ export class EmployeeViewComponent implements OnInit {
         } else {
           console.log('employee: ' + JSON.stringify(this.employee));
           this.showAssignedAnimalsEmployee();
+          this.loadTasksOfEmployee();
+          this.toAnimalMode();
         }
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  loadTasksOfEmployee() {
+    this.taskService.getAnimalTasksOfEmployee(this.employee.username).subscribe(
+      (tasks) => {
+        this.tasks = tasks;
       },
       error => {
         this.defaultServiceErrorHandling(error);
@@ -193,4 +215,13 @@ export class EmployeeViewComponent implements OnInit {
     }
   }
 
+  toTaskMode() {
+    this.animalListMode = false;
+    this.taskListMode = true;
+  }
+
+  toAnimalMode() {
+    this.animalListMode = true;
+    this.taskListMode = false;
+  }
 }
