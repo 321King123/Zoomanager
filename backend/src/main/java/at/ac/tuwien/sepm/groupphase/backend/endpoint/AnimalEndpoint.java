@@ -67,4 +67,18 @@ public class AnimalEndpoint {
         animalService.deleteAnimal(id);
     }
 
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/enclosure/{enclosureId}")
+    @ApiOperation(value = "Get Animals assigned to Enclosure",
+        authorizations = {@Authorization(value = "apiKey")})
+    public List<AnimalDto> getAnimalsByEnclosure(@PathVariable Long enclosureId) {
+        LOGGER.info("GET /api/v1/animals/enclosure/{}", enclosureId);
+        List<Animal> animals = animalService.findAnimalsByEnclosure(enclosureId);
+        List<AnimalDto> animalDtos = new LinkedList<>();
+        for(Animal a: animals) {
+            animalDtos.add(animalMapper.animalToAnimalDto(a));
+        }
+        return animalDtos;
+    }
 }

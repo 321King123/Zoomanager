@@ -84,25 +84,22 @@ public class EnclosureRepositoryTest implements TestData {
 
 
     @Test
-    public void saveEnclosurebyGivingOnlyMandatoryValues_thenFindAnimalById() {
+    public void saveEnclosureByGivingOnlyMandatoryValues_thenFindEnclosureById() {
         Enclosure enclosure = Enclosure.builder()
             .name("Brandy")
             .build();
 
         enclosureRepository.save(enclosure);
 
-        assertAll(
-            () -> assertNotNull( enclosureRepository.findById(enclosure.getId()))
-        );
+        assertNotNull( enclosureRepository.findById(enclosure.getId()));
     }
 
     @Test
-    public void saveEnclosurebyGivingAllValues() {
-
+    public void saveEnclosureByGivingAllValues() {
         enclosureRepository.save(enclosureDetailed);
         List<Enclosure> enclosures = enclosureRepository.findAll();
-        assertTrue(1 == enclosures.size());
 
+        assertEquals(1, enclosures.size());
     }
 
 }

@@ -1,6 +1,9 @@
 package at.ac.tuwien.sepm.groupphase.backend.unittests.service;
 
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import org.junit.jupiter.api.AfterEach;
@@ -31,6 +34,9 @@ public class EnclosureServiceTest {
     @MockBean
     EnclosureRepository enclosureRepository;
 
+    @MockBean
+    AnimalRepository animalRepository;
+
     private Enclosure enclosureDetailed = Enclosure.builder()
         .name(NAME_LION_ENCLOSURE)
         .description(DESCRIPTION_LION_ENCLOSURE)
@@ -43,6 +49,14 @@ public class EnclosureServiceTest {
         .description(null)
         .publicInfo(null)
         .picture(null)
+        .build();
+
+    private final Animal animal = Animal.builder()
+        .name("Brandy")
+        .description("racing Horse")
+        .enclosure(new Enclosure())
+        .species("race")
+        .publicInformation(null)
         .build();
 
     @BeforeEach
@@ -63,7 +77,7 @@ public class EnclosureServiceTest {
         enclosures.add(enclosureMinimal);
 
         Mockito.when(enclosureRepository.findAll()).thenReturn(enclosures);
-        assertTrue(enclosureService.getAll().size()==2);
+        assertEquals(2, enclosureService.getAll().size());
     }
 
 
@@ -73,7 +87,7 @@ public class EnclosureServiceTest {
         List<Enclosure> enclosures = new LinkedList<>();
 
         Mockito.when(enclosureRepository.findAll()).thenReturn(enclosures);
-        assertTrue(enclosureService.getAll().size()==0);
+        assertTrue(enclosureService.getAll().isEmpty());
     }
 
 
@@ -82,9 +96,7 @@ public class EnclosureServiceTest {
 
         Mockito.when(enclosureService.create(enclosureMinimal)).thenReturn(enclosureMinimal);
 
-        assertAll(
-            () -> assertEquals(enclosureMinimal, enclosureService.create(enclosureMinimal))
-        );
+        assertEquals(enclosureMinimal, enclosureService.create(enclosureMinimal));
     }
 
     @Test
@@ -92,11 +104,23 @@ public class EnclosureServiceTest {
 
         Mockito.when(enclosureService.create(enclosureDetailed)).thenReturn(enclosureDetailed);
 
-        assertAll(
-            () -> assertEquals(enclosureDetailed, enclosureService.create(enclosureDetailed))
-        );
+        assertEquals(enclosureDetailed, enclosureService.create(enclosureDetailed));
     }
 
+    @Test
+    public void findByAnimalId_whenNoValidId_thenNotFoundException() {
 
+        Mockito.when(animalRepository.findById(1)).thenReturn(null);
+
+        assertThrows(NotFoundException.class, () -> enclosureService.findByAnimalId(1));
+    }
+
+    @Test
+    public void findByAnimalId_whenValidId_thenReturnEnclosure() {
+
+        Mockito.when(animalRepository.findById(1)).thenReturn(animal);
+
+        assertEquals(animal.getEnclosure(), enclosureService.findByAnimalId(1));
+    }
 
 }
