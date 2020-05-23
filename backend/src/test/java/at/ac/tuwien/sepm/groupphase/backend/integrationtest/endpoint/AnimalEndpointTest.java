@@ -8,9 +8,11 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.MessageInquiryDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.UserLoginRepository;
 import at.ac.tuwien.sepm.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,11 +34,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
@@ -61,6 +65,9 @@ public class AnimalEndpointTest implements TestData {
     private AnimalRepository animalRepository;
 
     @Autowired
+    private EnclosureRepository enclosureRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -79,6 +86,13 @@ public class AnimalEndpointTest implements TestData {
         .enclosure(null)
         .species("race")
         .publicInformation("famous")
+        .build();
+
+    private Enclosure enclosureDetailed = Enclosure.builder()
+        .name(NAME_LION_ENCLOSURE)
+        .description(DESCRIPTION_LION_ENCLOSURE)
+        .publicInfo(PUBLIC_INFO_LION_ENCLOSURE)
+        .picture(PICTURE_LION_ENCLOSURE)
         .build();
 
     private UserLogin default_user_login = UserLogin.builder()
@@ -101,6 +115,7 @@ public class AnimalEndpointTest implements TestData {
         animalRepository.deleteAll();
         employeeRepository.deleteAll();
         userLoginRepository.deleteAll();
+        enclosureRepository.deleteAll();
 
         animal = Animal.builder()
             .id(1L)
@@ -117,6 +132,7 @@ public class AnimalEndpointTest implements TestData {
         animalRepository.deleteAll();
         employeeRepository.deleteAll();
         userLoginRepository.deleteAll();
+        enclosureRepository.deleteAll();
     }
 
     @Test
@@ -199,5 +215,52 @@ public class AnimalEndpointTest implements TestData {
         );
     }
 
+    @Test
+    public void getAnimalsByEnclosure_whenNoAnimalsAssigned_statusOkAndEmptyList() throws Exception {
+        long id = enclosureRepository.save(enclosureDetailed).getId();
+        MvcResult mvcResult = this.mockMvc.perform(get(ANIMAL_BASE_URI + "/enclosure/" + id)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        List<AnimalDto> animalDtos = Arrays.asList(objectMapper.readValue(response.getContentAsString(), AnimalDto[].class));
+        assertAll(
+            () -> assertEquals(HttpStatus.OK.value(), response.getStatus()),
+            () -> assertTrue(animalDtos.isEmpty())
+        );
+    }
 
+    @Test
+    public void getAnimalsByEnclosure_whenAnimalsAssigned_statusOkAndAnimalsInList() throws Exception {
+        Enclosure savedEnclosure = enclosureRepository.save(enclosureDetailed);
+        Animal newAnimal= Animal.builder()
+            .id(1L)
+            .name("Horse")
+            .description("Fast")
+            .enclosure(savedEnclosure)
+            .species("race")
+            .publicInformation("famous")
+            .build();
+        Animal savedAnimal = animalRepository.save(newAnimal);
+        MvcResult mvcResult = this.mockMvc.perform(get(ANIMAL_BASE_URI + "/enclosure/" + savedEnclosure.getId())
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        List<AnimalDto> animalDtos = Arrays.asList(objectMapper.readValue(response.getContentAsString(), AnimalDto[].class));
+        assertAll(
+            () -> assertEquals(HttpStatus.OK.value(), response.getStatus()),
+            () -> assertTrue(animalDtos.contains(animalMapper.animalToAnimalDto(savedAnimal)))
+        );
+    }
+
+    @Test
+    public void getAnimalsByEnclosure_notExistingEnclosure_statusNotFound() throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(get(ANIMAL_BASE_URI + "/enclosure/5")
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
+    }
 }
