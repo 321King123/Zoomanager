@@ -44,11 +44,24 @@ public interface TaskService {
      * @param taskId of the Task that will be deleted
      */
     void deleteTask(Long taskId);
-    
+
     /**
      * Get All AnimalTasks Of an Employee
      * @param employeeUsername is the username of the employee
      * @return list of animalTasks
      */
     List<AnimalTask> getAllAnimalTasksOfEmployee(String employeeUsername);
+
+    /**
+     * Marks task as done
+     * @param taskId task id of task to mark as done
+     */
+    void markTaskAsDone(Long taskId);
+
+    /**
+     * Checks if an employee is the one performing the task
+     * @param taskId id of task to check
+     * @param employeeUsername username of employee to check
+     */
+    boolean isTaskPerformer(String employeeUsername, Long taskId);
 }

@@ -168,10 +168,10 @@ public class TaskEndpoint {
             }
         }
     }
-    
+
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/employee/{employeeUsername}")
+    @PutMapping(value = "/employee/{employeeUsername}")
     @ApiOperation(value = "Get list of animal tasks belonging to an employee", authorizations = {@Authorization(value = "apiKey")})
     public List<AnimalTaskDto> getAllAnimalTasksBelongingToEmployee(@PathVariable String employeeUsername, Authentication authentication){
         LOGGER.info("GET /api/v1/tasks/employee/{}", employeeUsername);
@@ -189,5 +189,22 @@ public class TaskEndpoint {
             animalTaskDtoList.add(animalTaskMapper.animalTaskToAnimalTaskDto(a));
         }
         return animalTaskDtoList;
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/finished/{taskId}")
+    @ApiOperation(value = "Get list of animal tasks belonging to an employee", authorizations = {@Authorization(value = "apiKey")})
+    public void markTaskAsDone(@PathVariable Long taskId, Authentication authentication){
+        LOGGER.info("PUT /api/v1/tasks//finished/{}", taskId);
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String username = (String) authentication.getPrincipal();
+        if(!isAdmin){
+            if(!taskService.isTaskPerformer(username, taskId)){
+                throw new NotAuthorisedException("You are not allowed to see this employees information.");
+            }
+        }
+        taskService.markTaskAsDone(taskId);
     }
 }
