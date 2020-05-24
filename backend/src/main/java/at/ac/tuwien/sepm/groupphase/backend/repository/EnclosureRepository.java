@@ -27,8 +27,8 @@ public interface EnclosureRepository extends JpaRepository<Enclosure, Long> {
      * @return enclosure with the specified id, if none exist null will be returned
      */
     @Query("SELECT new Enclosure(e.id, e.name, e.description, e.publicInfo, e.picture) " +
-        "FROM Enclosure e ")
-    Enclosure findById_WithoutTasksAndAnimals(long id);
+        "FROM Enclosure e WHERE e.id=:enclosureId")
+    Enclosure findById_WithoutTasksAndAnimals(@Param("enclosureId")long id);
 
     /**
      * Finds all enclosures
