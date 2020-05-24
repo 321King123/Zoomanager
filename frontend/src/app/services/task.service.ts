@@ -42,7 +42,7 @@ export class TaskService {
     console.log('Delete Task: ' + id);
     return this.httpClient.delete(this.taskBaseUri + '/' + id);
   }
-    
+
   getAnimalTasksOfEmployee(username): Observable<AnimalTask[]> {
     console.log('Get tasks of employee ' + username);
     return this.httpClient.get<AnimalTask[]>(this.taskBaseUri + '/employee/' + username);

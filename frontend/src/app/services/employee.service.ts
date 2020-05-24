@@ -61,12 +61,12 @@ export class EmployeeService {
 
   getEmployeesOfAnimal(animalId): Observable<Employee[]> {
     console.log('Getting employees of animal ' + JSON.stringify(animalId));
-    return this.httpClient.get<Employee[]>(this.employeeBaseUri + '/assigned/' + animalId);
+    return this.httpClient.get<Employee[]>(this.employeeBaseUri + '/assigned/animal/' + animalId);
   }
 
   getEmployeesOfEnclosure(enclosureId): Observable<Employee[]> {
-    console.log('Getting employees of animal ' + JSON.stringify(enclosureId));
-    return this.httpClient.get<Employee[]>(this.employeeBaseUri + '/assignedEnc/' + enclosureId);
+    console.log('Getting employees of enclosure ' + JSON.stringify(enclosureId));
+    return this.httpClient.get<Employee[]>(this.employeeBaseUri + '/assigned/enclosure/' + enclosureId);
   }
 
   /**

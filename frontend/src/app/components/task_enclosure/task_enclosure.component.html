@@ -89,8 +89,8 @@
                         ; {{animal.species}}</option>
                     </ng-container>
                   </select>
-                  <div *ngIf="submittedTask && taskCreationForm.controls.animalId.errors" class="error">
-                    <small class="form-text text-warning" *ngIf="taskCreationForm.controls.animalId.errors.required">
+                  <div *ngIf="submittedTask && taskCreationForm.controls.subjectId.errors" class="error">
+                    <small class="form-text text-warning" *ngIf="taskCreationForm.controls.subjectId.errors.required">
                       Enclosure cannot be empty
                     </small>
                   </div>

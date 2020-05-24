@@ -6,6 +6,8 @@ import {EmployeeService} from '../../services/employee.service';
 import {Employee} from '../../dtos/employee';
 import {Animal} from '../../dtos/animal';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {Enclosure} from '../../dtos/enclosure';
+import {EnclosureService} from '../../services/enclosure.service';
 
 
 @Component({
@@ -28,9 +30,13 @@ export class TaskCreationComponent implements OnInit {
   submittedTask = false;
   @Input() currentEmployee;
   @Input() animalsOfEmployee;
-  employeesOfAnimal: Employee[];
+  @Input() enclosuresOfEmployee;
+  employeesOfTaskSubject: Employee[];
   doctors: Employee[];
   employeesFound = false;
+
+  isEnclosureTask = false;
+  isAnimalTask = true;
 
   constructor(private taskService: TaskService, private animalService: AnimalService,
               private employeeService: EmployeeService, private formBuilder: FormBuilder) {
@@ -44,7 +50,7 @@ export class TaskCreationComponent implements OnInit {
       startTime: ['', Validators.required],
       endTime: ['', Validators.required],
       assignedEmployeeUsername: [],
-      animalId: ['', Validators.required]
+      subjectId: ['', Validators.required]
     });
   }
 
@@ -72,9 +78,21 @@ export class TaskCreationComponent implements OnInit {
 
   getEmployeesOfAnimal() {
     this.employeesFound = false;
-    this.employeeService.getEmployeesOfAnimal(this.taskCreationForm.controls.animalId.value).subscribe(
+    this.employeeService.getEmployeesOfAnimal(this.taskCreationForm.controls.subjectId.value).subscribe(
       (employees) => {
-        this.employeesOfAnimal = employees;
+        this.employeesOfTaskSubject = employees;
+        this.employeesFound = true;
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+  getEmployeesOfEnclosure() {
+    this.employeesFound = false;
+    this.employeeService.getEmployeesOfEnclosure(this.taskCreationForm.controls.subjectId.value).subscribe(
+      (employees) => {
+        this.employeesOfTaskSubject = employees;
         this.employeesFound = true;
       },
       error => {
@@ -109,7 +127,7 @@ export class TaskCreationComponent implements OnInit {
         endTimeParsed,
         this.taskCreationForm.controls.assignedEmployeeUsername.value,
         null,
-        this.taskCreationForm.controls.animalId.value,
+        this.taskCreationForm.controls.subjectId.value,
         null
       );
       if (this.task.assignedEmployeeUsername != null) {
@@ -152,6 +170,33 @@ export class TaskCreationComponent implements OnInit {
         this.defaultServiceErrorHandling(error);
       }
     );
+  }
+
+  setToAnimalTask() {
+    if (this.isAnimalTask) {
+      // Do nothing
+    } else {
+      this.isAnimalTask = true;
+      this.isEnclosureTask = false;
+      this.clearSubject();
+    }
+  }
+
+  setToEnclosureTask() {
+    if (this.isEnclosureTask) {
+      // Do nothing
+    } else {
+      this.isAnimalTask = false;
+      this.isEnclosureTask = true;
+      this.clearSubject();
+    }
+  }
+
+  clearSubject() {
+    this.taskCreationForm.controls.subjectId.reset('', Validators.required);
+    if (this.employeesOfTaskSubject !== undefined) {
+      this.employeesOfTaskSubject.length = 0;
+    }
   }
 
   private defaultServiceErrorHandling(error: any) {
