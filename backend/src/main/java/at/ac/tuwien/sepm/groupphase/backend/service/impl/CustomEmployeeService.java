@@ -109,7 +109,7 @@ public class CustomEmployeeService implements EmployeeService {
     public void deleteEmployeeByUsername(String username){
         LOGGER.debug("Deleting employee with username: " + username);
         Employee employee = findByUsername(username);
-        if(username == null)
+        if(employee == null)
             throw new NotFoundException("No employee to delete: " + username);
 
         List<Task> tasks=taskRepository.findAllByAssignedEmployee(employee);
