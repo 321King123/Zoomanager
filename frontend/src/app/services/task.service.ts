@@ -23,6 +23,6 @@ export class TaskService {
 
   createNewTaskEnclosure(task: EnclosureTask): Observable<EnclosureTask> {
     console.log('Creating Task: ' + JSON.stringify(task));
-    return this.httpClient.post<EnclosureTask>(this.enclosureTaskBaseUri + '/' + task.EnclosureId, task);
+    return this.httpClient.post<EnclosureTask>(this.enclosureTaskBaseUri + '/' + task.enclosureId, task);
   }
 }
