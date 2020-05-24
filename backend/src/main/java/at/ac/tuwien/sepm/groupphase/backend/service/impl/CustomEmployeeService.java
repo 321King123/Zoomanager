@@ -12,6 +12,7 @@ import at.ac.tuwien.sepm.groupphase.backend.repository.TaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
+import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,7 +109,13 @@ public class CustomEmployeeService implements EmployeeService {
     public void deleteEmployeeByUsername(String username){
         LOGGER.debug("Deleting employee with username: " + username);
         if(this.findByUsername(username)!=null){
-            employeeRepository.deleteById(username);
+
+            List<Task> tasks=employeeRepository.findEmployeeByUsername(username).getTasks();
+            for (int i=0; i<tasks.size(); i++){
+                tasks.get(i).setStatus(TaskStatus.NOT_ASSIGNED);
+            }
+            employeeRepository.findEmployeeByUsername(username).setTasks(tasks);
+            employeeRepository.findEmployeeByUsername(username).setUsername(null);
             if(this.userService.findApplicationUserByUsername(username)!=null){
                 this.userService.deleteUser(username);
             }else{
