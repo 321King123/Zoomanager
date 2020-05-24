@@ -3,6 +3,11 @@ import {AuthService} from '../../services/auth.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AnimalService} from '../../services/animal.service';
 import {Animal} from '../../dtos/animal';
+import {Enclosure} from '../../dtos/enclosure';
+import {EnclosureService} from '../../services/enclosure.service';
+import {Employee} from '../../dtos/employee';
+import {EmployeeService} from '../../services/employee.service';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-animal',
@@ -15,8 +20,14 @@ export class AnimalComponent implements OnInit {
   animalCreationForm: FormGroup;
   submittedAnimal = false;
   animals: Animal[];
+  enclosureList: Enclosure[];
+  selectedEnclosure: Enclosure;
+  employeeList: Employee[];
+  selectedEmployee: Employee;
 
-  constructor(private animalService: AnimalService, private formBuilder: FormBuilder, private authService: AuthService) {
+
+  constructor(private _location: Location, private animalService: AnimalService, private formBuilder: FormBuilder, private authService: AuthService,
+              private enclosureService: EnclosureService, private employeeService: EmployeeService) {
     this.animalCreationForm = this.formBuilder.group({
       name: ['', [Validators.required]],
       species: ['', [Validators.required]],
@@ -27,6 +38,8 @@ export class AnimalComponent implements OnInit {
 
   ngOnInit(): void {
     this.getAnimals();
+    this.getAllEnclosures();
+    this.getAllEmployees();
   }
 
   /**
@@ -64,8 +77,31 @@ export class AnimalComponent implements OnInit {
 
   createAnimal(animal: Animal) {
     this.animalService.createAnimal(animal).subscribe(
-      () => {
+      (createdAnimal) => {
         this.getAnimals();
+        if (this.selectedEnclosure != null) {
+          this.enclosureService.assignAnimalToEnclosure(createdAnimal, this.selectedEnclosure).subscribe(
+            () => {
+              this.selectedEnclosure = null;
+            },
+            error => {
+              console.log('Failed to assign enclosure');
+              this.defaultServiceErrorHandling(error);
+            }
+          );
+        }
+        if (this.selectedEmployee != null) {
+          this.employeeService.assignAnimalToEmployee(createdAnimal, this.selectedEmployee).subscribe(
+              () => {
+                this.selectedEmployee = null;
+              },
+              error => {
+                console.log('Failed to assign employee');
+                this.defaultServiceErrorHandling(error);
+              }
+            );
+        }
+
       },
       error => {
         this.defaultServiceErrorHandling(error);
@@ -94,7 +130,7 @@ export class AnimalComponent implements OnInit {
   deleteAnimal(animal: Animal) {
     this.animalService.deleteAnimal(animal).subscribe(
       (res: any) => {
-        this.getAnimals();
+        this.backClicked();
       },
       error => {
         this.defaultServiceErrorHandling(error);
@@ -117,4 +153,37 @@ export class AnimalComponent implements OnInit {
     }
   }
 
+  backClicked() {
+    this._location.back();
+  }
+
+  private getAllEnclosures() {
+    this.enclosureService.getAllEnclosures().subscribe(
+      enclosures => {
+        this.enclosureList = enclosures;
+      },
+      error => {
+        if (error.status === 404) {
+          this.enclosureList.length = 0;
+        }
+        console.log('Failed to load all enclosures');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  private getAllEmployees() {
+    this.employeeService.getAllEmployees().subscribe(
+      employees => {
+        this.employeeList = employees;
+      },
+      error => {
+        if (error.status === 404) {
+          this.employeeList.length = 0;
+        }
+        console.log('Failed to load all employees');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
 }
