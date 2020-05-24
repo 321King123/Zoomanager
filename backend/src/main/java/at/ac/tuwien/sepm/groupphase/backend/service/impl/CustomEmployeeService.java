@@ -191,22 +191,9 @@ public class CustomEmployeeService implements EmployeeService {
     public List<Employee> getAllAssignedToEnclosure(Enclosure enclosure) {
         LOGGER.debug("Getting all employees assigned to enclosure with id " + enclosure.getId());
 
-        // This function call would return all the employees if it worked
-        //List<Employee> assignedEmployees = enclosureRepository.getEmployeesByEnclosureID(enclosure.getId());
+        List<Employee> assignedEmployees = employeeRepository.getEmployeesByEnclosureID(enclosure.getId());
 
-
-        List<Employee> employeesWithAnimals = employeeRepository.findAll();
-        List<Employee> employeesWithAnimalsFromEnclosure= new LinkedList<>();
-        for (Employee e :employeesWithAnimals) {
-            if(!e.getAssignedAnimals().isEmpty()){
-                for (Animal a : e.getAssignedAnimals()) {
-                    if (a.getEnclosure() == enclosure) {
-                        employeesWithAnimalsFromEnclosure.add(e);
-                    }
-                 }
-            }
-        }
-        return employeesWithAnimalsFromEnclosure;
+        return assignedEmployees;
     }
 
 

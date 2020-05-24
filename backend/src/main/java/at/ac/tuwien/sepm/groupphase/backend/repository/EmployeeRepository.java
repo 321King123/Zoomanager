@@ -6,6 +6,8 @@ import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -47,6 +49,20 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
      * @return List of Employees that are assigned to some animal
      */
     //List<Employee> findEmployeesByAssignedAnimalsContains();
+
+    /**
+     *
+     * @param enclosureIdLong is the id of the enclosure we want to get the assigned employees from
+     * @return List of Employees that are assigned to given enclosure
+     */
+    @Query(value = "SELECT * " +
+        "FROM EMPLOYEE  e WHERE e.USERNAME IN " +
+        "(SELECT ac.EMPLOYEE_USERNAME " +
+        "FROM ANIMALS_CARETAKERS ac " +
+        "INNER JOIN ANIMAL a ON ac.ANIMAL_ID = a.ID " +
+        "WHERE a.ENCLOSURE_ID =:enclosureId)",
+        nativeQuery = true)
+    List<Employee> getEmployeesByEnclosureID(@Param("enclosureId")Long enclosureIdLong);
 
 
     /**

@@ -30,15 +30,6 @@ public interface EnclosureRepository extends JpaRepository<Enclosure, Long> {
         "FROM Enclosure e ")
     Enclosure findById_WithoutTasksAndAnimals(long id);
 
-    @Query(value = "SELECT e.USERNAME, e.BIRTHDAY, e.EMAIL, e.NAME, e.TYPE " +
-        "FROM EMPLOYEE  e WHERE e.USERNAME IN " +
-        "(SELECT ac.EMPLOYEE_USERNAME " +
-        "FROM ANIMALS_CARETAKERS ac " +
-        "INNER JOIN ANIMAL a ON ac.ANIMAL_ID = a.ID " +
-        "WHERE a.ENCLOSURE_ID =:enclosureId)",
-        nativeQuery = true)
-    List<Employee> getEmployeesByEnclosureID(@Param("enclosureId")Long enclosureIdLong);
-
     /**
      * Finds all enclosures
      *
