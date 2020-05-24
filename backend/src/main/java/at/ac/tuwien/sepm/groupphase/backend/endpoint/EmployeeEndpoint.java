@@ -160,7 +160,7 @@ public class EmployeeEndpoint {
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/assigned/{animalId}")
+    @GetMapping(value = "/assigned/animal/{animalId}")
     @ApiOperation(value = "Get list of animals assigned to employee", authorizations = {@Authorization(value = "apiKey")})
     public List<EmployeeDto> getAllAssignedToAnimal(@PathVariable Long animalId) {
         LOGGER.info("GET /api/v1/employee/assigned/{}", animalId);
@@ -180,7 +180,7 @@ public class EmployeeEndpoint {
     @ApiOperation(value = "Get list of employees assigned to enclosure", authorizations = {@Authorization(value = "apiKey")})
     public List<EmployeeDto> getAllAssignedToEnclosure(@PathVariable Long enclosureId) {
         LOGGER.info("GET /api/v1/employee/assigned/enclosure/{}", enclosureId);
-        Enclosure enclosure = enclosureService.findById(enclosureId);
+        Enclosure enclosure = enclosureService.findById_WithoutTasksAndAnimals(enclosureId);
         List<Employee> employees = employeeService.getAllAssignedToEnclosure(enclosure);
         List<EmployeeDto> employeeDtos = new LinkedList<>();
         for(Employee e: employees) {
