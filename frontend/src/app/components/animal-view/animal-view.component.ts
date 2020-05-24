@@ -90,4 +90,15 @@ export class AnimalViewComponent implements OnInit {
       }
     );
   }
+
+  deleteTask(animalTask: AnimalTask) {
+    this.taskService.deleteTask(animalTask.id).subscribe(
+      () => {
+        this.getTasksOfAnimal();
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
 }
