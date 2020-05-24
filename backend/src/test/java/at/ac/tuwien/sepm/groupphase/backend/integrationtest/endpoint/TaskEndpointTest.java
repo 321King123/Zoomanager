@@ -9,6 +9,7 @@ import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,8 +34,7 @@ import java.util.List;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @ExtendWith(SpringExtension.class)
@@ -83,6 +83,8 @@ public class TaskEndpointTest implements TestData {
     private SecurityProperties securityProperties;
 
     String ANIMAL_TASK_CREATION_BASE_URI = TASK_BASE_URI + "/animal";
+
+    String ANIMAL_TASK_GET_BY_EMPLOYEE_BASE_URI = TASK_BASE_URI + "/employee";
 
     private final UserLogin admin_login = UserLogin.builder()
         .isAdmin(true)
@@ -489,5 +491,78 @@ public class TaskEndpointTest implements TestData {
         assertAll(
             () -> assertEquals(HttpStatus.OK.value(), response.getStatus())
         );
+    }
+
+    @Test
+    public void validGetListOfAnimalTasksFromEmployee() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
+        animalRepository.save(animal);
+        List<Animal> animals = new LinkedList<>();
+        animals.add(animalRepository.findAll().get(0));
+        userLoginRepository.save(animal_caretaker_login);
+        anmial_caretaker.setAssignedAnimals(animals);
+        employeeRepository.save(anmial_caretaker);
+
+        task.setAssignedEmployee(anmial_caretaker);
+        task.setStatus(TaskStatus.ASSIGNED);
+        taskRepository.save(task);
+        task = taskRepository.findAll().get(0);
+        AnimalTask animalTask = AnimalTask.builder().subject(animalRepository.findAll().get(0)).id(task.getId()).build();
+        animalTaskRepository.save(animalTask);
+
+
+        MvcResult mvcResult = this.mockMvc.perform(get(ANIMAL_TASK_GET_BY_EMPLOYEE_BASE_URI + "/" + anmial_caretaker.getUsername())
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
+
+        List<AnimalTaskDto> animalTaskDtos = objectMapper.readValue(response.getContentAsString(),
+            new TypeReference<List<AnimalTaskDto>>(){});
+        assertAll(
+            () -> assertEquals(1, animalTaskDtos.size()),
+            () -> assertEquals(animal.getName(), animalTaskDtos.get(0).getAnimalName()),
+            () -> assertEquals(task.getTitle(), animalTaskDtos.get(0).getTitle()),
+            () -> assertEquals(anmial_caretaker.getUsername(), animalTaskDtos.get(0).getAssignedEmployeeUsername()),
+            () -> assertEquals(task.getDescription(), animalTaskDtos.get(0).getDescription())
+        );
+
+    }
+
+    @Test
+    public void validGetListOfAnimalTasksFromNonExistingEmployee_returnsNotFound() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
+        animalRepository.save(animal);
+        List<Animal> animals = new LinkedList<>();
+        animals.add(animalRepository.findAll().get(0));
+        userLoginRepository.save(animal_caretaker_login);
+        anmial_caretaker.setAssignedAnimals(animals);
+        employeeRepository.save(anmial_caretaker);
+
+        task.setAssignedEmployee(anmial_caretaker);
+        task.setStatus(TaskStatus.ASSIGNED);
+        taskRepository.save(task);
+        task = taskRepository.findAll().get(0);
+        AnimalTask animalTask = AnimalTask.builder().subject(animalRepository.findAll().get(0)).id(task.getId()).build();
+        animalTaskRepository.save(animalTask);
+
+
+        MvcResult mvcResult = this.mockMvc.perform(get(ANIMAL_TASK_GET_BY_EMPLOYEE_BASE_URI + "/" + "I_DONT_EXIST")
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
+
     }
 }

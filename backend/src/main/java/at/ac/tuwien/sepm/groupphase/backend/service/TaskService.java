@@ -38,4 +38,11 @@ public interface TaskService {
      * @return list of animalTasks
      */
     List<AnimalTask> getAllTasksOfAnimal(Long animalId);
+
+    /**
+     * Get All AnimalTasks Of an Employee
+     * @param employeeUsername is the username of the employee
+     * @return list of animalTasks
+     */
+    List<AnimalTask> getAllAnimalTasksOfEmployee(String employeeUsername);
 }
