@@ -108,22 +108,18 @@ public class CustomEmployeeService implements EmployeeService {
     @Override
     public void deleteEmployeeByUsername(String username){
         LOGGER.debug("Deleting employee with username: " + username);
-        if(this.findByUsername(username)!=null){
-
-            List<Task> tasks=employeeRepository.findEmployeeByUsername(username).getTasks();
-            for (int i=0; i<tasks.size(); i++){
-                tasks.get(i).setStatus(TaskStatus.NOT_ASSIGNED);
-            }
-            employeeRepository.findEmployeeByUsername(username).setTasks(tasks);
-            employeeRepository.findEmployeeByUsername(username).setUsername(null);
-            if(this.userService.findApplicationUserByUsername(username)!=null){
-                this.userService.deleteUser(username);
-            }else{
-                throw new NotFoundException("No user to delete: " + username);
-            }
-        }else{
+        Employee employee = findByUsername(username);
+        if(username == null)
             throw new NotFoundException("No employee to delete: " + username);
+
+        List<Task> tasks=taskRepository.findAllByAssignedEmployee(employee);
+        for (Task t:tasks){
+            t.setStatus(TaskStatus.NOT_ASSIGNED);
+            t.setAssignedEmployee(null);
+            taskRepository.save(t);
         }
+        employeeRepository.delete(employee);
+        userService.deleteUser(username);
     }
 
     @Override

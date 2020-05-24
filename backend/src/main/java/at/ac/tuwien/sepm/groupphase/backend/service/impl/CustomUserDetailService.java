@@ -75,7 +75,6 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public void deleteUser(String userName) {
-
-         userRepository.deleteById(userName);
+        userRepository.deleteById(userName);
     }
 }
