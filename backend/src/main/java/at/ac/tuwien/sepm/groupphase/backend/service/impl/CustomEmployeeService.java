@@ -28,17 +28,20 @@ public class CustomEmployeeService implements EmployeeService {
     private final TaskRepository taskRepository;
     private final AnimalTaskRepository animalTaskRepository;
     private final EnclosureTaskRepository enclosureTaskRepository;
+    private final EnclosureRepository enclosureRepository;
 
     @Autowired
     public CustomEmployeeService(UserService userService, EmployeeRepository employeeRepository,
                                  AnimalRepository animalRepository, TaskRepository taskRepository,
-                                 AnimalTaskRepository animalTaskRepository, EnclosureTaskRepository enclosureTaskRepository) {
+                                 AnimalTaskRepository animalTaskRepository, EnclosureTaskRepository enclosureTaskRepository,
+                                 EnclosureRepository enclosureRepository) {
         this.animalTaskRepository = animalTaskRepository;
         this.employeeRepository = employeeRepository;
         this.animalRepository = animalRepository;
         this.userService =userService;
         this.taskRepository = taskRepository;
         this.enclosureTaskRepository = enclosureTaskRepository;
+        this.enclosureRepository = enclosureRepository;
     }
 
     @Override
@@ -187,6 +190,11 @@ public class CustomEmployeeService implements EmployeeService {
     @Override
     public List<Employee> getAllAssignedToEnclosure(Enclosure enclosure) {
         LOGGER.debug("Getting all employees assigned to enclosure with id " + enclosure.getId());
+
+        // This function call would return all the employees if it worked
+        //List<Employee> assignedEmployees = enclosureRepository.getEmployeesByEnclosureID(enclosure.getId());
+
+
         List<Employee> employeesWithAnimals = employeeRepository.findAll();
         List<Employee> employeesWithAnimalsFromEnclosure= new LinkedList<>();
         for (Employee e :employeesWithAnimals) {
