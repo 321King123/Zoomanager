@@ -26,11 +26,17 @@ export class TaskService {
   }
 
   getTasksOfAnimal(animalId): Observable<AnimalTask[]> {
+    console.log('Get tasks of animal ' + animalId);
     return this.httpClient.get<AnimalTask[]>(this.animalTaskBaseUri + '/' + animalId);
   }
 
   deleteTask(id): Observable<any> {
     console.log('Delete Task: ' + id);
     return this.httpClient.delete(this.taskBaseUri + '/' + id);
+  }
+    
+  getAnimalTasksOfEmployee(username): Observable<AnimalTask[]> {
+    console.log('Get tasks of employee ' + username);
+    return this.httpClient.get<AnimalTask[]>(this.taskBaseUri + '/employee/' + username);
   }
 }

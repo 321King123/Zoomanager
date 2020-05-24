@@ -123,4 +123,19 @@ public class CustomTaskService implements TaskService {
         animalTaskRepository.delete(foundAnimalTask);
         taskRepository.delete(foundTask);
     }
+        
+    @Override
+    public List<AnimalTask> getAllAnimalTasksOfEmployee(String employeeUsername) {
+        LOGGER.debug("Get All Tasks belonging to employee with username: {}", employeeUsername);
+        Employee employee = employeeService.findByUsername(employeeUsername);
+        if(employee == null)
+            throw new NotFoundException("Could not find Employee with given Username");
+        List<Task> taskList = new LinkedList<>(taskRepository.findAllByAssignedEmployee(employee));
+        List<AnimalTask> animalTaskList = new LinkedList<>();
+        for(Task t:taskList){
+            Optional<AnimalTask> animalTask = animalTaskRepository.findById(t.getId());
+            animalTask.ifPresent(animalTaskList::add);
+        }
+        return animalTaskList;
+    }
 }

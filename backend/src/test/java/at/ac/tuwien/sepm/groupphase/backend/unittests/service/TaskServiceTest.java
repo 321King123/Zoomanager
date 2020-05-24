@@ -26,6 +26,8 @@ import static org.mockito.AdditionalAnswers.returnsFirstArg;
 
 import javax.validation.ValidationException;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -220,5 +222,38 @@ public class TaskServiceTest implements TestData {
         Mockito.when(animalTaskRepository.findById(animalTask.getId())).thenReturn(Optional.ofNullable(animalTask_not_assigned));
         taskService.deleteTask(animalTask.getId());
         assertTrue(taskService.getAllTasksOfAnimal(animal.getId()).isEmpty());
+    }
+        
+    @Test
+    public void validEmployeeGetAllAnimalTasksReturnsHisTasks(){
+        List<Task> tasks = new LinkedList<>();
+        tasks.add(task_assigned);
+        Mockito.when(taskRepository.findAllByAssignedEmployee(anmial_caretaker)).thenReturn(tasks);
+        Optional<AnimalTask> animalTask = Optional.of(animalTask_not_assigned);
+        Mockito.when(animalTaskRepository.findById(Mockito.any(Long.class))).thenReturn(animalTask);
+        Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(anmial_caretaker);
+        List<AnimalTask> animalTasks = taskService.getAllAnimalTasksOfEmployee(anmial_caretaker.getUsername());
+        assertEquals(1, animalTasks.size());
+        assertEquals(animalTask_not_assigned, animalTasks.get(0));
+    }
+
+    @Test
+    public void invalidEmployeeGetAllAnimalTasksReturnsNotFound(){
+        List<Task> tasks = new LinkedList<>();
+        tasks.add(task_assigned);
+        Mockito.when(taskRepository.findAllByAssignedEmployee(anmial_caretaker)).thenReturn(tasks);
+        Optional<AnimalTask> animalTask = Optional.of(animalTask_not_assigned);
+        Mockito.when(animalTaskRepository.findById(Mockito.any(Long.class))).thenReturn(animalTask);
+        Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(null);
+        assertThrows(NotFoundException.class, () -> taskService.getAllAnimalTasksOfEmployee(anmial_caretaker.getUsername()));
+    }
+
+    @Test
+    public void validEmployeeGetAllAnimalTasksButNoTasksExistReturnsEmptyList(){
+        List<Task> tasks = new LinkedList<>();
+        Mockito.when(taskRepository.findAllByAssignedEmployee(anmial_caretaker)).thenReturn(tasks);
+        Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(anmial_caretaker);
+        List<AnimalTask> animalTasks = taskService.getAllAnimalTasksOfEmployee(anmial_caretaker.getUsername());
+        assertEquals(0, animalTasks.size());
     }
 }
