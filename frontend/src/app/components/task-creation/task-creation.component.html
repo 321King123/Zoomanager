@@ -136,12 +136,12 @@
                       </option>
                     </ng-container>
                     <ng-container *ngIf="isAnimalTask">
-                      <option *ngFor="let doctor in doctors" [ngValue]="doctor.username">
+                      <option *ngFor="let doctor of doctors" [ngValue]="doctor.username">
                         {{doctor.username}}; {{doctor.name}}; doctor
                       </option>
                     </ng-container>
                     <ng-container *ngIf="isEnclosureTask">
-                      <option *ngFor="let janitor in janitors">
+                      <option *ngFor="let janitor of janitors" [ngValue]="janitor.username">
                         {{janitor.username}}; {{janitor.name}}; janitor
                       </option>
                     </ng-container>

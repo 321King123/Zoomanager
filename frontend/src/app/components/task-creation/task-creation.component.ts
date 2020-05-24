@@ -8,6 +8,7 @@ import {Animal} from '../../dtos/animal';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Enclosure} from '../../dtos/enclosure';
 import {EnclosureService} from '../../services/enclosure.service';
+import {EnclosureTask} from '../../dtos/enclosureTask';
 
 
 @Component({
@@ -17,6 +18,7 @@ import {EnclosureService} from '../../services/enclosure.service';
 })
 export class TaskCreationComponent implements OnInit {
   task: AnimalTask;
+  enclosureTask: EnclosureTask;
 
   error = false;
   errorMessage = '';
@@ -71,6 +73,7 @@ export class TaskCreationComponent implements OnInit {
     this.employeeService.getDoctors().subscribe(
       (doctors) => {
         this.doctors = doctors;
+        console.log(JSON.stringify(doctors));
       },
       error => {
         this.defaultServiceErrorHandling(error);
@@ -101,6 +104,7 @@ export class TaskCreationComponent implements OnInit {
       }
     );
   }
+
   getEmployeesOfEnclosure() {
     this.employeesFound = false;
     this.employeeService.getEmployeesOfEnclosure(this.taskCreationForm.controls.subjectId.value).subscribe(
@@ -130,26 +134,56 @@ export class TaskCreationComponent implements OnInit {
     this.success = false;
     this.submittedTask = true;
     if (this.taskCreationForm.valid) {
-      const startTimeParsed = this.parseDate(this.taskCreationForm.controls.startTime.value);
-      const endTimeParsed = this.parseDate(this.taskCreationForm.controls.endTime.value);
-      this.task = new AnimalTask(
-        null,
-        this.taskCreationForm.controls.title.value,
-        this.taskCreationForm.controls.description.value,
-        startTimeParsed,
-        endTimeParsed,
-        this.taskCreationForm.controls.assignedEmployeeUsername.value,
-        null,
-        this.taskCreationForm.controls.subjectId.value,
-        null
-      );
-      if (this.task.assignedEmployeeUsername != null) {
-        this.task.status = 'ASSIGNED';
-      } else {
-        this.task.status = 'NOT_ASSIGNED';
+      if (this.isAnimalTask) {
+        this.getAnimalTaskFromForm();
+        this.createAnimalTask();
+      } else if (this.isEnclosureTask) {
+        this.getEnclosureTaskFromForm();
+        this.createEnclosureTask();
       }
-      this.createTask();
-      this.clearForm();
+    }
+  }
+
+  getAnimalTaskFromForm() {
+    const startTimeParsed = this.parseDate(this.taskCreationForm.controls.startTime.value);
+    const endTimeParsed = this.parseDate(this.taskCreationForm.controls.endTime.value);
+    this.task = new AnimalTask(
+      null,
+      this.taskCreationForm.controls.title.value,
+      this.taskCreationForm.controls.description.value,
+      startTimeParsed,
+      endTimeParsed,
+      this.taskCreationForm.controls.assignedEmployeeUsername.value,
+      null,
+      this.taskCreationForm.controls.subjectId.value,
+      null
+    );
+    if (this.task.assignedEmployeeUsername != null) {
+      this.task.status = 'ASSIGNED';
+    } else {
+      this.task.status = 'NOT_ASSIGNED';
+    }
+  }
+
+  getEnclosureTaskFromForm() {
+    const startTimeParsed = this.parseDate(this.taskCreationForm.controls.startTime.value);
+    const endTimeParsed = this.parseDate(this.taskCreationForm.controls.endTime.value);
+    this.enclosureTask = new EnclosureTask(
+      null,
+      this.taskCreationForm.controls.title.value,
+      this.taskCreationForm.controls.description.value,
+      startTimeParsed,
+      endTimeParsed,
+      this.taskCreationForm.controls.assignedEmployeeUsername.value,
+      null,
+      this.taskCreationForm.controls.subjectId.value,
+      null,
+      null
+    );
+    if (this.enclosureTask.assignedEmployeeUsername != null) {
+      this.enclosureTask.status = 'ASSIGNED';
+    } else {
+      this.enclosureTask.status = 'NOT_ASSIGNED';
     }
   }
 
@@ -174,10 +208,23 @@ export class TaskCreationComponent implements OnInit {
     this.submittedTask = false;
   }
 
-  createTask() {
+  createEnclosureTask() {
+    this.taskService.createNewTaskEnclosure(this.enclosureTask).subscribe(
+      (res: any) => {
+        this.success = true;
+        this.clearForm();
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  createAnimalTask() {
     this.taskService.createNewTask(this.task).subscribe(
       (res: any) => {
         this.success = true;
+        this.clearForm();
       },
       error => {
         this.defaultServiceErrorHandling(error);
