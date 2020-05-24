@@ -88,8 +88,22 @@ public interface EmployeeService  {
      */
     List<Employee> getAllAssignedToAnimal(Animal animal);
 
+
+    /**
+     * Gets all Employees assigned to specific Enclosure
+     * @param enclosure you want the infor for
+     */
+    List<Employee> getAllAssignedToEnclosure(Enclosure enclosure);
+
+
     /**
      * Gets all Doctors
      */
     List<Employee> getAllDocotrs();
+
+    /**
+     * Gets all Doctors
+     */
+    List<Employee> getAllJanitors();
+
 }

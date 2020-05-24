@@ -2,6 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.repository;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -40,6 +41,12 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
      * @return List of Employees that are assigned to given animal
      */
     List<Employee> findByAssignedAnimalsContains(Animal animal);
+
+    /**
+     *
+     * @return List of Employees that are assigned to some animal
+     */
+    //List<Employee> findEmployeesByAssignedAnimalsContains();
 
 
     /**

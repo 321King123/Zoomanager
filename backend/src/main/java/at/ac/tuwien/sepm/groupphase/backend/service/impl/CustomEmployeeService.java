@@ -85,7 +85,7 @@ public class CustomEmployeeService implements EmployeeService {
         List  <Enclosure> enclosures = new LinkedList<>();
 
         if(animals.isEmpty())
-            throw new NotFoundException("No Animals assigned to " +employeeUsername);
+            throw new NotFoundException("No Animals assigned to " + employeeUsername);
         for (Animal a:animals) {
             if(a.getEnclosure()!=null){
                 enclosures.add(a.getEnclosure());
@@ -169,9 +169,34 @@ public class CustomEmployeeService implements EmployeeService {
         return employeeRepository.findByAssignedAnimalsContains(animal);
     }
 
+
+    @Override
+    public List<Employee> getAllAssignedToEnclosure(Enclosure enclosure) {
+        LOGGER.debug("Getting all employees assigned to enclosure with id " + enclosure.getId());
+        List<Employee> employeesWithAnimals = employeeRepository.findAll();
+        List<Employee> employeesWithAnimalsFromEnclosure= new LinkedList<>();
+        for (Employee e :employeesWithAnimals) {
+            if(!e.getAssignedAnimals().isEmpty()){
+                for (Animal a : e.getAssignedAnimals()) {
+                    if (a.getEnclosure() == enclosure) {
+                        employeesWithAnimalsFromEnclosure.add(e);
+                    }
+                 }
+            }
+        }
+        return employeesWithAnimalsFromEnclosure;
+    }
+
+
     @Override
     public List<Employee> getAllDocotrs() {
         LOGGER.debug("Getting all employees of Type Doctor");
         return employeeRepository.findAllByType(EmployeeType.DOCTOR);
+    }
+
+    @Override
+    public List<Employee> getAllJanitors() {
+        LOGGER.debug("Getting all employees of Type Janitor");
+        return employeeRepository.findAllByType(EmployeeType.JANITOR);
     }
 }

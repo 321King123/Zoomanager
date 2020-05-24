@@ -7,10 +7,12 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.UserLoginMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
+import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import io.swagger.annotations.ApiOperation;
@@ -41,17 +43,19 @@ public class EmployeeEndpoint {
     private final UserLoginMapper userLoginMapper;
     private final AnimalMapper animalMapper;
     private final AnimalService animalService;
+    private final EnclosureService enclosureService;
 
     @Autowired
     public EmployeeEndpoint(EmployeeService employeeService, UserService userService,
                             EmployeeMapper employeeMapper, UserLoginMapper userLoginMapper,
-                            AnimalMapper animalMapper, AnimalService animalService){
+                            AnimalMapper animalMapper, AnimalService animalService, EnclosureService enclosureService){
         this.animalService = animalService;
         this.employeeService=employeeService;
         this.userService=userService;
         this.employeeMapper=employeeMapper;
         this.userLoginMapper=userLoginMapper;
         this.animalMapper = animalMapper;
+        this.enclosureService = enclosureService;
     }
 
 
@@ -169,6 +173,22 @@ public class EmployeeEndpoint {
         return employeeDtos;
     }
 
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/assigned/enclosure/{enclosureId}")
+    @ApiOperation(value = "Get list of employees assigned to enclosure", authorizations = {@Authorization(value = "apiKey")})
+    public List<EmployeeDto> getAllAssignedToEnclosure(@PathVariable Long enclosureId) {
+        LOGGER.info("GET /api/v1/employee/assigned/enclosure/{}", enclosureId);
+        Enclosure enclosure = enclosureService.findById(enclosureId);
+        List<Employee> employees = employeeService.getAllAssignedToEnclosure(enclosure);
+        List<EmployeeDto> employeeDtos = new LinkedList<>();
+        for(Employee e: employees) {
+            employeeDtos.add(employeeMapper.employeeToEmployeeDto(e));
+        }
+        return employeeDtos;
+    }
+
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/doctors")
@@ -176,6 +196,20 @@ public class EmployeeEndpoint {
     public List<EmployeeDto> getAllDocotrs() {
         LOGGER.info("GET /api/v1/employee/doctors");
         List<Employee> employees = employeeService.getAllDocotrs();
+        List<EmployeeDto> employeeDtos = new LinkedList<>();
+        for(Employee e: employees) {
+            employeeDtos.add(employeeMapper.employeeToEmployeeDto(e));
+        }
+        return employeeDtos;
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/janitors")
+    @ApiOperation(value = "Get list of all Janitors", authorizations = {@Authorization(value = "apiKey")})
+    public List<EmployeeDto> getAllJanitors() {
+        LOGGER.info("GET /api/v1/employee/janitors");
+        List<Employee> employees = employeeService.getAllJanitors();
         List<EmployeeDto> employeeDtos = new LinkedList<>();
         for(Employee e: employees) {
             employeeDtos.add(employeeMapper.employeeToEmployeeDto(e));

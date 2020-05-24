@@ -23,6 +23,7 @@ export class TaskEnclosureComponent implements OnInit {
   errorMessage = '';
   allEmployees: Employee[];
   employeesOfEnclosure: Employee[];
+  employeesJanitors: Employee[];
   taskCreationForm: FormGroup;
   employeesFound: boolean;
 
@@ -33,7 +34,7 @@ export class TaskEnclosureComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getEmployees();
+    this.getEmployeesOfEnclosure();
     this.taskCreationForm = this.formBuilder.group({
       title: ['', Validators.required],
       description: ['', Validators.required],

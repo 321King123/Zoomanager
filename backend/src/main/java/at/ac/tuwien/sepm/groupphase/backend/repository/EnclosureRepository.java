@@ -23,4 +23,5 @@ public interface EnclosureRepository extends JpaRepository<Enclosure, Long> {
      * @return List of all enclosures in the database
      */
     List<Enclosure> findAll();
+
 }
