@@ -19,6 +19,7 @@ export class TaskListComponent implements OnInit {
   @Input() animal: Animal;
   @Output() reloadTasks = new EventEmitter();
   @Output() deleteTask = new EventEmitter<AnimalTask>();
+  @Output() errorEvent = new EventEmitter<any>();
 
 
   constructor(private taskService: TaskService, private animalService: AnimalService,
@@ -26,5 +27,16 @@ export class TaskListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+  }
+
+  markTaskAsDone(taskId) {
+    this.taskService.markTaskAsDone(taskId).subscribe(
+      (res: any) => {
+        this.reloadTasks.emit();
+      },
+      error => {
+        this.errorEvent.emit(error);
+      }
+    );
   }
 }

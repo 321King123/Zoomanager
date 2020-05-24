@@ -29,11 +29,20 @@
                              [employees]="employees" [doctors]="doctors" [task]="task"></app-assign-task>
           </td>
         </ng-container>
-        <td class="col">
-          <button (click)="deleteTask.emit(task)" class="btn-sm btn-outline-danger btn">Delete</button>
+        <td class="col d-flex justify-content-center">
+
+          <ng-container *ngIf="task.status!='DONE'">
+            <button (click)="markTaskAsDone(task.id)" class="btn mx-2 btn-sm btn-outline-success">Done!</button>
+          </ng-container>
+          <ng-container *ngIf="task.status=='DONE'">
+            <div class="mx-2"> Done! </div>
+          </ng-container>
+          <button (click)="deleteTask.emit(task)" class=" btn mx-2 btn-sm btn-outline-danger">Delete</button>
+
         </td>
       </tr>
     </ng-container>
     </tbody>
   </table>
 </div>
+
