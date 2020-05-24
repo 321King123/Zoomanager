@@ -262,4 +262,20 @@ public class TaskServiceTest implements TestData {
         Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(anmial_caretaker);
         assertDoesNotThrow(() -> taskService.markTaskAsDone(task_assigned.getId()));
     }
+
+    @Test
+    public void markAsDoneNonExistingTaskNoNotFoundException(){
+        Optional<Task> task = Optional.empty();
+        Mockito.when(taskRepository.findById(Mockito.anyLong())).thenReturn(task);
+        Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(anmial_caretaker);
+        assertThrows(NotFoundException.class, () -> taskService.markTaskAsDone(task_assigned.getId()));
+    }
+
+    @Test
+    public void markAsDoneExistingTaskNonExistingEmployeeNotFoundException(){
+        Optional<Task> task = Optional.of(task_assigned);
+        Mockito.when(taskRepository.findById(Mockito.anyLong())).thenReturn(task);
+        Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(null);
+        assertDoesNotThrow(() -> taskService.markTaskAsDone(task_assigned.getId()));
+    }
 }
