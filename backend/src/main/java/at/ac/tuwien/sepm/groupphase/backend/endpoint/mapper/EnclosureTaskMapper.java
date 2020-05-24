@@ -22,45 +22,46 @@ public class EnclosureTaskMapper {
     public EnclosureTaskMapper(EmployeeService employeeService, EnclosureService enclosureService, TaskMapper taskMapper) {
         this.employeeService = employeeService;
         this.enclosureService = enclosureService;
-        this.taskMapper =taskMapper;
+        this.taskMapper = taskMapper;
     }
 
-    public EnclosureTaskDto enclosureTaskToEclosureTaskDto(EnclosureTask enclosureTask){
-
-             return EnclosureTaskDto.builder()
+    public EnclosureTaskDto enclosureTaskToEclosureTaskDto(EnclosureTask enclosureTask) {
+        if (enclosureTask == null) return null;
+        return EnclosureTaskDto.builder()
             .id(enclosureTask.getId())
             .title(enclosureTask.getTask() != null ? enclosureTask.getTask().getTitle() : null)
             .description(enclosureTask.getTask().getDescription())
             .startTime(enclosureTask.getTask().getStartTime())
             .endTime(enclosureTask.getTask().getEndTime())
-            .assignedEmployeeUsername(enclosureTask.getTask().getAssignedEmployee()==null?null:enclosureTask.getTask().getAssignedEmployee().getUsername())
+            .assignedEmployeeUsername(enclosureTask.getTask().getAssignedEmployee() == null ? null : enclosureTask.getTask().getAssignedEmployee().getUsername())
             .status(enclosureTask.getTask().getStatus())
-            .enclosureName(enclosureTask.getSubject()!= null ? enclosureTask.getSubject().getName(): null)
-            .enclosureId( enclosureTask.getSubject()!= null ? enclosureTask.getSubject().getId() : null)
+            .enclosureName(enclosureTask.getSubject() != null ? enclosureTask.getSubject().getName() : null)
+            .enclosureId(enclosureTask.getSubject() != null ? enclosureTask.getSubject().getId() : null)
             .build();
     }
 
 
+    public EnclosureTask enclosureTaskDtoToEclosureTask(EnclosureTaskDto enclosureTaskDto) {
+
+        if (enclosureTaskDto == null) return null;
+
+        Employee employee = enclosureTaskDto.getAssignedEmployeeUsername() != null ? employeeService.findByUsername(enclosureTaskDto.getAssignedEmployeeUsername()) : null;
+
+        Enclosure enclosure = enclosureTaskDto.getEnclosureId() != null ? enclosureService.findById(enclosureTaskDto.getEnclosureId()) : null;
 
 
-    public EnclosureTask enclosureTaskDtoToEclosureTask(EnclosureTaskDto enclosureTaskDto){
-
-        Employee employee= enclosureTaskDto.getAssignedEmployeeUsername() != null? employeeService.findByUsername(enclosureTaskDto.getAssignedEmployeeUsername()):null;
-
-        Enclosure enclosure= enclosureTaskDto.getEnclosureId()!= null ? enclosureService.findById(enclosureTaskDto.getEnclosureId()): null;
-
-        Task.TaskBuilder task = Task.builder();
-
-        task.id( enclosureTaskDto.getId() );
-        task.title( enclosureTaskDto.getTitle() );
-        task.description( enclosureTaskDto.getDescription() );
-        task.startTime( enclosureTaskDto.getStartTime() );
-        task.endTime( enclosureTaskDto.getEndTime() );
-        task.status( enclosureTaskDto.getStatus() );
+        Task task = Task.builder()
+            .id(enclosureTaskDto.getId())
+            .title(enclosureTaskDto.getTitle())
+            .description(enclosureTaskDto.getDescription())
+            .startTime(enclosureTaskDto.getStartTime())
+            .endTime(enclosureTaskDto.getEndTime())
+            .status(enclosureTaskDto.getStatus())
+            .build();
 
         return EnclosureTask.builder()
             .id(enclosureTaskDto.getId())
-            .task(Task.builder().build())
+            .task(task)
             .subject(enclosure)
             .build();
     }

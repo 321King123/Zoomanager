@@ -9,11 +9,14 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalTaskMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EnclosureTaskMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.TaskMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
+import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -32,6 +35,9 @@ public class TaskMappingTest implements TestData {
 
     @Autowired
     EnclosureTaskMapper enclosureTaskMapper;
+
+    @MockBean
+    EnclosureService enclosureService;
 
     private Employee anmial_caretaker = Employee.builder()
         .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
@@ -119,8 +125,8 @@ public class TaskMappingTest implements TestData {
         .description("description")
         .startTime(taskDto.getStartTime())
         .endTime(taskDto.getEndTime())
-        .assignedEmployeeUsername("Mimi")
-        .enclosureId(290L)
+        .assignedEmployeeUsername(null)
+        .enclosureId(4L)
         .build();
 
     @Test
@@ -135,6 +141,7 @@ public class TaskMappingTest implements TestData {
 
     @Test
     public void testEnclosureTaskDtoToEnclosureTask() {
+        Mockito.when(enclosureService.findById(4L)).thenReturn(enclosure);
         EnclosureTask enclosureTask = enclosureTaskMapper.enclosureTaskDtoToEclosureTask(enclosureTaskDto);
         assertAll(
             () -> assertEquals(enclosureTask.getId(), enclosureTaskDto.getId()),
