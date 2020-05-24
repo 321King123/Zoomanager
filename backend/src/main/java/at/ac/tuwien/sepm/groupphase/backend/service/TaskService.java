@@ -40,6 +40,12 @@ public interface TaskService {
     List<AnimalTask> getAllTasksOfAnimal(Long animalId);
 
     /**
+     * Delete a task
+     * @param taskId of the Task that will be deleted
+     */
+    void deleteTask(Long taskId);
+    
+    /**
      * Get All AnimalTasks Of an Employee
      * @param employeeUsername is the username of the employee
      * @return list of animalTasks

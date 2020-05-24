@@ -11,6 +11,7 @@
       <th class="col" scope="col">Start time</th>
       <th class="col" scope="col">End time</th>
       <th class="col" scope="col">Assignee</th>
+      <th class="col" scope="col"></th>
     </tr>
     </thead>
     <tbody *ngIf="tasks">
@@ -28,6 +29,9 @@
                              [employees]="employees" [doctors]="doctors" [task]="task"></app-assign-task>
           </td>
         </ng-container>
+        <td class="col">
+          <button (click)="deleteTask.emit(task)" class="btn-sm btn-outline-danger btn">Delete</button>
+        </td>
       </tr>
     </ng-container>
     </tbody>

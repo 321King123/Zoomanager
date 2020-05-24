@@ -18,6 +18,7 @@ export class TaskListComponent implements OnInit {
   @Input() employees: Employee[];
   @Input() animal: Animal;
   @Output() reloadTasks = new EventEmitter();
+  @Output() deleteTask = new EventEmitter<AnimalTask>();
 
 
   constructor(private taskService: TaskService, private animalService: AnimalService,
