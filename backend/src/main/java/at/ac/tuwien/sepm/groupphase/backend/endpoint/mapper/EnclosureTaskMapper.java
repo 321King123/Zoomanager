@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper;
 
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EnclosureDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EnclosureTaskDto;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
@@ -25,23 +26,28 @@ public class EnclosureTaskMapper {
     }
 
     public EnclosureTaskDto enclosureTaskToEclosureTaskDto(EnclosureTask enclosureTask){
-        return EnclosureTaskDto.builder()
+
+             return EnclosureTaskDto.builder()
             .id(enclosureTask.getId())
-            .title(enclosureTask.getTask().getTitle())
+            .title(enclosureTask.getTask() != null ? enclosureTask.getTask().getTitle() : null)
             .description(enclosureTask.getTask().getDescription())
             .startTime(enclosureTask.getTask().getStartTime())
             .endTime(enclosureTask.getTask().getEndTime())
             .assignedEmployeeUsername(enclosureTask.getTask().getAssignedEmployee()==null?null:enclosureTask.getTask().getAssignedEmployee().getUsername())
             .status(enclosureTask.getTask().getStatus())
-            .enclosureName(enclosureTask.getSubject().getName())
-            .enclosureId(enclosureTask.getSubject().getId())
+            .enclosureName(enclosureTask.getSubject()!= null ? enclosureTask.getSubject().getName(): null)
+            .enclosureId( enclosureTask.getSubject()!= null ? enclosureTask.getSubject().getId() : null)
             .build();
     }
 
+
+
+
     public EnclosureTask enclosureTaskDtoToEclosureTask(EnclosureTaskDto enclosureTaskDto){
 
-        Employee employee= employeeService.findByUsername(enclosureTaskDto.getAssignedEmployeeUsername());
-        Enclosure enclosure= enclosureService.findById(enclosureTaskDto.getEnclosureId());
+        Employee employee= enclosureTaskDto.getAssignedEmployeeUsername() != null? employeeService.findByUsername(enclosureTaskDto.getAssignedEmployeeUsername()):null;
+
+        Enclosure enclosure= enclosureTaskDto.getEnclosureId()!= null ? enclosureService.findById(enclosureTaskDto.getEnclosureId()): null;
 
         Task.TaskBuilder task = Task.builder();
 
