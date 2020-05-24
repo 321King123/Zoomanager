@@ -517,7 +517,7 @@ public class TaskEndpointTest implements TestData {
         MockHttpServletResponse response = mvcResult.getResponse();
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
     }
-    
+
     @Test
     public void validGetListOfAnimalTasksFromEmployee() throws Exception {
         enclosureRepository.save(barn);
@@ -587,5 +587,73 @@ public class TaskEndpointTest implements TestData {
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
+    }
+
+    @Test
+    public void validTaskUpdateStatusDoneAsAdmin_returnsOk() throws Exception {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+
+        task.setAssignedEmployee(anmial_caretaker);
+        task.setStatus(TaskStatus.ASSIGNED);
+        taskRepository.save(task);
+        task = taskRepository.findAll().get(0);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(TASK_BASE_URI + "/finished/" + task.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertAll(
+            () -> assertEquals(HttpStatus.OK.value(), response.getStatus())
+        );
+    }
+
+    @Test
+    public void validTaskUpdateStatusDoneAsUser_returnsOk() throws Exception {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+
+        task.setAssignedEmployee(anmial_caretaker);
+        task.setStatus(TaskStatus.ASSIGNED);
+        taskRepository.save(task);
+        task = taskRepository.findAll().get(0);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(TASK_BASE_URI + "/finished/" + task.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(anmial_caretaker.getUsername(), USER_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertAll(
+            () -> assertEquals(HttpStatus.OK.value(), response.getStatus())
+        );
+    }
+
+    @Test
+    public void validTaskUpdateStatusDoneAsWrongUser_returnsForbidden() throws Exception {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        userLoginRepository.save(janitor_login);
+        employeeRepository.save(janitor);
+
+        task.setAssignedEmployee(anmial_caretaker);
+        task.setStatus(TaskStatus.ASSIGNED);
+        taskRepository.save(task);
+        task = taskRepository.findAll().get(0);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(TASK_BASE_URI + "/finished/" + task.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(janitor.getUsername(), USER_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertAll(
+            () -> assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus())
+        );
     }
 }

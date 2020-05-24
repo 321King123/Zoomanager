@@ -171,7 +171,7 @@ public class TaskEndpoint {
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping(value = "/employee/{employeeUsername}")
+    @GetMapping(value = "/employee/{employeeUsername}")
     @ApiOperation(value = "Get list of animal tasks belonging to an employee", authorizations = {@Authorization(value = "apiKey")})
     public List<AnimalTaskDto> getAllAnimalTasksBelongingToEmployee(@PathVariable String employeeUsername, Authentication authentication){
         LOGGER.info("GET /api/v1/tasks/employee/{}", employeeUsername);
@@ -193,7 +193,7 @@ public class TaskEndpoint {
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/finished/{taskId}")
+    @PutMapping(value = "/finished/{taskId}")
     @ApiOperation(value = "Marking task as done", authorizations = {@Authorization(value = "apiKey")})
     public void markTaskAsDone(@PathVariable Long taskId, Authentication authentication){
         LOGGER.info("PUT /api/v1/tasks/finished/{}", taskId);
