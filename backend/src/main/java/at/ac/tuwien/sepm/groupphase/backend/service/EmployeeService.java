@@ -83,6 +83,13 @@ public interface EmployeeService  {
     boolean isAssignedToAnimal(String username, Long animalId);
 
     /**
+     *Checks if Employee is Assigned to specific Enclosure
+     * @param username username of empoyee
+     * @param enclosureId id of animal
+     */
+    public boolean isAssignedToEnclosure(String username, Long enclosureId);
+
+    /**
      *Checks if Employee has rights to change assignment of Task
      * Will return false for admins they are handled separatly
      * @param UsernameEmployee employee to check

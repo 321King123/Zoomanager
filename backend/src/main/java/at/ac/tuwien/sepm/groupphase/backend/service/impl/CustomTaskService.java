@@ -92,15 +92,15 @@ public class CustomTaskService implements TaskService {
 
         validateStartAndEndTime(task);
 
-        //TO-DO: Type Validation
         if(employee == null) {
             task.setStatus(TaskStatus.NOT_ASSIGNED);
         }else if(employee.getType() == EmployeeType.DOCTOR){
             throw new IncorrectTypeException("A Doctor cant complete an Enclosure Task");
         }else{
-//            if(employee.getType() == EmployeeType.ANIMAL_CARE && !employeeService.getAllAssignedToEnclosure(enclosure).contains(employee)){
-//                throw new NotAuthorisedException("You cant assign an animal caretaker that is not assigned to an animal in the Enclosure.");
-//            }
+            if(employee.getType() == EmployeeType.ANIMAL_CARE
+                && !employeeService.isAssignedToEnclosure(employee.getUsername(), enclosure.getId())){
+                throw new NotAuthorisedException("You cant assign an animal caretaker that is not assigned to an animal in the Enclosure.");
+            }
             task.setStatus(TaskStatus.ASSIGNED);
         }
 
@@ -157,15 +157,23 @@ public class CustomTaskService implements TaskService {
         }
         Optional<AnimalTask> animalTask = animalTaskRepository.findById(taskId);
         if(animalTask.isEmpty()) {
-            //TODO: add handling of EnclosureTasks
-            throw new NotFoundException("Could not find Task with given Id");
+            throw new NotFoundException("Could not find Animal Task with given Id");
+        } else {
+            AnimalTask foundAnimalTask = animalTask.get();
+            Task foundTask = task.get();
+            animalTaskRepository.delete(foundAnimalTask);
+            taskRepository.delete(foundTask);
         }
-        AnimalTask foundAnimalTask = animalTask.get();
-        Task foundTask = task.get();
-        animalTaskRepository.delete(foundAnimalTask);
-        taskRepository.delete(foundTask);
+
+        //TODO: add handling of EnclosureTasks
+        Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findById(taskId);
+        if(enclosureTask.isEmpty()) {
+            throw new NotFoundException("Could not find Enclosure Task with given Id");
+        } else {
+            enclosureTaskRepository.deleteEnclosureTaskAndBaseTaskById(taskId);
+        }
     }
-        
+
     @Override
     public List<AnimalTask> getAllAnimalTasksOfEmployee(String employeeUsername) {
         LOGGER.debug("Get All Tasks belonging to employee with username: {}", employeeUsername);
