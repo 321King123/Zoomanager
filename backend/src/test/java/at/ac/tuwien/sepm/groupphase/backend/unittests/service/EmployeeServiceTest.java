@@ -1,17 +1,14 @@
 package at.ac.tuwien.sepm.groupphase.backend.unittests.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
-import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
+import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
-import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
-import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
-import at.ac.tuwien.sepm.groupphase.backend.repository.UserRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
+import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -25,6 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -42,6 +40,12 @@ public class EmployeeServiceTest implements TestData {
 
     @MockBean
     EmployeeRepository employeeRepository;
+
+    @MockBean
+    AnimalTaskRepository animalTaskRepository;
+
+    @MockBean
+    TaskRepository taskRepository;
 
     @MockBean
     UserRepository userRepository;
@@ -84,6 +88,21 @@ public class EmployeeServiceTest implements TestData {
     private UserLogin userAnimalCareEmployee= UserLogin.builder()
         .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
         .password("something6")
+        .build();
+
+    private Task task_not_assigned = Task.builder()
+        .id(1L)
+        .title(TASK_TITLE)
+        .description(TASK_DESCRIPTION)
+        .startTime(TAST_START_TIME)
+        .endTime(TAST_END_TIME)
+        .status(TaskStatus.NOT_ASSIGNED)
+        .build();
+
+    private AnimalTask animalTask_not_assigned = AnimalTask.builder()
+        .id(1L)
+        .subject(horse)
+        .task(task_not_assigned)
         .build();
 
     @Test
@@ -183,4 +202,148 @@ public class EmployeeServiceTest implements TestData {
         animalRepository.save(animal);
         assertAll( () -> assertNotNull(animalRepository.findById(animal.getId())));
     }
+
+    @Test
+    public void canBeAssigned_DoctorWithTime(){
+        Optional<AnimalTask> animalTask = Optional.of(animalTask_not_assigned);
+        Mockito.when(animalTaskRepository.findById(Mockito.anyLong())).thenReturn(animalTask);
+        assertTrue(employeeService.canBeAssignedToTask(doctor, task_not_assigned));
+    }
+
+    @Test
+    public void canBeAssigned_AnimalCaretakerWithTimeAssignedToAnimal(){
+        List<Animal> animals = new LinkedList<>();
+        Animal animal = Animal.builder()
+            .id(1L).build();
+        animals.add(animal);
+        animal_caretaker.setAssignedAnimals(animals);
+        Mockito.when(employeeRepository.findEmployeeByUsername(Mockito.anyString())).thenReturn(animal_caretaker);
+        Optional<AnimalTask> animalTask = Optional.of(animalTask_not_assigned);
+        Mockito.when(animalTaskRepository.findById(Mockito.anyLong())).thenReturn(animalTask);
+        assertTrue(employeeService.canBeAssignedToTask(animal_caretaker, task_not_assigned));
+        animal_caretaker.setAssignedAnimals(null);
+    }
+
+    @Test
+    public void canNotBeAssigned_AnimalCaretakerWithTimeNotAssignedToAnimal(){
+        List<Animal> animals = new LinkedList<>();
+        animal_caretaker.setAssignedAnimals(animals);
+        Mockito.when(employeeRepository.findEmployeeByUsername(Mockito.anyString())).thenReturn(animal_caretaker);
+        Optional<AnimalTask> animalTask = Optional.of(animalTask_not_assigned);
+        Mockito.when(animalTaskRepository.findById(Mockito.anyLong())).thenReturn(animalTask);
+        assertFalse(employeeService.canBeAssignedToTask(animal_caretaker, task_not_assigned));
+        animal_caretaker.setAssignedAnimals(null);
+    }
+
+    @Test
+    public void canNotBeAssignedToAnimalTask_Janitor(){
+        Optional<AnimalTask> animalTask = Optional.of(animalTask_not_assigned);
+        Mockito.when(animalTaskRepository.findById(Mockito.anyLong())).thenReturn(animalTask);
+        assertFalse(employeeService.canBeAssignedToTask(janitor, task_not_assigned));
+    }
+
+    @Test
+    public void doesNotHavePermission_AnimalCaretakerNotAssignedToAnimal(){
+        List<Animal> animals = new LinkedList<>();
+        animal_caretaker.setAssignedAnimals(animals);
+        Optional<Employee> employee = Optional.of(animal_caretaker);
+        Mockito.when(employeeRepository.findById(Mockito.anyString())).thenReturn(employee);
+        Mockito.when(employeeRepository.findEmployeeByUsername(Mockito.anyString())).thenReturn(animal_caretaker);
+        Optional<Task> task = Optional.of(task_not_assigned);
+        Mockito.when(taskRepository.findById(Mockito.anyLong())).thenReturn(task);
+        Optional<AnimalTask> animalTask = Optional.of(animalTask_not_assigned);
+        Mockito.when(animalTaskRepository.findById(Mockito.anyLong())).thenReturn(animalTask);
+        assertFalse(employeeService.hasTaskAssignmentPermissions(animal_caretaker.getUsername(), 1L));
+        animal_caretaker.setAssignedAnimals(null);
+    }
+
+    @Test
+    public void doesHavePermission_AnimalCaretakerAssignedToAnimal(){
+        List<Animal> animals = new LinkedList<>();
+        Animal animal = Animal.builder()
+            .id(1L).build();
+        animals.add(animal);
+        animal_caretaker.setAssignedAnimals(animals);
+        Optional<Employee> employee = Optional.of(animal_caretaker);
+        Mockito.when(employeeRepository.findById(Mockito.anyString())).thenReturn(employee);
+        Mockito.when(employeeRepository.findEmployeeByUsername(Mockito.anyString())).thenReturn(animal_caretaker);
+        Optional<Task> task = Optional.of(task_not_assigned);
+        Mockito.when(taskRepository.findById(Mockito.anyLong())).thenReturn(task);
+        Optional<AnimalTask> animalTask = Optional.of(animalTask_not_assigned);
+        Mockito.when(animalTaskRepository.findById(Mockito.anyLong())).thenReturn(animalTask);
+        assertTrue(employeeService.hasTaskAssignmentPermissions(animal_caretaker.getUsername(), 1L));
+        animal_caretaker.setAssignedAnimals(null);
+    }
+
+    @Test
+    public void employeeIsFree_whenNoOtherTaskAssigned(){
+        List<Task> taskList = new LinkedList<>();
+        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        assertTrue(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+    }
+
+    @Test
+    public void employeeIsNotFree_whenOtherTaskStartsBeforeThisTaskEnds(){
+        Task task = Task.builder()
+            .id(1L)
+            .title(TASK_TITLE)
+            .description(TASK_DESCRIPTION)
+            .startTime(TAST_END_TIME.minusSeconds(5))
+            .endTime(TAST_END_TIME.plusHours(2))
+            .status(TaskStatus.NOT_ASSIGNED)
+            .build();
+        List<Task> taskList = new LinkedList<>();
+        taskList.add(task);
+        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+    }
+
+    @Test
+    public void employeeIsNotFree_whenOtherTaskEndsAfterThisTaskStarts_BeforeThisTaskEnds(){
+        Task task = Task.builder()
+            .id(1L)
+            .title(TASK_TITLE)
+            .description(TASK_DESCRIPTION)
+            .startTime(TAST_START_TIME.minusHours(5))
+            .endTime(TAST_START_TIME.plusSeconds(5))
+            .status(TaskStatus.NOT_ASSIGNED)
+            .build();
+        List<Task> taskList = new LinkedList<>();
+        taskList.add(task);
+        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+    }
+
+    @Test
+    public void employeeIsNotFree_whenThisTaskDuringOtherTask(){
+        Task task = Task.builder()
+            .id(1L)
+            .title(TASK_TITLE)
+            .description(TASK_DESCRIPTION)
+            .startTime(TAST_START_TIME.minusSeconds(5))
+            .endTime(TAST_END_TIME.plusSeconds(5))
+            .status(TaskStatus.NOT_ASSIGNED)
+            .build();
+        List<Task> taskList = new LinkedList<>();
+        taskList.add(task);
+        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+    }
+
+    @Test
+    public void employeeIsNotFree_whenOtherTaskDuringThisTask(){
+        Task task = Task.builder()
+            .id(1L)
+            .title(TASK_TITLE)
+            .description(TASK_DESCRIPTION)
+            .startTime(TAST_START_TIME.plusSeconds(5))
+            .endTime(TAST_END_TIME.minusSeconds(5))
+            .status(TaskStatus.NOT_ASSIGNED)
+            .build();
+        List<Task> taskList = new LinkedList<>();
+        taskList.add(task);
+        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+    }
+
 }

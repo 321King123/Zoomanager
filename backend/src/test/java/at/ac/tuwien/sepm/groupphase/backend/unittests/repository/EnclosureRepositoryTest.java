@@ -105,4 +105,14 @@ public class EnclosureRepositoryTest implements TestData {
 
     }
 
+    @Test
+    public void deleteEnclosure() {
+
+        enclosureRepository.save(enclosureDetailed);
+        enclosureRepository.delete(enclosureDetailed);
+        List<Enclosure> enclosures = enclosureRepository.findAll();
+        assertTrue(0 == enclosures.size());
+
+    }
+
 }

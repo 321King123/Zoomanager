@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.integrationtest.endpoint;
 
+import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.EnclosureEndpoint;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EmployeeDto;
@@ -7,12 +8,14 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EnclosureDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EnclosureMapper;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.UserLoginRepository;
 import at.ac.tuwien.sepm.groupphase.backend.security.JwtTokenizer;
+import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,19 +41,19 @@ import springfox.documentation.spi.service.contexts.SecurityContext;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static at.ac.tuwien.sepm.groupphase.backend.basetest.TestData.*;
 import static at.ac.tuwien.sepm.groupphase.backend.basetest.TestData.PICTURE_LION_ENCLOSURE;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class EnclosureEndpointTest {
+public class EnclosureEndpointTest implements TestData {
 
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -59,6 +62,12 @@ public class EnclosureEndpointTest {
 
     @Autowired
     private EnclosureRepository enclosureRepository;
+
+    @Autowired
+    private AnimalRepository animalRepository;
+
+    @Autowired
+    private AnimalService animalService;
 
     @Autowired
     private EnclosureEndpoint enclosureEndpoint;
@@ -90,6 +99,22 @@ public class EnclosureEndpointTest {
         .description(null)
         .publicInfo(null)
         .picture(null)
+        .build();
+    private Enclosure enclosureMinimal2 = Enclosure.builder()
+        .id(1L)
+        .name("Wolf Enclosure")
+        .description(null)
+        .publicInfo(null)
+        .picture(null)
+        .build();
+
+    private Animal animal = Animal.builder()
+        .id(2L)
+        .name("Brandy")
+        .description("racing Horce")
+        .enclosure(null)
+        .species("race")
+        .publicInformation(null)
         .build();
 
     @BeforeEach
@@ -189,6 +214,39 @@ public class EnclosureEndpointTest {
     }
 
 
+    @Test
+    public void adminDeletesEnclosure() throws Exception {
 
+        enclosureRepository.save(enclosureMinimal2);
+        List<Enclosure> enclosures= enclosureRepository.findAll();
+        Enclosure enclosure = enclosures.get(0);
+        EnclosureDto enclosureDto = enclosureMapper.enclosureToEnclosureDto(enclosure);
+         String body= objectMapper.writeValueAsString(enclosureDto);
+        MvcResult mvcResult = this.mockMvc.perform(put(ENCLOSURE_BASE_URI)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .content(body))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
 
+        assertEquals(HttpStatus.OK.value(),  response.getStatus());
+    }
+
+    @Test
+    public void adminDeletesEnclosureNotFound() throws Exception {
+        EnclosureDto enclosureDto = enclosureMapper.enclosureToEnclosureDto(enclosureMinimal2);
+        String body= objectMapper.writeValueAsString(enclosureDto);
+        MvcResult mvcResult = this.mockMvc.perform(put(ENCLOSURE_BASE_URI)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .content(body))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.NOT_FOUND.value(),  response.getStatus());
+    }
 }

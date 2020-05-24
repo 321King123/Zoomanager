@@ -32,7 +32,7 @@ public class Animal implements Serializable {
     @Column(nullable = false)
     private String species;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Enclosure enclosure;
 
     @Column

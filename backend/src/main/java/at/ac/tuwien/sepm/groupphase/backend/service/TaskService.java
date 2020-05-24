@@ -2,6 +2,8 @@ package at.ac.tuwien.sepm.groupphase.backend.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 
+import java.util.List;
+
 public interface TaskService {
 
     /**
@@ -30,4 +32,30 @@ public interface TaskService {
      * */
     void deleteAnimalTasksBelongingToAnimal(Long animalId);
 
+    /**
+     * Assign Employee to existing Task without assignment
+     * @param taskId Id of the task you want to assign the employee to
+     * @param assignedEmployee employee you want to assign
+     * */
+    void updateTask(Long taskId, Employee assignedEmployee);
+
+    /**
+     * Get all tasks belonging to one animal
+     * @param animalId is the id of the animal
+     * @return list of animalTasks
+     */
+    List<AnimalTask> getAllTasksOfAnimal(Long animalId);
+
+    /**
+     * Delete a task
+     * @param taskId of the Task that will be deleted
+     */
+    void deleteTask(Long taskId);
+    
+    /**
+     * Get All AnimalTasks Of an Employee
+     * @param employeeUsername is the username of the employee
+     * @return list of animalTasks
+     */
+    List<AnimalTask> getAllAnimalTasksOfEmployee(String employeeUsername);
 }

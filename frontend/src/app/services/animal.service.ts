@@ -31,4 +31,9 @@ export class AnimalService {
     console.log('Delete animal: ' + JSON.stringify(animal));
     return this.httpClient.delete(this.animalBaseUri + '/' + animal.id);
   }
+
+  getAnimalById(id): Observable<Animal> {
+    console.log('Get animal by id: ' + id);
+    return this.httpClient.get<Animal>(this.animalBaseUri + '/' + id);
+  }
 }

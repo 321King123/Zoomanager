@@ -1,6 +1,9 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
+import at.ac.tuwien.sepm.groupphase.backend.exception.DeletionException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
@@ -55,6 +58,24 @@ public class CustomEnclosureService implements EnclosureService {
     @Override
     public Enclosure findByAnimalId(long animalId) {
         LOGGER.debug("Find Enclosure of Animal with Id: {}", animalId);
-        return animalRepository.findById(animalId).getEnclosure();
+        Animal animal = animalRepository.findById(animalId);
+        if(animal == null) {
+            throw new NotFoundException("Could not find Enclosure of Animal: No Anima with id: " + animalId + " in the database");
+        }
+        return animal.getEnclosure();
+    }
+
+    @Override
+    public void deleteEnclosure(Enclosure enclosure){
+        List<Animal> animals = animalRepository.findAllByEnclosure(enclosure);
+        if(this.findById(enclosure.getId())!=null){
+            if(animals.size()==0){
+                enclosureRepository.delete(enclosure);
+            }else{
+                throw new DeletionException("There are still animals assigned to this enclosure");
+            }
+        }else{
+            throw new NotFoundException("No enclosure to delete: " + enclosure.getId());
+        }
     }
 }

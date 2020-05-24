@@ -1,10 +1,9 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
-import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
-import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
-import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.*;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalTaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.TaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
@@ -21,6 +20,7 @@ import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomEmployeeService implements EmployeeService {
@@ -29,9 +29,11 @@ public class CustomEmployeeService implements EmployeeService {
     private final AnimalRepository animalRepository;
     private final UserService userService;
     private final TaskRepository taskRepository;
+    private final AnimalTaskRepository animalTaskRepository;
 
     @Autowired
-    public CustomEmployeeService(UserService userService, EmployeeRepository employeeRepository, AnimalRepository animalRepository, TaskRepository taskRepository) {
+    public CustomEmployeeService(UserService userService, EmployeeRepository employeeRepository, AnimalRepository animalRepository, TaskRepository taskRepository, AnimalTaskRepository animalTaskRepository) {
+        this.animalTaskRepository = animalTaskRepository;
         this.employeeRepository = employeeRepository;
         this.animalRepository = animalRepository;
         this.userService =userService;
@@ -121,6 +123,7 @@ public class CustomEmployeeService implements EmployeeService {
 
     @Override
     public void deleteEmployeeByUsername(String username){
+        LOGGER.debug("Deleting employee with username: " + username);
         if(this.findByUsername(username)!=null){
             employeeRepository.deleteById(username);
             if(this.userService.findApplicationUserByUsername(username)!=null){
@@ -198,5 +201,42 @@ public class CustomEmployeeService implements EmployeeService {
     public List<Employee> getAllJanitors() {
         LOGGER.debug("Getting all employees of Type Janitor");
         return employeeRepository.findAllByType(EmployeeType.JANITOR);
+    }
+
+    @Override
+    public boolean hasTaskAssignmentPermissions(String usernameEmployee, Long taskId) {
+        LOGGER.debug("Checking task permissions for username {} and task with id {}", usernameEmployee, taskId );
+        Optional<Employee> optionalEmployee = employeeRepository.findById(usernameEmployee);
+        if(optionalEmployee.isEmpty())
+            throw new NotFoundException("Username doesnt belong to an Employee");
+        Employee employee = optionalEmployee.get();
+        Optional<Task> optionalTask = taskRepository.findById(taskId);
+        if(optionalTask.isEmpty())
+            throw new NotFoundException("Could not find Task with given Id");
+        Task task = optionalTask.get();
+        Optional<AnimalTask> animalTask = animalTaskRepository.findById(task.getId());
+        if(animalTask.isPresent()){
+            return isAssignedToAnimal(employee.getUsername(), animalTask.get().getSubject().getId());
+        }
+        //TODO: if it is an Enclosure Task you have to add the check if there is Permission for this (so get the EnclosureTask and then check if there is an assignment relation between the Employee and the Enclosure Task)
+        return false;
+    }
+
+    @Override
+    public boolean canBeAssignedToTask(Employee employee, Task task) {
+        LOGGER.debug("Checking assignment permissions for username {} and task with id {}", employee.getUsername(), task.getId());
+        if(!employeeIsFreeBetweenStartingAndEndtime(employee, task))
+            return false;
+        Optional<AnimalTask> animalTask = animalTaskRepository.findById(task.getId());
+        if(animalTask.isPresent()){
+            if(employee.getType() == EmployeeType.DOCTOR)
+                return true;
+            if(employee.getType() == EmployeeType.ANIMAL_CARE)
+                return isAssignedToAnimal(employee.getUsername(), animalTask.get().getSubject().getId());
+            if(employee.getType() == EmployeeType.JANITOR)
+                return false;
+        }
+        //TODO: if it is an Enclosure Task you have to add the check if there is Permission for this (so get the EnclosureTask and then check if there is an assignment relation between the Employee and the Enclosure Task/return false if Doctor etc.)
+        return false;
     }
 }

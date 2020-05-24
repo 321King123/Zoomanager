@@ -1,10 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepm.groupphase.backend.exception.*;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
-import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
-import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
-import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
-import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalTaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureTaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.TaskRepository;
@@ -12,6 +9,7 @@ import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
+import org.aspectj.weaver.ast.Not;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,9 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
 import java.lang.invoke.MethodHandles;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomTaskService implements TaskService {
@@ -121,5 +121,63 @@ public class CustomTaskService implements TaskService {
         if(task.getStartTime().isAfter(task.getEndTime()))
             throw new ValidationException("Starting time of task cant be later than end time");
 
+    }
+
+    @Override
+    public void updateTask(Long taskId, Employee assignedEmployee) {
+        LOGGER.debug("Assigning Task with id {} to employee with username {}", taskId, assignedEmployee.getUsername());
+        Optional<Task> task = taskRepository.findById(taskId);
+        if(task.isEmpty())
+            throw new NotFoundException("Could not find Task with given Id");
+        Task foundTask = task.get();
+        if(foundTask.getStatus() != TaskStatus.NOT_ASSIGNED){
+            throw new IncorrectTypeException("Only currently unassigned Tasks can be assigned to an Employee");
+        }
+        Employee employee = employeeService.findByUsername(assignedEmployee.getUsername());
+        if(employeeService.canBeAssignedToTask(employee, foundTask)){
+            foundTask.setAssignedEmployee(employee);
+            foundTask.setStatus(TaskStatus.ASSIGNED);
+            taskRepository.save(foundTask);
+        }else{
+            throw new IncorrectTypeException("Employee does not fulfill assignment criteria");
+        }
+    }
+
+    public List<AnimalTask> getAllTasksOfAnimal(Long animalId){
+        LOGGER.debug("Get All Tasks belonging to Animal with id: {}", animalId);
+        return animalTaskRepository.findAllBySubject_Id(animalId);
+    }
+
+    @Override
+    public void deleteTask(Long taskId) {
+        LOGGER.debug("Deleting Task with id {}", taskId);
+        Optional<Task> task = taskRepository.findById(taskId);
+        if(task.isEmpty()) {
+            throw new NotFoundException("Could not find Task with given Id");
+        }
+        Optional<AnimalTask> animalTask = animalTaskRepository.findById(taskId);
+        if(animalTask.isEmpty()) {
+            //TODO: add handling of EnclosureTasks
+            throw new NotFoundException("Could not find Task with given Id");
+        }
+        AnimalTask foundAnimalTask = animalTask.get();
+        Task foundTask = task.get();
+        animalTaskRepository.delete(foundAnimalTask);
+        taskRepository.delete(foundTask);
+    }
+        
+    @Override
+    public List<AnimalTask> getAllAnimalTasksOfEmployee(String employeeUsername) {
+        LOGGER.debug("Get All Tasks belonging to employee with username: {}", employeeUsername);
+        Employee employee = employeeService.findByUsername(employeeUsername);
+        if(employee == null)
+            throw new NotFoundException("Could not find Employee with given Username");
+        List<Task> taskList = new LinkedList<>(taskRepository.findAllByAssignedEmployee(employee));
+        List<AnimalTask> animalTaskList = new LinkedList<>();
+        for(Task t:taskList){
+            Optional<AnimalTask> animalTask = animalTaskRepository.findById(t.getId());
+            animalTask.ifPresent(animalTaskList::add);
+        }
+        return animalTaskList;
     }
 }

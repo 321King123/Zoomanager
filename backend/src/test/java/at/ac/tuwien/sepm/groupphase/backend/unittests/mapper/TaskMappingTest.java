@@ -29,6 +29,8 @@ public class TaskMappingTest implements TestData {
 
     @Autowired
     AnimalTaskMapper animalTaskMapper;
+
+    @Autowired
     EnclosureTaskMapper enclosureTaskMapper;
 
     private Employee anmial_caretaker = Employee.builder()

@@ -69,6 +69,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY, request);
     }
 
+    @ExceptionHandler(value = {InvalidDatabaseStateException.class})
+    protected ResponseEntity<Object> handleInvalidDatabaseState(RuntimeException ex, WebRequest request) {
+        LOGGER.error(ex.getMessage());
+        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+    }
+
     @ExceptionHandler(value = NotAuthorisedException.class)
     protected ResponseEntity<Object> handleNotAuthorised(RuntimeException ex, WebRequest request) {
         LOGGER.warn(ex.getMessage());
