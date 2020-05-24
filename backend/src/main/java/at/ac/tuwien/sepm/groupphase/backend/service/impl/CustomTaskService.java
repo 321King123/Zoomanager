@@ -93,13 +93,27 @@ public class CustomTaskService implements TaskService {
         validateStartAndEndTime(task);
 
         //TO-DO: Type Validation
+        if(employee == null) {
+            task.setStatus(TaskStatus.NOT_ASSIGNED);
+        }else if(employee.getType() == EmployeeType.DOCTOR){
+            throw new IncorrectTypeException("A Doctor cant complete an Enclosure Task");
+        }else{
+//            if(employee.getType() == EmployeeType.ANIMAL_CARE && !employeeService.getAllAssignedToEnclosure(enclosure).contains(employee)){
+//                throw new NotAuthorisedException("You cant assign an animal caretaker that is not assigned to an animal in the Enclosure.");
+//            }
+            task.setStatus(TaskStatus.ASSIGNED);
+        }
+
+        if(task.getStatus() == TaskStatus.ASSIGNED && !employeeService.employeeIsFreeBetweenStartingAndEndtime(employee, task)){
+            throw new NotFreeException("Employee already works on a task in the given time");
+        }
+
         task.setStatus(TaskStatus.ASSIGNED);
 
         Task createdTask = taskRepository.save(task);
 
-        EnclosureTask enclosureTask = enclosureTaskRepository.save(EnclosureTask.builder().id(createdTask.getId()).subject(enclosure).build());
-        enclosureTask.setTask(createdTask);
-        enclosureTask.setSubject(enclosure);
+        enclosureTaskRepository.save(EnclosureTask.builder().id(createdTask.getId()).subject(enclosure).build());
+        EnclosureTask enclosureTask = enclosureTaskRepository.findEnclosureTaskById(createdTask.getId());
         return enclosureTask;
     }
 

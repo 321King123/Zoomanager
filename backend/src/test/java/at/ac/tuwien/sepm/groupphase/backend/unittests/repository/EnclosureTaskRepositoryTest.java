@@ -153,7 +153,7 @@ public class EnclosureTaskRepositoryTest {
     }
 
     @Test
-    public void givenNothing_searchingForEnclosureTasksAssignedToEnclosure_thenFindAllEnclosureTasks() {
+    public void givenNothing_searchingForEnclosureTasksAssignedToEnclosure_thenFindAllAssignedEnclosureTasks() {
         userLoginRepository.save(animal_caretaker_login);
         employeeRepository.save(anmial_caretaker);
         Employee caretaker = employeeRepository.findAll().get(0);
@@ -189,4 +189,5 @@ public class EnclosureTaskRepositoryTest {
 
         assertEquals(3, etl.size());
     }
+
 }
