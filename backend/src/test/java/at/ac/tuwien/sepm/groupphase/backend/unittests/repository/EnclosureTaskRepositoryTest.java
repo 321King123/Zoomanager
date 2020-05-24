@@ -1,11 +1,8 @@
 package at.ac.tuwien.sepm.groupphase.backend.unittests.repository;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
-import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
-import org.junit.Rule;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 import static at.ac.tuwien.sepm.groupphase.backend.basetest.TestData.*;
@@ -107,7 +103,7 @@ public class EnclosureTaskRepositoryTest {
         taskRepository.deleteAll();
         employeeRepository.deleteAll();
         userLoginRepository.deleteAll();
-        enclosureTaskRepository.deleteAll();
+        enclosureTaskRepository.deleteAllAndBaseTasks();
     }
 
     @Test
@@ -230,7 +226,7 @@ public class EnclosureTaskRepositoryTest {
 
         assertEquals(3, etl.size());
 
-        enclosureTaskRepository.deleteAllBySubject_Id(enclosure.getId());
+        enclosureTaskRepository.deleteAllAndBaseTasksBySubject_Id(enclosure.getId());
         etl = enclosureTaskRepository.findAllEnclosureTasksBySubject_Id(enclosure.getId());
         assertEquals(0, etl.size());
 
@@ -276,7 +272,7 @@ public class EnclosureTaskRepositoryTest {
 
         assertEquals(3, etl.size());
 
-        enclosureTaskRepository.deleteAll();
+        enclosureTaskRepository.deleteAllAndBaseTasks();
         etl = enclosureTaskRepository.findAllEnclosureTasksBySubject_Id(enclosure.getId());
         assertEquals(0, etl.size());
 
@@ -316,13 +312,13 @@ public class EnclosureTaskRepositoryTest {
 
         assertEquals(2, etl.size());
 
-        enclosureTaskRepository.deleteEnclosureTaskById(createdTask.getId());
+        enclosureTaskRepository.deleteEnclosureTaskAndBaseTaskById(createdTask.getId());
         etl = enclosureTaskRepository.findAllEnclosureTasksBySubject_Id(enclosure.getId());
         assertEquals(1, etl.size());
 
         List<Task> tl = taskRepository.findAll();
         assertEquals(1, tl.size());
-        
+
         assertNull(enclosureTaskRepository.findEnclosureTaskById(createdTask.getId()));
 
         assertEquals(true, taskRepository.findById(createdTask.getId()).isEmpty());
