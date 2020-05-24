@@ -156,20 +156,16 @@ public class CustomTaskService implements TaskService {
             throw new NotFoundException("Could not find Task with given Id");
         }
         Optional<AnimalTask> animalTask = animalTaskRepository.findById(taskId);
-        if(animalTask.isEmpty()) {
-            throw new NotFoundException("Could not find Animal Task with given Id");
-        } else {
+        Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findById(taskId);
+
+        if(!animalTask.isEmpty() && !enclosureTask.isEmpty()) {
+            throw new InvalidDatabaseStateException("Task is both Animal and Enclosure Task, this should not happen.");
+        } else if (!animalTask.isEmpty()){
             AnimalTask foundAnimalTask = animalTask.get();
             Task foundTask = task.get();
             animalTaskRepository.delete(foundAnimalTask);
             taskRepository.delete(foundTask);
-        }
-
-        //TODO: add handling of EnclosureTasks
-        Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findById(taskId);
-        if(enclosureTask.isEmpty()) {
-            throw new NotFoundException("Could not find Enclosure Task with given Id");
-        } else {
+        } else if (!enclosureTask.isEmpty()) {
             enclosureTaskRepository.deleteEnclosureTaskAndBaseTaskById(taskId);
         }
     }
