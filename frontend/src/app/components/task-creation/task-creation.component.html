@@ -32,8 +32,11 @@
           </div>
         </div>
         <div class="row p-3 justify-content-around">
-          <button (click)="setToAnimalTask()" type="button" class="btn-dark rounded">Animal Task</button>
-          <button (click)="setToEnclosureTask()" type="button" class="btn-dark rounded">Enclosure Task</button>
+          <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            <button (click)="setToAnimalTask()" type="radio" class="btn btn-secondary">Animal Task</button>
+            <button (click)="setToEnclosureTask()" type="radio" class="btn btn-secondary">Enclosure Task</button>
+          </div>
+
         </div>
         <div class="row p-3">
           <div class="col">
@@ -83,7 +86,7 @@
                   </div>
                 </div>
 
-<!--                Subject Selection-->
+                <!--                Subject Selection-->
                 <div *ngIf="isAnimalTask == true" class="form-group col-6 select-animal">
                   <label for="animalId">Select Animal</label>
                   <select (change)="getEmployeesOfAnimal()" name="animalId" formControlName="subjectId"
@@ -129,7 +132,17 @@
                     <option disabled [ngValue]="null">Select employee</option>
                     <ng-container *ngIf="employeesFound">
                       <option *ngFor="let employee of employeesOfTaskSubject;" [ngValue]="employee.username">
-                        {{employee.username}}; {{employee.name}}
+                        {{employee.username}}; {{employee.name}}; caretaker
+                      </option>
+                    </ng-container>
+                    <ng-container *ngIf="isAnimalTask">
+                      <option *ngFor="let doctor in doctors" [ngValue]="doctor.username">
+                        {{doctor.username}}; {{doctor.name}}; doctor
+                      </option>
+                    </ng-container>
+                    <ng-container *ngIf="isEnclosureTask">
+                      <option *ngFor="let janitor in janitors">
+                        {{janitor.username}}; {{janitor.name}}; janitor
                       </option>
                     </ng-container>
                   </select>

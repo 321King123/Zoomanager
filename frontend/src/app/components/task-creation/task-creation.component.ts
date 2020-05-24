@@ -33,6 +33,7 @@ export class TaskCreationComponent implements OnInit {
   @Input() enclosuresOfEmployee;
   employeesOfTaskSubject: Employee[];
   doctors: Employee[];
+  janitors: Employee[];
   employeesFound = false;
 
   isEnclosureTask = false;
@@ -44,6 +45,7 @@ export class TaskCreationComponent implements OnInit {
 
   ngOnInit(): void {
     this.getDoctors();
+    this.getJanitors();
     this.taskCreationForm = this.formBuilder.group({
       title: ['', Validators.required],
       description: ['', Validators.required],
@@ -69,6 +71,17 @@ export class TaskCreationComponent implements OnInit {
     this.employeeService.getDoctors().subscribe(
       (doctors) => {
         this.doctors = doctors;
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  getJanitors() {
+    this.employeeService.getJanitors().subscribe(
+      (janitors) => {
+        this.janitors = janitors;
       },
       error => {
         this.defaultServiceErrorHandling(error);
