@@ -44,7 +44,7 @@ public interface EnclosureTaskRepository extends JpaRepository<EnclosureTask, Lo
     EnclosureTask findEnclosureTaskById(@Param("taskId") long taskIdLong);
 
     @Transactional
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query(value = "DELETE " +
         "FROM Task t " +
         "WHERE t.ID IN (SELECT et.ID FROM ENCLOSURE_TASK et WHERE et.SUBJECT_ID=:enclosureId); " +
@@ -53,6 +53,33 @@ public interface EnclosureTaskRepository extends JpaRepository<EnclosureTask, Lo
         "WHERE et.SUBJECT_ID=:enclosureId",
         nativeQuery = true)
     void deleteAllBySubject_Id(@Param("enclosureId")long enclosureIdLong);
+
+
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "DELETE " +
+        "FROM Task t " +
+        "WHERE t.ID IN (SELECT et.ID FROM ENCLOSURE_TASK et); " +
+        "DELETE " +
+        "FROM ENCLOSURE_TASK",
+        nativeQuery = true)
+    void deleteAll();
+
+
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value =
+        "DELETE " +
+            "FROM ENCLOSURE_TASK et " +
+            "WHERE et.ID=:ecTaskId ; "
+            +
+            "DELETE " +
+            "FROM TASK t " +
+            "WHERE t.ID =:ecTaskId ; "
+        ,
+        nativeQuery = true)
+    void deleteEnclosureTaskById(@Param("ecTaskId")long enclosureTaskIdLong);
+
 
 
 }

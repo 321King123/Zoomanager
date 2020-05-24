@@ -1,8 +1,11 @@
 package at.ac.tuwien.sepm.groupphase.backend.unittests.repository;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
+import org.junit.Rule;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,11 +16,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 import static at.ac.tuwien.sepm.groupphase.backend.basetest.TestData.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 @ExtendWith(SpringExtension.class)
 // This test slice annotation is used instead of @SpringBootTest to load only repository beans instead of
@@ -233,6 +236,96 @@ public class EnclosureTaskRepositoryTest {
 
         List<Task> tl = taskRepository.findAll();
         assertEquals(0, tl.size());
+
+    }
+
+    @Test
+    public void givenNothing_deletingAllEnclosureTasks_thenDeleteAllAssignedEnclosureTasksAndTasks() {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        Employee caretaker = employeeRepository.findAll().get(0);
+
+        task_assigned.setAssignedEmployee(caretaker);
+
+        Enclosure enclosure = enclosureRepository.save(barn);
+
+        Task createdTask = taskRepository.save(task_assigned);
+        EnclosureTask ec1 = EnclosureTask.builder()
+            .id(createdTask.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec1);
+
+        Task createdTask2 = taskRepository.save(task_assigned2);
+        EnclosureTask ec2 = EnclosureTask.builder()
+            .id(createdTask2.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec2);
+
+        Task createdTask3 = taskRepository.save(task_assigned3);
+        EnclosureTask ec3 = EnclosureTask.builder()
+            .id(createdTask3.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec3);
+
+
+        List<EnclosureTask> etl = enclosureTaskRepository
+            .findAllEnclosureTasksBySubject_Id(enclosure.getId());
+
+        assertEquals(3, etl.size());
+
+        enclosureTaskRepository.deleteAll();
+        etl = enclosureTaskRepository.findAllEnclosureTasksBySubject_Id(enclosure.getId());
+        assertEquals(0, etl.size());
+
+        List<Task> tl = taskRepository.findAll();
+        assertEquals(0, tl.size());
+
+    }
+
+    @Test
+    public void givenValidId_deletingEnclosureTasksById_thenDeleteEnclosureTasksAndTasksWithGivenId() {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        Employee caretaker = employeeRepository.findAll().get(0);
+
+        task_assigned.setAssignedEmployee(caretaker);
+
+        Enclosure enclosure = enclosureRepository.save(barn);
+
+        Task createdTask = taskRepository.save(task_assigned);
+        EnclosureTask ec1 = EnclosureTask.builder()
+            .id(createdTask.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec1);
+
+        Task createdTask2 = taskRepository.save(task_assigned2);
+        EnclosureTask ec2 = EnclosureTask.builder()
+            .id(createdTask2.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec2);
+
+
+
+        List<EnclosureTask> etl = enclosureTaskRepository
+            .findAllEnclosureTasksBySubject_Id(enclosure.getId());
+
+        assertEquals(2, etl.size());
+
+        enclosureTaskRepository.deleteEnclosureTaskById(createdTask.getId());
+        etl = enclosureTaskRepository.findAllEnclosureTasksBySubject_Id(enclosure.getId());
+        assertEquals(1, etl.size());
+
+        List<Task> tl = taskRepository.findAll();
+        assertEquals(1, tl.size());
+        
+        assertNull(enclosureTaskRepository.findEnclosureTaskById(createdTask.getId()));
+
+        assertEquals(true, taskRepository.findById(createdTask.getId()).isEmpty());
 
     }
 }
