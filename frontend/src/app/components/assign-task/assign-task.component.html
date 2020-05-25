@@ -35,9 +35,9 @@
             </div>
           </div>
         </div>
-        <label>Select employee to assign task {{task.title}}</label>
+        <label>Select employee to assign task</label>
         <select [(ngModel)]="selectedEmployee" name="assignedEmployeeUsername"
-                class="form-control" id="{{task.id}}"
+                class="form-control" id="iddddd"
                 aria-describedby="assignedEmployeeUsernameHelp">
           <option disabled [ngValue]="null">Select employee</option>
           <ng-container *ngIf="employees!=null">
@@ -55,7 +55,6 @@
               {{employee.username}}; {{employee.name}}
             </option>
           </ng-container>
-
         </select>
       </div>
       <div class="modal-footer">

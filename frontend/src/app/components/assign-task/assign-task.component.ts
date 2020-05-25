@@ -43,7 +43,8 @@ export class AssignTaskComponent implements OnInit {
   }
 
   assign() {
-    this.taskService.assignTask(this.task.id, this.selectedEmployee).subscribe(
+    const taskId = (this.task) ? this.task.id : this.enclosureTask.id;
+    this.taskService.assignTask(taskId, this.selectedEmployee).subscribe(
       (res: any) => {
         this.success = true;
         this.enable = false;
