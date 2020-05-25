@@ -6,6 +6,7 @@ import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
+import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,16 +129,18 @@ public class CustomEmployeeService implements EmployeeService {
     @Override
     public void deleteEmployeeByUsername(String username){
         LOGGER.debug("Deleting employee with username: " + username);
-        if(this.findByUsername(username)!=null){
-            employeeRepository.deleteById(username);
-            if(this.userService.findApplicationUserByUsername(username)!=null){
-                this.userService.deleteUser(username);
-            }else{
-                throw new NotFoundException("No user to delete: " + username);
-            }
-        }else{
+        Employee employee = findByUsername(username);
+        if(employee == null)
             throw new NotFoundException("No employee to delete: " + username);
+
+        List<Task> tasks=taskRepository.findAllByAssignedEmployee(employee);
+        for (Task t:tasks){
+            t.setStatus(TaskStatus.NOT_ASSIGNED);
+            t.setAssignedEmployee(null);
+            taskRepository.save(t);
         }
+        employeeRepository.delete(employee);
+        userService.deleteUser(username);
     }
 
     @Override
