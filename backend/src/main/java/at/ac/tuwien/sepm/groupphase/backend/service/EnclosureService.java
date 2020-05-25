@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -20,6 +21,14 @@ public interface EnclosureService {
      * @return Enclosure with the specified id
      */
     Enclosure findById(long id);
+
+    /**
+     * Find enclosure with a specific id without fetching Tasks or Animals
+     *
+     * @param id of the enclosure
+     * @return enclosure with the specified id, if none exist null will be returned
+     */
+    Enclosure findById_WithoutTasksAndAnimals(long id);
 
     /**
      * Creates a new Enclosure in the Database

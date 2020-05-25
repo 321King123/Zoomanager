@@ -8,6 +8,9 @@ import {Animal} from '../../dtos/animal';
 import {AnimalService} from '../../services/animal.service';
 import {AnimalTask} from '../../dtos/animalTask';
 import {TaskService} from '../../services/task.service';
+import {Enclosure} from '../../dtos/enclosure';
+import {FormBuilder} from '@angular/forms';
+import {EnclosureService} from '../../services/enclosure.service';
 
 @Component({
   selector: 'app-employee-view',
@@ -26,12 +29,15 @@ export class EmployeeViewComponent implements OnInit {
   assignedAnimals: Animal[];
   tasks: AnimalTask[];
 
+  enclosuresFound = false;
+  enclosuresOfEmployee: Enclosure[];
+
   taskListMode: boolean;
   animalListMode: boolean;
 
   constructor(private employeeService: EmployeeService, private authService: AuthService, private route: ActivatedRoute,
               private _location: Location, private animalService: AnimalService, private router: Router,
-              private taskService: TaskService) {
+              private taskService: TaskService, private enclosureService: EnclosureService) {
   }
 
   ngOnInit(): void {
@@ -76,7 +82,21 @@ export class EmployeeViewComponent implements OnInit {
           this.showAssignedAnimalsEmployee();
           this.loadTasksOfEmployee();
           this.toAnimalMode();
+          this.getEnclosuresOfEmployee();
         }
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  getEnclosuresOfEmployee() {
+    this.enclosuresFound = false;
+    this.enclosureService.getEnclosuresOfEmployee(this.employee.username).subscribe(
+      (enclosures) => {
+        this.enclosuresOfEmployee = enclosures;
+        this.enclosuresFound = true;
       },
       error => {
         this.defaultServiceErrorHandling(error);

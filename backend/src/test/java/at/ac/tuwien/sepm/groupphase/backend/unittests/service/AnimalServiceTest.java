@@ -40,7 +40,6 @@ public class AnimalServiceTest implements TestData {
 
     @Test
     public void saveAnimalbyGivingOnlyMandatoryValues_thenFindAnimalById() {
-
         Mockito.when(animalRepository.save(animal)).thenReturn(animal);
 
         assertAll(

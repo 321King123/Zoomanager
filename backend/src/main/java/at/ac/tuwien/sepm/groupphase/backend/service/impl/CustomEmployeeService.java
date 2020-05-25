@@ -1,14 +1,8 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
+import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.*;
-import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
-import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalTaskRepository;
-import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
-import at.ac.tuwien.sepm.groupphase.backend.repository.TaskRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
@@ -22,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,14 +28,21 @@ public class CustomEmployeeService implements EmployeeService {
     private final UserService userService;
     private final TaskRepository taskRepository;
     private final AnimalTaskRepository animalTaskRepository;
+    private final EnclosureTaskRepository enclosureTaskRepository;
+    private final EnclosureRepository enclosureRepository;
 
     @Autowired
-    public CustomEmployeeService(UserService userService, EmployeeRepository employeeRepository, AnimalRepository animalRepository, TaskRepository taskRepository, AnimalTaskRepository animalTaskRepository) {
+    public CustomEmployeeService(UserService userService, EmployeeRepository employeeRepository,
+                                 AnimalRepository animalRepository, TaskRepository taskRepository,
+                                 AnimalTaskRepository animalTaskRepository, EnclosureTaskRepository enclosureTaskRepository,
+                                 EnclosureRepository enclosureRepository) {
         this.animalTaskRepository = animalTaskRepository;
         this.employeeRepository = employeeRepository;
         this.animalRepository = animalRepository;
         this.userService =userService;
         this.taskRepository = taskRepository;
+        this.enclosureTaskRepository = enclosureTaskRepository;
+        this.enclosureRepository = enclosureRepository;
     }
 
     @Override
@@ -80,6 +82,25 @@ public class CustomEmployeeService implements EmployeeService {
             throw new NotFoundException("No Animals assigned to " +employeeUsername);
         return animals;
     }
+
+    @Override
+    public List<Enclosure> findAssignedEnclosures(String employeeUsername){
+        LOGGER.debug("Getting List of all enclosures assigned to " + employeeUsername);
+        Employee employee = employeeRepository.findEmployeeByUsername(employeeUsername);
+
+        List<Animal> animals = animalRepository.findAllByCaretakers(employee);
+        List  <Enclosure> enclosures = new LinkedList<>();
+
+        if(animals.isEmpty())
+            throw new NotFoundException("No Animals assigned to " + employeeUsername);
+        for (Animal a:animals) {
+            if(a.getEnclosure()!=null){
+                enclosures.add(a.getEnclosure());
+            }
+        }
+        return enclosures;
+    }
+
 
     @Override
     public void assignAnimal(String employeeUsername, long animalId) {
@@ -153,15 +174,42 @@ public class CustomEmployeeService implements EmployeeService {
     }
 
     @Override
+    public boolean isAssignedToEnclosure(String username, Long enclosureId) {
+        LOGGER.debug("Checking if " + username + " is assigned to enclosure with id " + enclosureId);
+        for(Enclosure e: findAssignedEnclosures(username)){
+            if(e.getId().equals(enclosureId))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
     public List<Employee> getAllAssignedToAnimal(Animal animal) {
         LOGGER.debug("Getting all employees assigned to animal with id " + animal.getId());
         return employeeRepository.findByAssignedAnimalsContains(animal);
     }
 
+
+    @Override
+    public List<Employee> getAllAssignedToEnclosure(Enclosure enclosure) {
+        LOGGER.debug("Getting all employees assigned to enclosure with id " + enclosure.getId());
+
+        List<Employee> assignedEmployees = employeeRepository.getEmployeesByEnclosureID(enclosure.getId());
+
+        return assignedEmployees;
+    }
+
+
     @Override
     public List<Employee> getAllDocotrs() {
         LOGGER.debug("Getting all employees of Type Doctor");
         return employeeRepository.findAllByType(EmployeeType.DOCTOR);
+    }
+
+    @Override
+    public List<Employee> getAllJanitors() {
+        LOGGER.debug("Getting all employees of Type Janitor");
+        return employeeRepository.findAllByType(EmployeeType.JANITOR);
     }
 
     @Override
@@ -179,7 +227,13 @@ public class CustomEmployeeService implements EmployeeService {
         if(animalTask.isPresent()){
             return isAssignedToAnimal(employee.getUsername(), animalTask.get().getSubject().getId());
         }
-        //TODO: if it is an Enclosure Task you have to add the check if there is Permission for this (so get the EnclosureTask and then check if there is an assignment relation between the Employee and the Enclosure Task)
+
+        //TODO: if it is an Enclosure Task you have to add the check if there is Permission for this (so get the
+        // EnclosureTask and then check if there is an assignment relation between the Employee and the Enclosure Task)
+        Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findById(task.getId());
+        if(enclosureTask.isPresent()){
+            return isAssignedToEnclosure(employee.getUsername(), enclosureTask.get().getSubject().getId());
+        }
         return false;
     }
 
@@ -197,7 +251,19 @@ public class CustomEmployeeService implements EmployeeService {
             if(employee.getType() == EmployeeType.JANITOR)
                 return false;
         }
-        //TODO: if it is an Enclosure Task you have to add the check if there is Permission for this (so get the EnclosureTask and then check if there is an assignment relation between the Employee and the Enclosure Task/return false if Doctor etc.)
+
+        //TODO: if it is an Enclosure Task you have to add the check if there is Permission for this (so get the
+        // EnclosureTask and then check if there is an assignment relation between the Employee and the Enclosure Task/return false if Doctor etc.)
+        Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findById(task.getId());
+        if(enclosureTask.isPresent()){
+            if(employee.getType() == EmployeeType.JANITOR)
+                return true;
+            if(employee.getType() == EmployeeType.ANIMAL_CARE)
+                return isAssignedToEnclosure(employee.getUsername(), enclosureTask.get().getSubject().getId());
+            if(employee.getType() == EmployeeType.DOCTOR)
+                return false;
+        }
+
         return false;
     }
 }

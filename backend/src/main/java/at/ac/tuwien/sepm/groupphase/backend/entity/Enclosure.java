@@ -38,5 +38,28 @@ public class Enclosure {
 
     @OneToMany(mappedBy = "enclosure")
     private List<Animal> animals;
+
+    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true)
+    private List<EnclosureTask> tasks;
+
+    public Enclosure(Long id, String name, String description, String publicInfo, byte[] picture) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.publicInfo = publicInfo;
+        this.picture = picture;
+    }
+
+    public Enclosure(Enclosure enclosure) {
+        this.id = enclosure.id;
+        this.name = enclosure.name;
+        this.description = enclosure.description;
+        this.publicInfo = enclosure.publicInfo;
+        this.picture = enclosure.picture;
+        this.animals = enclosure.animals;
+        this.tasks = enclosure.tasks;
+    }
 }
 

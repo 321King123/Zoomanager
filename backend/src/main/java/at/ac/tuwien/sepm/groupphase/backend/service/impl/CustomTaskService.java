@@ -1,11 +1,9 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
+import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.*;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalTaskRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureTaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.TaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
@@ -33,11 +31,15 @@ public class CustomTaskService implements TaskService {
 
     private final AnimalTaskRepository animalTaskRepository;
 
+    private final EnclosureTaskRepository enclosureTaskRepository;
+
     @Autowired
-    public CustomTaskService(TaskRepository taskRepository, AnimalTaskRepository animalTaskRepository, EmployeeService employeeService) {
+    public CustomTaskService(TaskRepository taskRepository, AnimalTaskRepository animalTaskRepository,
+                             EmployeeService employeeService, EnclosureTaskRepository enclosureTaskRepository) {
         this.taskRepository = taskRepository;
         this.animalTaskRepository = animalTaskRepository;
         this.employeeService = employeeService;
+        this.enclosureTaskRepository = enclosureTaskRepository;
     }
 
     @Override
@@ -48,8 +50,7 @@ public class CustomTaskService implements TaskService {
         if(animal == null)
             throw new NotFoundException("Could not find animal with given Id");
 
-        if(task.getStartTime().isAfter(task.getEndTime()))
-            throw new ValidationException("Starting time of task cant be later than end time");
+        validateStartAndEndTime(task);
 
         if(employee == null) {
             task.setStatus(TaskStatus.NOT_ASSIGNED);
@@ -79,6 +80,46 @@ public class CustomTaskService implements TaskService {
         LOGGER.debug("Deleting Animal Task of Animal with Id " + animalId);
         List<AnimalTask> assignedAnimalTasks = animalTaskRepository.findAllBySubject_Id(animalId);
         animalTaskRepository.deleteAll(assignedAnimalTasks);
+    }
+
+    @Override
+    public EnclosureTask createEnclosureTask(Task task, Enclosure enclosure) {
+        LOGGER.debug("Creating new Animal Task");
+        Employee employee = task.getAssignedEmployee();
+
+        if(enclosure == null)
+            throw new NotFoundException("Could not find enclosure with given Id");
+
+        validateStartAndEndTime(task);
+
+        if(employee == null) {
+            task.setStatus(TaskStatus.NOT_ASSIGNED);
+        }else if(employee.getType() == EmployeeType.DOCTOR){
+            throw new IncorrectTypeException("A Doctor cant complete an Enclosure Task");
+        }else{
+            if(employee.getType() == EmployeeType.ANIMAL_CARE
+                && !employeeService.isAssignedToEnclosure(employee.getUsername(), enclosure.getId())){
+                throw new NotAuthorisedException("You cant assign an animal caretaker that is not assigned to an animal in the Enclosure.");
+            }
+            task.setStatus(TaskStatus.ASSIGNED);
+        }
+
+        if(task.getStatus() == TaskStatus.ASSIGNED && !employeeService.employeeIsFreeBetweenStartingAndEndtime(employee, task)){
+            throw new NotFreeException("Employee already works on a task in the given time");
+        }
+
+        task.setStatus(TaskStatus.ASSIGNED);
+        Task createdTask = taskRepository.save(task);
+
+        enclosureTaskRepository.save(EnclosureTask.builder().id(createdTask.getId()).subject(enclosure).build());
+        EnclosureTask enclosureTask = enclosureTaskRepository.findEnclosureTaskById(createdTask.getId());
+        return enclosureTask;
+    }
+
+    private void validateStartAndEndTime(Task task) throws ValidationException {
+        if(task.getStartTime().isAfter(task.getEndTime()))
+            throw new ValidationException("Starting time of task cant be later than end time");
+
     }
 
     @Override
@@ -114,16 +155,20 @@ public class CustomTaskService implements TaskService {
             throw new NotFoundException("Could not find Task with given Id");
         }
         Optional<AnimalTask> animalTask = animalTaskRepository.findById(taskId);
-        if(animalTask.isEmpty()) {
-            //TODO: add handling of EnclosureTasks
-            throw new NotFoundException("Could not find Task with given Id");
+        Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findById(taskId);
+
+        if(!animalTask.isEmpty() && !enclosureTask.isEmpty()) {
+            throw new InvalidDatabaseStateException("Task is both Animal and Enclosure Task, this should not happen.");
+        } else if (!animalTask.isEmpty()){
+            AnimalTask foundAnimalTask = animalTask.get();
+            Task foundTask = task.get();
+            animalTaskRepository.delete(foundAnimalTask);
+            taskRepository.delete(foundTask);
+        } else if (!enclosureTask.isEmpty()) {
+            enclosureTaskRepository.deleteEnclosureTaskAndBaseTaskById(taskId);
         }
-        AnimalTask foundAnimalTask = animalTask.get();
-        Task foundTask = task.get();
-        animalTaskRepository.delete(foundAnimalTask);
-        taskRepository.delete(foundTask);
     }
-        
+
     @Override
     public List<AnimalTask> getAllAnimalTasksOfEmployee(String employeeUsername) {
         LOGGER.debug("Get All Tasks belonging to employee with username: {}", employeeUsername);
