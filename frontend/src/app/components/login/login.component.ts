@@ -51,8 +51,7 @@ export class LoginComponent implements OnInit {
         if (this.authService.getUserRole() === 'ADMIN') {
           this.router.navigate(['/employee']);
         } else {
-          localStorage.setItem('currentUser', JSON.stringify(authRequest.username));
-          this.router.navigate(['/employee-view/' + authRequest.username]);
+          this.router.navigate(['/personal-info']);
         }
       },
       error => {

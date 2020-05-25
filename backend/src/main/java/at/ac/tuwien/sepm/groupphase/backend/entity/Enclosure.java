@@ -1,68 +1,65 @@
 package at.ac.tuwien.sepm.groupphase.backend.entity;
+
+import lombok.*;
+
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.*;
 
 @Entity
+@Getter
+@Setter
+@EqualsAndHashCode(exclude = "animals")
+@ToString(exclude = "animals")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Enclosure {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(nullable = false)
     private String name;
 
+    @Lob
+    @Column
+    private String description;
 
-    //private List<Animal> animals;
+    @Lob
+    @Column
+    private String publicInfo;
 
-    public Long getId() { return id; }
+    @Lob
+    @Column
+    private byte[] picture;
 
-    public void setId(Long id) { this.id = id; }
+    @OneToMany(mappedBy = "enclosure")
+    private List<Animal> animals;
 
-    public String getName() { return name; }
+    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true)
+    private List<EnclosureTask> tasks;
 
-    public void setName(String name) { this.name = name; }
+    public Enclosure(Long id, String name, String description, String publicInfo, byte[] picture) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.publicInfo = publicInfo;
+        this.picture = picture;
+    }
 
-    //public List<Animal> getAnimals() { return animals;  }
-
-    //public void setAnimals(List<Animal> animals) { this.animals = animals; }
-
-
-    public static final class EnclosureBuilder {
-
-        private Long id;
-        private String name;
-        //private List<Animal> animals;
-
-        private EnclosureBuilder() { }
-
-        public static EnclosureBuilder anEnclosure() { return new EnclosureBuilder(); }
-
-        public EnclosureBuilder withId(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public EnclosureBuilder withName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        /*public EnclosureBuilder withAnimals(List<Animal> animals) {
-            this.animals = animals;
-            return this;
-        }*/
-
-        public Enclosure build() {
-            Enclosure enclosure = new Enclosure();
-            enclosure.setId(id);
-            enclosure.setName(name);
-           // enclosure.setAnimals(animals);
-            return enclosure;
-        }
-
+    public Enclosure(Enclosure enclosure) {
+        this.id = enclosure.id;
+        this.name = enclosure.name;
+        this.description = enclosure.description;
+        this.publicInfo = enclosure.publicInfo;
+        this.picture = enclosure.picture;
+        this.animals = enclosure.animals;
+        this.tasks = enclosure.tasks;
     }
 }
 

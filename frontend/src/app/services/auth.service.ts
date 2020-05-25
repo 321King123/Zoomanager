@@ -37,7 +37,6 @@ export class AuthService {
 
   logoutUser() {
     console.log('Logout');
-    localStorage.removeItem('currentUser');
     localStorage.removeItem('authToken');
   }
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Globals} from '../global/globals';
 import {Employee} from '../dtos/employee';
 import {Observable} from 'rxjs';
@@ -13,7 +13,8 @@ export class EmployeeService {
 
   private employeeBaseUri: string = this.globals.backendUri + '/employee';
 
-  constructor(private httpClient: HttpClient, private globals: Globals) { }
+  constructor(private httpClient: HttpClient, private globals: Globals) {
+  }
 
   // /**
   //  * Loads all Employees from the backend
@@ -46,6 +47,26 @@ export class EmployeeService {
   getAllEmployees(): Observable<Employee[]> {
     console.log('Getting all employees');
     return this.httpClient.get<Employee[]>(this.employeeBaseUri);
+  }
+
+  getDoctors(): Observable<Employee[]> {
+    console.log('Getting all doctors.');
+    return this.httpClient.get<Employee[]>(this.employeeBaseUri + '/doctors');
+  }
+
+  getJanitors(): Observable<Employee[]> {
+    console.log('Getting all janitors.');
+    return this.httpClient.get<Employee[]>(this.employeeBaseUri + '/janitors');
+  }
+
+  getEmployeesOfAnimal(animalId): Observable<Employee[]> {
+    console.log('Getting employees of animal ' + JSON.stringify(animalId));
+    return this.httpClient.get<Employee[]>(this.employeeBaseUri + '/assigned/animal/' + animalId);
+  }
+
+  getEmployeesOfEnclosure(enclosureId): Observable<Employee[]> {
+    console.log('Getting employees of enclosure ' + JSON.stringify(enclosureId));
+    return this.httpClient.get<Employee[]>(this.employeeBaseUri + '/assigned/enclosure/' + enclosureId);
   }
 
   /**
@@ -84,5 +105,13 @@ export class EmployeeService {
 
   getEmployeeByUsername(username: string): Observable<Employee> {
     return this.httpClient.get<Employee>(this.employeeBaseUri + '/' + username);
+  }
+
+  getPersonalInfo(): Observable<Employee> {
+    return this.httpClient.get<Employee>(this.employeeBaseUri + '/info');
+  }
+
+  deleteEmployee(username: string): Observable<Employee> {
+    return this.httpClient.delete<Employee>(this.employeeBaseUri + '/' + username);
   }
 }

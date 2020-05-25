@@ -1,7 +1,8 @@
 logging:
   file.name: ./log/backend-test.log
   level:
-    root: DEBUG
+    root: INFO
+
 
 spring:
   datasource:

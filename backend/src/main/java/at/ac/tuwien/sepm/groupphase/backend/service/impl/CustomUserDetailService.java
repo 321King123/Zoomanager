@@ -73,4 +73,8 @@ public class CustomUserDetailService implements UserService {
         throw new AlreadyExistsException("User with such username already exists.");
     }
 
+    @Override
+    public void deleteUser(String userName) {
+        userRepository.deleteById(userName);
+    }
 }

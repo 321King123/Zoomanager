@@ -7,6 +7,7 @@
 
 
 <div *ngIf="isAdmin()">
+  <app-animal-list (deleteAnimal)="deleteAnimal($event)" [animalPage]="true" [animals]="animals"></app-animal-list>
 
   <div class="employee-creation-header row">
     <div class="col-12">
@@ -32,7 +33,7 @@
           <label for="inputSpecies">Species</label>
           <input type="text" name="species" formControlName="species" class="form-control" id="inputSpecies"
                  aria-describedby="speciesHelp" placeholder="Enter species">
-          <div *ngIf="submittedAnimal && animalCreationForm.controls.description.errors" class="error">
+          <div *ngIf="submittedAnimal && animalCreationForm.controls.species.errors" class="error">
             <small class="form-text text-warning" *ngIf="animalCreationForm.controls.species.errors.required">Species is
               required!
             </small>
@@ -57,7 +58,7 @@
                     id="inputDescription"
                     aria-describedby="descriptionHelp" placeholder="Enter description"></textarea>
           <div *ngIf="submittedAnimal && animalCreationForm.controls.description.errors" class="error">
-            <small class="form-text text-warning" *ngIf="animalCreationForm.controls.name.errors.required">Description
+            <small class="form-text text-warning" *ngIf="animalCreationForm.controls.description.errors.required">Description
               is required!
             </small>
           </div>
@@ -73,12 +74,10 @@
             </small>
           </div>
         </div>
+
       </div>
 
       <button type="button" (click)="addAnimal()" class="btn btn-success my-1 float-right">Add Animal</button>
     </form>
   </div>
-
-  <app-animal-list [animals]="animals"></app-animal-list>
-
 </div>

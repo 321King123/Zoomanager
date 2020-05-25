@@ -7,7 +7,12 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.UserLoginMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
+import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import io.swagger.annotations.ApiOperation;
@@ -17,10 +22,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,16 +42,20 @@ public class EmployeeEndpoint {
     private final EmployeeMapper employeeMapper;
     private final UserLoginMapper userLoginMapper;
     private final AnimalMapper animalMapper;
+    private final AnimalService animalService;
+    private final EnclosureService enclosureService;
 
     @Autowired
     public EmployeeEndpoint(EmployeeService employeeService, UserService userService,
                             EmployeeMapper employeeMapper, UserLoginMapper userLoginMapper,
-                            AnimalMapper animalMapper){
+                            AnimalMapper animalMapper, AnimalService animalService, EnclosureService enclosureService){
+        this.animalService = animalService;
         this.employeeService=employeeService;
         this.userService=userService;
         this.employeeMapper=employeeMapper;
         this.userLoginMapper=userLoginMapper;
         this.animalMapper = animalMapper;
+        this.enclosureService = enclosureService;
     }
 
 
@@ -88,7 +101,7 @@ public class EmployeeEndpoint {
     @ApiOperation(value = "Get list of employees matching name and type", authorizations = {@Authorization(value = "apiKey")})
     public List<EmployeeDto> searchEmployees(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "type", required = false) EmployeeType type){
         LOGGER.info("GET /api/v1/employee/search Name: {} Type: {}", name, type);
-        Employee searchEmployee = Employee.EmployeeBuilder.anEmployee().withName(name).withType(type).build();
+        Employee searchEmployee = Employee.builder().name(name).type(type).build();
         List<Employee> employees = employeeService.findByNameAndType(searchEmployee);
         List<EmployeeDto> employeeDtos = new LinkedList<>();
         for(Employee e: employees){
@@ -120,11 +133,97 @@ public class EmployeeEndpoint {
         employeeService.assignAnimal(employeeUsername, animal.getId());
     }
 
+    @Secured("ROLE_ADMIN")
     @GetMapping(value = "/{username}")
     @ApiOperation(value = "Get detailed information about a specific employee",
         authorizations = {@Authorization(value = "apiKey")})
-    public EmployeeDto find(@PathVariable String username) {
-        LOGGER.info("GET /api/v1/employees/{}", username);
+    public EmployeeDto find(@PathVariable String username,Authentication authentication) {
+        LOGGER.info("GET /api/v1/employee/{}", username);
         return employeeMapper.employeeToEmployeeDto(employeeService.findByUsername(username));
+    }
+
+    @Secured("ROLE_USER")
+    @GetMapping(value = "/info")
+    @ApiOperation(value = "Get detailed information about a myself",
+        authorizations = {@Authorization(value = "apiKey")})
+    public EmployeeDto personalInfo(Authentication authentication){
+        LOGGER.info("GET /api/v1/employee/info");
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+      if(isAdmin){
+          throw new NotFoundException("Administrators do not have an info page.");
+      }else{
+          String username = (String)authentication.getPrincipal();
+          return employeeMapper.employeeToEmployeeDto(employeeService.findByUsername(username));
+      }
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/assigned/animal/{animalId}")
+    @ApiOperation(value = "Get list of animals assigned to employee", authorizations = {@Authorization(value = "apiKey")})
+    public List<EmployeeDto> getAllAssignedToAnimal(@PathVariable Long animalId) {
+        LOGGER.info("GET /api/v1/employee/assigned/{}", animalId);
+        Animal animal = animalService.findAnimalById(animalId);
+        List<Employee> employees = employeeService.getAllAssignedToAnimal(animal);
+        List<EmployeeDto> employeeDtos = new LinkedList<>();
+        for(Employee e: employees) {
+            employeeDtos.add(employeeMapper.employeeToEmployeeDto(e));
+        }
+        return employeeDtos;
+    }
+
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/assigned/enclosure/{enclosureId}")
+    @ApiOperation(value = "Get list of employees assigned to enclosure", authorizations = {@Authorization(value = "apiKey")})
+    public List<EmployeeDto> getAllAssignedToEnclosure(@PathVariable Long enclosureId) {
+        LOGGER.info("GET /api/v1/employee/assigned/enclosure/{}", enclosureId);
+        Enclosure enclosure = enclosureService.findById_WithoutTasksAndAnimals(enclosureId);
+        List<Employee> employees = employeeService.getAllAssignedToEnclosure(enclosure);
+        List<EmployeeDto> employeeDtos = new LinkedList<>();
+        for(Employee e: employees) {
+            employeeDtos.add(employeeMapper.employeeToEmployeeDto(e));
+        }
+        return employeeDtos;
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/doctors")
+    @ApiOperation(value = "Get list of all Doctors", authorizations = {@Authorization(value = "apiKey")})
+    public List<EmployeeDto> getAllDocotrs() {
+        LOGGER.info("GET /api/v1/employee/doctors");
+        List<Employee> employees = employeeService.getAllDocotrs();
+        List<EmployeeDto> employeeDtos = new LinkedList<>();
+        for(Employee e: employees) {
+            employeeDtos.add(employeeMapper.employeeToEmployeeDto(e));
+        }
+        return employeeDtos;
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/janitors")
+    @ApiOperation(value = "Get list of all Janitors", authorizations = {@Authorization(value = "apiKey")})
+    public List<EmployeeDto> getAllJanitors() {
+        LOGGER.info("GET /api/v1/employee/janitors");
+        List<Employee> employees = employeeService.getAllJanitors();
+        List<EmployeeDto> employeeDtos = new LinkedList<>();
+        for(Employee e: employees) {
+            employeeDtos.add(employeeMapper.employeeToEmployeeDto(e));
+        }
+        return employeeDtos;
+    }
+
+    @Secured("ROLE_ADMIN")
+    @DeleteMapping(value = "/{username}")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "Delete a specific employee",
+        authorizations = {@Authorization(value = "apiKey")})
+    public void deleteEmployee(@PathVariable String username) {
+        LOGGER.info("DELETE /api/v1/employee/{}", username);
+       employeeService.deleteEmployeeByUsername(username);
     }
 }

@@ -3,6 +3,7 @@ import {AuthService} from '../../services/auth.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AnimalService} from '../../services/animal.service';
 import {Animal} from '../../dtos/animal';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-animal',
@@ -16,11 +17,13 @@ export class AnimalComponent implements OnInit {
   submittedAnimal = false;
   animals: Animal[];
 
-  constructor(private animalService: AnimalService, private formBuilder: FormBuilder, private authService: AuthService) {
+
+  constructor(private _location: Location, private animalService: AnimalService, private formBuilder: FormBuilder,
+              private authService: AuthService) {
     this.animalCreationForm = this.formBuilder.group({
       name: ['', [Validators.required]],
       species: ['', [Validators.required]],
-      publicInformation: ['', [Validators.required]],
+      publicInformation: [''],
       description: ['', [Validators.required]]
     });
   }
@@ -64,7 +67,7 @@ export class AnimalComponent implements OnInit {
 
   createAnimal(animal: Animal) {
     this.animalService.createAnimal(animal).subscribe(
-      () => {
+      (createdAnimal) => {
         this.getAnimals();
       },
       error => {
@@ -82,7 +85,21 @@ export class AnimalComponent implements OnInit {
         this.animals = animals;
       },
       error => {
+        if (error.status === 404) {
+          this.animals.length = 0;
+        }
         console.log('Failed to load all animals');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  deleteAnimal(animal: Animal) {
+    this.animalService.deleteAnimal(animal).subscribe(
+      (res: any) => {
+        this.backClicked();
+      },
+      error => {
         this.defaultServiceErrorHandling(error);
       }
     );
@@ -103,4 +120,7 @@ export class AnimalComponent implements OnInit {
     }
   }
 
+  backClicked() {
+    this._location.back();
+  }
 }

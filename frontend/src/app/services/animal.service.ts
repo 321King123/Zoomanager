@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {Animal} from '../dtos/animal';
 import {HttpClient} from '@angular/common/http';
@@ -18,11 +18,22 @@ export class AnimalService {
     console.log('Create animal:' + JSON.stringify(animal));
     return this.httpClient.post<Animal>(this.animalBaseUri, animal);
   }
+
   /**
    * Get List of all current animals
    */
   getAnimals(): Observable<Animal[]> {
     console.log('Getting all animals');
     return this.httpClient.get<Animal[]>(this.animalBaseUri);
+  }
+
+  deleteAnimal(animal: Animal) {
+    console.log('Delete animal: ' + JSON.stringify(animal));
+    return this.httpClient.delete(this.animalBaseUri + '/' + animal.id);
+  }
+
+  getAnimalById(id): Observable<Animal> {
+    console.log('Get animal by id: ' + id);
+    return this.httpClient.get<Animal>(this.animalBaseUri + '/' + id);
   }
 }
