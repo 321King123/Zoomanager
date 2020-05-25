@@ -22,6 +22,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 
 import javax.validation.ValidationException;
@@ -29,10 +31,6 @@ import javax.validation.ValidationException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -223,7 +221,7 @@ public class TaskServiceTest implements TestData {
         taskService.deleteTask(animalTask.getId());
         assertTrue(taskService.getAllTasksOfAnimal(animal.getId()).isEmpty());
     }
-        
+
     @Test
     public void validEmployeeGetAllAnimalTasksReturnsHisTasks(){
         List<Task> tasks = new LinkedList<>();
@@ -255,5 +253,29 @@ public class TaskServiceTest implements TestData {
         Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(anmial_caretaker);
         List<AnimalTask> animalTasks = taskService.getAllAnimalTasksOfEmployee(anmial_caretaker.getUsername());
         assertEquals(0, animalTasks.size());
+    }
+
+    @Test
+    public void markAsDoneExistingTaskNoErrors(){
+        Optional<Task> task = Optional.of(task_assigned);
+        Mockito.when(taskRepository.findById(Mockito.anyLong())).thenReturn(task);
+        Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(anmial_caretaker);
+        assertDoesNotThrow(() -> taskService.markTaskAsDone(task_assigned.getId()));
+    }
+
+    @Test
+    public void markAsDoneNonExistingTaskNoNotFoundException(){
+        Optional<Task> task = Optional.empty();
+        Mockito.when(taskRepository.findById(Mockito.anyLong())).thenReturn(task);
+        Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(anmial_caretaker);
+        assertThrows(NotFoundException.class, () -> taskService.markTaskAsDone(task_assigned.getId()));
+    }
+
+    @Test
+    public void markAsDoneExistingTaskNonExistingEmployeeNotFoundException(){
+        Optional<Task> task = Optional.of(task_assigned);
+        Mockito.when(taskRepository.findById(Mockito.anyLong())).thenReturn(task);
+        Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(null);
+        assertDoesNotThrow(() -> taskService.markTaskAsDone(task_assigned.getId()));
     }
 }
