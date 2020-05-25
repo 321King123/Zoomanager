@@ -4,6 +4,8 @@ import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 
 import java.util.List;
 
+import java.util.List;
+
 public interface TaskService {
 
     /**

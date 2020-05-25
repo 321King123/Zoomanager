@@ -2,9 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.integrationtest.endpoint;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalTaskDto;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EmployeeDto;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.TaskDto;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.*;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EnclosureTaskMapper;
@@ -94,6 +92,8 @@ public class TaskEndpointTest implements TestData {
 
     String ANIMAL_TASK_CREATION_BASE_URI = TASK_BASE_URI + "/animal";
     String ENCLOSURE_TASK_CREATION_BASE_URI = TASK_BASE_URI + "/enclosure";
+
+    String ANIMAL_TASK_GET_BY_EMPLOYEE_BASE_URI = TASK_BASE_URI + "/employee";
 
     String ANIMAL_TASK_GET_BY_EMPLOYEE_BASE_URI = TASK_BASE_URI + "/employee";
 
