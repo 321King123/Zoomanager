@@ -7,6 +7,7 @@ import {AnimalService} from '../../services/animal.service';
 import {EmployeeService} from '../../services/employee.service';
 import {Animal} from '../../dtos/animal';
 import {EnclosureTask} from '../../dtos/enclosureTask';
+import {AuthService} from '../../services/auth.service';
 
 @Component({
   selector: 'app-task-list',
@@ -35,7 +36,7 @@ export class TaskListComponent implements OnInit {
   // frontend/src/app/components/task-list/task-list.component.ts
 
 
-  constructor(private taskService: TaskService, private animalService: AnimalService,
+  constructor(private authService: AuthService, private taskService: TaskService, private animalService: AnimalService,
               private employeeService: EmployeeService) {
   }
 
@@ -77,6 +78,13 @@ export class TaskListComponent implements OnInit {
     } else {
       this.errorMessage = error.error;
     }
+  }
+
+  /**
+   * Returns true if the authenticated user is an admin
+   */
+  isAdmin(): boolean {
+    return this.authService.getUserRole() === 'ADMIN';
   }
 
 }
