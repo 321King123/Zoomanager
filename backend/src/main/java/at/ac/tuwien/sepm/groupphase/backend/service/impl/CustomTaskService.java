@@ -108,12 +108,10 @@ public class CustomTaskService implements TaskService {
             throw new NotFreeException("Employee already works on a task in the given time");
         }
 
-        task.setStatus(TaskStatus.ASSIGNED);
         Task createdTask = taskRepository.save(task);
 
         enclosureTaskRepository.save(EnclosureTask.builder().id(createdTask.getId()).subject(enclosure).build());
-        EnclosureTask enclosureTask = enclosureTaskRepository.findEnclosureTaskById(createdTask.getId());
-        return enclosureTask;
+        return enclosureTaskRepository.findEnclosureTaskById(createdTask.getId());
     }
 
     private void validateStartAndEndTime(Task task) throws ValidationException {
