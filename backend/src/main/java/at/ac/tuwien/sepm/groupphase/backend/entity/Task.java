@@ -32,7 +32,7 @@ public class Task {
     @Column(nullable = false)
     private LocalDateTime endTime;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     private Employee assignedEmployee;
 
     @Column(nullable = false)

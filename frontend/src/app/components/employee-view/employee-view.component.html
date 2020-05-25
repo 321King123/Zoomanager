@@ -30,7 +30,7 @@
   <div *ngIf="employee!=null && employee.type=='ANIMAL_CARE'" class="col-12 my-2">
     <div
       class="row d-flex justify-content-start mx-0 ">
-      <app-task-creation [currentEmployee]="employee" [animalsOfEmployee]="assignedAnimals"></app-task-creation>
+      <app-task-creation [currentEmployee]="employee" [animalsOfEmployee]="assignedAnimals" [enclosuresOfEmployee]="enclosuresOfEmployee"></app-task-creation>
     </div>
   </div>
   <div class="col-12 my-2">

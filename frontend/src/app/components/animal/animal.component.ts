@@ -3,6 +3,7 @@ import {AuthService} from '../../services/auth.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AnimalService} from '../../services/animal.service';
 import {Animal} from '../../dtos/animal';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-animal',
@@ -16,7 +17,9 @@ export class AnimalComponent implements OnInit {
   submittedAnimal = false;
   animals: Animal[];
 
-  constructor(private animalService: AnimalService, private formBuilder: FormBuilder, private authService: AuthService) {
+
+  constructor(private _location: Location, private animalService: AnimalService, private formBuilder: FormBuilder,
+              private authService: AuthService) {
     this.animalCreationForm = this.formBuilder.group({
       name: ['', [Validators.required]],
       species: ['', [Validators.required]],
@@ -64,7 +67,7 @@ export class AnimalComponent implements OnInit {
 
   createAnimal(animal: Animal) {
     this.animalService.createAnimal(animal).subscribe(
-      () => {
+      (createdAnimal) => {
         this.getAnimals();
       },
       error => {
@@ -94,7 +97,7 @@ export class AnimalComponent implements OnInit {
   deleteAnimal(animal: Animal) {
     this.animalService.deleteAnimal(animal).subscribe(
       (res: any) => {
-        this.getAnimals();
+        this.backClicked();
       },
       error => {
         this.defaultServiceErrorHandling(error);
@@ -117,4 +120,7 @@ export class AnimalComponent implements OnInit {
     }
   }
 
+  backClicked() {
+    this._location.back();
+  }
 }

@@ -42,6 +42,12 @@ public class CustomEnclosureService implements EnclosureService {
     }
 
     @Override
+    public Enclosure findById_WithoutTasksAndAnimals(long id) {
+        LOGGER.debug("Getting specific enclosure by id without assigned Tasks or Animals: {}", id);
+        return enclosureRepository.findById_WithoutTasksAndAnimals(id);
+    }
+
+    @Override
     public Enclosure create(Enclosure enclosure) {
         LOGGER.debug("Creating new Enclosure");
         if(enclosure == null) {

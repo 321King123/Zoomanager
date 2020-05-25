@@ -7,6 +7,7 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EnclosureMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
+import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
@@ -34,10 +35,13 @@ public class EnclosureEndpoint {
     private final EnclosureRepository enclosureRepository;
     private final AnimalService animalService;
     private final AnimalMapper animalMapper;
+    private final EmployeeService employeeService;
 
     @Autowired
-    public EnclosureEndpoint(EnclosureService enclosureService, EnclosureMapper enclosureMapper, EnclosureRepository enclosureRepository, AnimalService animalService, AnimalMapper animalMapper){
-
+    public EnclosureEndpoint(EnclosureService enclosureService, EnclosureMapper enclosureMapper,
+                             EnclosureRepository enclosureRepository, AnimalService animalService,
+                             AnimalMapper animalMapper, EmployeeService employeeService){
+        this.employeeService = employeeService;
         this.enclosureService = enclosureService;
         this.enclosureMapper = enclosureMapper;
         this.enclosureRepository = enclosureRepository;
@@ -109,5 +113,18 @@ public class EnclosureEndpoint {
         enclosureService.deleteEnclosure(enclosureMapper.enclosureDtoToEnclosure(enclosureDto));
     }
 
-
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/employee/{username}")
+    @ApiOperation(value = "Get Enclosures of Employee",
+        authorizations = {@Authorization(value = "apiKey")})
+    public List<EnclosureDto> getEnclosuresByEmployeeUsername(@PathVariable String username) {
+        LOGGER.info("GET /api/v1/enclosure/employee/{}", username);
+        List<Enclosure> enclosures = employeeService.findAssignedEnclosures(username);
+        List<EnclosureDto> enclosureDtos = new LinkedList<>();
+        for(Enclosure e: enclosures){
+            enclosureDtos.add(enclosureMapper.enclosureToEnclosureDto(e));
+        }
+        return enclosureDtos;
+    }
 }
