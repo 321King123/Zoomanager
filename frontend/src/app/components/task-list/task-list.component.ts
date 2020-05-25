@@ -27,8 +27,11 @@ export class TaskListComponent implements OnInit {
   //
   @Output() deleteTaskEvent = new EventEmitter();
 
+  @Input() currentUserType;
+
   error = false;
   errorMessage = '';
+
   // frontend/src/app/components/task-list/task-list.component.ts
 
 

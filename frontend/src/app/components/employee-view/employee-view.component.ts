@@ -21,6 +21,8 @@ import {EnclosureTask} from '../../dtos/enclosureTask';
 export class EmployeeViewComponent implements OnInit {
 
   public employee: Employee;
+  currentUserType;
+
   error: boolean = false;
   errorMessage: string = '';
   currentUser: string;
@@ -56,6 +58,14 @@ export class EmployeeViewComponent implements OnInit {
 
   }
 
+  getCurrentUserType() {
+    if (this.isAdmin()) {
+      return 'ADMIN';
+    } else  {
+      return this.employee.type;
+    }
+  }
+
   loadPersonalInfo() {
     this.employeeService.getPersonalInfo().subscribe(
       (employee: Employee) => {
@@ -63,6 +73,7 @@ export class EmployeeViewComponent implements OnInit {
         console.log('employee: ' + JSON.stringify(this.employee));
         this.showAssignedAnimalsEmployee();
         this.loadTasksOfEmployee();
+        this.currentUserType = this.getCurrentUserType();
         this.toAnimalMode();
       },
       error => {
