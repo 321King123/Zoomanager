@@ -95,7 +95,6 @@ public class TaskEndpointTest implements TestData {
 
     String ANIMAL_TASK_GET_BY_EMPLOYEE_BASE_URI = TASK_BASE_URI + "/employee";
 
-    String ANIMAL_TASK_GET_BY_EMPLOYEE_BASE_URI = TASK_BASE_URI + "/employee";
 
     private final UserLogin admin_login = UserLogin.builder()
         .isAdmin(true)
