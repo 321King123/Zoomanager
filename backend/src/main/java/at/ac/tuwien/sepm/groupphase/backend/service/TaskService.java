@@ -61,6 +61,12 @@ public interface TaskService {
      */
     List<AnimalTask> getAllAnimalTasksOfEmployee(String employeeUsername);
 
+    /**
+     * Get All EnclosureTasks Of an Employee
+     * @param employeeUsername is the username of the employee
+     * @return list of enclosureTasks
+     */
+    List<EnclosureTask> getAllEnclosureTasksOfEmployee(String employeeUsername);
 
     /**
      * Get all tasks belonging to one enclosure
