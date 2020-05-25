@@ -4,6 +4,7 @@ import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -71,9 +72,10 @@ public interface EmployeeService  {
      *
      * @param task task that contains time fields
      * @param employee employee you want to check
-     * @return true if time is free false if occupied
+     * @return true if time is free
+     * @throws NotFreeException if time is no free
      */
-    boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task);
+    boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task) ;
 
     /**
      *Checks if Employee is Assigned to specific Animal

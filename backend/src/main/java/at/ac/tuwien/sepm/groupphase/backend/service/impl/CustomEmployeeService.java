@@ -144,20 +144,30 @@ public class CustomEmployeeService implements EmployeeService {
     }
 
     @Override
-    public boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task){
+    public boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task) {
         LOGGER.debug("Checking if " + employee.getUsername() + " is free");
         List<Task> tasks = taskRepository.findAllByAssignedEmployee(employee);
         LocalDateTime start = task.getStartTime();
         LocalDateTime end = task.getEndTime();
         for(Task t:tasks){
-            if(t.getStartTime().equals(start) && t.getEndTime().equals(end))
-                return false;
-            if(t.getStartTime().isBefore(start) && t.getEndTime().isAfter(end))
-                return false;
-            if(t.getStartTime().isAfter(start) && t.getStartTime().isBefore(end))
-                return false;
-            if(t.getEndTime().isAfter(start) && t.getEndTime().isBefore(end))
-                return false;
+            LocalDateTime existingStart = t.getStartTime();
+            LocalDateTime existingEnd = t.getEndTime();
+            if(existingStart.equals(start) && existingEnd.equals(end))
+                throw new NotFreeException("Employee " + employee.getUsername() + " already has work ("
+                    +  existingStart.toString() + " till " + existingEnd.toString() + ") during this tasks " +
+                    "time frame ("  + start.toString() + " till " + end.toString() +  ").");
+            if(existingStart.isBefore(start) && existingEnd.isAfter(end))
+                throw new NotFreeException("Employee " + employee.getUsername() + " has work (" +  existingStart.toString()
+                    + " till " + existingEnd.toString() + ") that overlaps this tasks " +
+                    "time frame ("  + start.toString() + " till " + end.toString() + ").");
+            if(existingStart.isAfter(start) && existingStart.isBefore(end))
+                throw new NotFreeException("Employee " + employee.getUsername() + " already has work (" +  existingStart.toString()
+                    + " till " + existingEnd.toString() + ") that starts during this tasks " +
+                    "time frame (" + start.toString() + " till " + end.toString() + ").");
+            if(existingEnd.isAfter(start) && existingEnd.isBefore(end))
+                throw new NotFreeException("Employee " + employee.getUsername() + " has work (" +  existingStart.toString()
+                    + " till " + existingEnd.toString() +") that ends during this tasks " +
+                    "time frame (" + start.toString() + " till " + end.toString() +  ").");
         }
         return true;
     }
@@ -251,7 +261,7 @@ public class CustomEmployeeService implements EmployeeService {
             if(employee.getType() == EmployeeType.ANIMAL_CARE)
                 return isAssignedToAnimal(employee.getUsername(), animalTask.get().getSubject().getId());
             if(employee.getType() == EmployeeType.JANITOR)
-                return false;
+                throw new IncorrectTypeException("Employees of type Janitor can not be assigned to Animal Tasks");
         }
 
         //TODO: if it is an Enclosure Task you have to add the check if there is Permission for this (so get the
@@ -263,7 +273,7 @@ public class CustomEmployeeService implements EmployeeService {
             if(employee.getType() == EmployeeType.ANIMAL_CARE)
                 return isAssignedToEnclosure(employee.getUsername(), enclosureTask.get().getSubject().getId());
             if(employee.getType() == EmployeeType.DOCTOR)
-                return false;
+                throw new IncorrectTypeException("Employees of type Janitor can not be assigned to Enclosure Tasks");
         }
 
         return false;
