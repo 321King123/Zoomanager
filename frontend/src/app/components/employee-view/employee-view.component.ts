@@ -75,6 +75,7 @@ export class EmployeeViewComponent implements OnInit {
         this.loadTasksOfEmployee();
         this.currentUserType = this.getCurrentUserType();
         this.toAnimalMode();
+        this.getEnclosuresOfEmployee();
       },
       error => {
         this.defaultServiceErrorHandling(error);
