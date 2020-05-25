@@ -171,7 +171,7 @@ public class CustomTaskService implements TaskService {
 
     @Override
     public List<AnimalTask> getAllAnimalTasksOfEmployee(String employeeUsername) {
-        LOGGER.debug("Get All Tasks belonging to employee with username: {}", employeeUsername);
+        LOGGER.debug("Get All Animal Tasks belonging to employee with username: {}", employeeUsername);
         Employee employee = employeeService.findByUsername(employeeUsername);
         if(employee == null)
             throw new NotFoundException("Could not find Employee with given Username");
@@ -185,8 +185,22 @@ public class CustomTaskService implements TaskService {
     }
 
     @Override
+    public List<EnclosureTask> getAllEnclosureTasksOfEmployee(String employeeUsername) {
+        LOGGER.debug("Get All Enclosure Tasks belonging to employee with username: {}", employeeUsername);
+        validateEmployeeExists(employeeUsername);
+        List<EnclosureTask> enclosureTasks = enclosureTaskRepository.findEnclosureTaskByEmployeeUsername(employeeUsername);
+        return enclosureTasks;
+    }
+
+    @Override
     public List<EnclosureTask> getAllTasksOfEnclosure(Long enclosureId) {
         LOGGER.debug("Get All Tasks belonging to Enclosure with id: {}", enclosureId);
         return enclosureTaskRepository.findAllEnclosureTasksBySubject_Id(enclosureId);
+    }
+
+    private void validateEmployeeExists(String employeeUsername) {
+        Employee employee = employeeService.findByUsername(employeeUsername);
+        if(employee == null)
+            throw new NotFoundException("Could not find Employee with given Username");
     }
 }

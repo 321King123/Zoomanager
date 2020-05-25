@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.repository;
 
+import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.entity.EnclosureTask;
 import org.hibernate.sql.Select;
@@ -42,6 +43,17 @@ public interface EnclosureTaskRepository extends JpaRepository<EnclosureTask, Lo
     @Query("SELECT new EnclosureTask(et.id, et.priority, t, et.subject) " +
         "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE et.id=:taskId")
     EnclosureTask findEnclosureTaskById(@Param("taskId") long taskIdLong);
+
+    /**
+     *Finds the Tasks of the given employee
+     * The associated task will not have fetched the assignedEmployee
+     * The Subject(Enclosure) will not have fetched the assigned animals and tasks
+     * @param employeeUsername username of Employee to find the tasks of
+     * @return The EnclosureTask with of the given employee
+     */
+    @Query("SELECT new EnclosureTask (et.id, et.priority, t, et.subject)" +
+        "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE t.assignedEmployee.username =:employeeUsername")
+    List<EnclosureTask> findEnclosureTaskByEmployeeUsername(@Param("employeeUsername")String employeeUsername);
 
     @Transactional
     @Modifying(clearAutomatically = true)
