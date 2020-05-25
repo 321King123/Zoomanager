@@ -1,4 +1,4 @@
-<button class="btn btn-outline-success" data-toggle="modal" data-target="#exampleModal">Create a task</button>
+<button class="btn btn-success" data-toggle="modal" data-target="#exampleModal">Create a task</button>
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
      aria-hidden="true">
@@ -30,13 +30,6 @@
               </button>
             </div>
           </div>
-        </div>
-        <div class="row p-3 justify-content-around">
-          <div class="btn-group btn-group-toggle" data-toggle="buttons">
-            <button (click)="setToAnimalTask()" type="radio" class="btn btn-secondary">Animal Task</button>
-            <button (click)="setToEnclosureTask()" type="radio" class="btn btn-secondary">Enclosure Task</button>
-          </div>
-
         </div>
         <div class="row p-3">
           <div class="col">
@@ -85,35 +78,15 @@
                     </small>
                   </div>
                 </div>
-
-                <!--                Subject Selection-->
-                <div *ngIf="isAnimalTask == true" class="form-group col-6 select-animal">
-                  <label for="animalId">Select Animal</label>
-                  <select (change)="getEmployeesOfAnimal()" name="animalId" formControlName="subjectId"
-                          class="form-control" id="animalId"
-                          aria-describedby="animalIdHelp">
-                    <option disabled [ngValue]="null">Select animal</option>
+                <div class="form-group col-6">
+                  <label for="enclosureId">Select Enclosure</label>
+                  <select (change)="getEmployeesOfEnclosure()" name="enclosureId" formControlName="enclosureId"
+                          class="form-control" id="enclosureId"
+                          aria-describedby="enclosureIdHelp">
+                    <option disabled [ngValue]="null">Select enclosure</option>
                     <ng-container *ngIf="animalsOfEmployee!=null">
                       <option *ngFor="let animal of animalsOfEmployee" [ngValue]="animal.id">{{animal.name}}
                         ; {{animal.species}}</option>
-                    </ng-container>
-                  </select>
-                  <div *ngIf="submittedTask && taskCreationForm.controls.subjectId.errors" class="error">
-                    <small class="form-text text-warning" *ngIf="taskCreationForm.controls.subjectId.errors.required">
-                      Animal cannot be empty
-                    </small>
-                  </div>
-                </div>
-
-                <div *ngIf="isEnclosureTask" class="form-group col-6 select-Enclosure">
-                  <label for="enclosureId">Select Enclosure</label>
-                  <select (change)="getEmployeesOfEnclosure()" name="animalId" formControlName="subjectId"
-                          class="form-control" id="enclosureId"
-                          aria-describedby="animalIdHelp">
-                    <option disabled [ngValue]="null">Select Enclosure</option>
-                    <ng-container *ngIf="enclosuresOfEmployee!=null">
-                      <option *ngFor="let enclosure of enclosuresOfEmployee" [ngValue]="enclosure.id">{{enclosure.id}}
-                        ; {{enclosure.name}}</option>
                     </ng-container>
                   </select>
                   <div *ngIf="submittedTask && taskCreationForm.controls.subjectId.errors" class="error">
@@ -122,7 +95,6 @@
                     </small>
                   </div>
                 </div>
-
                 <div class="form-group col-6">
                   <label for="assignedEmployeeUsername">Assign to Employee</label>
 
@@ -131,25 +103,15 @@
                           aria-describedby="assignedEmployeeUsernameHelp">
                     <option disabled [ngValue]="null">Select employee</option>
                     <ng-container *ngIf="employeesFound">
-                      <option *ngFor="let employee of employeesOfTaskSubject;" [ngValue]="employee.username">
-                        {{employee.username}}; {{employee.name}}; caretaker
-                      </option>
-                    </ng-container>
-                    <ng-container *ngIf="isAnimalTask">
-                      <option *ngFor="let doctor of doctors" [ngValue]="doctor.username">
-                        {{doctor.username}}; {{doctor.name}}; doctor
-                      </option>
-                    </ng-container>
-                    <ng-container *ngIf="isEnclosureTask">
-                      <option *ngFor="let janitor of janitors" [ngValue]="janitor.username">
-                        {{janitor.username}}; {{janitor.name}}; janitor
+                      <option *ngFor="let employee of employeesOfEnclosure;" [ngValue]="employee.username">
+                        {{employee.username}}; {{employee.name}}
                       </option>
                     </ng-container>
                   </select>
                   <div *ngIf="submittedTask && taskCreationForm.controls.assignedEmployeeUsername.errors" class="error">
                     <small class="form-text text-warning"
                            *ngIf="taskCreationForm.controls.assignedEmployeeUsername.errors.required">
-                      Employee cannot be empty
+                      Enclosure cannot be empty
                     </small>
                   </div>
                 </div>
