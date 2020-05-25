@@ -53,11 +53,19 @@ public interface TaskService {
      * @param taskId of the Task that will be deleted
      */
     void deleteTask(Long taskId);
-    
+
     /**
      * Get All AnimalTasks Of an Employee
      * @param employeeUsername is the username of the employee
      * @return list of animalTasks
      */
     List<AnimalTask> getAllAnimalTasksOfEmployee(String employeeUsername);
+
+
+    /**
+     * Get all tasks belonging to one enclosure
+     * @param enclosureId is the id of the enclosure
+     * @return list of enclosureTasks
+     */
+    List<EnclosureTask> getAllTasksOfEnclosure(Long enclosureId);
 }

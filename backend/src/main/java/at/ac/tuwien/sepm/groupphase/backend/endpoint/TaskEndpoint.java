@@ -228,4 +228,26 @@ public class TaskEndpoint {
         }
         return animalTaskDtoList;
     }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/enclosure/{enclosureId}")
+    @ApiOperation(value = "Get list of enclosure tasks belonging to an enclosure", authorizations = {@Authorization(value = "apiKey")})
+    public List<EnclosureTaskDto> getAllEnclosureTasksBelongingToEnclosure(@PathVariable Long enclosureId, Authentication authentication){
+        LOGGER.info("GET /api/v1/tasks/enclosure/ {}", enclosureId);
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String username = (String) authentication.getPrincipal();
+        if(!isAdmin){
+            if(!employeeService.isAssignedToEnclosure(username,enclosureId)){
+                throw new NotAuthorisedException("You are not allowed to see this enclosures information.");
+            }
+        }
+        List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllTasksOfEnclosure(enclosureId));
+        List<EnclosureTaskDto> enclosureTaskDtoList = new LinkedList<>();
+        for(EnclosureTask e: enclosureTasks){
+            enclosureTaskDtoList.add(enclosureTaskMapper.enclosureTaskToEclosureTaskDto(e));
+        }
+        return enclosureTaskDtoList;
+    }
 }

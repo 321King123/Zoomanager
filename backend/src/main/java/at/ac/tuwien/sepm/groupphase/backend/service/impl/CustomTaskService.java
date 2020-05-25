@@ -183,4 +183,10 @@ public class CustomTaskService implements TaskService {
         }
         return animalTaskList;
     }
+
+    @Override
+    public List<EnclosureTask> getAllTasksOfEnclosure(Long enclosureId) {
+        LOGGER.debug("Get All Tasks belonging to Enclosure with id: {}", enclosureId);
+        return enclosureTaskRepository.findAllEnclosureTasksBySubject_Id(enclosureId);
+    }
 }
