@@ -4,7 +4,6 @@ import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
-import javax.persistence.Column;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -52,4 +51,8 @@ public class EnclosureTaskDto {
     private Long enclosureId;
 
     private boolean priority;
+
+    public boolean getPriority() {
+        return this.priority;
+    }
 }
