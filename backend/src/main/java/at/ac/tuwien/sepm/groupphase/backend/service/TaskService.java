@@ -62,6 +62,19 @@ public interface TaskService {
     List<AnimalTask> getAllAnimalTasksOfEmployee(String employeeUsername);
 
     /**
+     * Marks task as done
+     * @param taskId task id of task to mark as done
+     */
+    void markTaskAsDone(Long taskId);
+
+    /**
+     * Checks if an employee is the one performing the task
+     * @param taskId id of task to check
+     * @param employeeUsername username of employee to check
+     */
+    boolean isTaskPerformer(String employeeUsername, Long taskId);
+
+    /**
      * Get All EnclosureTasks Of an Employee
      * @param employeeUsername is the username of the employee
      * @return list of enclosureTasks
@@ -74,4 +87,5 @@ public interface TaskService {
      * @return list of enclosureTasks
      */
     List<EnclosureTask> getAllTasksOfEnclosure(Long enclosureId);
+
 }

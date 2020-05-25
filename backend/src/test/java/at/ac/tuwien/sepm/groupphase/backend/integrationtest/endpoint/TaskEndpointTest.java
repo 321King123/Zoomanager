@@ -603,6 +603,29 @@ public class TaskEndpointTest implements TestData {
     }
 
     @Test
+    public void validTaskUpdateStatusDoneAsAdmin_returnsOk() throws Exception {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+
+        task.setAssignedEmployee(anmial_caretaker);
+        task.setStatus(TaskStatus.ASSIGNED);
+        taskRepository.save(task);
+        task = taskRepository.findAll().get(0);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(TASK_BASE_URI + "/finished/" + task.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertAll(
+            () -> assertEquals(HttpStatus.OK.value(), response.getStatus())
+        );
+    }
+
+
+    @Test
     public void validAnimalTaskButInvalidAssignedWorker_createdByAdmin_returnsUnprocessableEntity() throws Exception {
         enclosureRepository.save(barn);
         Enclosure enclosure = enclosureRepository.findAll().get(0);
@@ -625,6 +648,30 @@ public class TaskEndpointTest implements TestData {
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), response.getStatus());
     }
+    
+
+    @Test
+    public void validTaskUpdateStatusDoneAsUser_returnsOk() throws Exception {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+
+        task.setAssignedEmployee(anmial_caretaker);
+        task.setStatus(TaskStatus.ASSIGNED);
+        taskRepository.save(task);
+        task = taskRepository.findAll().get(0);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(TASK_BASE_URI + "/finished/" + task.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(anmial_caretaker.getUsername(), USER_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertAll(
+            () -> assertEquals(HttpStatus.OK.value(), response.getStatus())
+        );
+    }
+
 
     @Test
     public void validEnclosureTask_createdByAdmin_returnsExpectedEnclosureTaskDto() throws Exception {
@@ -666,6 +713,31 @@ public class TaskEndpointTest implements TestData {
         );
     }
 
+
+    @Test
+    public void validTaskUpdateStatusDoneAsWrongUser_returnsForbidden() throws Exception {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        userLoginRepository.save(janitor_login);
+        employeeRepository.save(janitor);
+
+        task.setAssignedEmployee(anmial_caretaker);
+        task.setStatus(TaskStatus.ASSIGNED);
+        taskRepository.save(task);
+        task = taskRepository.findAll().get(0);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(TASK_BASE_URI + "/finished/" + task.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(janitor.getUsername(), USER_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertAll(
+            () -> assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus())
+        );
+    }
+
     @Test
     public void invalidTimeEnclosureTask_createdByAdmin_returnsBadRequest() throws Exception {
         enclosureRepository.save(barn);
@@ -692,4 +764,5 @@ public class TaskEndpointTest implements TestData {
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
     }
+
 }

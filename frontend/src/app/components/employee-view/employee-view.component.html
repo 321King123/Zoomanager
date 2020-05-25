@@ -84,7 +84,9 @@
 <ng-container *ngIf="employee!=null && taskListMode">
   <div class="row mb-4">
     <div class="col-lg-12">
-      <app-task-list (deleteTaskEvent)="loadTasksOfEmployee()" [enclosureTasks]="enclosureTasks" [tasks]="tasks"></app-task-list>
+
+      <app-task-list (reloadTasks)="loadTasksOfEmployee()" (errorEvent)="defaultServiceErrorHandling($event)" (deleteTaskEvent)="loadTasksOfEmployee()" [enclosureTasks]="enclosureTasks" [tasks]="tasks"></app-task-list>
+
     </div>
   </div>
 </ng-container>

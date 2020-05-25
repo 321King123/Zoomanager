@@ -22,10 +22,15 @@ export class TaskListComponent implements OnInit {
   @Input() employees: Employee[];
 
   @Output() reloadTasks = new EventEmitter();
+  // frontend/src/app/components/task-list/task-list.component.ts
+  @Output() deleteTask = new EventEmitter<AnimalTask>();
+  @Output() errorEvent = new EventEmitter<any>();
+  //
   @Output() deleteTaskEvent = new EventEmitter();
 
   error = false;
   errorMessage = '';
+  // frontend/src/app/components/task-list/task-list.component.ts
 
 
   constructor(private taskService: TaskService, private animalService: AnimalService,
@@ -33,6 +38,18 @@ export class TaskListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+  }
+
+
+  markTaskAsDone(taskId) {
+    this.taskService.markTaskAsDone(taskId).subscribe(
+      (res: any) => {
+        this.reloadTasks.emit();
+      },
+      error => {
+        this.errorEvent.emit(error);
+      }
+    );
   }
 
   deleteTask(animalTaskId) {
@@ -59,4 +76,5 @@ export class TaskListComponent implements OnInit {
       this.errorMessage = error.error;
     }
   }
+
 }
