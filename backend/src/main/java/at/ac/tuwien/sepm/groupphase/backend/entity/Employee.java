@@ -45,7 +45,16 @@ public class Employee {
 
     @OneToMany(mappedBy = "assignedEmployee", fetch = FetchType.LAZY)
     private List<Task> tasks;
-//
+
+    public Employee(String username, Date birthday, String email, String name, EmployeeType type) {
+        this.username = username;
+        this.birthday = birthday;
+        this.email = email;
+        this.name = name;
+        this.type = type;
+    }
+
+    //
 //    @Override
 //    public boolean equals(Object o) {
 //        if (this == o) return true;

@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {Globals} from '../global/globals';
 import {AnimalTask} from '../dtos/animalTask';
 import {Observable} from 'rxjs';
+import {EnclosureTask} from '../dtos/enclosureTask';
 import {Employee} from '../dtos/employee';
 
 @Injectable({
@@ -10,6 +11,7 @@ import {Employee} from '../dtos/employee';
 })
 export class TaskService {
   private animalTaskBaseUri: string = this.globals.backendUri + '/tasks/animal';
+  private enclosureTaskBaseUri: string = this.globals.backendUri + '/tasks/enclosure';
   private taskBaseUri: string = this.globals.backendUri + '/tasks';
 
   constructor(private httpClient: HttpClient, private globals: Globals) {
@@ -18,6 +20,12 @@ export class TaskService {
   createNewTask(task: AnimalTask): Observable<AnimalTask> {
     console.log('Creating Task: ' + JSON.stringify(task));
     return this.httpClient.post<AnimalTask>(this.animalTaskBaseUri + '/' + task.animalId, task);
+  }
+
+
+  createNewTaskEnclosure(task: EnclosureTask): Observable<EnclosureTask> {
+    console.log('Creating Task: ' + JSON.stringify(task));
+    return this.httpClient.post<EnclosureTask>(this.enclosureTaskBaseUri + '/' + task.enclosureId, task);
   }
 
   assignTask(id, employee) {
@@ -40,7 +48,18 @@ export class TaskService {
     return this.httpClient.get<AnimalTask[]>(this.taskBaseUri + '/employee/' + username);
   }
 
+
   markTaskAsDone(taskId): Observable<any> {
     return this.httpClient.put(this.taskBaseUri + '/finished/' + taskId, {});
+
+  getEnclosureTasksOfEmployee(username): Observable<EnclosureTask[]> {
+    console.log('Get tasks of employee ' + username);
+    return this.httpClient.get<EnclosureTask[]>(this.taskBaseUri + '/employee/enclosure-task/' + username);
+  }
+
+  getTasksOfEnclosure(enclosureId): Observable<EnclosureTask[]> {
+    console.log('Get tasks of enclosure ' + enclosureId);
+    return this.httpClient.get<EnclosureTask[]>(this.taskBaseUri + '/enclosure/' + enclosureId);
+
   }
 }

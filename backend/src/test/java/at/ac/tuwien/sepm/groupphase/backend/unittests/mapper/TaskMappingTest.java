@@ -3,18 +3,20 @@ package at.ac.tuwien.sepm.groupphase.backend.unittests.mapper;
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalTaskDto;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EnclosureTaskDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.TaskDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalTaskMapper;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EnclosureTaskMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.TaskMapper;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
+import at.ac.tuwien.sepm.groupphase.backend.entity.*;
+import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -30,6 +32,12 @@ public class TaskMappingTest implements TestData {
 
     @Autowired
     AnimalTaskMapper animalTaskMapper;
+
+    @Autowired
+    EnclosureTaskMapper enclosureTaskMapper;
+
+    @MockBean
+    EnclosureService enclosureService;
 
     private Employee anmial_caretaker = Employee.builder()
         .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
@@ -78,6 +86,14 @@ public class TaskMappingTest implements TestData {
         .publicInformation(null)
         .build();
 
+    private Enclosure enclosure = Enclosure.builder()
+        .id(4L)
+        .name("Ocean")
+        .description("plenty species of see animals")
+        .publicInfo("public Info")
+        .picture(null)
+        .build();
+
     private AnimalTask animalTask = AnimalTask.builder()
         .id(2L)
         .subject(animal)
@@ -90,6 +106,48 @@ public class TaskMappingTest implements TestData {
         .task(task_not_assigned)
         .build();
 
+    private EnclosureTask enclosureTaskTest = EnclosureTask.builder()
+        .id(4L)
+        .subject(enclosure)
+        .task(task_assigned)
+        .priority(true)
+        .build();
+
+    private EnclosureTask enclosureTaskNotAssigned = EnclosureTask.builder()
+        .id(4L)
+        .subject(enclosure)
+        .task(task_not_assigned)
+        .build();
+
+    private EnclosureTaskDto enclosureTaskDto = EnclosureTaskDto.builder()
+        .id(124L)
+        .title("name")
+        .description("description")
+        .startTime(taskDto.getStartTime())
+        .endTime(taskDto.getEndTime())
+        .assignedEmployeeUsername(null)
+        .enclosureId(4L)
+        .build();
+
+    @Test
+    public void testEnclosureTaskToEnclosureTaskDto() {
+        EnclosureTaskDto enclosureTaskDto = enclosureTaskMapper.enclosureTaskToEclosureTaskDto(enclosureTaskTest);
+        assertAll(
+            () -> assertEquals(enclosureTaskDto.getId(), enclosureTaskTest.getId()));
+           // () -> assertEquals(enclosureTaskDto.getAssignedEmployeeUsername(), enclosureTaskTest.getTask().getAssignedEmployee()),
+           // () -> assertEquals(enclosureTaskDto.getTitle(), enclosureTaskTest.getTask().getTitle()),
+           // () -> assertEquals(enclosureTaskDto.getDescription(), enclosureTaskTest.getTask().getDescription()));
+    }
+
+    @Test
+    public void testEnclosureTaskDtoToEnclosureTask() {
+        Mockito.when(enclosureService.findById(4L)).thenReturn(enclosure);
+        EnclosureTask enclosureTask = enclosureTaskMapper.enclosureTaskDtoToEclosureTask(enclosureTaskDto);
+        assertAll(
+            () -> assertEquals(enclosureTask.getId(), enclosureTaskDto.getId()),
+            () -> assertEquals(enclosureTask.getTask().getTitle(), enclosureTaskDto.getTitle()),
+            () -> assertEquals(enclosureTask.getTask().getDescription(), enclosureTaskDto.getDescription()));
+    }
 
     @Test
     public void testTaskToTaskDto() {
@@ -133,4 +191,7 @@ public class TaskMappingTest implements TestData {
             () -> assertEquals(animalTaskDto.getAssignedEmployeeUsername(), null),
             () -> assertEquals(animalTaskDto.getAnimalId(),animalTask.getSubject().getId()));
     }
+
+
+
 }

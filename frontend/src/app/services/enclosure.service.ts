@@ -66,4 +66,9 @@ export class EnclosureService {
   unassignAnimal(selectedAnimal: Animal): Observable<any> {
     return this.httpClient.put<Animal>(this.animalBaeseuri + '/removeEnclosure', selectedAnimal);
   }
+
+  getEnclosuresOfEmployee(employeeUsername: string): Observable<Enclosure[]> {
+    console.log('Get Enclosures by employee username: ' + employeeUsername);
+    return this.httpClient.get<Enclosure[]>(this.enclosureBaseUri + /employee/ + employeeUsername);
+  }
 }
