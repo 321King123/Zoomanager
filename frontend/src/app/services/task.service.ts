@@ -51,6 +51,7 @@ export class TaskService {
 
   markTaskAsDone(taskId): Observable<any> {
     return this.httpClient.put(this.taskBaseUri + '/finished/' + taskId, {});
+  }
 
   getEnclosureTasksOfEmployee(username): Observable<EnclosureTask[]> {
     console.log('Get tasks of employee ' + username);

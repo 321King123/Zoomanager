@@ -23,7 +23,6 @@ export class TaskListComponent implements OnInit {
 
   @Output() reloadTasks = new EventEmitter();
   // frontend/src/app/components/task-list/task-list.component.ts
-  @Output() deleteTask = new EventEmitter<AnimalTask>();
   @Output() errorEvent = new EventEmitter<any>();
   //
   @Output() deleteTaskEvent = new EventEmitter();
