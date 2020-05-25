@@ -216,6 +216,8 @@ public class CustomEmployeeService implements EmployeeService {
         if(optionalEmployee.isEmpty())
             throw new NotFoundException("Username doesnt belong to an Employee");
         Employee employee = optionalEmployee.get();
+        if(employee.getType() == EmployeeType.DOCTOR || employee.getType() == EmployeeType.JANITOR )
+            return false;
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         if(optionalTask.isEmpty())
             throw new NotFoundException("Could not find Task with given Id");
