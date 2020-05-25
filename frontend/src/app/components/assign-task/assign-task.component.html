@@ -1,11 +1,11 @@
 <!-- Button trigger modal -->
 <button type="button" class="btn btn-sm btn-outline-success" data-toggle="modal"
-        [attr.data-target]="'#test'+index">
+        [attr.data-target]="'#test'+uniqId+index">
   Assign
 </button>
 
 <!-- Modal -->
-<div class="modal fade" id="test{{index}}"  tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" [attr.id]="'test'+uniqId+index"  tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -50,6 +50,12 @@
               {{employee.username}}; {{employee.name}}
             </option>
           </ng-container>
+          <ng-container *ngIf="janitors!=null">
+            <option *ngFor="let employee of janitors;" [ngValue]="employee">
+              {{employee.username}}; {{employee.name}}
+            </option>
+          </ng-container>
+
         </select>
       </div>
       <div class="modal-footer">

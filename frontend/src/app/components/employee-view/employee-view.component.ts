@@ -11,6 +11,7 @@ import {TaskService} from '../../services/task.service';
 import {Enclosure} from '../../dtos/enclosure';
 import {FormBuilder} from '@angular/forms';
 import {EnclosureService} from '../../services/enclosure.service';
+import {EnclosureTask} from '../../dtos/enclosureTask';
 
 @Component({
   selector: 'app-employee-view',
@@ -28,6 +29,7 @@ export class EmployeeViewComponent implements OnInit {
   selectedAnimal: Animal = null;
   assignedAnimals: Animal[];
   tasks: AnimalTask[];
+  enclosureTasks: EnclosureTask[];
 
   enclosuresFound = false;
   enclosuresOfEmployee: Enclosure[];
@@ -108,6 +110,14 @@ export class EmployeeViewComponent implements OnInit {
     this.taskService.getAnimalTasksOfEmployee(this.employee.username).subscribe(
       (tasks) => {
         this.tasks = tasks;
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+    this.taskService.getEnclosureTasksOfEmployee(this.employee.username).subscribe(
+      (enclosureTasks) => {
+        this.enclosureTasks = enclosureTasks;
       },
       error => {
         this.defaultServiceErrorHandling(error);

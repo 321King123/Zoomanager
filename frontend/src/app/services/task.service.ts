@@ -47,4 +47,9 @@ export class TaskService {
     console.log('Get tasks of employee ' + username);
     return this.httpClient.get<AnimalTask[]>(this.taskBaseUri + '/employee/' + username);
   }
+
+  getEnclosureTasksOfEmployee(username): Observable<EnclosureTask[]> {
+    console.log('Get tasks of employee ' + username);
+    return this.httpClient.get<EnclosureTask[]>(this.taskBaseUri + '/employee/enclosure-task/' + username);
+  }
 }

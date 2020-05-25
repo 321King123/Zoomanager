@@ -6,6 +6,7 @@ import {TaskService} from '../../services/task.service';
 import {AnimalService} from '../../services/animal.service';
 import {EmployeeService} from '../../services/employee.service';
 import {Animal} from '../../dtos/animal';
+import {EnclosureTask} from '../../dtos/enclosureTask';
 
 @Component({
   selector: 'app-task-list',
@@ -14,11 +15,17 @@ import {Animal} from '../../dtos/animal';
 })
 export class TaskListComponent implements OnInit {
   @Input() tasks: AnimalTask[];
+  @Input() enclosureTasks: EnclosureTask[];
+
   @Input() doctors: Employee[];
+  @Input() janitors: Employee[];
   @Input() employees: Employee[];
-  @Input() animal: Animal;
+
   @Output() reloadTasks = new EventEmitter();
-  @Output() deleteTask = new EventEmitter<AnimalTask>();
+  @Output() deleteTaskEvent = new EventEmitter();
+
+  error = false;
+  errorMessage = '';
 
 
   constructor(private taskService: TaskService, private animalService: AnimalService,
@@ -26,5 +33,30 @@ export class TaskListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+  }
+
+  deleteTask(animalTaskId) {
+    this.taskService.deleteTask(animalTaskId).subscribe(
+      () => {
+        this.deleteTaskEvent.emit();
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  vanishError() {
+    this.error = false;
+  }
+
+  private defaultServiceErrorHandling(error: any) {
+    console.log(error);
+    this.error = true;
+    if (typeof error.error === 'object') {
+      this.errorMessage = error.error.error;
+    } else {
+      this.errorMessage = error.error;
+    }
   }
 }
