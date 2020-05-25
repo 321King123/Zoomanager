@@ -213,6 +213,45 @@ public class TaskEndpoint {
     @ApiOperation(value = "Get list of animal tasks belonging to an employee", authorizations = {@Authorization(value = "apiKey")})
     public List<AnimalTaskDto> getAllAnimalTasksBelongingToEmployee(@PathVariable String employeeUsername, Authentication authentication){
         LOGGER.info("GET /api/v1/tasks/employee/{}", employeeUsername);
+        ValidateViewEmployeeInfoPermission(employeeUsername, authentication);
+        List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllAnimalTasksOfEmployee(employeeUsername));
+        List<AnimalTaskDto> animalTaskDtoList = new LinkedList<>();
+        for(AnimalTask a: animalTasks){
+            animalTaskDtoList.add(animalTaskMapper.animalTaskToAnimalTaskDto(a));
+        }
+        return animalTaskDtoList;
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/enclosure/{enclosureId}")
+    @ApiOperation(value = "Get list of enclosure tasks belonging to an enclosure", authorizations = {@Authorization(value = "apiKey")})
+    public List<EnclosureTaskDto> getAllEnclosureTasksBelongingToEnclosure(@PathVariable Long enclosureId, Authentication authentication){
+        LOGGER.info("GET /api/v1/tasks/enclosure/ {}", enclosureId);
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String username = (String) authentication.getPrincipal();
+        if(!isAdmin){
+            if(!employeeService.isAssignedToEnclosure(username,enclosureId)){
+                throw new NotAuthorisedException("You are not allowed to see this enclosures information.");
+            }
+        }
+        List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllTasksOfEnclosure(enclosureId));
+        return mapEnclouresTaskListToEnclosureTaskDtosList(enclosureTasks);
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/employee/enclosure-task/{employeeUsername}")
+    @ApiOperation(value = "Get list of enclosure tasks belonging to an employee", authorizations = {@Authorization(value = "apiKey")})
+    public List<EnclosureTaskDto> getAllEnclosureTasksBelongingToEmployee(@PathVariable String employeeUsername, Authentication authentication){
+        LOGGER.info("GET /api/v1/tasks/employee/enclosure-task/{}", employeeUsername);
+        ValidateViewEmployeeInfoPermission(employeeUsername, authentication);
+        List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllEnclosureTasksOfEmployee(employeeUsername));
+        return mapEnclouresTaskListToEnclosureTaskDtosList(enclosureTasks);
+    }
+
+    private void ValidateViewEmployeeInfoPermission(String employeeUsername, Authentication authentication) {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
         String username = (String) authentication.getPrincipal();
@@ -221,11 +260,30 @@ public class TaskEndpoint {
                 throw new NotAuthorisedException("You are not allowed to see this employees information.");
             }
         }
-        List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllAnimalTasksOfEmployee(employeeUsername));
-        List<AnimalTaskDto> animalTaskDtoList = new LinkedList<>();
-        for(AnimalTask a: animalTasks){
-            animalTaskDtoList.add(animalTaskMapper.animalTaskToAnimalTaskDto(a));
+    }
+
+    private List<EnclosureTaskDto> mapEnclouresTaskListToEnclosureTaskDtosList(List<EnclosureTask> enclosureTasks) {
+        List<EnclosureTaskDto> enclosureTaskDtos = new LinkedList<>();
+        for(EnclosureTask e: enclosureTasks){
+            enclosureTaskDtos.add(enclosureTaskMapper.enclosureTaskToEclosureTaskDto(e));
         }
-        return animalTaskDtoList;
+        return enclosureTaskDtos;
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "/finished/{taskId}")
+    @ApiOperation(value = "Marking task as done", authorizations = {@Authorization(value = "apiKey")})
+    public void markTaskAsDone(@PathVariable Long taskId, Authentication authentication){
+        LOGGER.info("PUT /api/v1/tasks/finished/{}", taskId);
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String username = (String) authentication.getPrincipal();
+        if(!isAdmin){
+            if(!taskService.isTaskPerformer(username, taskId)){
+                throw new NotAuthorisedException("You are not allowed to see this employees information.");
+            }
+        }
+        taskService.markTaskAsDone(taskId);
     }
 }
