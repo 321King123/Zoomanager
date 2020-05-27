@@ -32,6 +32,7 @@ export class AlertComponent implements OnInit, OnDestroy {
             return;
           }
 
+          this.alerts = this.alerts.filter((al) => (al.message !== alert.message && al.type === alert.type));
           this.alerts.push(alert);
         }
       );

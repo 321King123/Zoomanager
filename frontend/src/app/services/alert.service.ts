@@ -23,30 +23,30 @@ export class AlertService {
   }
 
   success(message: string, source: string = 'No source given', options?: any) {
-    this.alert(new Alert({ ...options, type: AlertType.Success, message }));
+    this.alert(new Alert({ ...options, type: AlertType.Success, message }), source);
   }
 
   error(message: string, source: string = 'No source given', options?: any) {
-    this.alert(new Alert({ ...options, type: AlertType.Error, message }));
+    this.alert(new Alert({ ...options, type: AlertType.Error, message }), source);
   }
 
   info(message: string, source: string = 'No source given', options?: any) {
-    this.alert(new Alert({ ...options, type: AlertType.Info, message }));
+    this.alert(new Alert({ ...options, type: AlertType.Info, message }), source);
   }
 
   warn(message: string, source: string = 'No source given', options?: any) {
-    this.alert(new Alert({ ...options, type: AlertType.Warning, message }));
+    this.alert(new Alert({ ...options, type: AlertType.Warning, message }), source);
   }
 
   alertFromError(error: any, componentId: string, source: string = 'No source given', options?: any) {
     console.log('Alerting for Error of component: ' + componentId + ' from source: ' + source);
     console.log(error);
     if (typeof error.error === 'object') {
-      this.subject.next(new Alert({ ...options, message: error.error.error, type: AlertType.Error,
-        correspondingAlertComponentId: componentId}));
+      this.alert(new Alert({ ...options, message: error.error.error, type: AlertType.Error,
+        correspondingAlertComponentId: componentId}), source);
     } else {
-      this.subject.next(new Alert({ ...options, message: error.error, type: AlertType.Error,
-        correspondingAlertComponentId: componentId}));
+      this.alert(new Alert({ ...options, message: error.error, type: AlertType.Error,
+        correspondingAlertComponentId: componentId}), source);
     }
   }
 
