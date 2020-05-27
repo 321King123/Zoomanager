@@ -4,7 +4,9 @@ import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.*;
+import java.time.LocalTime;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,6 +36,12 @@ public class Employee {
 
     @Column(nullable = true)
     private String email;
+
+    @Column(nullable = false)
+    private LocalTime workTimeStart;
+
+    @Column(nullable = false)
+    private LocalTime workTimeEnd;
 
     @JoinTable(
         name = "ANIMALS_CARETAKERS",

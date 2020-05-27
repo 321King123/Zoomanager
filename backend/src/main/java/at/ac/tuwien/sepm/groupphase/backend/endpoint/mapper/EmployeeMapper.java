@@ -20,6 +20,8 @@ public class EmployeeMapper {
             .birthday(employee.getBirthday())
             .email(employee.getEmail())
             .type(employee.getType())
+            .workTimeStart(employee.getWorkTimeStart())
+            .workTimeEnd(employee.getWorkTimeEnd())
             .password("").build();
     }
 
@@ -32,6 +34,8 @@ public class EmployeeMapper {
             .username(employeeDto.getUsername())
             .birthday(employeeDto.getBirthday())
             .email(employeeDto.getEmail())
+            .workTimeStart(employeeDto.getWorkTimeStart())
+            .workTimeEnd(employeeDto.getWorkTimeEnd())
             .type(employeeDto.getType()).build();
     }
 
