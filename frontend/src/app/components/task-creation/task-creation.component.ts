@@ -73,7 +73,7 @@ export class TaskCreationComponent implements OnInit {
     this.employeeService.getDoctors().subscribe(
       (doctors) => {
         this.doctors = doctors;
-        console.log(JSON.stringify(doctors));
+        console.log('Getting Doctors: ' + JSON.stringify(doctors));
       },
       error => {
         this.defaultServiceErrorHandling(error);
@@ -85,6 +85,7 @@ export class TaskCreationComponent implements OnInit {
     this.employeeService.getJanitors().subscribe(
       (janitors) => {
         this.janitors = janitors;
+        console.log('Getting Janitors: ' + JSON.stringify(janitors));
       },
       error => {
         this.defaultServiceErrorHandling(error);
@@ -98,6 +99,7 @@ export class TaskCreationComponent implements OnInit {
       (employees) => {
         this.employeesOfTaskSubject = employees;
         this.employeesFound = true;
+        console.log('Getting Employees of animal: ' + this.taskCreationForm.controls.subjectId.value);
       },
       error => {
         this.defaultServiceErrorHandling(error);
