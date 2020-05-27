@@ -34,9 +34,14 @@ export class TaskService {
     return this.httpClient.put<Employee>(this.taskBaseUri + '/' + id, employee);
   }
 
-  getTasksOfAnimal(animalId): Observable<AnimalTask[]> {
+ /* getTasksOfAnimal(animalId): Observable<AnimalTask[]> {
     console.log('Get tasks of animal ' + animalId);
     return this.httpClient.get<AnimalTask[]>(this.animalTaskBaseUri + '/' + animalId);
+  }*/
+
+  getTasksOfAnimal(animalId): Observable<Task[]> {
+    console.log('Get tasks of animal ' + animalId);
+    return this.httpClient.get<Task[]>(this.animalTaskBaseUri + '/' + animalId);
   }
 
   deleteTask(id): Observable<any> {
@@ -60,9 +65,15 @@ export class TaskService {
     return this.httpClient.get<EnclosureTask[]>(this.taskBaseUri + '/employee/enclosure-task/' + username);
   }
 
-  getTasksOfEnclosure(enclosureId): Observable<EnclosureTask[]> {
+ /* getTasksOfEnclosure(enclosureId): Observable<EnclosureTask[]> {
     console.log('Get tasks of enclosure ' + enclosureId);
     return this.httpClient.get<EnclosureTask[]>(this.taskBaseUri + '/enclosure/' + enclosureId);
+
+  }*/
+
+  getTasksOfEnclosure(enclosureId): Observable<Task[]> {
+    console.log('Get tasks of enclosure ' + enclosureId);
+    return this.httpClient.get<Task[]>(this.taskBaseUri + '/enclosure/' + enclosureId);
 
   }
 
