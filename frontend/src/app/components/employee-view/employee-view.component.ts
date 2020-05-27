@@ -30,7 +30,7 @@ export class EmployeeViewComponent implements OnInit {
   animalList: Animal[];
   selectedAnimal: Animal = null;
   assignedAnimals: Animal[];
-  tasks: AnimalTask[];
+  tasks;             // : AnimalTask[];
   enclosureTasks: EnclosureTask[];
 
   enclosuresFound = false;
@@ -61,7 +61,7 @@ export class EmployeeViewComponent implements OnInit {
   getCurrentUserType() {
     if (this.isAdmin()) {
       return 'ADMIN';
-    } else  {
+    } else {
       return this.employee.type;
     }
   }
@@ -119,7 +119,24 @@ export class EmployeeViewComponent implements OnInit {
   }
 
   loadTasksOfEmployee() {
-    this.taskService.getAnimalTasksOfEmployee(this.employee.username).subscribe(
+    /* this.taskService.getAnimalTasksOfEmployee(this.employee.username).subscribe(
+         (tasks) => {
+           this.tasks = tasks;
+         },
+         error => {
+           this.defaultServiceErrorHandling(error);
+         }
+       );
+       this.taskService.getEnclosureTasksOfEmployee(this.employee.username).subscribe(
+         (enclosureTasks) => {
+           this.enclosureTasks = enclosureTasks;
+         },
+         error => {
+           this.defaultServiceErrorHandling(error);
+         }
+       );  */
+
+    this.taskService.getTasksOfEmployee(this.employee.username).subscribe(
       (tasks) => {
         this.tasks = tasks;
       },
@@ -127,14 +144,7 @@ export class EmployeeViewComponent implements OnInit {
         this.defaultServiceErrorHandling(error);
       }
     );
-    this.taskService.getEnclosureTasksOfEmployee(this.employee.username).subscribe(
-      (enclosureTasks) => {
-        this.enclosureTasks = enclosureTasks;
-      },
-      error => {
-        this.defaultServiceErrorHandling(error);
-      }
-    );
+
   }
 
   private defaultServiceErrorHandling(error: any) {

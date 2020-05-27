@@ -12,7 +12,7 @@ import {EnclosureTask} from '../../dtos/enclosureTask';
 })
 export class AssignTaskComponent implements OnInit {
   @Input() enclosureTask: EnclosureTask;
-  @Input() task: AnimalTask;
+  @Input() task;
   @Input() employees: Employee[];
   @Input() doctors: Employee [];
   @Input() janitors: Employee[];

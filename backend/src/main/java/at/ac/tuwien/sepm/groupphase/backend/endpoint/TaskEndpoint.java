@@ -209,7 +209,7 @@ public class TaskEndpoint {
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/employee/{employeeUsername}")
+    @GetMapping(value = "/employee/animal-task/{employeeUsername}")
     @ApiOperation(value = "Get list of animal tasks belonging to an employee", authorizations = {@Authorization(value = "apiKey")})
     public List<AnimalTaskDto> getAllAnimalTasksBelongingToEmployee(@PathVariable String employeeUsername, Authentication authentication){
         LOGGER.info("GET /api/v1/tasks/employee/{}", employeeUsername);

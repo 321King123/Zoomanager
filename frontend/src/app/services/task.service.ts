@@ -5,6 +5,7 @@ import {AnimalTask} from '../dtos/animalTask';
 import {Observable} from 'rxjs';
 import {EnclosureTask} from '../dtos/enclosureTask';
 import {Employee} from '../dtos/employee';
+import {Task} from '../dtos/task';
 
 @Injectable({
   providedIn: 'root'
@@ -44,12 +45,13 @@ export class TaskService {
   }
 
   getAnimalTasksOfEmployee(username): Observable<AnimalTask[]> {
-    console.log('Get tasks of employee ' + username);
-    return this.httpClient.get<AnimalTask[]>(this.taskBaseUri + '/employee/' + username);
+    console.log('Get animal tasks of employee ' + username);
+    return this.httpClient.get<AnimalTask[]>(this.taskBaseUri + '/employee/animal-task/' + username);
   }
 
 
   markTaskAsDone(taskId): Observable<any> {
+    console.log('Mark task as done ' + taskId);
     return this.httpClient.put(this.taskBaseUri + '/finished/' + taskId, {});
   }
 
@@ -62,5 +64,10 @@ export class TaskService {
     console.log('Get tasks of enclosure ' + enclosureId);
     return this.httpClient.get<EnclosureTask[]>(this.taskBaseUri + '/enclosure/' + enclosureId);
 
+  }
+
+  getTasksOfEmployee(username): Observable<Task[]> {
+    console.log('Get all tasks of employee ' + username);
+    return this.httpClient.get<Task[]>(this.taskBaseUri + '/employee/' + username);
   }
 }
