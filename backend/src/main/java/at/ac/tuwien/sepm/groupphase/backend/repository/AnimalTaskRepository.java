@@ -8,14 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityResult;
+import javax.persistence.FieldResult;
+import javax.persistence.SqlResultSetMapping;
 import java.util.List;
 
 @Repository
 public interface AnimalTaskRepository extends JpaRepository<AnimalTask, Long> {
 
-
-    @Query("SELECT new AnimalTask(at.id, at.task, at.subject) " +
-        "FROM AnimalTask at JOIN Task t ON at.id=t.id WHERE at.subject.id=:animalId ORDER BY t.startTime")
-    List<AnimalTask> findAllBySubject_Id(@Param("animalId")Long animalId);
+    @Query(value = "SELECT anTask.id, anTask.subject_id FROM ANIMAL_TASK anTask JOIN TASK t ON anTask.id=t.id WHERE anTask.subject_id=:animalId ORDER BY t.start_time", nativeQuery = true)
+    List<AnimalTask> findAllAnimalTasksBySubject_Id(@Param("animalId") long animalId);
 
 }
