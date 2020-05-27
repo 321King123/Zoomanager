@@ -16,7 +16,8 @@ import java.util.List;
 @Repository
 public interface AnimalTaskRepository extends JpaRepository<AnimalTask, Long> {
 
-    @Query(value = "SELECT anTask.id, anTask.subject_id FROM ANIMAL_TASK anTask JOIN TASK t ON anTask.id=t.id WHERE anTask.subject_id=:animalId ORDER BY t.start_time", nativeQuery = true)
+    @Query("SELECT new AnimalTask(animT.id, t, animT.subject) " +
+        "FROM AnimalTask animT JOIN Task t ON animT.id=t.id WHERE animT.subject.id=:animalId ORDER BY t.startTime")
     List<AnimalTask> findAllAnimalTasksBySubject_Id(@Param("animalId") long animalId);
 
 }
