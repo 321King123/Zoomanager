@@ -171,7 +171,7 @@ public class CustomTaskService implements TaskService {
         Employee employee = employeeService.findByUsername(employeeUsername);
         if(employee == null)
             throw new NotFoundException("Could not find Employee with given Username");
-        List<Task> taskList = new LinkedList<>(taskRepository.findAllByAssignedEmployee(employee));
+        List<Task> taskList = new LinkedList<>(taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee));
         List<AnimalTask> animalTaskList = new LinkedList<>();
         for(Task t:taskList){
             Optional<AnimalTask> animalTask = animalTaskRepository.findById(t.getId());
@@ -218,7 +218,7 @@ public class CustomTaskService implements TaskService {
         }
         return foundTask;
     }
-    
+
     @Override
     public List<EnclosureTask> getAllEnclosureTasksOfEmployee(String employeeUsername) {
         LOGGER.debug("Get All Enclosure Tasks belonging to employee with username: {}", employeeUsername);

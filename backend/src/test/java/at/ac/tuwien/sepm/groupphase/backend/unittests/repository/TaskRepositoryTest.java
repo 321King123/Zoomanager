@@ -125,7 +125,7 @@ public class TaskRepositoryTest implements TestData {
         taskRepository.save(task_assigned2);
         taskRepository.save(task_assigned3);
 
-        List<Task> searchTask = taskRepository.findAllByAssignedEmployee(caretaker);
+        List<Task> searchTask = taskRepository.findAllByAssignedEmployeeOrderByStartTime(caretaker);
         assertEquals(searchTask.size(), 3);
     }
 

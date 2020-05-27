@@ -226,7 +226,7 @@ public class TaskServiceTest implements TestData {
     public void validEmployeeGetAllAnimalTasksReturnsHisTasks(){
         List<Task> tasks = new LinkedList<>();
         tasks.add(task_assigned);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(anmial_caretaker)).thenReturn(tasks);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(anmial_caretaker)).thenReturn(tasks);
         Optional<AnimalTask> animalTask = Optional.of(animalTask_not_assigned);
         Mockito.when(animalTaskRepository.findById(Mockito.any(Long.class))).thenReturn(animalTask);
         Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(anmial_caretaker);
@@ -239,7 +239,7 @@ public class TaskServiceTest implements TestData {
     public void invalidEmployeeGetAllAnimalTasksReturnsNotFound(){
         List<Task> tasks = new LinkedList<>();
         tasks.add(task_assigned);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(anmial_caretaker)).thenReturn(tasks);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(anmial_caretaker)).thenReturn(tasks);
         Optional<AnimalTask> animalTask = Optional.of(animalTask_not_assigned);
         Mockito.when(animalTaskRepository.findById(Mockito.any(Long.class))).thenReturn(animalTask);
         Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(null);
@@ -249,7 +249,7 @@ public class TaskServiceTest implements TestData {
     @Test
     public void validEmployeeGetAllAnimalTasksButNoTasksExistReturnsEmptyList(){
         List<Task> tasks = new LinkedList<>();
-        Mockito.when(taskRepository.findAllByAssignedEmployee(anmial_caretaker)).thenReturn(tasks);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(anmial_caretaker)).thenReturn(tasks);
         Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(anmial_caretaker);
         List<AnimalTask> animalTasks = taskService.getAllAnimalTasksOfEmployee(anmial_caretaker.getUsername());
         assertEquals(0, animalTasks.size());

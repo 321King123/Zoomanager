@@ -133,7 +133,7 @@ public class CustomEmployeeService implements EmployeeService {
         if(employee == null)
             throw new NotFoundException("No employee to delete: " + username);
 
-        List<Task> tasks=taskRepository.findAllByAssignedEmployee(employee);
+        List<Task> tasks=taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee);
         for (Task t:tasks){
             t.setStatus(TaskStatus.NOT_ASSIGNED);
             t.setAssignedEmployee(null);
@@ -146,7 +146,7 @@ public class CustomEmployeeService implements EmployeeService {
     @Override
     public boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task){
         LOGGER.debug("Checking if " + employee.getUsername() + " is free");
-        List<Task> tasks = taskRepository.findAllByAssignedEmployee(employee);
+        List<Task> tasks = taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee);
         LocalDateTime start = task.getStartTime();
         LocalDateTime end = task.getEndTime();
         for(Task t:tasks){
