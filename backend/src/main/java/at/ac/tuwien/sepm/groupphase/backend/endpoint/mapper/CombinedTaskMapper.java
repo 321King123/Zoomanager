@@ -82,32 +82,40 @@ public class CombinedTaskMapper {
         CombinedTaskDto task1 = combinedTaskDtoListIterator1.next();
         CombinedTaskDto task2 = combinedTaskDtoListIterator2.next();
 
-        while(combinedTaskDtoListIterator1.hasNext() || combinedTaskDtoListIterator2.hasNext()){
-            if(task2.getStartTime().isBefore(task1.getStartTime())){
-                combinedTaskDtos.add(task2);
-                if(combinedTaskDtoListIterator2.hasNext()) {
-                    task2 = combinedTaskDtoListIterator2.next();
-                }else{
-                    break;
-                }
-            }else{
+        while(task1 != null && task2 != null){
+            if(task1.getStartTime().isBefore(task2.getStartTime())){
                 combinedTaskDtos.add(task1);
                 if(combinedTaskDtoListIterator1.hasNext()) {
                     task1 = combinedTaskDtoListIterator1.next();
                 }else{
-                    break;
+                    task1 = null;
+                }
+            }else{
+                combinedTaskDtos.add(task2);
+                if(combinedTaskDtoListIterator2.hasNext()) {
+                    task2 = combinedTaskDtoListIterator2.next();
+                }else{
+                    task2 = null;
                 }
             }
         }
 
-        while(combinedTaskDtoListIterator1.hasNext()){
+        while(task1 != null){
             combinedTaskDtos.add(task1);
-            task1 = combinedTaskDtoListIterator1.next();
+            if(combinedTaskDtoListIterator1.hasNext()) {
+                task1 = combinedTaskDtoListIterator1.next();
+            }else{
+                task1 = null;
+            }
         }
 
-        while(combinedTaskDtoListIterator2.hasNext()){
+        while(task2 != null){
             combinedTaskDtos.add(task2);
-            task2 = combinedTaskDtoListIterator2.next();
+            if(combinedTaskDtoListIterator2.hasNext()) {
+                task2 = combinedTaskDtoListIterator2.next();
+            }else{
+                task2 = null;
+            }
         }
         return combinedTaskDtos;
     }

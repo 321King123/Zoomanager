@@ -243,10 +243,10 @@ public class TaskEndpoint {
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/employee/combined-task/{employeeUsername}")
+    @GetMapping(value = "/employee/{employeeUsername}")
     @ApiOperation(value = "Get list of enclosure tasks belonging to an employee", authorizations = {@Authorization(value = "apiKey")})
     public List<CombinedTaskDto> getAllTasksBelongingToEmployee(@PathVariable String employeeUsername, Authentication authentication){
-        LOGGER.info("GET /api/v1/tasks/employee/combined-task/{}", employeeUsername);
+        LOGGER.info("GET /api/v1/tasks/employee/{}", employeeUsername);
         ValidateViewEmployeeInfoPermission(employeeUsername, authentication);
         List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllEnclosureTasksOfEmployee(employeeUsername));
         List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllAnimalTasksOfEmployee(employeeUsername));

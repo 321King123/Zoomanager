@@ -5,6 +5,7 @@ import {Employee} from '../../dtos/employee';
 import {AuthService} from '../../services/auth.service';
 import {Location} from '@angular/common';
 import {Animal} from '../../dtos/animal';
+import {Task} from '../../dtos/task';
 import {AnimalService} from '../../services/animal.service';
 import {AnimalTask} from '../../dtos/animalTask';
 import {TaskService} from '../../services/task.service';
@@ -30,7 +31,7 @@ export class EmployeeViewComponent implements OnInit {
   animalList: Animal[];
   selectedAnimal: Animal = null;
   assignedAnimals: Animal[];
-  tasks;             // : AnimalTask[];
+  tasks: Task[];             // : AnimalTask[];
   enclosureTasks: EnclosureTask[];
 
   enclosuresFound = false;
