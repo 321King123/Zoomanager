@@ -117,12 +117,13 @@ public class TaskEndpoint {
         }else{
             String username = (String)authentication.getPrincipal();
 
-            if(employeeService.findAssignedEnclosures(username).contains(enclosure)) {
+            if(employeeService.isAssignedToEnclosure(username, enclosureId)) {
 
                 return enclosureTaskMapper.enclosureTaskToEclosureTaskDto(taskService.createEnclosureTask(task,enclosure));
+            }else {
+                //if no animal with transmitted Id is assigned to User
+                throw new NotAuthorisedException("You cant assign Tasks to Enclosures that are not assigned to you");
             }
-            //if no animal with transmitted Id is assigned to User
-            throw new NotAuthorisedException("You cant assign Tasks to Enclosures that are not assigned to you");
         }
     }
 

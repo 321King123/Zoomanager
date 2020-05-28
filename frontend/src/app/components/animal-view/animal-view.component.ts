@@ -37,8 +37,10 @@ export class AnimalViewComponent implements OnInit {
   ngOnInit(): void {
     const currentAnimalId = (this.route.snapshot.paramMap.get('animalId'));
     this.getCurrentAnimal(currentAnimalId);
-    this.getAllEnclosures();
-    this.getAllEmployees();
+    if (this.isAdmin()) {
+      this.getAllEnclosures();
+      this.getAllEmployees();
+    }
   }
 
   getCurrentAnimal(id) {
