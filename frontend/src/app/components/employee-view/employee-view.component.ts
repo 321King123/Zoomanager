@@ -5,6 +5,7 @@ import {Employee} from '../../dtos/employee';
 import {AuthService} from '../../services/auth.service';
 import {Location} from '@angular/common';
 import {Animal} from '../../dtos/animal';
+import {Task} from '../../dtos/task';
 import {AnimalService} from '../../services/animal.service';
 import {AnimalTask} from '../../dtos/animalTask';
 import {TaskService} from '../../services/task.service';
@@ -30,7 +31,7 @@ export class EmployeeViewComponent implements OnInit {
   animalList: Animal[];
   selectedAnimal: Animal = null;
   assignedAnimals: Animal[];
-  tasks: AnimalTask[];
+  tasks: Task[];             // : AnimalTask[];
   enclosureTasks: EnclosureTask[];
 
   enclosuresFound = false;
@@ -61,7 +62,7 @@ export class EmployeeViewComponent implements OnInit {
   getCurrentUserType() {
     if (this.isAdmin()) {
       return 'ADMIN';
-    } else  {
+    } else {
       return this.employee.type;
     }
   }
@@ -119,7 +120,7 @@ export class EmployeeViewComponent implements OnInit {
   }
 
   loadTasksOfEmployee() {
-    this.taskService.getAnimalTasksOfEmployee(this.employee.username).subscribe(
+    this.taskService.getTasksOfEmployee(this.employee.username).subscribe(
       (tasks) => {
         this.tasks = tasks;
       },
@@ -127,14 +128,7 @@ export class EmployeeViewComponent implements OnInit {
         this.defaultServiceErrorHandling(error);
       }
     );
-    this.taskService.getEnclosureTasksOfEmployee(this.employee.username).subscribe(
-      (enclosureTasks) => {
-        this.enclosureTasks = enclosureTasks;
-      },
-      error => {
-        this.defaultServiceErrorHandling(error);
-      }
-    );
+
   }
 
   private defaultServiceErrorHandling(error: any) {

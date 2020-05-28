@@ -278,7 +278,7 @@ public class EmployeeServiceTest implements TestData {
     @Test
     public void employeeIsFree_whenNoOtherTaskAssigned(){
         List<Task> taskList = new LinkedList<>();
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
         assertTrue(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
     }
 
@@ -294,7 +294,7 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
         assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
     }
 
@@ -310,7 +310,7 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
         assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
     }
 
@@ -326,7 +326,7 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
         assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
     }
 
@@ -342,7 +342,7 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
         assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
     }
 

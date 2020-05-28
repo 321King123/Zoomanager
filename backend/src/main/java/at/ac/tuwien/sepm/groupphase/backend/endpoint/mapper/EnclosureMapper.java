@@ -14,23 +14,14 @@ public class EnclosureMapper {
             return null;
         }
 
-        if(enclosure.getPicture()==null){
-            return EnclosureDto.builder()
-                .id(enclosure.getId())
-                .name(enclosure.getName())
-                .description(enclosure.getDescription())
-                .publicInfo(enclosure.getPublicInfo())
-                .picture(null)
-                .build();
-        }
-
         return EnclosureDto.builder()
             .id(enclosure.getId())
             .name(enclosure.getName())
             .description(enclosure.getDescription())
             .publicInfo(enclosure.getPublicInfo())
-            .picture(new String(enclosure.getPicture()))
+            .picture(enclosure.getPicture()==null?null:new String(enclosure.getPicture()))
             .build();
+
     }
 
     public Enclosure enclosureDtoToEnclosure(EnclosureDto enclosureDto) {
@@ -38,22 +29,12 @@ public class EnclosureMapper {
             return null;
         }
 
-        if(enclosureDto.getPicture()==null){
-            return Enclosure.builder()
-                .id(enclosureDto.getId())
-                .name(enclosureDto.getName())
-                .description(enclosureDto.getDescription())
-                .publicInfo(enclosureDto.getPublicInfo())
-                .picture(null)
-                .build();
-        }
-
         return Enclosure.builder()
             .id(enclosureDto.getId())
             .name(enclosureDto.getName())
             .description(enclosureDto.getDescription())
             .publicInfo(enclosureDto.getPublicInfo())
-            .picture(enclosureDto.getPicture().getBytes())
+            .picture(enclosureDto.getPicture()==null?null:enclosureDto.getPicture().getBytes())
             .build();
     }
 }

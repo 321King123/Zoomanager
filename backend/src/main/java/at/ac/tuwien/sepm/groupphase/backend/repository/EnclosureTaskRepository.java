@@ -21,7 +21,7 @@ public interface EnclosureTaskRepository extends JpaRepository<EnclosureTask, Lo
      * @return The tasks associated with the given enclosure
      */
     @Query("SELECT new EnclosureTask(et.id, et.priority, t, et.subject) " +
-        "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE et.subject.id=:enclosureId")
+        "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE et.subject.id=:enclosureId ORDER BY t.startTime")
     List<EnclosureTask> findAllEnclosureTasksBySubject_Id(@Param("enclosureId")long enclosureIdLong);
 
 
@@ -52,7 +52,7 @@ public interface EnclosureTaskRepository extends JpaRepository<EnclosureTask, Lo
      * @return The EnclosureTask with of the given employee
      */
     @Query("SELECT new EnclosureTask (et.id, et.priority, t, et.subject)" +
-        "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE t.assignedEmployee.username =:employeeUsername")
+        "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE t.assignedEmployee.username =:employeeUsername ORDER BY t.startTime")
     List<EnclosureTask> findEnclosureTaskByEmployeeUsername(@Param("employeeUsername")String employeeUsername);
 
     @Transactional

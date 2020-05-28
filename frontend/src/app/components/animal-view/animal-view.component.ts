@@ -9,6 +9,7 @@ import {AnimalTask} from '../../dtos/animalTask';
 import {AuthService} from '../../services/auth.service';
 import {EnclosureService} from '../../services/enclosure.service';
 import {Enclosure} from '../../dtos/enclosure';
+import {Task} from '../../dtos/task';
 
 @Component({
   selector: 'app-animal-view',
@@ -22,7 +23,7 @@ export class AnimalViewComponent implements OnInit {
 
   doctors: Employee[];
   employees: Employee[];
-  tasks: AnimalTask[];
+  tasks: Task[];
   selectedEnclosure: Enclosure;
   enclosureList: Enclosure[];
   selectedEmployee: Employee;
@@ -36,8 +37,10 @@ export class AnimalViewComponent implements OnInit {
   ngOnInit(): void {
     const currentAnimalId = (this.route.snapshot.paramMap.get('animalId'));
     this.getCurrentAnimal(currentAnimalId);
-    this.getAllEnclosures();
-    this.getAllEmployees();
+    if (this.isAdmin()) {
+      this.getAllEnclosures();
+      this.getAllEmployees();
+    }
   }
 
   getCurrentAnimal(id) {
@@ -56,7 +59,7 @@ export class AnimalViewComponent implements OnInit {
 
   getTasksOfAnimal() {
     this.taskService.getTasksOfAnimal(this.currentAnimal.id).subscribe(
-      (tasks: AnimalTask[]) => {
+      (tasks: Task[]) => {
         this.tasks = tasks;
       },
       error => {
@@ -101,8 +104,8 @@ export class AnimalViewComponent implements OnInit {
     );
   }
 
-  deleteTask(animalTask: AnimalTask) {
-    this.taskService.deleteTask(animalTask.id).subscribe(
+  deleteTask(task: Task) {
+    this.taskService.deleteTask(task.id).subscribe(
       () => {
         this.getTasksOfAnimal();
       },

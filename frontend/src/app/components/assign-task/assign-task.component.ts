@@ -4,6 +4,7 @@ import {AnimalTask} from '../../dtos/animalTask';
 import {TaskService} from '../../services/task.service';
 import {Animal} from '../../dtos/animal';
 import {EnclosureTask} from '../../dtos/enclosureTask';
+import {Task} from '../../dtos/task';
 
 @Component({
   selector: 'app-assign-task',
@@ -11,8 +12,7 @@ import {EnclosureTask} from '../../dtos/enclosureTask';
   styleUrls: ['./assign-task.component.css']
 })
 export class AssignTaskComponent implements OnInit {
-  @Input() enclosureTask: EnclosureTask;
-  @Input() task: AnimalTask;
+  @Input() task: Task;
   @Input() employees: Employee[];
   @Input() doctors: Employee [];
   @Input() janitors: Employee[];
@@ -34,17 +34,10 @@ export class AssignTaskComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.enclosureTask) {
-      this.uniqId = 'enclosure';
-    }
-    if (this.task) {
-      this.uniqId = 'animal';
-    }
   }
 
   assign() {
-    const taskId = (this.task) ? this.task.id : this.enclosureTask.id;
-    this.taskService.assignTask(taskId, this.selectedEmployee).subscribe(
+    this.taskService.assignTask(this.task.id, this.selectedEmployee).subscribe(
       (res: any) => {
         this.success = true;
         this.enable = false;

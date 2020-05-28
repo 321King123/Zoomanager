@@ -26,5 +26,5 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
      * @param employee of the employee to be found
      * @return employee with the corresponding username
      */
-    List<Task> findAllByAssignedEmployee(Employee employee);
+    List<Task> findAllByAssignedEmployeeOrderByStartTime(Employee employee);
 }
