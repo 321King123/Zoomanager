@@ -32,7 +32,8 @@ export class AlertComponent implements OnInit, OnDestroy {
           if (!alert.message) {
             this.alerts = this.alerts.filter(al => al.keepAfterRouteChange);
 
-            this.alerts.forEach(al => delete al.keepAfterRouteChange);
+            // Uncomment next line to only keep after one Route Change
+            // this.alerts.forEach(al => delete al.keepAfterRouteChange);
             return;
           }
 
@@ -70,5 +71,6 @@ export class AlertComponent implements OnInit, OnDestroy {
 
   clearAlerts() {
     this.alertService.clear(this.alertComponentId);
+    this.alerts.length = 0;
   }
 }

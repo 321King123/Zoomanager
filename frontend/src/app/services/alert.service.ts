@@ -9,7 +9,6 @@ import DEBUG_LOG = Utilities.DEBUG_LOG;
   providedIn: 'root'
 })
 export class AlertService {
-  readonly globalAlert = 'global-alert';
   private subject = new Subject<Alert>();
   private defaultId = 'default-alert';
 
@@ -20,13 +19,11 @@ export class AlertService {
 
   onAlert(alertComponentId = this.defaultId): Observable<Alert> {
     DEBUG_LOG('Subscribed to alerts with component: ' + alertComponentId);
-    return this.subject.asObservable().pipe(filter(al => al && (al.componentId === alertComponentId
-      || al.componentId === this.globalAlert)));
+    return this.subject.asObservable().pipe(filter(al => al && al.componentId === alertComponentId));
   }
 
   getAlerts(alertComponentId = this.defaultId) {
-    return this.alerts.filter(alert => alert && (alert.componentId === alertComponentId
-    || alert.componentId === this.globalAlert));
+    return this.alerts.filter(alert => alert && alert.componentId === alertComponentId);
   }
 
   alert(alert: Alert, sourceFn: string = 'No sourceFn given') {
