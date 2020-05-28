@@ -3,6 +3,8 @@ import {Alert, AlertType} from '../../dtos/alert';
 import {Subscription} from 'rxjs';
 import {NavigationStart, Router} from '@angular/router';
 import {AlertService} from '../../services/alert.service';
+import {Utilities} from '../../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 @Component({
   selector: 'app-alert',
@@ -10,18 +12,20 @@ import {AlertService} from '../../services/alert.service';
   styleUrls: ['./alert.component.css']
 })
 export class AlertComponent implements OnInit, OnDestroy {
-  @Input() alertComponentId;
+  @Input() alertComponentId = 'default-alert';
 
 
   alerts: Alert[] = [];
 
   alertSubscription: Subscription;
   routeSubscription: Subscription;
+  DEBUG_MODE = Utilities.DEBUG_MODE;
 
   constructor(private router: Router, private alertService: AlertService) {
   }
 
   ngOnInit(): void {
+    this.alerts = this.alertService.getAlerts(this.alertComponentId);
     this.alertSubscription = this.alertService.onAlert(this.alertComponentId)
       .subscribe(
         alert => {
@@ -32,7 +36,8 @@ export class AlertComponent implements OnInit, OnDestroy {
             return;
           }
 
-          this.alerts = this.alerts.filter((al) => (al.message !== alert.message && al.type === alert.type));
+          //
+          this.alerts = this.alerts.filter((al) => !(al.message === alert.message && al.type === alert.type));
           this.alerts.push(alert);
         }
       );
@@ -54,9 +59,13 @@ export class AlertComponent implements OnInit, OnDestroy {
     this.routeSubscription.unsubscribe();
   }
 
+  consoleExistingAlerts() {
+    DEBUG_LOG(this.alertService.getAlerts(this.alertComponentId));
+  }
 
   closeAlert(alert: Alert) {
     this.alerts.splice(this.alerts.indexOf(alert), 1);
+    this.alertService.removeAlert(alert);
   }
 
   clearAlerts() {

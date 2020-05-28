@@ -7,6 +7,8 @@ import {type} from '../../global/globals';
 import {Animal} from '../../dtos/animal';
 import {AnimalService} from '../../services/animal.service';
 import {Router } from '@angular/router';
+import {AlertService} from '../../services/alert.service';
+import {AlertType} from '../../dtos/alert';
 
 
 
@@ -16,6 +18,8 @@ import {Router } from '@angular/router';
   styleUrls: ['./employee.component.css']
 })
 export class EmployeeComponent implements OnInit {
+  componentId: string;
+
 
   error: boolean = false;
   errorMessage: string = '';
@@ -43,7 +47,7 @@ export class EmployeeComponent implements OnInit {
   assignedAnimals: Animal[];
 
   constructor(private employeeService: EmployeeService, private animalService: AnimalService, private formBuilder: FormBuilder,
-              private authService: AuthService, private route: Router ) {
+              private authService: AuthService, private route: Router, private alertService: AlertService) {
     this.typeValues = Object.keys(type);
     for (const t of this.typeValues) {
       console.log(t);
@@ -64,6 +68,7 @@ export class EmployeeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.componentId = 'employees-overview';
     this.getAllEmployees();
   }
 
@@ -105,6 +110,7 @@ export class EmployeeComponent implements OnInit {
         this.getAllEmployees();
       },
       error => {
+        this.alertService.alertFromError(error,  {componentId: this.componentId}, 'createEmployee');
         this.defaultServiceErrorHandling(error);
       }
     );
@@ -120,6 +126,7 @@ export class EmployeeComponent implements OnInit {
       },
       error => {
         console.log('Failed to load all employees');
+        this.alertService.alertFromError(error, {componentId: this.componentId},'getAllEmployees');
         this.defaultServiceErrorHandling(error);
       }
     );
@@ -138,6 +145,7 @@ export class EmployeeComponent implements OnInit {
       },
       error => {
         console.log('Failed to load all employees');
+        this.alertService.alertFromError(error, {componentId: this.componentId}, 'getFilteredEmployees');
         this.defaultServiceErrorHandling(error);
       }
     );
