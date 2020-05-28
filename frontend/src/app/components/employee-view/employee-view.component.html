@@ -24,6 +24,8 @@
         <h6 *ngIf="employee.type!=null" class="info-subtitle mb-2 ">Role: {{employee.type}}</h6>
         <p *ngIf="employee.email!=null" class="info-text">E-mail: {{employee.email}}</p>
         <p *ngIf="employee.birthday!=null" class="info-text">Birthday: {{displayDate(employee.birthday)}}</p>
+        <p *ngIf="employee.workTimeStart!=null" class="info-text">Work-time start: {{employee.workTimeStart}}</p>
+        <p *ngIf="employee.workTimeEnd!=null" class="info-text">Work-time end: {{employee.workTimeEnd}}</p>
       </div>
     </div>
   </div>

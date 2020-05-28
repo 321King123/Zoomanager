@@ -22,7 +22,7 @@ public class EmployeeMapper {
             .type(employee.getType())
             .workTimeStart(employee.getWorkTimeStart())
             .workTimeEnd(employee.getWorkTimeEnd())
-            .password("").build();
+            .build(); //bilo je i .password - greska??
     }
 
     public Employee employeeDtoToEmployee(EmployeeDto employeeDto) {

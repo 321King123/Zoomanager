@@ -54,12 +54,14 @@ public class Employee {
     @OneToMany(mappedBy = "assignedEmployee", fetch = FetchType.LAZY)
     private List<Task> tasks;
 
-    public Employee(String username, Date birthday, String email, String name, EmployeeType type) {
+    public Employee(String username, Date birthday, String email, String name, EmployeeType type, LocalTime workTimeStart, LocalTime workTimeEnd ) {
         this.username = username;
         this.birthday = birthday;
         this.email = email;
         this.name = name;
         this.type = type;
+        this.workTimeStart = workTimeStart;
+        this.workTimeEnd = workTimeEnd;
     }
 
     //

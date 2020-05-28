@@ -37,6 +37,8 @@
         <th scope="col">Username</th>
         <th scope="col">Email</th>
         <th scope="col">Birthday</th>
+        <th scope="col">Work-time Start</th>
+        <th scope="col">Work-time End</th>
       </tr>
       </thead>
       <tbody *ngIf="employeeList">
@@ -46,6 +48,9 @@
           <td>{{e.username}}</td>
           <td>{{e.email}}</td>
           <td>{{displayDate(e.birthday)}}</td>
+          <td>{{displayTime(e.workTimeStart)}}</td>
+          <td>{{displayTime(e.workTimeEnd)}}</td>
+
         </tr>
       </ng-container>
       </tbody>
@@ -101,7 +106,6 @@
               Password
               must have at least 1 uppercase letter, 1 lowercase letter and 1 number
             </small>
-
           </div>
         </div>
 
@@ -121,6 +125,29 @@
           <input type="date" name="birthday" formControlName="birthday" class="form-control" id="inputBirthday">
           <div *ngIf="submittedEmployee && employeeCreationForm.controls.birthday.errors" class="error">
             <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.birthday.errors.required">Birthday
+              is
+              required!
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-2 col-xs-12">
+        <label for="inputWorkTimeStart">Work-time start</label>
+        <input type="time-local" name="workTimeStart" formControlName="workTimeStart" class="form-control" id="inputWorkTimeStart">
+        <div *ngIf="submittedEmployee && employeeCreationForm.controls.workTimeStart.errors" class="error">
+          <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.workTimeStart.errors.required"> Work-time start
+            is
+            required!
+          </small>
+        </div>
+      </div>
+
+        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-2 col-xs-12">
+          <label for="inputWorkTimeEnd">Work-time end</label>
+          <input type="time-local" name="workTimeEnd" formControlName="workTimeEnd" class="form-control" id="inputWorkTimeEnd">
+
+          <div *ngIf="submittedEmployee && employeeCreationForm.controls.workTimeEnd.errors" class="error">
+            <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.workTimeEnd.errors.required"> Work-time end
               is
               required!
             </small>
