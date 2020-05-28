@@ -20,9 +20,6 @@ import {Alert, AlertType} from '../../dtos/alert';
   styleUrls: ['./employee-view.component.css']
 })
 export class EmployeeViewComponent implements OnInit {
-  componentId: string;
-
-
 
   public employee: Employee;
   currentUserType;
@@ -51,7 +48,6 @@ export class EmployeeViewComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = (this.route.snapshot.paramMap.get('username'));
-    this.componentId = 'employee-view-' + this.currentUser;
     if (this.isAdmin() && this.currentUser != null) {
       this.loadSpecificEmployee(this.currentUser);
       this.getAllAnimals();
@@ -119,7 +115,7 @@ export class EmployeeViewComponent implements OnInit {
         this.enclosuresFound = true;
       },
       error => {
-        this.alertService.alertFromError(error,  {},'getEnclosureOfEmployee');
+        this.alertService.alertFromError(error,  {}, 'getEnclosureOfEmployee');
       }
     );
   }

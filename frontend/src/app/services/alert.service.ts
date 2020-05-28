@@ -26,6 +26,11 @@ export class AlertService {
     return this.alerts.filter(alert => alert && alert.componentId === alertComponentId);
   }
 
+  /**
+   * Will create an Alert that will be Displayed through the alert system
+   * @param alert the Alert to display
+   * @param sourceFn the function where this Alert was thrown
+   */
   alert(alert: Alert, sourceFn: string = 'No sourceFn given') {
     alert.componentId = alert.componentId || this.defaultId;
 
@@ -36,31 +41,71 @@ export class AlertService {
     this.alerts.push(alert);
   }
 
+  /**
+   * Will create an Alert that will be Displayed through the alert system
+   * @param message the message for the alert to display
+   * @param sourceFn the Function in which the alertWasIssued. This will just be shown in the console in debug mode.
+   * @param options type: AlertType, this will override the Type Extracted from the error.\n
+   * keepAfterRouteChange: boolean, if true, the alert will stay when navigating to a different page that also has the alert component. \n
+   * dismissible: boolean, if true, the alert will have an X button the remove the alert, otherwise it can't be removed by the user.
+   * componentId: string Id of the ErrorComponent that will show the Error Message by default this is the global default-alert-component.
+   * It can be set through \@Input alertComponentId when you want a custom alert component
+   */
   success(message: string, options?: any, sourceFn: string = 'No sourceFn given') {
     this.alert(new Alert({ ...options, type: AlertType.Success, message }), sourceFn);
   }
 
+  /**
+   * Will create an Alert that will be Displayed through the alert system
+   * @param message the message for the alert to display
+   * @param sourceFn the Function in which the alertWasIssued. This will just be shown in the console in debug mode.
+   * @param options type: AlertType, this will override the Type Extracted from the error.\n
+   * keepAfterRouteChange: boolean, if true, the alert will stay when navigating to a different page that also has the alert component. \n
+   * dismissible: boolean, if true, the alert will have an X button the remove the alert, otherwise it can't be removed by the user.
+   * componentId: string Id of the ErrorComponent that will show the Error Message by default this is the global default-alert-component.
+   * It can be set through \@Input alertComponentId when you want a custom alert component
+   */
   error(message: string, options?: any, sourceFn: string = 'No sourceFn given') {
     this.alert(new Alert({ ...options, type: AlertType.Error, message }), sourceFn);
   }
 
+  /**
+   * Will create an Alert that will be Displayed through the alert system
+   * @param message the message for the alert to display
+   * @param sourceFn the Function in which the alertWasIssued. This will just be shown in the console in debug mode.
+   * @param options type: AlertType, this will override the Type Extracted from the error.\n
+   * keepAfterRouteChange: boolean, if true, the alert will stay when navigating to a different page that also has the alert component. \n
+   * dismissible: boolean, if true, the alert will have an X button the remove the alert, otherwise it can't be removed by the user.
+   * componentId: string Id of the ErrorComponent that will show the Error Message by default this is the global default-alert-component.
+   * It can be set through \@Input alertComponentId when you want a custom alert component
+   */
   info(message: string, options?: any, sourceFn: string = 'No sourceFn given') {
     this.alert(new Alert({ ...options, type: AlertType.Info, message }), sourceFn);
   }
 
+  /**
+   * Will create an Alert that will be Displayed through the alert system
+   * @param message the message for the alert to display
+   * @param sourceFn the Function in which the alertWasIssued. This will just be shown in the console in debug mode.
+   * @param options type: AlertType, this will override the Type Extracted from the error.\n
+   * keepAfterRouteChange: boolean, if true, the alert will stay when navigating to a different page that also has the alert component. \n
+   * dismissible: boolean, if true, the alert will have an X button the remove the alert, otherwise it can't be removed by the user.
+   * componentId: string Id of the ErrorComponent that will show the Error Message by default this is the global default-alert-component.
+   * It can be set through \@Input alertComponentId when you want a custom alert component
+   */
   warn(message: string, options?: any, sourceFn: string = 'No sourceFn given') {
     this.alert(new Alert({ ...options, type: AlertType.Warning, message }), sourceFn);
   }
 
   /**
-   *
+   * Will create an Alert that will be Displayed through the alert system
    * @param error the Error that of which to extract the message an Alert Status (e.g. 404 is warning).
-   * @param componentId string Id of the ErrorComponent that will show the Error Message. This is set through \@Input alertComponentId.
-   * and should most likely be named like the component where it is sent from or be the globalAlertId
    * @param sourceFn the Function in which the alertWasIssued. This will just be shown in the console in debug mode.
    * @param options type: AlertType, this will override the Type Extracted from the error.\n
    * keepAfterRouteChange: boolean, if true, the alert will stay when navigating to a different page that also has the alert component. \n
    * dismissible: boolean, if true, the alert will have an X button the remove the alert, otherwise it can't be removed by the user.
+   * componentId: string Id of the ErrorComponent that will show the Error Message by default this is the global default-alert-component.
+   * It can be set through \@Input alertComponentId when you want a custom alert component
    */
   alertFromError(error: any, options?: any, sourceFn: string = 'No sourceFn given') {
     DEBUG_LOG('Alerting for Error of component: ' + options.componentID + ' from sourceFn: ' + sourceFn);
