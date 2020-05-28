@@ -35,7 +35,7 @@
         <ng-container *ngIf="task.assignedEmployeeUsername==null">
           <td class="col">
             <app-assign-task (assignmentSuccessful)="reloadTasks.emit()" [index]="i"
-                             [employees]="employees" [doctors]="doctors" [task]="task"></app-assign-task>
+                             [employees]="employees" [doctors]="doctors" [janitors]="janitors" [task]="task"></app-assign-task>
           </td>
         </ng-container>
         <td class="col d-flex justify-content-center">
@@ -45,7 +45,7 @@
           <ng-container *ngIf="task.status=='DONE'">
             <div class="mx-2"> Done!</div>
           </ng-container>
-          <button *ngIf="currentUserType!=='JANITOR' && currentUserType!='DOCTOR'" (click)="deleteTask(task.id)"
+          <button *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'" (click)="deleteTask(task.id)"
                   class="btn-sm btn-outline-danger btn">Delete
           </button>
         </td>

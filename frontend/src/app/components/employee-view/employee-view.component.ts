@@ -120,23 +120,6 @@ export class EmployeeViewComponent implements OnInit {
   }
 
   loadTasksOfEmployee() {
-    /* this.taskService.getAnimalTasksOfEmployee(this.employee.username).subscribe(
-         (tasks) => {
-           this.tasks = tasks;
-         },
-         error => {
-           this.defaultServiceErrorHandling(error);
-         }
-       );
-       this.taskService.getEnclosureTasksOfEmployee(this.employee.username).subscribe(
-         (enclosureTasks) => {
-           this.enclosureTasks = enclosureTasks;
-         },
-         error => {
-           this.defaultServiceErrorHandling(error);
-         }
-       );  */
-
     this.taskService.getTasksOfEmployee(this.employee.username).subscribe(
       (tasks) => {
         this.tasks = tasks;
