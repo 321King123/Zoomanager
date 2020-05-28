@@ -3,7 +3,9 @@ package at.ac.tuwien.sepm.groupphase.backend.unittests.service;
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
@@ -239,7 +241,9 @@ public class EmployeeServiceTest implements TestData {
     public void canNotBeAssignedToAnimalTask_Janitor(){
         Optional<AnimalTask> animalTask = Optional.of(animalTask_not_assigned);
         Mockito.when(animalTaskRepository.findById(Mockito.anyLong())).thenReturn(animalTask);
-        assertFalse(employeeService.canBeAssignedToTask(janitor, task_not_assigned));
+        Exception exception = assertThrows(IncorrectTypeException.class, () -> {
+            employeeService.canBeAssignedToTask(janitor, task_not_assigned);
+        });
     }
 
     @Test
@@ -295,7 +299,9 @@ public class EmployeeServiceTest implements TestData {
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
         Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
-        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+        Exception exception = assertThrows(NotFreeException.class, () -> {
+            employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
+        });
     }
 
     @Test
@@ -311,7 +317,9 @@ public class EmployeeServiceTest implements TestData {
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
         Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
-        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+        Exception exception = assertThrows(NotFreeException.class, () -> {
+            employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
+        });
     }
 
     @Test
@@ -327,7 +335,9 @@ public class EmployeeServiceTest implements TestData {
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
         Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
-        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+        Exception exception = assertThrows(NotFreeException.class, () -> {
+            employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
+        });
     }
 
     @Test
@@ -343,7 +353,9 @@ public class EmployeeServiceTest implements TestData {
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
         Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
-        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+        Exception exception = assertThrows(NotFreeException.class, () -> {
+            employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
+        });
     }
 
 }
