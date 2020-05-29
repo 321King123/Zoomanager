@@ -6,7 +6,8 @@ import {Animal} from '../../dtos/animal';
 import {EnclosureTask} from '../../dtos/enclosureTask';
 import {Task} from '../../dtos/task';
 import {AlertService} from '../../services/alert.service';
-
+import {Utilities} from '../../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 @Component({
   selector: 'app-assign-task',
   templateUrl: './assign-task.component.html',
@@ -39,12 +40,14 @@ export class AssignTaskComponent implements OnInit {
   ngOnInit(): void {
   }
 
+
+
   assign() {
     this.taskService.assignTask(this.task.id, this.selectedEmployee).subscribe(
       (res: any) => {
         this.enable = false;
-        this.alertService.success('Success! Task was successfully assigned!',
-          {componentId: this.componentId},
+        this.alertService.success('Task was successfully assigned!',
+          {componentId: this.componentId, title: 'Success!'},
           'assign-task assign');
       },
       error => {
@@ -56,6 +59,8 @@ export class AssignTaskComponent implements OnInit {
   }
 
   vanishAll() {
+    DEBUG_LOG('VANISH ALL');
     this.selectedEmployee = null;
+    this.alertService.clear(this.componentId);
   }
 }

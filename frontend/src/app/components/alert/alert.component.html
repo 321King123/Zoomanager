@@ -1,5 +1,7 @@
 <div *ngFor="let alert of alerts" >
-  <ngb-alert [type]="alert.type"  [dismissible]="alert.dismissible" (close)="closeAlert(alert)">{{alert.message}}</ngb-alert>
+  <ngb-alert [type]="alert.type"  [dismissible]="alert.dismissible" (close)="closeAlert(alert)">
+    <strong>{{alert.title}}</strong>  {{alert.message}}
+  </ngb-alert>
 </div>
 <div *ngIf="alerts.length > 0" class="row justify-content-around">
   <button class="btn-info btn" type="button" (click)="clearAlerts()">Clear</button>

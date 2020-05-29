@@ -108,7 +108,7 @@ export class AlertService {
    * It can be set through \@Input alertComponentId when you want a custom alert component
    */
   alertFromError(error: any, options?: any, sourceFn: string = 'No sourceFn given') {
-    DEBUG_LOG('Alerting for Error of component: ' + options.componentID + ' from sourceFn: ' + sourceFn);
+    DEBUG_LOG('Alerting for Error of component: ' + options.componentId + ' from sourceFn: ' + sourceFn);
     console.log(error);
     let type = AlertType.Error;
     let message: string;
@@ -116,12 +116,14 @@ export class AlertService {
       if (error.error.status === 404) {
         type = AlertType.Warning;
       }
+      DEBUG_LOG('error error');
       message = error.error.error;
     } else {
       if (error.status === 404) {
         type = AlertType.Warning;
       }
       message = error.error;
+      DEBUG_LOG('error');
     }
 
     this.alert(new Alert({ ...options, message: message, type: type}), sourceFn);
