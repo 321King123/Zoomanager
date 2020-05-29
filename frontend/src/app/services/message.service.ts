@@ -2,7 +2,8 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Message} from '../dtos/message';
 import {Observable} from 'rxjs';
-import {Globals} from '../global/globals';
+import {Globals, Utilities} from '../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +27,7 @@ export class MessageService {
    * @param id of message to load
    */
   getMessageById(id: number): Observable<Message> {
-    console.log('Load message details for ' + id);
+    DEBUG_LOG('Load message details for ' + id);
     return this.httpClient.get<Message>(this.messageBaseUri + '/' + id);
   }
 
@@ -35,7 +36,7 @@ export class MessageService {
    * @param message to persist
    */
   createMessage(message: Message): Observable<Message> {
-    console.log('Create message with title ' + message.title);
+    DEBUG_LOG('Create message with title ' + message.title);
     return this.httpClient.post<Message>(this.messageBaseUri, message);
   }
 }

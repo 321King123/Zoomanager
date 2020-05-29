@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import {Enclosure} from '../dtos/enclosure';
 import {Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {Globals} from '../global/globals';
+import {Globals, Utilities} from '../global/globals';
 import {Employee} from '../dtos/employee';
 import {Animal} from '../dtos/animal';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 @Injectable({
   providedIn: 'root'
@@ -60,15 +61,17 @@ export class EnclosureService {
    * @param enclosureToView enclosure to delete
    */
   deleteEnclosure(enclosureToView: Enclosure): Observable<any> {
-    return this.httpClient.put<Enclosure>(this.enclosureBaseUri, enclosureToView);
+    DEBUG_LOG('Delete enclosure ' + enclosureToView.id);
+    return this.httpClient.delete<Enclosure>(this.enclosureBaseUri + '/' + enclosureToView.id);
   }
 
   unassignAnimal(selectedAnimal: Animal): Observable<any> {
+    DEBUG_LOG('Remove animal from enclosure ' + JSON.stringify(selectedAnimal));
     return this.httpClient.put<Animal>(this.animalBaeseuri + '/removeEnclosure', selectedAnimal);
   }
 
   getEnclosuresOfEmployee(employeeUsername: string): Observable<Enclosure[]> {
-    console.log('Get Enclosures by employee username: ' + employeeUsername);
+    DEBUG_LOG('Get Enclosures by employee username: ' + employeeUsername);
     return this.httpClient.get<Enclosure[]>(this.enclosureBaseUri + /employee/ + employeeUsername);
   }
 }
