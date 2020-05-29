@@ -41,6 +41,7 @@ export class TaskCreationComponent implements OnInit {
   isAnimalTask = true;
 
   @Output() reloadTasks = new EventEmitter();
+  submittedTask = false;
 
   constructor(private taskService: TaskService, private animalService: AnimalService,
               private employeeService: EmployeeService, private formBuilder: FormBuilder,
@@ -134,6 +135,7 @@ export class TaskCreationComponent implements OnInit {
   }
 
   taskSubmitted() {
+    this.submittedTask = true;
     if (this.taskCreationForm.valid) {
       if (this.isAnimalTask) {
         this.getAnimalTaskFromForm();
@@ -220,6 +222,7 @@ export class TaskCreationComponent implements OnInit {
 
   clearForm() {
     this.taskCreationForm.reset();
+    this.submittedTask = false;
   }
 
   onClose() {
