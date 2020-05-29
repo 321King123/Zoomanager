@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint.dto;
 
-import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
@@ -42,5 +41,7 @@ public class TaskDto {
     private String assignedEmployeeUsername;
 
     private TaskStatus status;
+
+    private boolean priority = false;
 
 }
