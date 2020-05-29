@@ -111,19 +111,26 @@ export class AlertService {
     DEBUG_LOG('Alerting for Error of component: ' + options.componentId + ' from sourceFn: ' + sourceFn);
     console.log(error);
     let type = AlertType.Error;
-    let message: string;
+    let message: string = 'Sorry, something went wrong on our end. We will try to fix it as soon as possible. If you want to help us tell us' +
+      'what you did before this message appeared.';
     if (typeof error.error === 'object') {
-      if (error.error.status === 404) {
-        type = AlertType.Warning;
+      if ((error.error !== null && error.error !== undefined) && error.error.status !== undefined) {
+        if (error.error.status === 404) {
+          type = AlertType.Warning;
+        }
       }
-      DEBUG_LOG('error error');
-      message = error.error.error;
+      if (error.error !== null && error.error !== undefined) {
+        message = error.error.error;
+      }
     } else {
-      if (error.status === 404) {
-        type = AlertType.Warning;
+      if (error.status !== undefined) {
+        if (error.status === 404) {
+          type = AlertType.Warning;
+        }
       }
+
       message = error.error;
-      DEBUG_LOG('error');
+
     }
 
     this.alert(new Alert({ ...options, message: message, type: type}), sourceFn);

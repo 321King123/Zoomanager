@@ -9,6 +9,9 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Enclosure} from '../../dtos/enclosure';
 import {EnclosureService} from '../../services/enclosure.service';
 import {EnclosureTask} from '../../dtos/enclosureTask';
+import {AlertService} from '../../services/alert.service';
+import {Utilities} from '../../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 
 @Component({
@@ -20,16 +23,12 @@ export class TaskCreationComponent implements OnInit {
   task: AnimalTask;
   enclosureTask: EnclosureTask;
 
-  error = false;
-  errorMessage = '';
-
-  success = false;
+  componentId = 'task-creation';
 
   allEmployees: Employee[];
   allAnimals: Animal[];
   taskCreationForm: FormGroup;
 
-  submittedTask = false;
   @Input() currentEmployee;
   @Input() animalsOfEmployee;
   @Input() enclosuresOfEmployee;
@@ -44,7 +43,8 @@ export class TaskCreationComponent implements OnInit {
   @Output() reloadTasks = new EventEmitter();
 
   constructor(private taskService: TaskService, private animalService: AnimalService,
-              private employeeService: EmployeeService, private formBuilder: FormBuilder) {
+              private employeeService: EmployeeService, private formBuilder: FormBuilder,
+              private alertService: AlertService) {
   }
 
   ngOnInit(): void {
@@ -66,7 +66,9 @@ export class TaskCreationComponent implements OnInit {
         this.allAnimals = animals;
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error,
+          {componentId: this.componentId},
+          'task-creation getAllAnimals');
       }
     );
   }
@@ -75,10 +77,12 @@ export class TaskCreationComponent implements OnInit {
     this.employeeService.getDoctors().subscribe(
       (doctors) => {
         this.doctors = doctors;
-        console.log('Getting Doctors: ' + JSON.stringify(doctors));
+        DEBUG_LOG('Getting Doctors: ' + JSON.stringify(doctors));
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+                this.alertService.alertFromError(error,
+          {componentId: this.componentId},
+          'task-creation getDoctors');
       }
     );
   }
@@ -87,10 +91,12 @@ export class TaskCreationComponent implements OnInit {
     this.employeeService.getJanitors().subscribe(
       (janitors) => {
         this.janitors = janitors;
-        console.log('Getting Janitors: ' + JSON.stringify(janitors));
+        DEBUG_LOG('Getting Janitors: ' + JSON.stringify(janitors));
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+                this.alertService.alertFromError(error,
+          {componentId: this.componentId},
+          'task-creation getJanitors');
       }
     );
   }
@@ -101,10 +107,12 @@ export class TaskCreationComponent implements OnInit {
       (employees) => {
         this.employeesOfTaskSubject = employees;
         this.employeesFound = true;
-        console.log('Getting Employees of animal: ' + this.taskCreationForm.controls.subjectId.value);
+        DEBUG_LOG('Getting Employees of animal: ' + this.taskCreationForm.controls.subjectId.value);
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+                this.alertService.alertFromError(error,
+          {componentId: this.componentId},
+          'task-creation getEmployeesOfAnimal');
       }
     );
   }
@@ -117,26 +125,14 @@ export class TaskCreationComponent implements OnInit {
         this.employeesFound = true;
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+                this.alertService.alertFromError(error,
+          {componentId: this.componentId},
+          'task-creation getEmployeesOfEnclosure');
       }
     );
   }
 
-  /**
-   * Error flag will be deactivated, which clears the error message
-   */
-  vanishError() {
-    this.error = false;
-  }
-
-  vanishSuccess() {
-    this.success = false;
-  }
-
   taskSubmitted() {
-    this.error = false;
-    this.success = false;
-    this.submittedTask = true;
     if (this.taskCreationForm.valid) {
       if (this.isAnimalTask) {
         this.getAnimalTaskFromForm();
@@ -209,18 +205,26 @@ export class TaskCreationComponent implements OnInit {
 
   clearForm() {
     this.taskCreationForm.reset();
-    this.submittedTask = false;
+  }
+
+  onClose() {
+    this.alertService.clear(this.componentId);
   }
 
   createEnclosureTask() {
     this.taskService.createNewTaskEnclosure(this.enclosureTask).subscribe(
       (res: any) => {
-        this.success = true;
         this.clearForm();
         this.reloadTasks.emit();
+        this.alertService.success('Task was successfully create!',
+          {componentId: this.componentId, title: 'Success!'},
+          'task-creation createEnclosureTask');
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+                this.alertService.alertFromError(error,
+          {componentId: this.componentId},
+          'task-creation createEnclosureTask');
+
       }
     );
   }
@@ -228,12 +232,16 @@ export class TaskCreationComponent implements OnInit {
   createAnimalTask() {
     this.taskService.createNewTask(this.task).subscribe(
       (res: any) => {
-        this.success = true;
         this.clearForm();
         this.reloadTasks.emit();
+        this.alertService.success('Task was successfully create!',
+          {componentId: this.componentId, title: 'Success!'},
+          'task-creation createEnclosureTask');
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+                this.alertService.alertFromError(error,
+          {componentId: this.componentId},
+          'task-creation createAnimalTask');
       }
     );
   }
@@ -262,16 +270,6 @@ export class TaskCreationComponent implements OnInit {
     this.taskCreationForm.controls.subjectId.reset('', Validators.required);
     if (this.employeesOfTaskSubject !== undefined) {
       this.employeesOfTaskSubject.length = 0;
-    }
-  }
-
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
-    } else {
-      this.errorMessage = error.error;
     }
   }
 
