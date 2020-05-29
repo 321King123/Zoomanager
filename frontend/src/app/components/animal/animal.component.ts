@@ -78,7 +78,9 @@ export class AnimalComponent implements OnInit {
       },
       error => {
         if (error.status === 404) {
-          this.animals.length = 0;
+          if (this.animals !== undefined) {
+            this.animals.length = 0;
+          }
         }
         DEBUG_LOG('Failed to load all animals');
         this.alertService.alertFromError(error, {}, 'animal-overview getAnimals()');

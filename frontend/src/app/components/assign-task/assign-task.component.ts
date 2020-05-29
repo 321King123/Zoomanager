@@ -5,6 +5,7 @@ import {TaskService} from '../../services/task.service';
 import {Animal} from '../../dtos/animal';
 import {EnclosureTask} from '../../dtos/enclosureTask';
 import {Task} from '../../dtos/task';
+import {AlertService} from '../../services/alert.service';
 
 @Component({
   selector: 'app-assign-task',
@@ -19,18 +20,20 @@ export class AssignTaskComponent implements OnInit {
   @Input() index: number;
   @Output() assignmentSuccessful = new EventEmitter();
 
+  componentId = 'assign-task';
+
   enable = true;
   selectedEmployee: Employee;
 
-  error = false;
-  errorMessage = '';
-
-  success = false;
-  lastAssignmentSuccessful = false;
+  // error = false;
+  // errorMessage = '';
+  //
+  // success = false;
+  // lastAssignmentSuccessful = false;
 
   uniqId;
 
-  constructor(private taskService: TaskService) {
+  constructor(private taskService: TaskService, private alertService: AlertService) {
   }
 
   ngOnInit(): void {
@@ -39,41 +42,20 @@ export class AssignTaskComponent implements OnInit {
   assign() {
     this.taskService.assignTask(this.task.id, this.selectedEmployee).subscribe(
       (res: any) => {
-        this.success = true;
         this.enable = false;
-        this.lastAssignmentSuccessful = true;
+        this.alertService.success('Success! Task was successfully assigned!',
+          {componentId: this.componentId},
+          'assign-task assign');
       },
       error => {
-        this.defaultServiceErrorHandling(error);
-        this.lastAssignmentSuccessful = false;
+        this.alertService.alertFromError(error,
+          {componentId: this.componentId},
+          'assign-task assign');
       }
     );
   }
 
-  vanishError() {
-    this.error = false;
-  }
-
-  vanishSuccess() {
-    this.success = true;
-  }
-
   vanishAll() {
-    this.vanishError();
-    this.vanishSuccess();
     this.selectedEmployee = null;
-    if (this.lastAssignmentSuccessful) {
-      this.assignmentSuccessful.emit();
-    }
-  }
-
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
-    } else {
-      this.errorMessage = error.error;
-    }
   }
 }
