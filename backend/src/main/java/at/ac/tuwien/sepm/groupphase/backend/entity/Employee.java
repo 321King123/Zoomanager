@@ -4,7 +4,9 @@ import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.*;
+import java.time.LocalTime;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -35,6 +37,12 @@ public class Employee {
     @Column(nullable = true)
     private String email;
 
+    @Column(nullable = false)
+    private LocalTime workTimeStart;
+
+    @Column(nullable = false)
+    private LocalTime workTimeEnd;
+
     @JoinTable(
         name = "ANIMALS_CARETAKERS",
         joinColumns = @JoinColumn(name = "EMPLOYEE_USERNAME"),
@@ -46,12 +54,14 @@ public class Employee {
     @OneToMany(mappedBy = "assignedEmployee", fetch = FetchType.LAZY)
     private List<Task> tasks;
 
-    public Employee(String username, Date birthday, String email, String name, EmployeeType type) {
+    public Employee(String username, Date birthday, String email, String name, EmployeeType type, LocalTime workTimeStart, LocalTime workTimeEnd ) {
         this.username = username;
         this.birthday = birthday;
         this.email = email;
         this.name = name;
         this.type = type;
+        this.workTimeStart = workTimeStart;
+        this.workTimeEnd = workTimeEnd;
     }
 
     //

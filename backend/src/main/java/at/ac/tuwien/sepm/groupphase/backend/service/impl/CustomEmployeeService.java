@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -149,6 +150,18 @@ public class CustomEmployeeService implements EmployeeService {
         List<Task> tasks = taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee);
         LocalDateTime start = task.getStartTime();
         LocalDateTime end = task.getEndTime();
+
+        LocalTime workStart = employee.getWorkTimeStart();
+        LocalTime workEnd = employee.getWorkTimeEnd();
+
+        if( (start.toLocalTime().equals(workEnd) && end.toLocalTime().equals(workStart))
+            || start.toLocalTime().isAfter(workEnd)     // starts after work end
+            || end.toLocalTime().isAfter(workEnd)       // ends after work
+            || start.toLocalTime().isBefore(workStart)  // starts before work
+            || end.toLocalTime().isBefore(workStart))   // ends before start
+            return false;
+
+
         for(Task t:tasks){
             if(t.getStartTime().equals(start) && t.getEndTime().equals(end))
                 return false;

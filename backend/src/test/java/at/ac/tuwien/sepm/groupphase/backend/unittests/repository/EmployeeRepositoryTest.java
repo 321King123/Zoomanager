@@ -5,7 +5,6 @@ import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.UserLoginRepository;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,6 +48,8 @@ public class EmployeeRepositoryTest implements TestData {
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
         .type(TYPE_ANIMAL_CARE_EMPLOYEE)
         .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private UserLogin doctor_login = UserLogin.builder()
@@ -63,6 +64,8 @@ public class EmployeeRepositoryTest implements TestData {
         .birthday(BIRTHDAY_DOCTOR_EMPLOYEE)
         .type(TYPE_DOCTOR_EMPLOYEE)
         .email(EMAIL_DOCTOR_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private UserLogin janitor_login = UserLogin.builder()
@@ -77,6 +80,8 @@ public class EmployeeRepositoryTest implements TestData {
         .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
         .type(TYPE_JANITOR_EMPLOYEE)
         .email(EMAIL_JANITOR_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     @BeforeEach

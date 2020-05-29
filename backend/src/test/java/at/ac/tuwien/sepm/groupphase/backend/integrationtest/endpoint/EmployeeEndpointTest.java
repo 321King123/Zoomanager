@@ -13,21 +13,15 @@ import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.UserLoginRepository;
 import at.ac.tuwien.sepm.groupphase.backend.security.JwtTokenizer;
-import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -37,13 +31,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.lang.invoke.MethodHandles;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -109,6 +98,8 @@ public class EmployeeEndpointTest implements TestData {
         .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
         .type(TYPE_JANITOR_EMPLOYEE)
         .email(EMAIL_JANITOR_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private UserLogin animal_caretaker_login = UserLogin.builder()
@@ -123,6 +114,8 @@ public class EmployeeEndpointTest implements TestData {
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
         .type(TYPE_ANIMAL_CARE_EMPLOYEE)
         .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private UserLogin doctor_login = UserLogin.builder()
@@ -137,6 +130,8 @@ public class EmployeeEndpointTest implements TestData {
         .birthday(BIRTHDAY_DOCTOR_EMPLOYEE)
         .type(TYPE_DOCTOR_EMPLOYEE)
         .email(EMAIL_DOCTOR_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private UserLogin janitor_login = UserLogin.builder()
@@ -151,6 +146,8 @@ public class EmployeeEndpointTest implements TestData {
         .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
         .type(TYPE_JANITOR_EMPLOYEE)
         .email(EMAIL_JANITOR_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Animal horse = Animal.builder()
@@ -184,6 +181,8 @@ public class EmployeeEndpointTest implements TestData {
             .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
             .type(TYPE_ANIMAL_CARE_EMPLOYEE)
             .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+            .workTimeStart(TEST_LOCAL_TIME_START)
+            .workTimeEnd(TEST_LOCAL_TIME_END)
             .build();
 
         doctor_login = UserLogin.builder()
@@ -198,6 +197,8 @@ public class EmployeeEndpointTest implements TestData {
             .birthday(BIRTHDAY_DOCTOR_EMPLOYEE)
             .type(TYPE_DOCTOR_EMPLOYEE)
             .email(EMAIL_DOCTOR_EMPLOYEE)
+            .workTimeStart(TEST_LOCAL_TIME_START)
+            .workTimeEnd(TEST_LOCAL_TIME_END)
             .build();
 
         janitor_login = UserLogin.builder()
@@ -212,6 +213,8 @@ public class EmployeeEndpointTest implements TestData {
             .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
             .type(TYPE_JANITOR_EMPLOYEE)
             .email(EMAIL_JANITOR_EMPLOYEE)
+            .workTimeStart(TEST_LOCAL_TIME_START)
+            .workTimeEnd(TEST_LOCAL_TIME_END)
             .build();
 
         horse = Animal.builder()
@@ -509,6 +512,8 @@ public class EmployeeEndpointTest implements TestData {
             .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
             .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
             .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
+            .workTimeStart(TEST_LOCAL_TIME_START)
+            .workTimeEnd(TEST_LOCAL_TIME_END)
             .password("Password1")
             .build();
 
@@ -565,6 +570,8 @@ public class EmployeeEndpointTest implements TestData {
             .email("test@email.com")
             .username("tester")
             .password("Password1")
+            .workTimeStart(TEST_LOCAL_TIME_START)
+            .workTimeEnd(TEST_LOCAL_TIME_END)
             .build();
 
         String body = objectMapper.writeValueAsString(emp);

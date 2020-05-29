@@ -20,7 +20,9 @@ public class EmployeeMapper {
             .birthday(employee.getBirthday())
             .email(employee.getEmail())
             .type(employee.getType())
-            .password("").build();
+            .workTimeStart(employee.getWorkTimeStart())
+            .workTimeEnd(employee.getWorkTimeEnd())
+            .build(); //bilo je i .password - greska??
     }
 
     public Employee employeeDtoToEmployee(EmployeeDto employeeDto) {
@@ -32,6 +34,8 @@ public class EmployeeMapper {
             .username(employeeDto.getUsername())
             .birthday(employeeDto.getBirthday())
             .email(employeeDto.getEmail())
+            .workTimeStart(employeeDto.getWorkTimeStart())
+            .workTimeEnd(employeeDto.getWorkTimeEnd())
             .type(employeeDto.getType()).build();
     }
 

@@ -52,6 +52,8 @@ public class EnclosureTaskServiceTest {
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
         .type(TYPE_ANIMAL_CARE_EMPLOYEE)
         .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Employee animal_doctor = Employee.builder()
@@ -60,6 +62,8 @@ public class EnclosureTaskServiceTest {
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
         .type(EmployeeType.DOCTOR)
         .email("doctor@gmail.com")
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Task task_assigned = Task.builder()
