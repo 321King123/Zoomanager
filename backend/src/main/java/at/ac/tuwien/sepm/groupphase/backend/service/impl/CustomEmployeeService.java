@@ -151,17 +151,16 @@ public class CustomEmployeeService implements EmployeeService {
         LocalDateTime start = task.getStartTime();
         LocalDateTime end = task.getEndTime();
 
-        LocalTime workTimeStart = employee.getWorkTimeStart();
-        LocalTime workTimeEnd = employee.getWorkTimeEnd();
+        LocalTime workStart = employee.getWorkTimeStart();
+        LocalTime workEnd = employee.getWorkTimeEnd();
 
-        if(workTimeStart.equals(start.toLocalTime())    && workTimeEnd.equals(end.toLocalTime()))
+        if( (start.toLocalTime().equals(workEnd) && end.toLocalTime().equals(workStart))
+            || start.toLocalTime().isAfter(workEnd)     // starts after work end
+            || end.toLocalTime().isAfter(workEnd)       // ends after work
+            || start.toLocalTime().isBefore(workStart)  // starts before work
+            || end.toLocalTime().isBefore(workStart))   // ends before start
             return false;
-        if(workTimeStart.isBefore(start.toLocalTime())  && workTimeEnd.isAfter(end.toLocalTime()))
-            return false;
-        if(workTimeStart.isAfter(start.toLocalTime())   && workTimeStart.isBefore(end.toLocalTime()))
-            return false;
-        if(workTimeEnd.isAfter(start.toLocalTime())  && workTimeStart.isBefore(end.toLocalTime()))
-            return false;
+
 
         for(Task t:tasks){
             if(t.getStartTime().equals(start) && t.getEndTime().equals(end))
