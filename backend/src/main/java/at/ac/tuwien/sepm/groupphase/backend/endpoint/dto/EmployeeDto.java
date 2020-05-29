@@ -4,6 +4,7 @@ import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import lombok.*;
 
 import javax.validation.constraints.*;
+import java.time.LocalTime;
 import java.util.Date;
 
 @Getter
@@ -39,4 +40,10 @@ public class EmployeeDto {
 
     @NotNull(message = "Type must not be null")
     private EmployeeType type;
+
+    @NotNull(message = "work time start must not be null")
+    private LocalTime workTimeStart;
+
+    @NotNull(message = "work time end must not be null")
+    private LocalTime workTimeEnd;
 }

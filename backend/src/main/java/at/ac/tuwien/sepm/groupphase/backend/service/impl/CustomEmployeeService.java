@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -133,7 +134,7 @@ public class CustomEmployeeService implements EmployeeService {
         if(employee == null)
             throw new NotFoundException("No employee to delete: " + username);
 
-        List<Task> tasks=taskRepository.findAllByAssignedEmployee(employee);
+        List<Task> tasks=taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee);
         for (Task t:tasks){
             t.setStatus(TaskStatus.NOT_ASSIGNED);
             t.setAssignedEmployee(null);
@@ -146,9 +147,21 @@ public class CustomEmployeeService implements EmployeeService {
     @Override
     public boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task) {
         LOGGER.debug("Checking if " + employee.getUsername() + " is free");
-        List<Task> tasks = taskRepository.findAllByAssignedEmployee(employee);
+        List<Task> tasks = taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee);
         LocalDateTime start = task.getStartTime();
         LocalDateTime end = task.getEndTime();
+
+        LocalTime workStart = employee.getWorkTimeStart();
+        LocalTime workEnd = employee.getWorkTimeEnd();
+
+        if( (start.toLocalTime().equals(workEnd) && end.toLocalTime().equals(workStart))
+            || start.toLocalTime().isAfter(workEnd)     // starts after work end
+            || end.toLocalTime().isAfter(workEnd)       // ends after work
+            || start.toLocalTime().isBefore(workStart)  // starts before work
+            || end.toLocalTime().isBefore(workStart))   // ends before start
+            return false;
+
+
         for(Task t:tasks){
             LocalDateTime existingStart = t.getStartTime();
             LocalDateTime existingEnd = t.getEndTime();

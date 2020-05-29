@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {AnimalTask} from '../../dtos/animalTask';
 import {TaskService} from '../../services/task.service';
 import {AnimalService} from '../../services/animal.service';
@@ -40,6 +40,8 @@ export class TaskCreationComponent implements OnInit {
 
   isEnclosureTask = false;
   isAnimalTask = true;
+
+  @Output() reloadTasks = new EventEmitter();
 
   constructor(private taskService: TaskService, private animalService: AnimalService,
               private employeeService: EmployeeService, private formBuilder: FormBuilder) {
@@ -215,6 +217,7 @@ export class TaskCreationComponent implements OnInit {
       (res: any) => {
         this.success = true;
         this.clearForm();
+        this.reloadTasks.emit();
       },
       error => {
         this.defaultServiceErrorHandling(error);
@@ -227,6 +230,7 @@ export class TaskCreationComponent implements OnInit {
       (res: any) => {
         this.success = true;
         this.clearForm();
+        this.reloadTasks.emit();
       },
       error => {
         this.defaultServiceErrorHandling(error);

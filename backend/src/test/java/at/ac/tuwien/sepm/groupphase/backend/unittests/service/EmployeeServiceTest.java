@@ -61,6 +61,8 @@ public class EmployeeServiceTest implements TestData {
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
         .type(TYPE_ANIMAL_CARE_EMPLOYEE)
         .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Employee doctor = Employee.builder()
@@ -69,6 +71,8 @@ public class EmployeeServiceTest implements TestData {
         .birthday(BIRTHDAY_DOCTOR_EMPLOYEE)
         .type(TYPE_DOCTOR_EMPLOYEE)
         .email(EMAIL_DOCTOR_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Employee janitor = Employee.builder()
@@ -77,6 +81,8 @@ public class EmployeeServiceTest implements TestData {
         .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
         .type(TYPE_JANITOR_EMPLOYEE)
         .email(EMAIL_JANITOR_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Animal horse = Animal.builder()
@@ -282,7 +288,7 @@ public class EmployeeServiceTest implements TestData {
     @Test
     public void employeeIsFree_whenNoOtherTaskAssigned(){
         List<Task> taskList = new LinkedList<>();
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
         assertTrue(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
     }
 
@@ -298,7 +304,7 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
         Exception exception = assertThrows(NotFreeException.class, () -> {
             employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
         });
@@ -316,7 +322,7 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
         Exception exception = assertThrows(NotFreeException.class, () -> {
             employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
         });
@@ -334,7 +340,7 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
         Exception exception = assertThrows(NotFreeException.class, () -> {
             employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
         });
@@ -352,7 +358,7 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
         Exception exception = assertThrows(NotFreeException.class, () -> {
             employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
         });

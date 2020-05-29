@@ -9,7 +9,6 @@ import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
-import org.aspectj.weaver.ast.Not;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,7 +77,7 @@ public class CustomTaskService implements TaskService {
     @Override
     public void deleteAnimalTasksBelongingToAnimal(Long animalId) {
         LOGGER.debug("Deleting Animal Task of Animal with Id " + animalId);
-        List<AnimalTask> assignedAnimalTasks = animalTaskRepository.findAllBySubject_Id(animalId);
+        List<AnimalTask> assignedAnimalTasks = animalTaskRepository.findAllAnimalTasksBySubject_Id(animalId);
         animalTaskRepository.deleteAll(assignedAnimalTasks);
     }
 
@@ -139,7 +138,7 @@ public class CustomTaskService implements TaskService {
 
     public List<AnimalTask> getAllTasksOfAnimal(Long animalId){
         LOGGER.debug("Get All Tasks belonging to Animal with id: {}", animalId);
-        return animalTaskRepository.findAllBySubject_Id(animalId);
+        return animalTaskRepository.findAllAnimalTasksBySubject_Id(animalId);
     }
 
     @Override
@@ -171,7 +170,7 @@ public class CustomTaskService implements TaskService {
         Employee employee = employeeService.findByUsername(employeeUsername);
         if(employee == null)
             throw new NotFoundException("Could not find Employee with given Username");
-        List<Task> taskList = new LinkedList<>(taskRepository.findAllByAssignedEmployee(employee));
+        List<Task> taskList = new LinkedList<>(taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee));
         List<AnimalTask> animalTaskList = new LinkedList<>();
         for(Task t:taskList){
             Optional<AnimalTask> animalTask = animalTaskRepository.findById(t.getId());
@@ -218,7 +217,7 @@ public class CustomTaskService implements TaskService {
         }
         return foundTask;
     }
-    
+
     @Override
     public List<EnclosureTask> getAllEnclosureTasksOfEmployee(String employeeUsername) {
         LOGGER.debug("Get All Enclosure Tasks belonging to employee with username: {}", employeeUsername);

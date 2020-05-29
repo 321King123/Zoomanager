@@ -1,15 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalTaskDto;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EnclosureTaskDto;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EmployeeDto;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.TaskDto;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalTaskMapper;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EnclosureTaskMapper;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.TaskMapper;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.*;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.*;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
@@ -48,11 +40,13 @@ public class TaskEndpoint {
     private final TaskService taskService;
     private final EmployeeService employeeService;
     private final EnclosureService enclosureService;
+    private final CombinedTaskMapper combinedTaskMapper;
 
     @Autowired
     public TaskEndpoint(TaskMapper taskMapper, TaskService taskService, EmployeeService employeeService,
                         AnimalService animalService, AnimalTaskMapper animalTaskMapper, EnclosureService enclosureService,
-                        EnclosureTaskMapper enclosureTaskMapper, EmployeeMapper employeeMapper){
+                        EnclosureTaskMapper enclosureTaskMapper, EmployeeMapper employeeMapper, CombinedTaskMapper combinedTaskMapper){
+        this.combinedTaskMapper = combinedTaskMapper;
         this.employeeMapper = employeeMapper;
         this.animalTaskMapper = animalTaskMapper;
         this.animalService = animalService;
@@ -123,12 +117,13 @@ public class TaskEndpoint {
         }else{
             String username = (String)authentication.getPrincipal();
 
-            if(employeeService.findAssignedEnclosures(username).contains(enclosure)) {
+            if(employeeService.isAssignedToEnclosure(username, enclosureId)) {
 
                 return enclosureTaskMapper.enclosureTaskToEclosureTaskDto(taskService.createEnclosureTask(task,enclosure));
+            }else {
+                //if no animal with transmitted Id is assigned to User
+                throw new NotAuthorisedException("You cant assign Tasks to Enclosures that are not assigned to you");
             }
-            //if no animal with transmitted Id is assigned to User
-            throw new NotAuthorisedException("You cant assign Tasks to Enclosures that are not assigned to you");
         }
     }
 
@@ -167,7 +162,7 @@ public class TaskEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/animal/{animalId}")
     @ApiOperation(value = "Get list of animal tasks belonging to an animal", authorizations = {@Authorization(value = "apiKey")})
-    public List<AnimalTaskDto> getAllAnimalTasksBelongingToAnimal(@PathVariable Long animalId, Authentication authentication){
+    public List<CombinedTaskDto> getAllAnimalTasksBelongingToAnimal(@PathVariable Long animalId, Authentication authentication){
         LOGGER.info("GET /api/v1/tasks/animal/ {}", animalId);
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
@@ -178,11 +173,7 @@ public class TaskEndpoint {
             }
         }
         List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllTasksOfAnimal(animalId));
-        List<AnimalTaskDto> animalTaskDtoList = new LinkedList<>();
-        for(AnimalTask a: animalTasks){
-            animalTaskDtoList.add(animalTaskMapper.animalTaskToAnimalTaskDto(a));
-        }
-        return animalTaskDtoList;
+        return combinedTaskMapper.animalTaskListToCombinedTaskDtoList(animalTasks);
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -209,7 +200,7 @@ public class TaskEndpoint {
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/employee/{employeeUsername}")
+    @GetMapping(value = "/employee/animal-task/{employeeUsername}")
     @ApiOperation(value = "Get list of animal tasks belonging to an employee", authorizations = {@Authorization(value = "apiKey")})
     public List<AnimalTaskDto> getAllAnimalTasksBelongingToEmployee(@PathVariable String employeeUsername, Authentication authentication){
         LOGGER.info("GET /api/v1/tasks/employee/{}", employeeUsername);
@@ -226,7 +217,7 @@ public class TaskEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/enclosure/{enclosureId}")
     @ApiOperation(value = "Get list of enclosure tasks belonging to an enclosure", authorizations = {@Authorization(value = "apiKey")})
-    public List<EnclosureTaskDto> getAllEnclosureTasksBelongingToEnclosure(@PathVariable Long enclosureId, Authentication authentication){
+    public List<CombinedTaskDto> getAllEnclosureTasksBelongingToEnclosure(@PathVariable Long enclosureId, Authentication authentication){
         LOGGER.info("GET /api/v1/tasks/enclosure/ {}", enclosureId);
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
@@ -237,7 +228,7 @@ public class TaskEndpoint {
             }
         }
         List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllTasksOfEnclosure(enclosureId));
-        return mapEnclouresTaskListToEnclosureTaskDtosList(enclosureTasks);
+        return combinedTaskMapper.enclosureTaskListToCombinedTaskDtoList(enclosureTasks);
     }
 
     @Secured("ROLE_USER")
@@ -250,6 +241,20 @@ public class TaskEndpoint {
         List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllEnclosureTasksOfEmployee(employeeUsername));
         return mapEnclouresTaskListToEnclosureTaskDtosList(enclosureTasks);
     }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/employee/{employeeUsername}")
+    @ApiOperation(value = "Get list of enclosure tasks belonging to an employee", authorizations = {@Authorization(value = "apiKey")})
+    public List<CombinedTaskDto> getAllTasksBelongingToEmployee(@PathVariable String employeeUsername, Authentication authentication){
+        LOGGER.info("GET /api/v1/tasks/employee/{}", employeeUsername);
+        ValidateViewEmployeeInfoPermission(employeeUsername, authentication);
+        List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllEnclosureTasksOfEmployee(employeeUsername));
+        List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllAnimalTasksOfEmployee(employeeUsername));
+        return combinedTaskMapper.sortedEnclosureTaskListAndAnimalTaskListToSortedCombinedTaskDtoList(enclosureTasks, animalTasks);
+    }
+
+
 
     private void ValidateViewEmployeeInfoPermission(String employeeUsername, Authentication authentication) {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();

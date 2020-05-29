@@ -1,0 +1,79 @@
+import {Component, OnInit, Output, EventEmitter, Input} from '@angular/core';
+import {AuthService} from '../../services/auth.service';
+import {TaskService} from '../../services/task.service';
+import {AnimalService} from '../../services/animal.service';
+import {EmployeeService} from '../../services/employee.service';
+import {Employee} from '../../dtos/employee';
+import {AnimalTask} from '../../dtos/animalTask';
+import {Task} from '../../dtos/task';
+
+@Component({
+  selector: 'app-task-list-common',
+  templateUrl: './task-list-common.component.html',
+  styleUrls: ['./task-list-common.component.css']
+})
+export class TaskListCommonComponent implements OnInit {
+  error = false;
+  errorMessage = '';
+
+  @Input() tasks: Task[];
+
+  @Input() doctors: Employee[];
+  @Input() janitors: Employee[];
+  @Input() employees: Employee[];
+
+  @Output() reloadTasks = new EventEmitter();
+
+  @Input() currentUserType;
+
+  constructor(private authService: AuthService, private taskService: TaskService, private animalService: AnimalService,
+              private employeeService: EmployeeService) {
+  }
+
+  ngOnInit(): void {
+  }
+
+  markTaskAsDone(taskId) {
+    this.taskService.markTaskAsDone(taskId).subscribe(
+      (res: any) => {
+        this.reloadTasks.emit();
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  deleteTask(taskId) {
+    this.taskService.deleteTask(taskId).subscribe(
+      () => {
+        this.reloadTasks.emit();
+      },
+      error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  vanishError() {
+    this.error = false;
+  }
+
+  private defaultServiceErrorHandling(error: any) {
+    console.log(error);
+    this.error = true;
+    if (typeof error.error === 'object') {
+      this.errorMessage = error.error.error;
+    } else {
+      this.errorMessage = error.error;
+    }
+  }
+
+  /**
+   * Returns true if the authenticated user is an admin
+   */
+  isAdmin(): boolean {
+    return this.authService.getUserRole() === 'ADMIN';
+  }
+
+}

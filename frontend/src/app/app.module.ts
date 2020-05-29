@@ -23,6 +23,7 @@ import { TaskCreationComponent } from './components/task-creation/task-creation.
 import { AnimalViewComponent } from './components/animal-view/animal-view.component';
 import { TaskListComponent } from './components/task-list/task-list.component';
 import { AssignTaskComponent } from './components/assign-task/assign-task.component';
+import { TaskListCommonComponent } from './components/task-list-common/task-list-common.component';
 import { AlertComponent } from './components/alert/alert.component';
 
 @NgModule({
@@ -44,6 +45,7 @@ import { AlertComponent } from './components/alert/alert.component';
     AnimalViewComponent,
     TaskListComponent,
     AssignTaskComponent,
+    TaskListCommonComponent,
     AlertComponent,
   ],
   imports: [

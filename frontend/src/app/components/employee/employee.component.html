@@ -37,7 +37,7 @@
         <th scope="col">Name</th>
         <th scope="col">Username</th>
         <th scope="col">Email</th>
-        <th scope="col">Birthday</th>
+        <th scope="col">Working times</th>
       </tr>
       </thead>
       <tbody *ngIf="employeeList">
@@ -46,7 +46,7 @@
           <td>{{e.name}}</td>
           <td>{{e.username}}</td>
           <td>{{e.email}}</td>
-          <td>{{displayDate(e.birthday)}}</td>
+          <td>{{displayTime(e.workTimeStart)}}-{{displayTime(e.workTimeEnd)}}</td>
         </tr>
       </ng-container>
       </tbody>
@@ -61,7 +61,18 @@
   <div class="employee-creation-body">
     <form class="form" [formGroup]="employeeCreationForm" (ngSubmit)="addEmployee()">
       <div class="row">
-        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-2 col-xs-12">
+        <div class="form-group col-md-4 pr-1 col-sm-6 col-lg-3 col-xs-12">
+          <label for="inputName">Name</label>
+          <input type="text" name="name" formControlName="name" class="form-control" id="inputName"
+                 aria-describedby="nameHelp" placeholder="Enter name">
+          <div *ngIf="submittedEmployee && employeeCreationForm.controls.name.errors" class="error">
+            <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.name.errors.required">Name is
+              required!
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
           <label for="inputUsername">Username</label>
           <input type="text" name="username" formControlName="username" class="form-control" id="inputUsername"
                  aria-describedby="usernameHelp" placeholder="Enter username">
@@ -73,7 +84,7 @@
           </div>
         </div>
 
-        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-2 col-xs-12">
+        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
           <label for="inputEmail">Email <small class="text-secondary">(Optional)</small></label>
           <input type="text" name="email" formControlName="email" class="form-control" id="inputEmail"
                  aria-describedby="emailHelp" placeholder="Enter User Email">
@@ -85,39 +96,8 @@
           </div>
         </div>
 
-        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-2 col-xs-12">
-          <label for="inputPassword">Password</label>
-          <input type="password" name="password" formControlName="password" class="form-control" id="inputPassword"
-                 aria-describedby="passwordHelp" placeholder="Enter password">
-          <div *ngIf="submittedEmployee && employeeCreationForm.controls.password.errors" class="error">
-            <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.password.errors.required">Password
-              is
-              required!
-            </small>
-            <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.password.errors.minlength">
-              Password
-              must be min. 8s Letters
-            </small>
-            <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.password.errors.pattern">
-              Password
-              must have at least 1 uppercase letter, 1 lowercase letter and 1 number
-            </small>
 
-          </div>
-        </div>
-
-        <div class="form-group col-md-4 pr-1 col-sm-6 col-lg-2 col-xs-12">
-          <label for="inputName">Name</label>
-          <input type="text" name="name" formControlName="name" class="form-control" id="inputName"
-                 aria-describedby="nameHelp" placeholder="Enter name">
-          <div *ngIf="submittedEmployee && employeeCreationForm.controls.name.errors" class="error">
-            <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.name.errors.required">Name is
-              required!
-            </small>
-          </div>
-        </div>
-
-        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-2 col-xs-12">
+        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
           <label for="inputBirthday">Birthday</label>
           <input type="date" name="birthday" formControlName="birthday" class="form-control" id="inputBirthday">
           <div *ngIf="submittedEmployee && employeeCreationForm.controls.birthday.errors" class="error">
@@ -128,7 +108,7 @@
           </div>
         </div>
 
-        <div class="form-group col-sm-6 col-md-4 col-lg-2 col-xs-12">
+        <div class="form-group col-sm-6 col-md-4 col-lg-3 col-xs-12">
           <label for="inputEmployeeType">Employee Type</label>
           <select class="form-control" name="employeeType" formControlName="employeeType" id="inputEmployeeType">
             <option *ngFor="let type of typeValues" [ngValue]="employeeTypes[type]">{{type}}</option>
@@ -139,6 +119,52 @@
             </small>
           </div>
         </div>
+
+        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
+          <label for="inputPassword">Password</label>
+          <input type="password" name="password" formControlName="password" class="form-control" id="inputPassword"
+                 aria-describedby="passwordHelp" placeholder="Enter password">
+          <div *ngIf="submittedEmployee && employeeCreationForm.controls.password.errors" class="error">
+            <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.password.errors.required">
+              Password is required!
+            </small>
+            <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.password.errors.minlength">
+              Password must be min. 8s Letters
+            </small>
+            <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.password.errors.pattern">
+              Password must have at least 1 uppercase letter, 1 lowercase letter and 1 number
+            </small>
+          </div>
+        </div>
+        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
+          <label for="inputWorkTimeStart">Work-time start</label>
+          <input type="time-local" name="workTimeStart" formControlName="workTimeStart" class="form-control"
+                 id="inputWorkTimeStart">
+          <div *ngIf="submittedEmployee && employeeCreationForm.controls.workTimeStart.errors" class="error">
+            <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.workTimeStart.errors.required">
+              Work-time start
+              is
+              required!
+              Time Format : HH:mm
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
+          <label for="inputWorkTimeEnd">Work-time end</label>
+          <input type="time-local" name="workTimeEnd" formControlName="workTimeEnd" class="form-control"
+                 id="inputWorkTimeEnd">
+
+          <div *ngIf="submittedEmployee && employeeCreationForm.controls.workTimeEnd.errors" class="error">
+            <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.workTimeEnd.errors.required">
+              Work-time end
+              is
+              required!
+              Time Format : HH:mm
+            </small>
+          </div>
+        </div>
+
       </div>
       <button type="button" (click)="addEmployee()" class="btn btn-success my-1 float-right">Add Employee</button>
     </form>

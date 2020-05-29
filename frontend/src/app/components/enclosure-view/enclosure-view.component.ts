@@ -10,6 +10,7 @@ import {EnclosureTask} from '../../dtos/enclosureTask';
 import {TaskService} from '../../services/task.service';
 import {Employee} from '../../dtos/employee';
 import {EmployeeService} from '../../services/employee.service';
+import {Task} from '../../dtos/task';
 
 @Component({
   selector: 'app-enclosure-view',
@@ -26,7 +27,7 @@ export class EnclosureViewComponent implements OnInit {
   assignedAnimals: Animal[];
   alreadyAssignedEnclosureOfSelectedAnimal: Enclosure;
   animalList: Animal[];
-  enclosureTasks: EnclosureTask[];
+  tasks: Task[];
   employeesAssigned: Employee[];
   janitors: Employee[];
 
@@ -62,7 +63,7 @@ export class EnclosureViewComponent implements OnInit {
   loadEnclosureTasks() {
     this.taskService.getTasksOfEnclosure(this.enclosureToView.id).subscribe(
       (tasks) => {
-        this.enclosureTasks = tasks;
+        this.tasks = tasks;
       },
       error => {
         this.defaultServiceErrorHandling(error);

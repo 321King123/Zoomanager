@@ -1,19 +1,11 @@
 package at.ac.tuwien.sepm.groupphase.backend.basetest;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import javax.persistence.*;
-import javax.validation.constraints.FutureOrPresent;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalUnit;
+import java.time.LocalTime;
 import java.util.*;
 
 public interface TestData {
@@ -25,6 +17,9 @@ public interface TestData {
     String TEST_NEWS_TEXT = "TestMessageText";
     LocalDateTime TEST_NEWS_PUBLISHED_AT =
         LocalDateTime.of(2019, 11, 13, 12, 15, 0, 0);
+
+    LocalTime TEST_LOCAL_TIME_START = LocalTime.of(9,00);
+    LocalTime TEST_LOCAL_TIME_END = LocalTime.of(17,00);
 
     String BASE_URI = "/api/v1";
     String MESSAGE_BASE_URI = BASE_URI + "/messages";

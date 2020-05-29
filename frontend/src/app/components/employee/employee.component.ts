@@ -7,6 +7,7 @@ import {type} from '../../global/globals';
 import {Animal} from '../../dtos/animal';
 import {AnimalService} from '../../services/animal.service';
 import {Router } from '@angular/router';
+import {Time} from '@angular/common';
 import {AlertService} from '../../services/alert.service';
 import {AlertType} from '../../dtos/alert';
 
@@ -26,7 +27,7 @@ export class EmployeeComponent implements OnInit {
 
   employeeCreationForm: FormGroup;
 
-  searchEmployee = new Employee(null, null, null, '', null, null);
+  searchEmployee = new Employee(null, null, null, '', null, null, null, null);
 
   submittedEmployee: boolean = false;
 
@@ -62,8 +63,10 @@ export class EmployeeComponent implements OnInit {
       ])],
       name: ['', [Validators.required] ],
       birthday: ['', [Validators.required] ],
+      workTimeStart: ['', [Validators.required]],
+      workTimeEnd: ['', [Validators.required]],
       employeeType: ['', [Validators.required] ]
-       // employeeType: new FormArray([], Validators.required)
+      // employeeType: new FormArray([], Validators.required)
     });
   }
 
@@ -88,9 +91,12 @@ export class EmployeeComponent implements OnInit {
         this.employeeCreationForm.controls.password.value,
         this.employeeCreationForm.controls.name.value,
         this.employeeCreationForm.controls.birthday.value,
+        this.employeeCreationForm.controls.workTimeStart.value,
+        this.employeeCreationForm.controls.workTimeEnd.value,
         this.employeeCreationForm.controls.employeeType.value
       );
       console.log('type: ' + this.employeeCreationForm.controls.employeeType.value);
+      console.log('time: ' + this.employeeCreationForm.controls.workTimeStart.value);
       this.createEmployee(employee);
       this.clearForm();
     } else {
@@ -158,6 +164,12 @@ export class EmployeeComponent implements OnInit {
     let dateString: string;
     dateString = String(date).substring(0, 10);
     return dateString;
+  }
+
+  displayTime(time: Time): string {
+    let timeString: string;
+    timeString = String(time).substring(0, 5);
+    return timeString;
   }
 
   /**

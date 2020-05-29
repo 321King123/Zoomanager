@@ -114,6 +114,8 @@ public class TaskEndpointTest implements TestData {
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
         .type(TYPE_ANIMAL_CARE_EMPLOYEE)
         .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private final UserLogin janitor_login = UserLogin.builder()
@@ -128,6 +130,8 @@ public class TaskEndpointTest implements TestData {
         .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
         .type(TYPE_JANITOR_EMPLOYEE)
         .email(EMAIL_JANITOR_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private final Enclosure barn = Enclosure.builder().name("Barn").build();
@@ -552,7 +556,7 @@ public class TaskEndpointTest implements TestData {
         animalTaskRepository.save(animalTask);
 
 
-        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.get(ANIMAL_TASK_GET_BY_EMPLOYEE_BASE_URI + "/" + anmial_caretaker.getUsername())
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.get(ANIMAL_TASK_GET_BY_EMPLOYEE_BASE_URI + "/animal-task" + "/" + anmial_caretaker.getUsername())
             .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
@@ -648,7 +652,7 @@ public class TaskEndpointTest implements TestData {
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), response.getStatus());
     }
-    
+
 
     @Test
     public void validTaskUpdateStatusDoneAsUser_returnsOk() throws Exception {
