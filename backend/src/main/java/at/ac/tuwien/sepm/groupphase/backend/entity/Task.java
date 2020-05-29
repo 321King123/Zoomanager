@@ -39,5 +39,5 @@ public class Task {
     private TaskStatus status;
 
     @Column(nullable = false)
-    private boolean priority = false;
+    private boolean priority;
 }

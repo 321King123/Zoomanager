@@ -42,6 +42,6 @@ public class TaskDto {
 
     private TaskStatus status;
 
-    private boolean priority = false;
+    private boolean priority;
 
 }
