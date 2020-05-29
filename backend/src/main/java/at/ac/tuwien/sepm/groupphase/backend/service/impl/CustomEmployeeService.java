@@ -14,6 +14,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
+import javax.validation.ValidationException;
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -50,6 +51,7 @@ public class CustomEmployeeService implements EmployeeService {
     public Employee createEmployee(Employee employee) {
         LOGGER.debug("Creating new employee.");
         Employee exists = employeeRepository.findEmployeeByUsername(employee.getUsername());
+        employeeWorkingTimesValid(employee);
         if(exists==null) return employeeRepository.save(employee);
         throw new AlreadyExistsException("Employee with this username already exists");
     }
@@ -142,6 +144,12 @@ public class CustomEmployeeService implements EmployeeService {
         }
         employeeRepository.delete(employee);
         userService.deleteUser(username);
+    }
+
+    private void employeeWorkingTimesValid(Employee employee){
+        if(employee.getWorkTimeStart().isAfter(employee.getWorkTimeEnd()) || employee.getWorkTimeStart().equals(employee.getWorkTimeEnd())){
+            throw new ValidationException("The start time should not be after the end time.");
+        }
     }
 
     @Override
