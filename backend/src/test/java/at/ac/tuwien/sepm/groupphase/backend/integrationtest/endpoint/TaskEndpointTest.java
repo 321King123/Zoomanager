@@ -29,7 +29,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -566,7 +568,8 @@ public class TaskEndpointTest implements TestData {
         assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
         List<AnimalTaskDto> animalTaskDtos = objectMapper.readValue(response.getContentAsString(),
-            new TypeReference<List<AnimalTaskDto>>(){});
+            new TypeReference<List<AnimalTaskDto>>() {
+            });
         assertAll(
             () -> assertEquals(1, animalTaskDtos.size()),
             () -> assertEquals(animal.getName(), animalTaskDtos.get(0).getAnimalName()),
@@ -769,4 +772,52 @@ public class TaskEndpointTest implements TestData {
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
     }
 
+    @Test
+    public void invalidTime_notInWorkingTimeOfTheEmployee_expectStatusConflict() throws Exception {
+
+        LocalDateTime start = LocalDateTime.of(2021, 1, 1, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2021, 1, 1, 1, 0);
+
+        LocalTime workStart = LocalTime.of(8,0);
+        LocalTime workEnd = LocalTime.of(18,0);
+
+        TaskDto taskDto = TaskDto.builder()
+            .title(TASK_TITLE)
+            .description(TASK_DESCRIPTION)
+            .startTime(start)
+            .endTime(end)
+            .build();
+
+        Employee employee = Employee.builder()
+            .username(USERNAME_ANIMAL_CARE_EMPLOYEE)
+            .name(NAME_ANIMAL_CARE_EMPLOYEE)
+            .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
+            .type(TYPE_ANIMAL_CARE_EMPLOYEE)
+            .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+            .workTimeStart(workStart)
+            .workTimeEnd(workEnd)
+            .build();
+
+        animalRepository.save(animal);
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(employee);
+        taskDto.setAssignedEmployeeUsername(USERNAME_ANIMAL_CARE_EMPLOYEE);
+        String body = objectMapper.writeValueAsString(taskDto);
+
+        Animal savedAnimal = animalRepository.findAll().get(0);
+        Employee savedEmployee = employeeRepository.findEmployeeByUsername(employee.getUsername());
+
+
+        animalRepository.assignAnimalToCaretaker(savedEmployee.getUsername(),savedAnimal.getId());
+
+        MvcResult mvcResult = this.mockMvc.perform(post(ANIMAL_TASK_CREATION_BASE_URI + "/" + savedAnimal.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.CONFLICT.value(), response.getStatus());
+    }
 }
