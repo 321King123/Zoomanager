@@ -4,6 +4,9 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AnimalService} from '../../services/animal.service';
 import {Animal} from '../../dtos/animal';
 import {Location} from '@angular/common';
+import {AlertService} from '../../services/alert.service';
+import {Utilities} from '../../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 @Component({
   selector: 'app-animal',
@@ -11,15 +14,13 @@ import {Location} from '@angular/common';
   styleUrls: ['./animal.component.css']
 })
 export class AnimalComponent implements OnInit {
-  error: boolean = false;
-  errorMessage: string = '';
   animalCreationForm: FormGroup;
   submittedAnimal = false;
   animals: Animal[];
 
 
   constructor(private _location: Location, private animalService: AnimalService, private formBuilder: FormBuilder,
-              private authService: AuthService) {
+              private authService: AuthService, private alertService: AlertService) {
     this.animalCreationForm = this.formBuilder.group({
       name: ['', [Validators.required]],
       species: ['', [Validators.required]],
@@ -39,14 +40,6 @@ export class AnimalComponent implements OnInit {
     return this.authService.getUserRole() === 'ADMIN';
   }
 
-  /**
-   * Error flag will be deactivated, which clears the error message
-   */
-  vanishError() {
-    this.error = false;
-  }
-
-
   addAnimal() {
     this.submittedAnimal = true;
     if (this.animalCreationForm.valid) {
@@ -62,16 +55,15 @@ export class AnimalComponent implements OnInit {
     } else {
       console.log('Invalid input.');
     }
-
   }
 
   createAnimal(animal: Animal) {
     this.animalService.createAnimal(animal).subscribe(
-      (createdAnimal) => {
+      () => {
         this.getAnimals();
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error, {}, 'animal-overview createAnimal(' + JSON.stringify(animal) + ')');
       }
     );
   }
@@ -88,19 +80,19 @@ export class AnimalComponent implements OnInit {
         if (error.status === 404) {
           this.animals.length = 0;
         }
-        console.log('Failed to load all animals');
-        this.defaultServiceErrorHandling(error);
+        DEBUG_LOG('Failed to load all animals');
+        this.alertService.alertFromError(error, {}, 'animal-overview getAnimals()');
       }
     );
   }
 
   deleteAnimal(animal: Animal) {
     this.animalService.deleteAnimal(animal).subscribe(
-      (res: any) => {
+      () => {
         this.backClicked();
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error, {}, 'animal-overview deleteAnimal(' + JSON.stringify(animal) + ')');
       }
     );
   }
@@ -108,16 +100,6 @@ export class AnimalComponent implements OnInit {
   private clearForm() {
     this.animalCreationForm.reset();
     this.submittedAnimal = false;
-  }
-
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
-    } else {
-      this.errorMessage = error.error;
-    }
   }
 
   backClicked() {
