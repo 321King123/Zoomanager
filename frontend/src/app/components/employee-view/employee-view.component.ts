@@ -7,13 +7,10 @@ import {Location} from '@angular/common';
 import {Animal} from '../../dtos/animal';
 import {Task} from '../../dtos/task';
 import {AnimalService} from '../../services/animal.service';
-import {AnimalTask} from '../../dtos/animalTask';
 import {TaskService} from '../../services/task.service';
 import {Enclosure} from '../../dtos/enclosure';
 import {EnclosureService} from '../../services/enclosure.service';
-import {EnclosureTask} from '../../dtos/enclosureTask';
 import {AlertService} from '../../services/alert.service';
-import {Alert, AlertType} from '../../dtos/alert';
 
 @Component({
   selector: 'app-employee-view',
@@ -25,15 +22,13 @@ export class EmployeeViewComponent implements OnInit {
   public employee: Employee;
   currentUserType;
 
-  error: boolean = false;
-  errorMessage: string = '';
   currentUser: string;
   check: string;
   animalList: Animal[];
   selectedAnimal: Animal = null;
   assignedAnimals: Animal[];
   tasks: Task[];             // : AnimalTask[];
-  enclosureTasks: EnclosureTask[];
+  // enclosureTasks: EnclosureTask[];
 
   enclosuresFound = false;
   enclosuresOfEmployee: Enclosure[];
@@ -55,10 +50,9 @@ export class EmployeeViewComponent implements OnInit {
     } else if (this.currentUser == null) {
       this.loadPersonalInfo();
     } else {
-      this.error = true;
-      this.errorMessage = 'You are NOT authorised to see this users information!';
+      this.alertService.warn('You are NOT authorised to see this users information!', {},
+        'employee-view ngOnInit()');
     }
-
   }
 
   getCurrentUserType() {
@@ -92,8 +86,8 @@ export class EmployeeViewComponent implements OnInit {
       (employee: Employee) => {
         this.employee = employee;
         if (this.employee == null) {
-          this.error = true;
-          this.errorMessage = 'Employee with such username does not exist.';
+          this.alertService.error('Employee with such username does not exist.', {},
+            'employee-view loadSpecificEmployee(' + username + ')');
         } else {
           console.log('Loaded Employee: ' + this.employee.username);
           this.showAssignedAnimalsEmployee();
@@ -132,26 +126,6 @@ export class EmployeeViewComponent implements OnInit {
       }
     );
 
-  }
-
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      const message: string = error.error.error;
-      const type = AlertType.Error;
-      this.alertService.alert(new Alert({message, type}), 'defaultServiceErrorHandling');
-      this.errorMessage = error.error.error;
-    } else {
-      this.errorMessage = error.error;
-    }
-  }
-
-  /**
-   * Error flag will be deactivated, which clears the error message
-   */
-  vanishError() {
-    this.error = false;
   }
 
   backClicked() {
@@ -201,10 +175,6 @@ export class EmployeeViewComponent implements OnInit {
       },
       error => {
         console.log('Failed to load animals');
-        const options: any = {
-          keepAfterRouteChange: true,
-          dismissible: true,
-        };
         this.alertService.alertFromError(error,  {keepAfterRouteChange: true},
           'getAllAnimals');
       }
@@ -218,8 +188,8 @@ export class EmployeeViewComponent implements OnInit {
     if (this.assignedAnimals !== undefined) {
       for (let i = 0; i < this.assignedAnimals.length; i++) {
         if (this.assignedAnimals[i].id === this.selectedAnimal.id) {
-          this.error = true;
-          this.errorMessage = 'This animal is already assigned to ' + this.employee.username;
+          this.alertService.error('This animal is already assigned to ' + this.employee.username,
+            {}, 'loadPersonInfo');
           return;
         }
       }

@@ -1,26 +1,25 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Injectable, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {EmployeeService} from '../../services/employee.service';
 import {AuthService} from '../../services/auth.service';
 import {Employee} from '../../dtos/employee';
-import {type} from '../../global/globals';
+import {NgbTimeStringAdapter, type} from '../../global/globals';
 import {Animal} from '../../dtos/animal';
 import {AnimalService} from '../../services/animal.service';
 import {Router } from '@angular/router';
 import {Time} from '@angular/common';
 import {AlertService} from '../../services/alert.service';
 import {AlertType} from '../../dtos/alert';
-
-
+import {NgbTimeAdapter, NgbTimeStruct} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-employee',
   templateUrl: './employee.component.html',
-  styleUrls: ['./employee.component.css']
+  styleUrls: ['./employee.component.css'],
+  providers: [{provide: NgbTimeAdapter, useClass: NgbTimeStringAdapter}]
 })
 export class EmployeeComponent implements OnInit {
   componentId: string;
-
 
   error: boolean = false;
   errorMessage: string = '';
@@ -132,7 +131,7 @@ export class EmployeeComponent implements OnInit {
       },
       error => {
         console.log('Failed to load all employees');
-        this.alertService.alertFromError(error, {componentId: this.componentId},'getAllEmployees');
+        this.alertService.alertFromError(error, {componentId: this.componentId}, 'getAllEmployees');
         this.defaultServiceErrorHandling(error);
       }
     );
