@@ -14,6 +14,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
+import javax.validation.ValidationException;
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -50,6 +51,7 @@ public class CustomEmployeeService implements EmployeeService {
     public Employee createEmployee(Employee employee) {
         LOGGER.debug("Creating new employee.");
         Employee exists = employeeRepository.findEmployeeByUsername(employee.getUsername());
+        employeeWorkingTimesValid(employee);
         if(exists==null) return employeeRepository.save(employee);
         throw new AlreadyExistsException("Employee with this username already exists");
     }
@@ -144,8 +146,14 @@ public class CustomEmployeeService implements EmployeeService {
         userService.deleteUser(username);
     }
 
+    private void employeeWorkingTimesValid(Employee employee){
+        if(employee.getWorkTimeStart().isAfter(employee.getWorkTimeEnd()) || employee.getWorkTimeStart().equals(employee.getWorkTimeEnd())){
+            throw new ValidationException("The start time should not be after the end time.");
+        }
+    }
+
     @Override
-    public boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task){
+    public boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task) {
         LOGGER.debug("Checking if " + employee.getUsername() + " is free");
         List<Task> tasks = taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee);
         LocalDateTime start = task.getStartTime();
@@ -163,14 +171,24 @@ public class CustomEmployeeService implements EmployeeService {
 
 
         for(Task t:tasks){
-            if(t.getStartTime().equals(start) && t.getEndTime().equals(end))
-                return false;
-            if(t.getStartTime().isBefore(start) && t.getEndTime().isAfter(end))
-                return false;
-            if(t.getStartTime().isAfter(start) && t.getStartTime().isBefore(end))
-                return false;
-            if(t.getEndTime().isAfter(start) && t.getEndTime().isBefore(end))
-                return false;
+            LocalDateTime existingStart = t.getStartTime();
+            LocalDateTime existingEnd = t.getEndTime();
+            if(existingStart.equals(start) && existingEnd.equals(end))
+                throw new NotFreeException("Employee " + employee.getUsername() + " already has work ("
+                    +  existingStart.toString() + " till " + existingEnd.toString() + ") during this tasks " +
+                    "time frame ("  + start.toString() + " till " + end.toString() +  ").");
+            if(existingStart.isBefore(start) && existingEnd.isAfter(end))
+                throw new NotFreeException("Employee " + employee.getUsername() + " has work (" +  existingStart.toString()
+                    + " till " + existingEnd.toString() + ") that overlaps this tasks " +
+                    "time frame ("  + start.toString() + " till " + end.toString() + ").");
+            if(existingStart.isAfter(start) && existingStart.isBefore(end))
+                throw new NotFreeException("Employee " + employee.getUsername() + " already has work (" +  existingStart.toString()
+                    + " till " + existingEnd.toString() + ") that starts during this tasks " +
+                    "time frame (" + start.toString() + " till " + end.toString() + ").");
+            if(existingEnd.isAfter(start) && existingEnd.isBefore(end))
+                throw new NotFreeException("Employee " + employee.getUsername() + " has work (" +  existingStart.toString()
+                    + " till " + existingEnd.toString() +") that ends during this tasks " +
+                    "time frame (" + start.toString() + " till " + end.toString() +  ").");
         }
         return true;
     }
@@ -264,7 +282,7 @@ public class CustomEmployeeService implements EmployeeService {
             if(employee.getType() == EmployeeType.ANIMAL_CARE)
                 return isAssignedToAnimal(employee.getUsername(), animalTask.get().getSubject().getId());
             if(employee.getType() == EmployeeType.JANITOR)
-                return false;
+                throw new IncorrectTypeException("Employees of type Janitor can not be assigned to Animal Tasks");
         }
 
         //TODO: if it is an Enclosure Task you have to add the check if there is Permission for this (so get the
@@ -276,7 +294,7 @@ public class CustomEmployeeService implements EmployeeService {
             if(employee.getType() == EmployeeType.ANIMAL_CARE)
                 return isAssignedToEnclosure(employee.getUsername(), enclosureTask.get().getSubject().getId());
             if(employee.getType() == EmployeeType.DOCTOR)
-                return false;
+                throw new IncorrectTypeException("Employees of type Janitor can not be assigned to Enclosure Tasks");
         }
 
         return false;

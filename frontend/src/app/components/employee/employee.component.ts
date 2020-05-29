@@ -1,26 +1,24 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Injectable, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {EmployeeService} from '../../services/employee.service';
 import {AuthService} from '../../services/auth.service';
 import {Employee} from '../../dtos/employee';
-import {type} from '../../global/globals';
+import {NgbTimeStringAdapter, type, Utilities} from '../../global/globals';
 import {Animal} from '../../dtos/animal';
 import {AnimalService} from '../../services/animal.service';
 import {Router } from '@angular/router';
 import {Time} from '@angular/common';
-
-
+import {AlertService} from '../../services/alert.service';
+import {NgbTimeAdapter} from '@ng-bootstrap/ng-bootstrap';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 @Component({
   selector: 'app-employee',
   templateUrl: './employee.component.html',
-  styleUrls: ['./employee.component.css']
+  styleUrls: ['./employee.component.css'],
+  providers: [{provide: NgbTimeAdapter, useClass: NgbTimeStringAdapter}]
 })
 export class EmployeeComponent implements OnInit {
-
-  error: boolean = false;
-  errorMessage: string = '';
-
   employeeCreationForm: FormGroup;
 
   searchEmployee = new Employee(null, null, null, '', null, null, null, null);
@@ -44,11 +42,8 @@ export class EmployeeComponent implements OnInit {
   assignedAnimals: Animal[];
 
   constructor(private employeeService: EmployeeService, private animalService: AnimalService, private formBuilder: FormBuilder,
-              private authService: AuthService, private route: Router ) {
+              private authService: AuthService, private route: Router, private alertService: AlertService) {
     this.typeValues = Object.keys(type);
-    for (const t of this.typeValues) {
-      console.log(t);
-    }
     this.employeeCreationForm = this.formBuilder.group({
       username: ['', [Validators.required] ],
       email: ['', Validators.email],
@@ -90,12 +85,12 @@ export class EmployeeComponent implements OnInit {
         this.employeeCreationForm.controls.workTimeEnd.value,
         this.employeeCreationForm.controls.employeeType.value
       );
-      console.log('type: ' + this.employeeCreationForm.controls.employeeType.value);
-      console.log('time: ' + this.employeeCreationForm.controls.workTimeStart.value);
+      DEBUG_LOG('type: ' + this.employeeCreationForm.controls.employeeType.value);
+      DEBUG_LOG('time: ' + this.employeeCreationForm.controls.workTimeStart.value);
       this.createEmployee(employee);
       this.clearForm();
     } else {
-      console.log('Invalid Input');
+      DEBUG_LOG('Invalid Input');
     }
 
 
@@ -111,7 +106,7 @@ export class EmployeeComponent implements OnInit {
         this.getAllEmployees();
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error,  {}, 'createEmployee');
       }
     );
   }
@@ -125,8 +120,8 @@ export class EmployeeComponent implements OnInit {
         this.employeeList = employees;
       },
       error => {
-        console.log('Failed to load all employees');
-        this.defaultServiceErrorHandling(error);
+        DEBUG_LOG('Failed to load all employees');
+        this.alertService.alertFromError(error, {}, 'getAllEmployees');
       }
     );
   }
@@ -143,8 +138,8 @@ export class EmployeeComponent implements OnInit {
         this.employeeList = employees;
       },
       error => {
-        console.log('Failed to load all employees');
-        this.defaultServiceErrorHandling(error);
+        DEBUG_LOG('Failed to load all employees');
+        this.alertService.alertFromError(error, {}, 'getFilteredEmployees');
       }
     );
   }
@@ -162,23 +157,6 @@ export class EmployeeComponent implements OnInit {
     let timeString: string;
     timeString = String(time).substring(0, 5);
     return timeString;
-  }
-
-  /**
-   * Error flag will be deactivated, which clears the error message
-   */
-  vanishError() {
-    this.error = false;
-  }
-
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
-    } else {
-      this.errorMessage = error.error;
-    }
   }
 
   private clearForm() {

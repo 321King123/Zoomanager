@@ -4,8 +4,9 @@ import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
+import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EmployeeService  {
@@ -71,9 +72,10 @@ public interface EmployeeService  {
      *
      * @param task task that contains time fields
      * @param employee employee you want to check
-     * @return true if time is free false if occupied
+     * @return true if time is free
+     * @throws NotFreeException if time is not free
      */
-    boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task);
+    boolean employeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task) ;
 
     /**
      *Checks if Employee is Assigned to specific Animal
@@ -97,7 +99,14 @@ public interface EmployeeService  {
      */
     boolean hasTaskAssignmentPermissions(String UsernameEmployee, Long taskId);
 
-
+    /**
+     * Checks if employee if free and of right type for task
+     * @param employee to check
+     * @param task task to be assigned to
+     * @return true when employee can be assigned
+     * @throws IncorrectTypeException when an employee of an invalid type would be assigned to the task
+     * @throws NotFreeException if employee is not free during that time
+     */
     boolean canBeAssignedToTask(Employee employee, Task task);
 
     /**
@@ -109,7 +118,7 @@ public interface EmployeeService  {
 
     /**
      * Gets all Employees assigned to specific Enclosure
-     * @param enclosure you want the infor for
+     * @param enclosure you want the info for
      */
     List<Employee> getAllAssignedToEnclosure(Enclosure enclosure);
 

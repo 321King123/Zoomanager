@@ -123,9 +123,9 @@ public class EnclosureServiceTest implements TestData {
 
     @Test
     public void deleteEnclosureWithoutAssignedAnimals() {
-        Mockito.when(enclosureService.findById(enclosureMinimal2.getId())).thenReturn((enclosureMinimal2));
+        Mockito.when(enclosureService.findById(enclosureMinimal2.getId())).thenReturn(enclosureMinimal2);
         Enclosure enclosure = enclosureService.findById(enclosureMinimal2.getId());
-        enclosureService.deleteEnclosure(enclosure);
+        enclosureService.deleteEnclosure(enclosure.getId());
         List<Enclosure> enclosures = enclosureService.getAll();
         assertEquals(0, enclosures.size());
     }
@@ -134,12 +134,10 @@ public class EnclosureServiceTest implements TestData {
     public void deleteEnclosureWithAssignedAnimals() {
         List<Animal> animals= new LinkedList<>();
         animals.add(animal);
-        Mockito.when(enclosureService.findById(enclosureMinimal2.getId())).thenReturn((enclosureMinimal2));
-        Mockito.when(animalRepository.findAllByEnclosure(enclosureMinimal2)).thenReturn((animals));
+        Mockito.when(enclosureService.findById(enclosureMinimal2.getId())).thenReturn(enclosureMinimal2);
+        Mockito.when(animalRepository.findAllByEnclosure(enclosureMinimal2)).thenReturn(animals);
         Enclosure enclosure = enclosureService.findById(enclosureMinimal2.getId());
-        assertThrows(DeletionException.class, ()->{enclosureService.deleteEnclosure(enclosure);});
+        assertThrows(DeletionException.class, ()->{enclosureService.deleteEnclosure(enclosure.getId());});
     }
-
-
 
 }

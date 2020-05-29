@@ -24,6 +24,7 @@ import { AnimalViewComponent } from './components/animal-view/animal-view.compon
 import { TaskListComponent } from './components/task-list/task-list.component';
 import { AssignTaskComponent } from './components/assign-task/assign-task.component';
 import { TaskListCommonComponent } from './components/task-list-common/task-list-common.component';
+import { AlertComponent } from './components/alert/alert.component';
 
 @NgModule({
   declarations: [
@@ -45,6 +46,7 @@ import { TaskListCommonComponent } from './components/task-list-common/task-list
     TaskListComponent,
     AssignTaskComponent,
     TaskListCommonComponent,
+    AlertComponent,
   ],
   imports: [
     BrowserModule,

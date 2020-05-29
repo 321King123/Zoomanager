@@ -1,11 +1,3 @@
-<div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
-  <strong>Error! </strong> {{ errorMessage }}
-  <button type="button" (click)="vanishError()" class="close" data-dismiss="alert" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
-  </button>
-</div>
-
-
 <div *ngIf="isAdmin()">
   <div class="employee-list-header mt-5">
     <div class="row">
@@ -137,8 +129,8 @@
         </div>
         <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
           <label for="inputWorkTimeStart">Work-time start</label>
-          <input type="time-local" name="workTimeStart" formControlName="workTimeStart" class="form-control"
-                 id="inputWorkTimeStart">
+          <ngb-timepicker [hourStep]="1" [minuteStep]="5" [spinners]="false"
+                          formControlName="workTimeStart" id="inputWorkTimeStart"></ngb-timepicker >
           <div *ngIf="submittedEmployee && employeeCreationForm.controls.workTimeStart.errors" class="error">
             <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.workTimeStart.errors.required">
               Work-time start
@@ -151,9 +143,8 @@
 
         <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
           <label for="inputWorkTimeEnd">Work-time end</label>
-          <input type="time-local" name="workTimeEnd" formControlName="workTimeEnd" class="form-control"
-                 id="inputWorkTimeEnd">
-
+          <ngb-timepicker [hourStep]="1" [minuteStep]="5" [spinners]="false"
+                          formControlName="workTimeEnd" id="inputWorkTimeEnd"></ngb-timepicker >
           <div *ngIf="submittedEmployee && employeeCreationForm.controls.workTimeEnd.errors" class="error">
             <small class="form-text text-warning" *ngIf="employeeCreationForm.controls.workTimeEnd.errors.required">
               Work-time end

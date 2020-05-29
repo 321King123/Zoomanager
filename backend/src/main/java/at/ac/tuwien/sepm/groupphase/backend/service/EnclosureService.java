@@ -49,8 +49,8 @@ public interface EnclosureService {
     /**
      * Delete enclosure if here are no animals in it
      *
-     * @param enclosure to delete
+     * @param id of enclosure to delete
      */
-    void deleteEnclosure(Enclosure enclosure);
+    public void deleteEnclosure(Long id);
 
 }

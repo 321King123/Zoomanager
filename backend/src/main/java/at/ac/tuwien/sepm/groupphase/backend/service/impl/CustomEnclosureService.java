@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomEnclosureService implements EnclosureService {
@@ -72,16 +73,18 @@ public class CustomEnclosureService implements EnclosureService {
     }
 
     @Override
-    public void deleteEnclosure(Enclosure enclosure){
-        List<Animal> animals = animalRepository.findAllByEnclosure(enclosure);
-        if(this.findById(enclosure.getId())!=null){
+    public void deleteEnclosure(Long id){
+        Enclosure enclosure = findById(id);
+        if(enclosure!=null){
+
+            List<Animal> animals = animalRepository.findAllByEnclosure(enclosure);
             if(animals.size()==0){
                 enclosureRepository.delete(enclosure);
             }else{
                 throw new DeletionException("There are still animals assigned to this enclosure");
             }
         }else{
-            throw new NotFoundException("No enclosure to delete: " + enclosure.getId());
+            throw new NotFoundException("No enclosure to delete: " + id);
         }
     }
 }

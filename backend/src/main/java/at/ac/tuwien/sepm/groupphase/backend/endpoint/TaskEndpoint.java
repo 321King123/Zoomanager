@@ -87,10 +87,12 @@ public class TaskEndpoint {
         }else{
             String username = (String)authentication.getPrincipal();
 
-            if(employeeService.isAssignedToAnimal(username, animalId))
+            if(employeeService.isAssignedToAnimal(username, animalId)) {
                 return animalTaskMapper.animalTaskToAnimalTaskDto(taskService.createAnimalTask(task, animal));
+            }else {
+                throw new NotAuthorisedException("You cant assign Tasks to Animals that are not assigned to you");
+            }
 
-            throw new NotAuthorisedException("You cant assign Tasks to Animals that are not assigned to you");
         }
     }
 

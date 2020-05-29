@@ -6,6 +6,7 @@ import {EmployeeService} from '../../services/employee.service';
 import {Employee} from '../../dtos/employee';
 import {AnimalTask} from '../../dtos/animalTask';
 import {Task} from '../../dtos/task';
+import {AlertService} from '../../services/alert.service';
 
 @Component({
   selector: 'app-task-list-common',
@@ -13,8 +14,7 @@ import {Task} from '../../dtos/task';
   styleUrls: ['./task-list-common.component.css']
 })
 export class TaskListCommonComponent implements OnInit {
-  error = false;
-  errorMessage = '';
+  componentId = 'task-list-common';
 
   @Input() tasks: Task[];
 
@@ -27,7 +27,7 @@ export class TaskListCommonComponent implements OnInit {
   @Input() currentUserType;
 
   constructor(private authService: AuthService, private taskService: TaskService, private animalService: AnimalService,
-              private employeeService: EmployeeService) {
+              private employeeService: EmployeeService, private alertService: AlertService) {
   }
 
   ngOnInit(): void {
@@ -39,7 +39,7 @@ export class TaskListCommonComponent implements OnInit {
         this.reloadTasks.emit();
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error, { componentId: this.componentId}, 'TaskList component: markTaskAsDone');
       }
     );
   }
@@ -50,24 +50,11 @@ export class TaskListCommonComponent implements OnInit {
         this.reloadTasks.emit();
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error, { componentId: this.componentId}, 'TaskList component: markTaskAsDone');
       }
     );
   }
 
-  vanishError() {
-    this.error = false;
-  }
-
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
-    } else {
-      this.errorMessage = error.error;
-    }
-  }
 
   /**
    * Returns true if the authenticated user is an admin

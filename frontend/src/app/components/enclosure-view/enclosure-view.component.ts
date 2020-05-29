@@ -11,6 +11,9 @@ import {TaskService} from '../../services/task.service';
 import {Employee} from '../../dtos/employee';
 import {EmployeeService} from '../../services/employee.service';
 import {Task} from '../../dtos/task';
+import {AlertService} from '../../services/alert.service';
+import {Utilities} from '../../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 @Component({
   selector: 'app-enclosure-view',
@@ -18,10 +21,6 @@ import {Task} from '../../dtos/task';
   styleUrls: ['./enclosure-view.component.css']
 })
 export class EnclosureViewComponent implements OnInit {
-
-  error: boolean = false;
-  errorMessage: string = '';
-
   enclosureToView: Enclosure;
   selectedAnimal: Animal = null;
   assignedAnimals: Animal[];
@@ -35,7 +34,7 @@ export class EnclosureViewComponent implements OnInit {
   constructor(private enclosureService: EnclosureService, private authService: AuthService,
               private route: ActivatedRoute, private router: Router, private _location: Location,
               private animalService: AnimalService, private taskService: TaskService,
-              private employeeService: EmployeeService) {
+              private employeeService: EmployeeService, private alertService: AlertService) {
 
   }
 
@@ -54,8 +53,8 @@ export class EnclosureViewComponent implements OnInit {
         if (error.status === 404) {
           this.animalList.length = 0;
         }
-        console.log('Failed to load all animals');
-        this.defaultServiceErrorHandling(error);
+        DEBUG_LOG('Failed to load all animals');
+        this.alertService.alertFromError(error, {}, 'EnclosureView component: loadAnimals()');
       }
     );
   }
@@ -66,7 +65,7 @@ export class EnclosureViewComponent implements OnInit {
         this.tasks = tasks;
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error, {}, 'EnclosureView component: loadEnclosureTasks()');
       }
     );
   }
@@ -75,17 +74,16 @@ export class EnclosureViewComponent implements OnInit {
     this.enclosureService.getById(enclosureId).subscribe(
       (enclosure: Enclosure) => {
         this.enclosureToView = enclosure;
-        console.log('Loaded enclosure id: ' + enclosure.id);
+        DEBUG_LOG('Loaded enclosure id: ' + enclosure.id);
         if (this.enclosureToView == null) {
-          this.error = true;
-          this.errorMessage = 'Enclosure with such id does not exist.';
+          this.alertService.error('Enclosure with such id does not exist.', {}, 'loadEnclosureToView()');
         }
         this.showAssignedAnimalsEnclosure();
         this.loadEnclosureTasks();
         this.loadEmployees();
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error, {}, 'EnclosureView component: loadEnclosureToView()');
       }
     );
 
@@ -97,7 +95,7 @@ export class EnclosureViewComponent implements OnInit {
         this.janitors = janitors;
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error, {}, 'EnclosureView component: loadEmployees()');
       }
     );
     this.employeeService.getEmployeesOfEnclosure(this.enclosureToView.id).subscribe(
@@ -105,7 +103,7 @@ export class EnclosureViewComponent implements OnInit {
         this.employeesAssigned = employees;
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error, {}, 'EnclosureView component: loadEmployees()');
       }
     );
   }
@@ -129,24 +127,6 @@ export class EnclosureViewComponent implements OnInit {
     this._location.back();
   }
 
-
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
-    } else {
-      this.errorMessage = error.error;
-    }
-  }
-
-  /**
-   * Error flag will be deactivated, which clears the error message
-   */
-  vanishError() {
-    this.error = false;
-  }
-
   /**
    * Selects an employee from the table to display assigned animals
    */
@@ -157,8 +137,8 @@ export class EnclosureViewComponent implements OnInit {
           this.assignedAnimals = animals;
         },
         error => {
-          console.log('Failed to load animals of ' + this.enclosureToView.id);
-          this.defaultServiceErrorHandling(error);
+          DEBUG_LOG('Failed to load animals of ' + this.enclosureToView.id);
+          this.alertService.alertFromError(error, {}, 'showAssignedAnimalsEnclosure()');
         }
       );
     }
@@ -168,8 +148,7 @@ export class EnclosureViewComponent implements OnInit {
     if (this.assignedAnimals !== undefined) {
       for (let i = 0; i < this.assignedAnimals.length; i++) {
         if (this.assignedAnimals[i].id === this.selectedAnimal.id) {
-          this.error = true;
-          this.errorMessage = 'This animal is already assigned to ' + this.enclosureToView.id;
+          this.alertService.warn('This animal is already assigned to ' + this.enclosureToView.id);
           return;
         }
       }
@@ -179,33 +158,33 @@ export class EnclosureViewComponent implements OnInit {
         this.alreadyAssignedEnclosureOfSelectedAnimal = enclosure;
         if (this.alreadyAssignedEnclosureOfSelectedAnimal !== null) {
           if (confirm('Animal is already assigned to enclosure with id: ' + this.alreadyAssignedEnclosureOfSelectedAnimal.id + '. Do you want to move ' + this.selectedAnimal.name + ' into this enclosure')) {
-            console.log('assigning ' + this.selectedAnimal + ' to ' + this.enclosureToView);
+            DEBUG_LOG('assigning ' + this.selectedAnimal + ' to ' + this.enclosureToView);
             this.enclosureService.assignAnimalToEnclosure(this.selectedAnimal, this.enclosureToView).subscribe(
               () => {
                 this.showAssignedAnimalsEnclosure();
               },
               error => {
-                console.log('Failed to assign animal');
-                this.defaultServiceErrorHandling(error);
+                DEBUG_LOG('Failed to assign animal');
+                this.alertService.alertFromError(error, {}, 'EnclosureView component: assignAnimalToEnclosure()');
               }
             );
           }
         } else {
-          console.log('assigning ' + this.selectedAnimal + ' to ' + this.enclosureToView);
+          DEBUG_LOG('assigning ' + this.selectedAnimal + ' to ' + this.enclosureToView);
           this.enclosureService.assignAnimalToEnclosure(this.selectedAnimal, this.enclosureToView).subscribe(
             () => {
               this.showAssignedAnimalsEnclosure();
             },
             error => {
-              console.log('Failed to assign animal');
-              this.defaultServiceErrorHandling(error);
+              DEBUG_LOG('Failed to assign animal');
+              this.alertService.alertFromError(error, {}, 'EnclosureView component: assignAnimalToEnclosure()');
             }
           );
         }
       },
       error => {
-        console.log('Failed to get enclosure where animal assigned');
-        this.defaultServiceErrorHandling(error);
+        DEBUG_LOG('Failed to get enclosure where animal assigned');
+        this.alertService.alertFromError(error, {}, 'EnclosureView component: assignAnimalToEnclosure()');
       }
     );
 
@@ -214,12 +193,12 @@ export class EnclosureViewComponent implements OnInit {
   deleteEnclosure() {
     this.enclosureService.deleteEnclosure(this.enclosureToView).subscribe(
       () => {
-        console.log('Deleted enclosure:' + this.enclosureToView.id);
+        DEBUG_LOG('Deleted enclosure:' + this.enclosureToView.id);
         this.backClicked();
       },
       error => {
-        console.log('Failed to delete enclosure');
-        this.defaultServiceErrorHandling(error);
+        DEBUG_LOG('Failed to delete enclosure');
+        this.alertService.alertFromError(error, {}, 'EnclosureView component: deleteEnclosure()');
       }
     );
   }
@@ -228,12 +207,12 @@ export class EnclosureViewComponent implements OnInit {
     if (animal != null) {
       this.enclosureService.unassignAnimal(animal).subscribe(
         () => {
-          console.log('Removed animal' + animal);
+          DEBUG_LOG('Removed animal' + animal);
           this.showAssignedAnimalsEnclosure();
         },
         error => {
-          console.log('Failed to remove animal');
-          this.defaultServiceErrorHandling(error);
+          DEBUG_LOG('Failed to remove animal');
+          this.alertService.alertFromError(error, {}, 'EnclosureView component: unassignAnimal()');
         }
       );
     }

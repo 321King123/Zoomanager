@@ -7,12 +7,12 @@ import {Location} from '@angular/common';
 import {Animal} from '../../dtos/animal';
 import {Task} from '../../dtos/task';
 import {AnimalService} from '../../services/animal.service';
-import {AnimalTask} from '../../dtos/animalTask';
 import {TaskService} from '../../services/task.service';
 import {Enclosure} from '../../dtos/enclosure';
-import {FormBuilder} from '@angular/forms';
 import {EnclosureService} from '../../services/enclosure.service';
-import {EnclosureTask} from '../../dtos/enclosureTask';
+import {AlertService} from '../../services/alert.service';
+import {Utilities} from '../../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 @Component({
   selector: 'app-employee-view',
@@ -24,15 +24,13 @@ export class EmployeeViewComponent implements OnInit {
   public employee: Employee;
   currentUserType;
 
-  error: boolean = false;
-  errorMessage: string = '';
   currentUser: string;
   check: string;
   animalList: Animal[];
   selectedAnimal: Animal = null;
   assignedAnimals: Animal[];
   tasks: Task[];             // : AnimalTask[];
-  enclosureTasks: EnclosureTask[];
+  // enclosureTasks: EnclosureTask[];
 
   enclosuresFound = false;
   enclosuresOfEmployee: Enclosure[];
@@ -42,7 +40,8 @@ export class EmployeeViewComponent implements OnInit {
 
   constructor(private employeeService: EmployeeService, private authService: AuthService, private route: ActivatedRoute,
               private _location: Location, private animalService: AnimalService, private router: Router,
-              private taskService: TaskService, private enclosureService: EnclosureService) {
+              private taskService: TaskService, private enclosureService: EnclosureService,
+              private alertService: AlertService) {
   }
 
   ngOnInit(): void {
@@ -53,10 +52,9 @@ export class EmployeeViewComponent implements OnInit {
     } else if (this.currentUser == null) {
       this.loadPersonalInfo();
     } else {
-      this.error = true;
-      this.errorMessage = 'You are NOT authorised to see this users information!';
+      this.alertService.warn('You are NOT authorised to see this users information!', {},
+        'employee-view ngOnInit()');
     }
-
   }
 
   getCurrentUserType() {
@@ -71,7 +69,7 @@ export class EmployeeViewComponent implements OnInit {
     this.employeeService.getPersonalInfo().subscribe(
       (employee: Employee) => {
         this.employee = employee;
-        console.log('employee: ' + JSON.stringify(this.employee));
+        DEBUG_LOG('employee: ' + JSON.stringify(this.employee));
         this.showAssignedAnimalsEmployee();
         this.loadTasksOfEmployee();
         this.currentUserType = this.getCurrentUserType();
@@ -79,7 +77,7 @@ export class EmployeeViewComponent implements OnInit {
         this.getEnclosuresOfEmployee();
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error,  {}, 'loadPersonInfo');
       }
     );
   }
@@ -90,10 +88,10 @@ export class EmployeeViewComponent implements OnInit {
       (employee: Employee) => {
         this.employee = employee;
         if (this.employee == null) {
-          this.error = true;
-          this.errorMessage = 'Employee with such username does not exist.';
+          this.alertService.error('Employee with such username does not exist.', {},
+            'employee-view loadSpecificEmployee(' + username + ')');
         } else {
-          console.log('employee: ' + JSON.stringify(this.employee));
+          DEBUG_LOG('Loaded Employee: ' + this.employee.username);
           this.showAssignedAnimalsEmployee();
           this.loadTasksOfEmployee();
           this.toAnimalMode();
@@ -101,7 +99,7 @@ export class EmployeeViewComponent implements OnInit {
         }
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error,  {}, 'loadSpecificEmployee');
       }
     );
   }
@@ -114,7 +112,7 @@ export class EmployeeViewComponent implements OnInit {
         this.enclosuresFound = true;
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error,  {}, 'getEnclosureOfEmployee');
       }
     );
   }
@@ -125,27 +123,11 @@ export class EmployeeViewComponent implements OnInit {
         this.tasks = tasks;
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        DEBUG_LOG('Error loading tasks!');
+        this.alertService.alertFromError(error,  {}, 'loadTasksOfEmployee->loadTaskOfEmployee');
       }
     );
 
-  }
-
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
-    } else {
-      this.errorMessage = error.error;
-    }
-  }
-
-  /**
-   * Error flag will be deactivated, which clears the error message
-   */
-  vanishError() {
-    this.error = false;
   }
 
   backClicked() {
@@ -178,8 +160,8 @@ export class EmployeeViewComponent implements OnInit {
           this.assignedAnimals = animals;
         },
         error => {
-          console.log('Failed to load animals of ' + this.employee.username);
-          this.defaultServiceErrorHandling(error);
+          DEBUG_LOG('Failed to load animals of ' + this.employee.username);
+          this.alertService.alertFromError(error, {}, 'showAssignedAnimalsEmployee');
         }
       );
     }
@@ -194,8 +176,9 @@ export class EmployeeViewComponent implements OnInit {
         this.animalList = animals;
       },
       error => {
-        console.log('Failed to load animals');
-        this.defaultServiceErrorHandling(error);
+        DEBUG_LOG('Failed to load animals');
+        this.alertService.alertFromError(error,  {keepAfterRouteChange: true},
+          'getAllAnimals');
       }
     );
   }
@@ -207,20 +190,20 @@ export class EmployeeViewComponent implements OnInit {
     if (this.assignedAnimals !== undefined) {
       for (let i = 0; i < this.assignedAnimals.length; i++) {
         if (this.assignedAnimals[i].id === this.selectedAnimal.id) {
-          this.error = true;
-          this.errorMessage = 'This animal is already assigned to ' + this.employee.username;
+          this.alertService.error('This animal is already assigned to ' + this.employee.username,
+            {}, 'loadPersonInfo');
           return;
         }
       }
-      console.log('assigning ' + this.selectedAnimal + ' to ' + this.employee);
+      DEBUG_LOG('assigning ' + this.selectedAnimal + ' to ' + this.employee);
     }
     this.employeeService.assignAnimalToEmployee(this.selectedAnimal, this.employee).subscribe(
       () => {
         this.showAssignedAnimalsEmployee();
       },
       error => {
-        console.log('Failed to assign animal');
-        this.defaultServiceErrorHandling(error);
+        DEBUG_LOG('Failed to assign animal');
+        this.alertService.alertFromError(error, {}, 'assignAnimal');
       }
     );
   }
@@ -233,8 +216,8 @@ export class EmployeeViewComponent implements OnInit {
             this.backClicked();
           },
           error => {
-            console.log('Failed to delete employee');
-            this.defaultServiceErrorHandling(error);
+            DEBUG_LOG('Failed to delete employee');
+            this.alertService.alertFromError(error, {}, 'deleteEmployee');
           }
         );
       }
@@ -244,8 +227,8 @@ export class EmployeeViewComponent implements OnInit {
           this._location.back();
         },
         error => {
-          console.log('Failed to delete employee');
-          this.defaultServiceErrorHandling(error);
+          DEBUG_LOG('Failed to delete employee');
+          this.alertService.alertFromError(error, {}, 'deleteEmployee');
         }
       );
     }

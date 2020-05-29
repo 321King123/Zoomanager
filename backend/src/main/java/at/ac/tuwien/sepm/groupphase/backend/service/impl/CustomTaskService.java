@@ -104,7 +104,7 @@ public class CustomTaskService implements TaskService {
         }
 
         if(task.getStatus() == TaskStatus.ASSIGNED && !employeeService.employeeIsFreeBetweenStartingAndEndtime(employee, task)){
-            throw new NotFreeException("Employee already works on a task in the given time");
+            throw new NotFreeException("The employee does not work at the given time!");
         }
 
         Task createdTask = taskRepository.save(task);
