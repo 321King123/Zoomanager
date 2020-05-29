@@ -273,4 +273,8 @@ export class TaskCreationComponent implements OnInit {
     }
   }
 
+  clearAlerts() {
+    this.alertService.clear(this.componentId);
+  }
+
 }
