@@ -43,6 +43,8 @@ public class EnclosureTaskDto {
     @NotNull(message = "Task Status must not be null")
     private TaskStatus status;
 
+    private boolean priority;
+
     @NotNull(message = "Name must not be null")
     @NotBlank(message = "Name must not be empty")
     private String enclosureName;
@@ -50,9 +52,4 @@ public class EnclosureTaskDto {
     @NotNull(message = "Name must not be null")
     private Long enclosureId;
 
-    private boolean priority;
-
-    public boolean getPriority() {
-        return this.priority;
-    }
 }

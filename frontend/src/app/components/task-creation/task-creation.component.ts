@@ -57,7 +57,8 @@ export class TaskCreationComponent implements OnInit {
       startTime: ['', Validators.required],
       endTime: ['', Validators.required],
       assignedEmployeeUsername: [],
-      subjectId: ['', Validators.required]
+      subjectId: ['', Validators.required],
+      priority: [false]
     });
   }
 
@@ -146,6 +147,19 @@ export class TaskCreationComponent implements OnInit {
     }
   }
 
+  priorityTaskSubmitted() {
+    this.taskCreationForm.controls['priority'].setValue(true);
+    if (this.taskCreationForm.valid) {
+      if (this.isAnimalTask) {
+        this.getAnimalTaskFromForm();
+        this.createAnimalTask();
+      } else if (this.isEnclosureTask) {
+        this.getEnclosureTaskFromForm();
+        this.createEnclosureTask();
+      }
+    }
+  }
+
   getAnimalTaskFromForm() {
     const startTimeParsed = this.parseDate(this.taskCreationForm.controls.startTime.value);
     const endTimeParsed = this.parseDate(this.taskCreationForm.controls.endTime.value);
@@ -158,7 +172,8 @@ export class TaskCreationComponent implements OnInit {
       this.taskCreationForm.controls.assignedEmployeeUsername.value,
       null,
       this.taskCreationForm.controls.subjectId.value,
-      null
+      null,
+      this.taskCreationForm.controls.priority.value
     );
     if (this.task.assignedEmployeeUsername != null) {
       this.task.status = 'ASSIGNED';
@@ -180,7 +195,7 @@ export class TaskCreationComponent implements OnInit {
       null,
       this.taskCreationForm.controls.subjectId.value,
       null,
-      null
+      this.taskCreationForm.controls.priority.value
     );
     if (this.enclosureTask.assignedEmployeeUsername != null) {
       this.enclosureTask.status = 'ASSIGNED';

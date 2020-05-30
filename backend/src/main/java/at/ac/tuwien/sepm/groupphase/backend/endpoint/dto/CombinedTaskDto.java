@@ -52,4 +52,7 @@ public class CombinedTaskDto {
 
     @NotNull(message = "You have to specify the kind of task")
     private boolean isAnimalTask;
+
+    @NotNull
+    private boolean priority;
 }

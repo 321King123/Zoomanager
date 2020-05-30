@@ -76,6 +76,17 @@ public class EnclosureTaskServiceTest {
         .assignedEmployee(animal_caretaker)
         .build();
 
+    private Task task_assigned_high_priority = Task.builder()
+        .id(2L)
+        .title(TASK_TITLE)
+        .description(TASK_DESCRIPTION)
+        .startTime(TAST_START_TIME)
+        .endTime(TAST_END_TIME)
+        .status(TaskStatus.ASSIGNED)
+        .assignedEmployee(animal_caretaker)
+        .priority(true)
+        .build();
+
     private Task task_assigned1 = Task.builder()
         .id(2L)
         .title(TASK_TITLE)
@@ -89,7 +100,6 @@ public class EnclosureTaskServiceTest {
     private EnclosureTask  enclosureTask = EnclosureTask.builder()
         .task(task_assigned)
         .subject(enclosureDetailed)
-        .priority(false)
         .id(1L)
         .build();
 
