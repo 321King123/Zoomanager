@@ -41,6 +41,7 @@ export class TaskCreationComponent implements OnInit {
   isAnimalTask = true;
 
   @Output() reloadTasks = new EventEmitter();
+  submittedTask = false;
 
   constructor(private taskService: TaskService, private animalService: AnimalService,
               private employeeService: EmployeeService, private formBuilder: FormBuilder,
@@ -56,7 +57,8 @@ export class TaskCreationComponent implements OnInit {
       startTime: ['', Validators.required],
       endTime: ['', Validators.required],
       assignedEmployeeUsername: [],
-      subjectId: ['', Validators.required]
+      subjectId: ['', Validators.required],
+      priority: [false]
     });
   }
 
@@ -133,6 +135,20 @@ export class TaskCreationComponent implements OnInit {
   }
 
   taskSubmitted() {
+    this.submittedTask = true;
+    if (this.taskCreationForm.valid) {
+      if (this.isAnimalTask) {
+        this.getAnimalTaskFromForm();
+        this.createAnimalTask();
+      } else if (this.isEnclosureTask) {
+        this.getEnclosureTaskFromForm();
+        this.createEnclosureTask();
+      }
+    }
+  }
+
+  priorityTaskSubmitted() {
+    this.taskCreationForm.controls['priority'].setValue(true);
     if (this.taskCreationForm.valid) {
       if (this.isAnimalTask) {
         this.getAnimalTaskFromForm();
@@ -156,7 +172,8 @@ export class TaskCreationComponent implements OnInit {
       this.taskCreationForm.controls.assignedEmployeeUsername.value,
       null,
       this.taskCreationForm.controls.subjectId.value,
-      null
+      null,
+      this.taskCreationForm.controls.priority.value
     );
     if (this.task.assignedEmployeeUsername != null) {
       this.task.status = 'ASSIGNED';
@@ -178,7 +195,7 @@ export class TaskCreationComponent implements OnInit {
       null,
       this.taskCreationForm.controls.subjectId.value,
       null,
-      null
+      this.taskCreationForm.controls.priority.value
     );
     if (this.enclosureTask.assignedEmployeeUsername != null) {
       this.enclosureTask.status = 'ASSIGNED';
@@ -205,6 +222,7 @@ export class TaskCreationComponent implements OnInit {
 
   clearForm() {
     this.taskCreationForm.reset();
+    this.submittedTask = false;
   }
 
   onClose() {
@@ -271,6 +289,10 @@ export class TaskCreationComponent implements OnInit {
     if (this.employeesOfTaskSubject !== undefined) {
       this.employeesOfTaskSubject.length = 0;
     }
+  }
+
+  clearAlerts() {
+    this.alertService.clear(this.componentId);
   }
 
 }

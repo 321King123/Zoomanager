@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.unittests.mapper;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalTaskDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EnclosureTaskDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.TaskDto;
@@ -20,7 +19,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -56,6 +56,17 @@ public class TaskMappingTest implements TestData {
         .endTime(TAST_END_TIME)
         .status(TaskStatus.ASSIGNED)
         .assignedEmployee(anmial_caretaker)
+        .build();
+
+    private Task task_assigned_high_priority = Task.builder()
+        .id(2L)
+        .title(TASK_TITLE)
+        .description(TASK_DESCRIPTION)
+        .startTime(TAST_START_TIME)
+        .endTime(TAST_END_TIME)
+        .status(TaskStatus.ASSIGNED)
+        .assignedEmployee(anmial_caretaker)
+        .priority(true)
         .build();
 
     private Task task_not_assigned = Task.builder()
@@ -97,7 +108,7 @@ public class TaskMappingTest implements TestData {
     private AnimalTask animalTask = AnimalTask.builder()
         .id(2L)
         .subject(animal)
-        .task(task_assigned)
+        .task(task_assigned_high_priority)
         .build();
 
     private AnimalTask animalTaskNotAssigned = AnimalTask.builder()
@@ -110,7 +121,6 @@ public class TaskMappingTest implements TestData {
         .id(4L)
         .subject(enclosure)
         .task(task_assigned)
-        .priority(true)
         .build();
 
     private EnclosureTask enclosureTaskNotAssigned = EnclosureTask.builder()

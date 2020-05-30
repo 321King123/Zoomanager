@@ -6,7 +6,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">Create a Task</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="clearAlerts()">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
@@ -142,8 +142,11 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" (click)="taskSubmitted()" class="btn btn-success">Create Task</button>
+        <button type="button" (click)="taskSubmitted()" class="btn btn-success col">Create Task</button>
+        <button type="button" (click)="priorityTaskSubmitted()" class="btn btn-warning col">Create Priority Task</button>
+      </div>
+      <div class="modal-footer justify-content-around">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clearAlerts()">Close</button>
       </div>
     </div>
   </div>

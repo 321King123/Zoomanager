@@ -1,8 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper;
 
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalTaskDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.CombinedTaskDto;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EnclosureTaskDto;
 import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
 import at.ac.tuwien.sepm.groupphase.backend.entity.EnclosureTask;
 import org.springframework.stereotype.Component;
@@ -28,6 +26,7 @@ public class CombinedTaskMapper {
             .subjectName(animalTask.getSubject().getName())
             .subjectId(animalTask.getSubject().getId())
             .isAnimalTask(true)
+            .priority(animalTask.getTask().isPriority())
             .build();
     }
 
@@ -53,6 +52,7 @@ public class CombinedTaskMapper {
             .subjectName(enclosureTask.getSubject() != null ? enclosureTask.getSubject().getName() : null)
             .subjectId(enclosureTask.getSubject() != null ? enclosureTask.getSubject().getId() : null)
             .isAnimalTask(false)
+            .priority(enclosureTask.getTask().isPriority())
             .build();
     }
 
