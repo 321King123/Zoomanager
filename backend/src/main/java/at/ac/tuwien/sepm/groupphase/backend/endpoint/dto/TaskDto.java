@@ -42,6 +42,7 @@ public class TaskDto {
 
     private TaskStatus status;
 
+    @NotNull
     private boolean priority;
 
 }
