@@ -9,6 +9,7 @@
     <thead>
     <tr class="d-flex">
       <th class="col" scope="col">Title</th>
+      <th class="col" scope="col">Priority</th>
       <th class="col" scope="col">Start time</th>
       <th class="col" scope="col">End time</th>
       <th class="col" scope="col">Description</th>
@@ -19,8 +20,12 @@
     <tbody *ngIf="tasks!=null">
 
     <ng-container *ngFor="let task of tasks; index as i;">
-      <tr class="d-flex animal-list-item">
-        <td class="col">{{task.title}}</td>
+      <tr class="d-flex animal-list-item" [class.bg-warning]="task.priority">
+        <td class="col" >{{task.title}}</td>
+        <td class="col">
+          <p *ngIf="task.priority">High</p>
+          <p *ngIf="!task.priority">Normal</p>
+        </td>
         <td class="col">{{task.startTime}}</td>
         <td class="col">{{task.endTime}}</td>
         <td class="col">{{task.description}}</td>
