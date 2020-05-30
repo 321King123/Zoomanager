@@ -3,6 +3,7 @@ package at.ac.tuwien.sepm.groupphase.backend.endpoint.exceptionhandler;
 import at.ac.tuwien.sepm.groupphase.backend.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -91,14 +92,30 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpStatus status, WebRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();
         //Get all errors
+//        List<String> errors = ex.getBindingResult()
+//            .getFieldErrors()
+//            .stream()
+//            .map(err -> err.getField() + " " + err.getDefaultMessage())
+//            .collect(Collectors.toList());
+
         List<String> errors = ex.getBindingResult()
             .getFieldErrors()
             .stream()
-            .map(err -> err.getField() + " " + err.getDefaultMessage())
+            .map(DefaultMessageSourceResolvable::getDefaultMessage)
             .collect(Collectors.toList());
+
+        StringBuilder bodyString = new StringBuilder("<p>Following Problems occurred:</p>");
+
+        int i = 1;
+        for(String e : errors) {
+            bodyString.append("<p>").append(i).append(". ")
+                .append(e).append("</p>");
+            i++;
+        }
+
         body.put("Validation errors", errors);
 
-        return new ResponseEntity<>(body.toString(), headers, status);
-
+//        return new ResponseEntity<>(body.toString(), headers, status);
+        return new ResponseEntity<>(bodyString, headers, status);
     }
 }
