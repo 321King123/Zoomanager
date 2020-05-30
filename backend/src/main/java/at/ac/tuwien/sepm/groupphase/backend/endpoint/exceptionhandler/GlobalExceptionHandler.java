@@ -104,14 +104,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             .map(DefaultMessageSourceResolvable::getDefaultMessage)
             .collect(Collectors.toList());
 
-        StringBuilder bodyString = new StringBuilder("<p>Following Problems occurred:</p>");
-
-        int i = 1;
-        for(String e : errors) {
-            bodyString.append("<p>").append(i).append(". ")
-                .append(e).append("</p>");
-            i++;
+        StringBuilder bodyString = new StringBuilder("");
+        if(errors.size() > 1) {
+            bodyString.append( "<p>Following Problems occurred:</p>");
+            int i = 1;
+            for(String e : errors) {
+                bodyString.append("<p>").append(i).append(". ")
+                    .append(e).append("</p>");
+                i++;
+            }
+        } else if(errors.size() == 1) {
+            for(String e : errors) {
+                bodyString.append(e);
+            }
         }
+
 
         body.put("Validation errors", errors);
 
