@@ -234,7 +234,7 @@ export class TaskCreationComponent implements OnInit {
       (res: any) => {
         this.clearForm();
         this.reloadTasks.emit();
-        this.alertService.success('Task was successfully create!',
+        this.alertService.success('Task was successfully created!',
           {componentId: this.componentId, title: 'Success!'},
           'task-creation createEnclosureTask');
       },
@@ -252,7 +252,7 @@ export class TaskCreationComponent implements OnInit {
       (res: any) => {
         this.clearForm();
         this.reloadTasks.emit();
-        this.alertService.success('Task was successfully create!',
+        this.alertService.success('Task was successfully created!',
           {componentId: this.componentId, title: 'Success!'},
           'task-creation createEnclosureTask');
       },
