@@ -11,7 +11,7 @@ import {TaskService} from '../../services/task.service';
 import {Enclosure} from '../../dtos/enclosure';
 import {EnclosureService} from '../../services/enclosure.service';
 import {AlertService} from '../../services/alert.service';
-import {Utilities} from '../../global/globals';
+import {type, Utilities} from '../../global/globals';
 import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 @Component({
@@ -48,7 +48,6 @@ export class EmployeeViewComponent implements OnInit {
     this.currentUser = (this.route.snapshot.paramMap.get('username'));
     if (this.isAdmin() && this.currentUser != null) {
       this.loadSpecificEmployee(this.currentUser);
-      this.getAllAnimals();
     } else if (this.currentUser == null) {
       this.loadPersonalInfo();
     } else {
@@ -83,7 +82,6 @@ export class EmployeeViewComponent implements OnInit {
   }
 
   loadSpecificEmployee(username: string) {
-
     this.employeeService.getEmployeeByUsername(username).subscribe(
       (employee: Employee) => {
         this.employee = employee;
@@ -96,6 +94,9 @@ export class EmployeeViewComponent implements OnInit {
           this.loadTasksOfEmployee();
           this.toAnimalMode();
           this.getEnclosuresOfEmployee();
+          if (this.isAdmin()) {
+            this.getAllAnimals();
+          }
         }
       },
       error => {
@@ -105,16 +106,18 @@ export class EmployeeViewComponent implements OnInit {
   }
 
   getEnclosuresOfEmployee() {
-    this.enclosuresFound = false;
-    this.enclosureService.getEnclosuresOfEmployee(this.employee.username).subscribe(
-      (enclosures) => {
-        this.enclosuresOfEmployee = enclosures;
-        this.enclosuresFound = true;
-      },
-      error => {
-        this.alertService.alertFromError(error,  {}, 'getEnclosureOfEmployee');
-      }
-    );
+    if (this.employee !== null && this.employee !== undefined && this.employee.type === type.ANIMAL_CARE) {
+      this.enclosuresFound = false;
+      this.enclosureService.getEnclosuresOfEmployee(this.employee.username).subscribe(
+        (enclosures) => {
+          this.enclosuresOfEmployee = enclosures;
+          this.enclosuresFound = true;
+        },
+        error => {
+          this.alertService.alertFromError(error,  {}, 'getEnclosureOfEmployee');
+        }
+      );
+    }
   }
 
   loadTasksOfEmployee() {
@@ -154,7 +157,7 @@ export class EmployeeViewComponent implements OnInit {
    * Selects an employee from the table to display assigned animals
    */
   showAssignedAnimalsEmployee() {
-    if (this.employee !== null && this.employee.type === 'ANIMAL_CARE') {
+    if (this.employee !== null && this.employee !== undefined && this.employee.type === type.ANIMAL_CARE) {
       this.employeeService.getAnimals(this.employee).subscribe(
         animals => {
           this.assignedAnimals = animals;
@@ -171,16 +174,18 @@ export class EmployeeViewComponent implements OnInit {
    * Get All current animals
    */
   getAllAnimals() {
-    this.animalService.getAnimals().subscribe(
-      animals => {
-        this.animalList = animals;
-      },
-      error => {
-        DEBUG_LOG('Failed to load animals');
-        this.alertService.alertFromError(error,  {keepAfterRouteChange: true},
-          'getAllAnimals');
-      }
-    );
+    if (this.employee !== null && this.employee !== undefined && this.employee.type === type.ANIMAL_CARE) {
+      this.animalService.getAnimals().subscribe(
+        animals => {
+          this.animalList = animals;
+        },
+        error => {
+          DEBUG_LOG('Failed to load animals');
+          this.alertService.alertFromError(error,  {keepAfterRouteChange: true},
+            'getAllAnimals');
+        }
+      );
+    }
   }
 
   /**
