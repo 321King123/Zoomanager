@@ -202,9 +202,11 @@ public class MessageEndpointTest implements TestData {
             () -> {
                 //Reads the errors from the body
                 String content = response.getContentAsString();
-                content = content.substring(content.indexOf('[') + 1, content.indexOf(']'));
-                String[] errors = content.split(",");
-                assertEquals(3, errors.length);
+//                content = content.substring(content.indexOf('[') + 1, content.indexOf(']'));
+//                String[] errors = content.split(",");
+//                assertEquals(3, errors.length);
+                String[] errors = content.split("</p>");
+                assertEquals(4, errors.length);
             }
         );
     }
