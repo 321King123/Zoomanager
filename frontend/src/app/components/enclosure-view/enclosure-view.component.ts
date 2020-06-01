@@ -6,7 +6,6 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
 import {Animal} from '../../dtos/animal';
 import {AnimalService} from '../../services/animal.service';
-import {EnclosureTask} from '../../dtos/enclosureTask';
 import {TaskService} from '../../services/task.service';
 import {Employee} from '../../dtos/employee';
 import {EmployeeService} from '../../services/employee.service';
@@ -14,6 +13,7 @@ import {Task} from '../../dtos/task';
 import {AlertService} from '../../services/alert.service';
 import {Utilities} from '../../global/globals';
 import DEBUG_LOG = Utilities.DEBUG_LOG;
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-enclosure-view',
@@ -29,12 +29,17 @@ export class EnclosureViewComponent implements OnInit {
   tasks: Task[];
   employeesAssigned: Employee[];
   janitors: Employee[];
+  editing: boolean;
+  enclosureEditInfo: FormGroup;
+  submittedEnclosure: boolean;
+  uploadedPicture: string;
+  private fileType: string;
 
 
   constructor(private enclosureService: EnclosureService, private authService: AuthService,
               private route: ActivatedRoute, private router: Router, private _location: Location,
               private animalService: AnimalService, private taskService: TaskService,
-              private employeeService: EmployeeService, private alertService: AlertService) {
+              private employeeService: EmployeeService, private alertService: AlertService, private formBuilder: FormBuilder) {
 
   }
 
@@ -42,6 +47,7 @@ export class EnclosureViewComponent implements OnInit {
     const enclsureToViewId = Number(this.route.snapshot.paramMap.get('enclosureId'));
     this.loadAnimals();
     this.loadEnclosureToView(enclsureToViewId);
+    this.editing = false;
   }
 
   loadAnimals() {
@@ -217,5 +223,80 @@ export class EnclosureViewComponent implements OnInit {
       );
     }
 
+  }
+
+  editingOn() {
+    this.editing = true;
+    this.enclosureEditInfo = this.formBuilder.group({
+      name: [this.enclosureToView.name, [Validators.required]],
+      description: [this.enclosureToView.description],
+      publicInformation: [this.enclosureToView.publicInfo],
+      picture: ['']
+    });
+    this.uploadedPicture = this.enclosureToView.picture;
+  }
+
+  saveChanges() {
+    const enclosureEdited: Enclosure = new Enclosure(
+      this.enclosureToView.id,
+      this.enclosureEditInfo.controls.name.value,
+      this.enclosureEditInfo.controls.description.value,
+      this.enclosureEditInfo.controls.publicInformation.value,
+      this.uploadedPicture);
+
+    this.enclosureService.editEnclosure(enclosureEdited).subscribe(
+      () => {
+        DEBUG_LOG('edited enclosure' + this.enclosureToView);
+        this.editing = false;
+        this.clearForm();
+        this.loadEnclosureToView(this.enclosureToView.id);
+      },
+      error => {
+        DEBUG_LOG('Failed to edit enclosure');
+        this.backClicked();
+        this.alertService.alertFromError(error, {}, 'EnclosureView component: editEnclosure()');
+      }
+    );
+  }
+  private clearForm() {
+    this.enclosureEditInfo.reset();
+    this.submittedEnclosure = false;
+    this.uploadedPicture = null;
+  }
+
+  cancelChanges() {
+    this.editing = false;
+    this.clearForm();
+  }
+
+  OnImageFileSelected(event) {
+    const files = event.target.files;
+    const file = files[0];
+    const maxSize = 259000000;
+    const acceptedImageTypes = ['image/jpeg', 'image/png'];
+
+    if (files && file) {
+      if (file.size > maxSize) {
+        this.alertService.warn('File is to large. Max size is: ' + maxSize / 1000 + ' MB.',
+          {}, 'Enclosure component: OnImageFileSelected');
+      } else {
+        if (!acceptedImageTypes.includes(file.type)) {
+          this.alertService.warn('File has to either be jpeg or png.' + maxSize / 1000 + ' MB.',
+            {}, 'Enclosure component: OnImageFileSelected');
+        } else {
+          const reader = new FileReader();
+
+          reader.onload = this._handleReaderLoaded.bind(this);
+          this.fileType = 'data:' + file.type.toString() + ';base64,';
+          reader.readAsBinaryString(file);
+        }
+      }
+    }
+  }
+  // From: https://stackoverflow.com/questions/42482951/converting-an-image-to-base64-in-angular-2
+  // Converts the resulting binary String of the reader to base 64
+  _handleReaderLoaded(readerEvt) {
+    const binaryString = readerEvt.target.result;
+    this.uploadedPicture = this.fileType + btoa(binaryString);
   }
 }
