@@ -1,8 +1,12 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper;
 
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.CombinedTaskDto;
-import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
-import at.ac.tuwien.sepm.groupphase.backend.entity.EnclosureTask;
+import at.ac.tuwien.sepm.groupphase.backend.entity.*;
+import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
+import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
+import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
+import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
@@ -11,6 +15,15 @@ import java.util.List;
 
 @Component
 public class CombinedTaskMapper {
+
+    @Autowired
+    public AnimalService animalService;
+
+    @Autowired
+    public TaskService taskService;
+
+    @Autowired
+    public EmployeeService employeeService;
 
     public CombinedTaskDto animalTaskToCombinedTaskDto(AnimalTask animalTask){
         if(animalTask == null) return null;
@@ -118,5 +131,33 @@ public class CombinedTaskMapper {
             }
         }
         return combinedTaskDtos;
+    }
+
+    public AnimalTask combinedTaskDtoToAnimalTask(CombinedTaskDto combinedTaskDto){
+        if(combinedTaskDto==null) return null;
+    /*    if(!combinedTaskDto.isAnimalTask()){
+            throw new IncorrectTypeException("This is not an animal task!");
+        }*/
+        Animal animal = animalService.findAnimalById(combinedTaskDto.getSubjectId());
+        Employee employee = employeeService.findByUsername(combinedTaskDto.getAssignedEmployeeUsername());
+
+        Task task = Task.builder()
+            .id(combinedTaskDto.getId())
+            .assignedEmployee(employee)
+            .description(combinedTaskDto.getDescription())
+            .startTime(combinedTaskDto.getStartTime())
+            .endTime(combinedTaskDto.getEndTime())
+            .priority(combinedTaskDto.isPriority())
+            .status(combinedTaskDto.getStatus())
+            .title(combinedTaskDto.getTitle())
+            .build();
+
+        AnimalTask animalTask = AnimalTask.builder()
+            .id(combinedTaskDto.getId())
+            .subject(animal)
+            .task(task)
+            .build();
+
+        return animalTask;
     }
 }
