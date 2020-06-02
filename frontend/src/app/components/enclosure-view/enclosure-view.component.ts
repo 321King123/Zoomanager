@@ -35,6 +35,12 @@ export class EnclosureViewComponent implements OnInit {
   uploadedPicture: string;
   private fileType: string;
 
+  animalMode: boolean = true;
+  taskMode: boolean = false;
+
+  btnIsEdit: boolean = true;
+  btnIsDelete: boolean = false;
+
 
   constructor(private enclosureService: EnclosureService, private authService: AuthService,
               private route: ActivatedRoute, private router: Router, private _location: Location,
@@ -298,5 +304,25 @@ export class EnclosureViewComponent implements OnInit {
   _handleReaderLoaded(readerEvt) {
     const binaryString = readerEvt.target.result;
     this.uploadedPicture = this.fileType + btoa(binaryString);
+  }
+
+  toTaskMode() {
+    this.animalMode = false;
+    this.taskMode = true;
+  }
+
+  toAnimalMode() {
+    this.animalMode = true;
+    this.taskMode = false;
+  }
+
+  toDeleteButton() {
+    this.btnIsDelete = true;
+    this.btnIsEdit = false;
+  }
+
+  toEditButton() {
+    this.btnIsEdit = true;
+    this.btnIsDelete = false;
   }
 }
