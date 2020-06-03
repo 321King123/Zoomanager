@@ -4,6 +4,7 @@ import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.*;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalTaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureTaskRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.RepeatableTaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.TaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
@@ -13,9 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.ValidationException;
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -32,13 +36,17 @@ public class CustomTaskService implements TaskService {
 
     private final EnclosureTaskRepository enclosureTaskRepository;
 
+    private final RepeatableTaskRepository repeatableTaskRepository;
+
     @Autowired
     public CustomTaskService(TaskRepository taskRepository, AnimalTaskRepository animalTaskRepository,
-                             EmployeeService employeeService, EnclosureTaskRepository enclosureTaskRepository) {
+                             EmployeeService employeeService, EnclosureTaskRepository enclosureTaskRepository,
+                             RepeatableTaskRepository repeatableTaskRepository) {
         this.taskRepository = taskRepository;
         this.animalTaskRepository = animalTaskRepository;
         this.employeeService = employeeService;
         this.enclosureTaskRepository = enclosureTaskRepository;
+        this.repeatableTaskRepository = repeatableTaskRepository;
     }
 
     @Override
@@ -236,5 +244,37 @@ public class CustomTaskService implements TaskService {
         Employee employee = employeeService.findByUsername(employeeUsername);
         if(employee == null)
             throw new NotFoundException("Could not find Employee with given Username");
+    }
+
+    @Override
+    public List<AnimalTask> createRepeatableAnimalTask(Task task, Animal animal, int amount, ChronoUnit separation, int separationCount) {
+        LocalDateTime newStartTime = task.getStartTime().plus(separationCount, separation);
+        LocalDateTime newEndTime = task.getEndTime().plus(separationCount, separation);
+
+        Task newTask = Task.builder().title(task.getTitle())
+            .description(task.getDescription())
+            .startTime(newStartTime)
+            .endTime(newEndTime)
+            .assignedEmployee(task.getAssignedEmployee())
+            .status(task.getStatus())
+            .priority(task.isPriority())
+            .build();
+
+        List<AnimalTask> animalTasks = new LinkedList<>();
+
+        Task nextTask = null;
+
+        if(amount > 1) {
+            animalTasks = createRepeatableAnimalTask(newTask, animal, amount - 1, separation, separationCount);
+            nextTask = animalTasks.get(animalTasks.size()-1).getTask();
+        }
+
+        AnimalTask thisTask = createAnimalTask(task, animal);
+
+        repeatableTaskRepository.save(RepeatableTask.builder().id(thisTask.getId()).followTask(nextTask).build());
+
+        animalTasks.add(thisTask);
+
+        return animalTasks;
     }
 }
