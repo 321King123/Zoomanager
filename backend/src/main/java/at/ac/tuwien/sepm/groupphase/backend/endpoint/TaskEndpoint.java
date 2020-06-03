@@ -306,7 +306,7 @@ public class TaskEndpoint {
         boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
         String username = (String) authentication.getPrincipal();
         if(!isAdmin){
-            if(!taskService.isTaskPerformer(username,combinedTaskDto.getId())){
+            if(!employeeService.hasTaskAssignmentPermissions(username,combinedTaskDto.getId())){
                 throw new NotAuthorisedException("You are not authorized to update this task.");
             }
         }
@@ -320,7 +320,7 @@ public class TaskEndpoint {
         }catch (NotFoundException e){}
 
         if(animalTask)  taskService.updateFullAnimalTaskInformation(combinedTaskMapper.combinedTaskDtoToAnimalTask(combinedTaskDto));
-        else taskService.updateFullEnclosureTaskInformation(null);
+        else taskService.updateFullEnclosureTaskInformation(combinedTaskMapper.combinedTaskDtoToEnclosureTask(combinedTaskDto));
 
 
 

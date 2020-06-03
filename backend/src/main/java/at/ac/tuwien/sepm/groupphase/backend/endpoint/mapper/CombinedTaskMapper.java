@@ -3,8 +3,10 @@ package at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.CombinedTaskDto;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
+import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,9 @@ public class CombinedTaskMapper {
 
     @Autowired
     public EmployeeService employeeService;
+
+    @Autowired
+    public EnclosureService enclosureService;
 
     public CombinedTaskDto animalTaskToCombinedTaskDto(AnimalTask animalTask){
         if(animalTask == null) return null;
@@ -135,10 +140,13 @@ public class CombinedTaskMapper {
 
     public AnimalTask combinedTaskDtoToAnimalTask(CombinedTaskDto combinedTaskDto){
         if(combinedTaskDto==null) return null;
-    /*    if(!combinedTaskDto.isAnimalTask()){
+        if(!combinedTaskDto.isAnimalTask()){
             throw new IncorrectTypeException("This is not an animal task!");
-        }*/
+        }
         Animal animal = animalService.findAnimalById(combinedTaskDto.getSubjectId());
+        if(animal == null){
+            throw new NotFoundException("No such animal exists.");
+        }
         Employee employee = employeeService.findByUsername(combinedTaskDto.getAssignedEmployeeUsername());
 
         Task task = Task.builder()
@@ -159,5 +167,37 @@ public class CombinedTaskMapper {
             .build();
 
         return animalTask;
+    }
+
+    public EnclosureTask combinedTaskDtoToEnclosureTask(CombinedTaskDto combinedTaskDto){
+        if(combinedTaskDto==null) return null;
+        if(combinedTaskDto.isAnimalTask()) {
+            throw new IncorrectTypeException("This is not an enclosure task!");
+        }
+
+        Enclosure enclosure = enclosureService.findById(combinedTaskDto.getSubjectId());
+        if(enclosure == null){
+            throw new NotFoundException("No such enclosure exists.");
+        }
+        Employee employee = employeeService.findByUsername(combinedTaskDto.getAssignedEmployeeUsername());
+
+        Task task = Task.builder()
+            .id(combinedTaskDto.getId())
+            .assignedEmployee(employee)
+            .description(combinedTaskDto.getDescription())
+            .startTime(combinedTaskDto.getStartTime())
+            .endTime(combinedTaskDto.getEndTime())
+            .priority(combinedTaskDto.isPriority())
+            .status(combinedTaskDto.getStatus())
+            .title(combinedTaskDto.getTitle())
+            .build();
+
+        EnclosureTask enclosureTask = EnclosureTask.builder()
+            .task(task)
+            .id(combinedTaskDto.getId())
+            .subject(enclosure)
+            .build();
+
+        return enclosureTask;
     }
 }

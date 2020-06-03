@@ -32,6 +32,7 @@ public class CustomTaskService implements TaskService {
 
     private final EnclosureTaskRepository enclosureTaskRepository;
 
+
     @Autowired
     public CustomTaskService(TaskRepository taskRepository, AnimalTaskRepository animalTaskRepository,
                              EmployeeService employeeService, EnclosureTaskRepository enclosureTaskRepository) {
@@ -249,12 +250,16 @@ public class CustomTaskService implements TaskService {
     @Override
     public void updateFullAnimalTaskInformation(AnimalTask animalTask) {
         LOGGER.debug("Update full information of an animal task");
-
-        if(animalTask.getTask().getAssignedEmployee()!=null && !isTaskPerformer(animalTask.getTask().getAssignedEmployee().getUsername(),animalTask.getId())){
+        //checking if such animal-task exists
+        if(animalTask==null) throw new NotFoundException("Non existing animal task.");
+        AnimalTask exists = getAnimalTaskById(animalTask.getId());
+        //checking if employee can be assigned to task
+        if(animalTask.getTask().getAssignedEmployee()!=null){
            if(!employeeService.canBeAssignedToTask(animalTask.getTask().getAssignedEmployee(),animalTask.getTask())) {
                throw new NotFreeException("This employee cannot be assigned to this task");
            }
         }
+        //changing the task status to the right one
         if(animalTask.getTask().getAssignedEmployee()==null){
             animalTask.getTask().setStatus(TaskStatus.NOT_ASSIGNED);
         }
@@ -268,7 +273,26 @@ public class CustomTaskService implements TaskService {
 
     @Override
     public void updateFullEnclosureTaskInformation(EnclosureTask enclosureTask) {
-
+        LOGGER.debug("Update full information of an enclosure task");
+        //checking if such enclosure task exists
+        if(enclosureTask==null) throw new NotFoundException("Non existing enclosure task.");
+        EnclosureTask existsEnclosureTask = getEnclosureTaskById(enclosureTask.getId());
+        //checking if employee can be assigned to task
+        if(enclosureTask.getTask().getAssignedEmployee()!=null){
+            if(!employeeService.canBeAssignedToTask(enclosureTask.getTask().getAssignedEmployee(),enclosureTask.getTask())) {
+                throw new NotFreeException("This employee cannot be assigned to this task");
+            }
+        }
+        //changing the task status to the right one
+        if(enclosureTask.getTask().getAssignedEmployee()==null){
+            enclosureTask.getTask().setStatus(TaskStatus.NOT_ASSIGNED);
+        }
+        if(enclosureTask.getTask().getAssignedEmployee()!=null && enclosureTask.getTask().getStatus()==TaskStatus.NOT_ASSIGNED){
+            enclosureTask.getTask().setStatus(TaskStatus.ASSIGNED);
+        }
+        Task savedTask = taskRepository.saveAndFlush(enclosureTask.getTask());
+        enclosureTask.setTask(savedTask);
+        enclosureTaskRepository.saveAndFlush(enclosureTask);
     }
 
     private void validateEmployeeExists(String employeeUsername) {
