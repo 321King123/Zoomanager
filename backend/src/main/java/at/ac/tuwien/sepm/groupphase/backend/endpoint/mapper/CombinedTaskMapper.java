@@ -43,7 +43,7 @@ public class CombinedTaskMapper {
             .status(animalTask.getTask().getStatus())
             .subjectName(animalTask.getSubject().getName())
             .subjectId(animalTask.getSubject().getId())
-            .isAnimalTask(true)
+            .animalTask(true)
             .priority(animalTask.getTask().isPriority())
             .build();
     }
@@ -69,7 +69,7 @@ public class CombinedTaskMapper {
             .status(enclosureTask.getTask().getStatus())
             .subjectName(enclosureTask.getSubject() != null ? enclosureTask.getSubject().getName() : null)
             .subjectId(enclosureTask.getSubject() != null ? enclosureTask.getSubject().getId() : null)
-            .isAnimalTask(false)
+            .animalTask(false)
             .priority(enclosureTask.getTask().isPriority())
             .build();
     }

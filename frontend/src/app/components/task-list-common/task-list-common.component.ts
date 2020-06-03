@@ -16,6 +16,9 @@ import {AlertService} from '../../services/alert.service';
 export class TaskListCommonComponent implements OnInit {
   componentId = 'task-list-common';
 
+  @Input() animalsOfEmployee;
+  @Input() enclosuresOfEmployee;
+
   @Input() tasks: Task[];
 
   @Input() doctors: Employee[];

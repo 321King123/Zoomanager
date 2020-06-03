@@ -51,7 +51,7 @@ public class CombinedTaskDto {
     private Long subjectId;
 
     @NotNull(message = "You have to specify the kind of task")
-    private boolean isAnimalTask;
+    private boolean animalTask;
 
     @NotNull
     private boolean priority;
