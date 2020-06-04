@@ -57,27 +57,31 @@ export class EnclosureEditViewComponent implements OnInit {
   }
 
   saveChanges() {
-    const enclosureEdited: Enclosure = new Enclosure(
-      this.enclosureToView.id,
-      this.enclosureEditInfo.controls.name.value,
-      this.enclosureEditInfo.controls.description.value,
-      this.enclosureEditInfo.controls.publicInformation.value,
-      this.uploadedPicture);
+    if (!this.enclosureEditInfo.valid){
+      this.alertService.info('Name cannot be empty');
+    } else {
+      const enclosureEdited: Enclosure = new Enclosure(
+        this.enclosureToView.id,
+        this.enclosureEditInfo.controls.name.value,
+        this.enclosureEditInfo.controls.description.value,
+        this.enclosureEditInfo.controls.publicInformation.value,
+        this.uploadedPicture);
 
-    this.enclosureService.editEnclosure(enclosureEdited).subscribe(
-      () => {
-        DEBUG_LOG('edited enclosure' + this.enclosureToView);
-        this.editing = false;
-        this.clearForm();
-        this.loadEnclosureToView(this.enclosureToView.id);
-        this.backClicked();
-      },
-      error => {
-        DEBUG_LOG('Failed to edit enclosure');
-        this.backClicked();
-        this.alertService.alertFromError(error, {}, 'EnclosureView component: editEnclosure()');
-      }
-    );
+      this.enclosureService.editEnclosure(enclosureEdited).subscribe(
+        () => {
+          DEBUG_LOG('edited enclosure' + this.enclosureToView);
+          this.editing = false;
+          this.clearForm();
+          this.loadEnclosureToView(this.enclosureToView.id);
+          this.backClicked();
+        },
+        error => {
+          DEBUG_LOG('Failed to edit enclosure');
+          this.backClicked();
+          this.alertService.alertFromError(error, {}, 'EnclosureView component: editEnclosure()');
+        }
+      );
+    }
   }
   backClicked() {
     this._location.back();
