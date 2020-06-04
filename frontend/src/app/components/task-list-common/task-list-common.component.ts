@@ -25,12 +25,15 @@ export class TaskListCommonComponent implements OnInit {
   @Output() reloadTasks = new EventEmitter();
 
   @Input() currentUserType;
+  currentUser: Employee;
+
 
   constructor(private authService: AuthService, private taskService: TaskService, private animalService: AnimalService,
               private employeeService: EmployeeService, private alertService: AlertService) {
   }
 
   ngOnInit(): void {
+    this.getCurrentUser();
   }
 
   markTaskAsDone(taskId) {
@@ -55,6 +58,15 @@ export class TaskListCommonComponent implements OnInit {
     );
   }
 
+  getCurrentUser() {
+    if (!this.isAdmin()) {
+      this.employeeService.getPersonalInfo().subscribe(
+        (emp: Employee) => {
+          this.currentUser = emp;
+        }
+      );
+    }
+  }
 
   /**
    * Returns true if the authenticated user is an admin

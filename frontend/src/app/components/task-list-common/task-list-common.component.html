@@ -39,15 +39,41 @@
           </td>
         </ng-container>
         <td class="col d-flex justify-content-center">
-          <ng-container *ngIf="task.status!='DONE'">
-            <button (click)="markTaskAsDone(task.id)" class="btn mx-2 btn-sm btn-outline-success">Done!</button>
-          </ng-container>
-          <ng-container *ngIf="task.status=='DONE'">
-            <div class="mx-2"> Done!</div>
-          </ng-container>
-          <button *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'" (click)="deleteTask(task.id)"
-                  class="btn-sm btn-outline-danger btn">Delete
-          </button>
+          <div class="mx-2">
+            <ng-container *ngIf="task.status!='DONE'">
+              <ng-template #tipContent >
+                You cannot mark this task as done, since it is not assigned to you. (Assigned to: <b>{{task.assignedEmployeeUsername}}</b>)</ng-template>
+
+              <button *ngIf="!(isAdmin() || currentUser.username === task.assignedEmployeeUsername)"
+                      (click)="markTaskAsDone(task.id)"
+                      [disabled]="true"
+                      [ngbTooltip]="tipContent"
+                      [class.btn-outline-dark]="true"
+                      [class.btn-outline-success]="false"
+                      class="btn mx-1 btn-sm">
+                <span [ngbTooltip]="tipContent">Done!</span>
+              </button>
+
+              <button *ngIf="(isAdmin() || currentUser.username === task.assignedEmployeeUsername)"
+                      (click)="markTaskAsDone(task.id)"
+                      [disabled]="false"
+                      [class.btn-outline-dark]="false"
+                      [class.btn-outline-success]="true"
+                      class="btn mx-1 btn-sm">
+                Done!
+              </button>
+            </ng-container>
+            <ng-container *ngIf="task.status=='DONE'">
+              <div class="mx-2">Done!</div>
+            </ng-container>
+          </div>
+
+          <div class="mx-2">
+            <button *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'" (click)="deleteTask(task.id)"
+                    class="btn-sm btn-outline-danger btn">Delete
+            </button>
+          </div>
+
         </td>
       </tr>
     </ng-container>
