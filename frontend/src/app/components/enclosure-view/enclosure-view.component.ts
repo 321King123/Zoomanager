@@ -58,7 +58,9 @@ export class EnclosureViewComponent implements OnInit {
       },
       error => {
         if (error.status === 404) {
-          this.animalList.length = 0;
+          if (this.animalList !== undefined) {
+            this.animalList.length = 0;
+          }
         }
         DEBUG_LOG('Failed to load all animals');
         this.alertService.alertFromError(error, {}, 'EnclosureView component: loadAnimals()');

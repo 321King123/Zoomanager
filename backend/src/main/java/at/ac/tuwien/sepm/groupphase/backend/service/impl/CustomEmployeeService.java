@@ -1,7 +1,10 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
-import at.ac.tuwien.sepm.groupphase.backend.exception.*;
+import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
@@ -18,6 +21,7 @@ import javax.validation.ValidationException;
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -167,30 +171,51 @@ public class CustomEmployeeService implements EmployeeService {
             || end.toLocalTime().isAfter(workEnd)       // ends after work
             || start.toLocalTime().isBefore(workStart)  // starts before work
             || end.toLocalTime().isBefore(workStart))   // ends before start
-            return false;
+            throw new NotFreeException("Employee " + employee.getUsername() + " can't be assigned to this task, " +
+                "they only work from " + workStart + " - " + workEnd + ". <br>" +
+                "(Task is from " + start.toLocalTime() + " - " + end.toLocalTime() + ")" );
 
 
         for(Task t:tasks){
             LocalDateTime existingStart = t.getStartTime();
             LocalDateTime existingEnd = t.getEndTime();
             if(existingStart.equals(start) && existingEnd.equals(end))
-                throw new NotFreeException("Employee " + employee.getUsername() + " already has work ("
-                    +  existingStart.toString() + " till " + existingEnd.toString() + ") during this tasks " +
-                    "time frame ("  + start.toString() + " till " + end.toString() +  ").");
+                throw new NotFreeException("Employee " + employee.getUsername()
+                    + " already has work (" +  beautifyDateTimeFromTillStringIfSameDay(existingStart, existingEnd)
+                    + ") during this task ("  + beautifyDateTimeFromTillStringIfSameDay(start, end) +  ").");
             if(existingStart.isBefore(start) && existingEnd.isAfter(end))
-                throw new NotFreeException("Employee " + employee.getUsername() + " has work (" +  existingStart.toString()
-                    + " till " + existingEnd.toString() + ") that overlaps this tasks " +
-                    "time frame ("  + start.toString() + " till " + end.toString() + ").");
+                throw new NotFreeException("Employee " + employee.getUsername() + " " +
+                    "has work (" + beautifyDateTimeFromTillStringIfSameDay(existingStart, existingEnd)
+                    + ") that overlaps this task ("  + beautifyDateTimeFromTillStringIfSameDay(start, end) + ").");
             if(existingStart.isAfter(start) && existingStart.isBefore(end))
-                throw new NotFreeException("Employee " + employee.getUsername() + " already has work (" +  existingStart.toString()
-                    + " till " + existingEnd.toString() + ") that starts during this tasks " +
-                    "time frame (" + start.toString() + " till " + end.toString() + ").");
+                throw new NotFreeException("Employee " + employee.getUsername()
+                    + " already has work (" + beautifyDateTimeFromTillStringIfSameDay(existingStart, existingEnd)
+                    + ") that starts during this task (" + beautifyDateTimeFromTillStringIfSameDay(start, end) + ").");
             if(existingEnd.isAfter(start) && existingEnd.isBefore(end))
-                throw new NotFreeException("Employee " + employee.getUsername() + " has work (" +  existingStart.toString()
-                    + " till " + existingEnd.toString() +") that ends during this tasks " +
-                    "time frame (" + start.toString() + " till " + end.toString() +  ").");
+                throw new NotFreeException("Employee " + employee.getUsername()
+                    + " has work (" + beautifyDateTimeFromTillStringIfSameDay(existingStart, existingEnd)
+                    +") that ends during this task (" + beautifyDateTimeFromTillStringIfSameDay(start, end) +  ").");
         }
         return true;
+    }
+
+    String beautifyDateTimeFromTillStringIfSameDay(LocalDateTime from, LocalDateTime till) {
+        LOGGER.debug("FROM: " +  from.toLocalDate() + " TILL: " + till.toLocalDate() + " EQUALS " + from.toLocalDate().equals(till.toLocalDate()));
+        return (from.toLocalDate().equals(till.toLocalDate()) ?
+            dateTimeParser(from) + " - " + till.toLocalTime().truncatedTo(ChronoUnit.MINUTES)
+            : dateTimeParser(from) + " - " + dateTimeParser(till));
+    }
+
+    String dateTimeParser(LocalDateTime dt) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(dt.getDayOfMonth())
+            .append('/')
+            .append(dt.getMonthValue())
+            .append('/')
+            .append(dt.getYear())
+            .append(' ')
+            .append(dt.toLocalTime().truncatedTo(ChronoUnit.MINUTES));
+        return sb.toString();
     }
 
     @Override
