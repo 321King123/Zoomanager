@@ -87,4 +87,25 @@ public class CustomEnclosureService implements EnclosureService {
             throw new NotFoundException("No enclosure to delete: " + id);
         }
     }
+
+    @Override
+    public Enclosure editEnclosure(Enclosure enclosure){
+        Enclosure enclosure1= findById(enclosure.getId());
+        if(enclosure1 == null){
+            throw new NotFoundException("Can not find enclosure to edit.");
+        }
+        if(enclosure == null) {
+            throw new IllegalArgumentException("Enclosure must not be null");
+        } else if(enclosure.getName() == null || enclosure.getName().isBlank()) {
+            throw new IllegalArgumentException("Name of Enclosure must not be empty");
+        } else if(enclosure.getPicture() != null &&
+            !new String(enclosure.getPicture()).matches("^data:image/(jpeg|png);base64,([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$")) {
+            throw new IllegalArgumentException("Picture has to be valid jpeg or png image");
+        }
+        enclosure1.setName(enclosure.getName());
+        enclosure1.setPicture(enclosure.getPicture());
+        enclosure1.setDescription(enclosure.getDescription());
+        enclosure1.setPublicInfo(enclosure.getPublicInfo());
+        return enclosureRepository.save(enclosure1);
+    }
 }

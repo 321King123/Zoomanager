@@ -128,4 +128,13 @@ public class EnclosureEndpoint {
         }
         return enclosureDtos;
     }
+
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "/edit")
+    @ApiOperation(value = "Edit enclosure", authorizations = {@Authorization(value = "apiKey")})
+    public EnclosureDto editEnclosure(@RequestBody @Valid EnclosureDto enclosureDto){
+        LOGGER.info("PUT /api/v1/enclosure/edit body: {}",enclosureDto);
+        return enclosureMapper.enclosureToEnclosureDto(enclosureService.editEnclosure(enclosureMapper.enclosureDtoToEnclosure(enclosureDto)));
+    }
 }

@@ -6,7 +6,6 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
 import {Animal} from '../../dtos/animal';
 import {AnimalService} from '../../services/animal.service';
-import {EnclosureTask} from '../../dtos/enclosureTask';
 import {TaskService} from '../../services/task.service';
 import {Employee} from '../../dtos/employee';
 import {EmployeeService} from '../../services/employee.service';
@@ -14,6 +13,7 @@ import {Task} from '../../dtos/task';
 import {AlertService} from '../../services/alert.service';
 import {Utilities} from '../../global/globals';
 import DEBUG_LOG = Utilities.DEBUG_LOG;
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-enclosure-view',
@@ -29,12 +29,18 @@ export class EnclosureViewComponent implements OnInit {
   tasks: Task[];
   employeesAssigned: Employee[];
   janitors: Employee[];
+  editing: boolean;
+  animalMode: boolean = true;
+  taskMode: boolean = false;
+
+  btnIsEdit: boolean = true;
+  btnIsDelete: boolean = false;
 
 
   constructor(private enclosureService: EnclosureService, private authService: AuthService,
               private route: ActivatedRoute, private router: Router, private _location: Location,
               private animalService: AnimalService, private taskService: TaskService,
-              private employeeService: EmployeeService, private alertService: AlertService) {
+              private employeeService: EmployeeService, private alertService: AlertService, private formBuilder: FormBuilder) {
 
   }
 
@@ -42,6 +48,7 @@ export class EnclosureViewComponent implements OnInit {
     const enclsureToViewId = Number(this.route.snapshot.paramMap.get('enclosureId'));
     this.loadAnimals();
     this.loadEnclosureToView(enclsureToViewId);
+    this.editing = false;
   }
 
   loadAnimals() {
@@ -51,7 +58,9 @@ export class EnclosureViewComponent implements OnInit {
       },
       error => {
         if (error.status === 404) {
-          this.animalList.length = 0;
+          if (this.animalList !== undefined) {
+            this.animalList.length = 0;
+          }
         }
         DEBUG_LOG('Failed to load all animals');
         this.alertService.alertFromError(error, {}, 'EnclosureView component: loadAnimals()');
@@ -217,5 +226,26 @@ export class EnclosureViewComponent implements OnInit {
       );
     }
 
+  }
+
+  toTaskMode() {
+    this.animalMode = false;
+    this.taskMode = true;
+  }
+
+  toAnimalMode() {
+    this.animalMode = true;
+    this.taskMode = false;
+  }
+
+  toDeleteButton() {
+    this.btnIsDelete = true;
+    this.btnIsEdit = false;
+  }
+
+  toEditButton() {
+    this.btnIsEdit = true;
+    this.btnIsDelete = false;
+    this.router.navigate(['/enclosure-edit-view/' + this.enclosureToView.id ]);
   }
 }
