@@ -8,7 +8,7 @@ export class Task {
               public status: string,
               public subjectId: string,
               public subjectName: string,
-              public isAnimalTask: boolean,
+              public animalTask: boolean,
               public priority: boolean = false) {
   }
 }
