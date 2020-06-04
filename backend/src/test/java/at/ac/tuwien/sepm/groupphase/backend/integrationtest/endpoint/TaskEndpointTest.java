@@ -2,7 +2,9 @@ package at.ac.tuwien.sepm.groupphase.backend.integrationtest.endpoint;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.*;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalTaskDto;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EmployeeDto;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.TaskDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EnclosureTaskMapper;
@@ -29,7 +31,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedList;
@@ -721,6 +722,7 @@ public class TaskEndpointTest implements TestData {
     }
 
 
+
     @Test
     public void validTaskUpdateStatusDoneAsWrongUser_returnsForbidden() throws Exception {
         userLoginRepository.save(animal_caretaker_login);
@@ -819,5 +821,173 @@ public class TaskEndpointTest implements TestData {
         MockHttpServletResponse response = mvcResult.getResponse();
 
         assertEquals(HttpStatus.CONFLICT.value(), response.getStatus());
+    }
+
+
+    // High Priority Tasks Tests
+    @Test
+    public void validEnclosureTaskWithHighPriority_createdByAdmin_returnsExpectedEnclosureTaskDtoWithHighPriority() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
+        animalRepository.save(animal);
+        List<Animal> animals = new LinkedList<>();
+        animals.add(animal);
+        userLoginRepository.save(animal_caretaker_login);
+        anmial_caretaker.setAssignedAnimals(animals);
+        employeeRepository.save(anmial_caretaker);
+        taskDto.setAssignedEmployeeUsername(USERNAME_ANIMAL_CARE_EMPLOYEE);
+        taskDto.setPriority(true);
+        String body = objectMapper.writeValueAsString(taskDto);
+        Animal savedAnimal = animalRepository.findAll().get(0);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(ENCLOSURE_TASK_CREATION_BASE_URI + "/" + enclosure.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        AnimalTaskDto messageResponse = objectMapper.readValue(response.getContentAsString(),
+            AnimalTaskDto.class);
+
+        assertAll(
+            () -> assertEquals(HttpStatus.CREATED.value(), response.getStatus()),
+            () -> assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType()),
+            () -> assertEquals(taskDto.getTitle(), messageResponse.getTitle()),
+            () -> assertEquals(taskDto.getDescription(), messageResponse.getDescription()),
+            () -> assertEquals(taskDto.getAssignedEmployeeUsername(), messageResponse.getAssignedEmployeeUsername()),
+            () -> assertEquals(taskDto.getStartTime(), messageResponse.getStartTime()),
+            () -> assertEquals(taskDto.getEndTime(), messageResponse.getEndTime()),
+            () -> assertEquals(messageResponse.getStatus(), TaskStatus.ASSIGNED),
+            () -> assertEquals(taskDto.isPriority(), messageResponse.isPriority())
+
+        );
+    }
+
+    @Test
+    public void validAnimalTaskWithHighPriority_createdByAdmin_returnsExpectedAnimalTaskDtoWithHighPriority() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
+        animalRepository.save(animal);
+        List<Animal> animals = new LinkedList<>();
+        animals.add(animal);
+        userLoginRepository.save(animal_caretaker_login);
+        anmial_caretaker.setAssignedAnimals(animals);
+        employeeRepository.save(anmial_caretaker);
+        taskDto.setAssignedEmployeeUsername(USERNAME_ANIMAL_CARE_EMPLOYEE);
+        taskDto.setPriority(true);
+        String body = objectMapper.writeValueAsString(taskDto);
+        Animal savedAnimal = animalRepository.findAll().get(0);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(ANIMAL_TASK_CREATION_BASE_URI + "/" + savedAnimal.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        AnimalTaskDto messageResponse = objectMapper.readValue(response.getContentAsString(),
+            AnimalTaskDto.class);
+
+        assertAll(
+            () -> assertEquals(HttpStatus.CREATED.value(), response.getStatus()),
+            () -> assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType()),
+            () -> assertEquals(taskDto.getTitle(), messageResponse.getTitle()),
+            () -> assertEquals(taskDto.getDescription(), messageResponse.getDescription()),
+            () -> assertEquals(taskDto.getAssignedEmployeeUsername(), messageResponse.getAssignedEmployeeUsername()),
+            () -> assertEquals(taskDto.getStartTime(), messageResponse.getStartTime()),
+            () -> assertEquals(taskDto.getEndTime(), messageResponse.getEndTime()),
+            () -> assertEquals(messageResponse.getStatus(), TaskStatus.ASSIGNED),
+            () -> assertEquals(animal.getName(), messageResponse.getAnimalName()),
+            () -> assertEquals(taskDto.isPriority(), messageResponse.isPriority())
+        );
+    }
+
+    @Test
+    public void validEnclosureTaskWithoutSettingPriority_createdByAdmin_returnsExpectedEnclosureTaskDtoWithHighPriorityFalse() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
+        animalRepository.save(animal);
+        List<Animal> animals = new LinkedList<>();
+        animals.add(animal);
+        userLoginRepository.save(animal_caretaker_login);
+        anmial_caretaker.setAssignedAnimals(animals);
+        employeeRepository.save(anmial_caretaker);
+        taskDto.setAssignedEmployeeUsername(USERNAME_ANIMAL_CARE_EMPLOYEE);
+        String body = objectMapper.writeValueAsString(taskDto);
+        Animal savedAnimal = animalRepository.findAll().get(0);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(ENCLOSURE_TASK_CREATION_BASE_URI + "/" + enclosure.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        AnimalTaskDto messageResponse = objectMapper.readValue(response.getContentAsString(),
+            AnimalTaskDto.class);
+
+        assertAll(
+            () -> assertEquals(HttpStatus.CREATED.value(), response.getStatus()),
+            () -> assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType()),
+            () -> assertEquals(taskDto.getTitle(), messageResponse.getTitle()),
+            () -> assertEquals(taskDto.getDescription(), messageResponse.getDescription()),
+            () -> assertEquals(taskDto.getAssignedEmployeeUsername(), messageResponse.getAssignedEmployeeUsername()),
+            () -> assertEquals(taskDto.getStartTime(), messageResponse.getStartTime()),
+            () -> assertEquals(taskDto.getEndTime(), messageResponse.getEndTime()),
+            () -> assertEquals(messageResponse.getStatus(), TaskStatus.ASSIGNED),
+            () -> assertEquals(false, messageResponse.isPriority())
+
+        );
+    }
+
+    @Test
+    public void validAnimalTaskWithoutSettingPriority_createdByAdmin_returnsExpectedAnimalTaskDtoWithHighPriorityFalse() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
+        animalRepository.save(animal);
+        List<Animal> animals = new LinkedList<>();
+        animals.add(animal);
+        userLoginRepository.save(animal_caretaker_login);
+        anmial_caretaker.setAssignedAnimals(animals);
+        employeeRepository.save(anmial_caretaker);
+        taskDto.setAssignedEmployeeUsername(USERNAME_ANIMAL_CARE_EMPLOYEE);
+        String body = objectMapper.writeValueAsString(taskDto);
+        Animal savedAnimal = animalRepository.findAll().get(0);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(ANIMAL_TASK_CREATION_BASE_URI + "/" + savedAnimal.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        AnimalTaskDto messageResponse = objectMapper.readValue(response.getContentAsString(),
+            AnimalTaskDto.class);
+
+        assertAll(
+            () -> assertEquals(HttpStatus.CREATED.value(), response.getStatus()),
+            () -> assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType()),
+            () -> assertEquals(taskDto.getTitle(), messageResponse.getTitle()),
+            () -> assertEquals(taskDto.getDescription(), messageResponse.getDescription()),
+            () -> assertEquals(taskDto.getAssignedEmployeeUsername(), messageResponse.getAssignedEmployeeUsername()),
+            () -> assertEquals(taskDto.getStartTime(), messageResponse.getStartTime()),
+            () -> assertEquals(taskDto.getEndTime(), messageResponse.getEndTime()),
+            () -> assertEquals(messageResponse.getStatus(), TaskStatus.ASSIGNED),
+            () -> assertEquals(animal.getName(), messageResponse.getAnimalName()),
+            () -> assertEquals(false, messageResponse.isPriority())
+        );
     }
 }
