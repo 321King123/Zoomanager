@@ -322,6 +322,7 @@ public class CustomEmployeeService implements EmployeeService {
     }
 
     public Employee findEmployeeForAnimalTask(AnimalTask animalTask, EmployeeType employeeType){
+        LOGGER.debug("Finding employee of type {} for animal task with id {}", employeeType, animalTask.getId());
         if(employeeType == EmployeeType.JANITOR)
             throw new IncorrectTypeException("Janitors cant do animal tasks");
         List<Employee> possibleEmployees = new LinkedList<>();
@@ -340,6 +341,7 @@ public class CustomEmployeeService implements EmployeeService {
     }
 
     public Employee findEmployeeForEnclosureTask(EnclosureTask enclosureTask, EmployeeType employeeType){
+        LOGGER.debug("Finding employee of type {} for enclosure task with id {}", employeeType, enclosureTask.getId());
         if(employeeType == EmployeeType.DOCTOR)
             throw new IncorrectTypeException("Doctors cant do enclosure tasks");
         List<Employee> possibleEmployees = new LinkedList<>();
@@ -393,6 +395,7 @@ public class CustomEmployeeService implements EmployeeService {
     }
 
     public double getTimeSpendThisWeekInHours(Employee employee){
+        LOGGER.debug("Finding time spend this week for employee {}", employee.getUsername());
         LocalDateTime currentDateTime = LocalDateTime.now();
         DayOfWeek currentWeekday = LocalDateTime.now().getDayOfWeek();
         List<Task> tasksOfEmployee = employee.getTasks();
@@ -415,8 +418,9 @@ public class CustomEmployeeService implements EmployeeService {
     }
 
     public LocalDateTime earliestStartingTimeForTaskAndEmployee(Task task, Employee employee){
+        LOGGER.debug("Finding earliest starting time for a task for employee {}", employee.getUsername());
         //ordered by startingTime
-        Task currentTasksOfEmployee[] = employee.getTasks().toArray(Task[]::new);
+        Task[] currentTasksOfEmployee = taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee).toArray(Task[]::new);
         //task that starts 5 min from now (since you have to get there first)
         LocalDateTime soonestStartTime = LocalDateTime.now().plusMinutes(5);
         Task instantTask = Task.builder().startTime(soonestStartTime)
@@ -425,9 +429,7 @@ public class CustomEmployeeService implements EmployeeService {
         if(employeeIsFreeBetweenStartingAndEndtime(employee, instantTask))
             return soonestStartTime;
 
-        for(int i = 0; i < currentTasksOfEmployee.length-1; i++){
-            if(currentTasksOfEmployee[i].getEndTime().isAfter(currentTasksOfEmployee[i+1].getStartTime()))
-                throw new InvalidDatabaseStateException("Tasks are not ordered correctly");
+        for(int i = 0; i < (currentTasksOfEmployee.length-1); i++){
             if(currentTasksOfEmployee[i].getEndTime().isAfter(soonestStartTime)){
                 LocalDateTime newTaskStartTime = currentTasksOfEmployee[i].getEndTime();
                 LocalDateTime newTaskEndTime = addDurationOfOneTaskToStartTime(newTaskStartTime, task);
@@ -436,8 +438,7 @@ public class CustomEmployeeService implements EmployeeService {
             }
         }
 
-        //should not be reached unless employee is booked till the end of time
-        return LocalDateTime.MAX;
+        return currentTasksOfEmployee[currentTasksOfEmployee.length-1].getEndTime();
     }
 
     private LocalDateTime addDurationOfOneTaskToStartTime(LocalDateTime startTime, Task task){

@@ -75,19 +75,13 @@ public class CustomTaskService implements TaskService {
         return animalTask;
     }
 
-    public void createAnimalTaskByAutoAssignment(Task task, Animal animal, EmployeeType employeeType){
-        task.setAssignedEmployee(null);
-        AnimalTask unassignedAnimalTask = createAnimalTask(task, animal);
-        automaticallyAssignAnimalTask(unassignedAnimalTask, employeeType);
-    }
 
-    public void createEnclosureTaskByAutoAssignment(Task task, Enclosure enclosure, EmployeeType employeeType){
-        task.setAssignedEmployee(null);
-        EnclosureTask unassignedEnclosureTask = createEnclosureTask(task, enclosure);
-        automaticallyAssignEnclosureTask(unassignedEnclosureTask, employeeType);
-    }
-
-    private void automaticallyAssignAnimalTask(AnimalTask animalTask, EmployeeType employeeType) {
+    public void automaticallyAssignAnimalTask(Long animalTaskId, EmployeeType employeeType) {
+        LOGGER.debug("Automatically assigning animal task with id {} to employee of type {}", animalTaskId, employeeType);
+        Optional<AnimalTask> animalTaskOptional = animalTaskRepository.findById(animalTaskId);
+        if(animalTaskOptional.isEmpty())
+            throw new NotFoundException("Could not find enclosure task");
+        AnimalTask animalTask = animalTaskOptional.get();
         if(animalTask.getTask().getStatus() != TaskStatus.NOT_ASSIGNED)
             throw new IncorrectTypeException("Only Tasks without an assigned employee can be automatically assigned");
         Employee assignedEmployee = employeeService.findEmployeeForAnimalTask(animalTask, employeeType);
@@ -104,7 +98,11 @@ public class CustomTaskService implements TaskService {
 
     }
 
-    private void automaticallyAssignEnclosureTask(EnclosureTask enclosureTask, EmployeeType employeeType) {
+    public void automaticallyAssignEnclosureTask(Long enclosureTaskId, EmployeeType employeeType) {
+        LOGGER.debug("Automatically assigning enclosure task with id {} to employee of type {}", enclosureTaskId, employeeType);
+        EnclosureTask enclosureTask = enclosureTaskRepository.findEnclosureTaskById(enclosureTaskId);
+        if(enclosureTask == null)
+            throw new NotFoundException("Could not find enclosure task");
         if(enclosureTask.getTask().getStatus() != TaskStatus.NOT_ASSIGNED)
             throw new IncorrectTypeException("Only Tasks without an assigned employee can be automatically assigned");
         Employee assignedEmployee = employeeService.findEmployeeForEnclosureTask(enclosureTask, employeeType);

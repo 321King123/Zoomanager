@@ -132,10 +132,35 @@ public interface EmployeeService  {
      */
     List<Employee> getAllJanitors();
 
+    /**
+     * If its a priority tasks the earliest available worker of required type is returned
+     * otherwise it will return the least busy worker of required type that has time
+     * @param animalTask contains all task related field including start and endtime for non priority tasks
+     * @param employeeType required employee Type for this Task
+     */
     Employee findEmployeeForAnimalTask(AnimalTask animalTask, EmployeeType employeeType);
 
+    /**
+     * If its a priority tasks the earliest available worker of required type is returned
+     * otherwise it will return the least busy worker of required type that has time
+     * @param enclosureTask contains all task related field including start and endtime for non priority tasks
+     * @param employeeType required employee Type for this Task
+     */
     Employee findEmployeeForEnclosureTask(EnclosureTask enclosureTask, EmployeeType employeeType);
 
+    /**
+     * Find soonest time employee is available for a task that has the duration of the task given
+     * @param task only required to provide a duration for the task (endtime-starttime)
+     * @param employee the employee of interest
+     * @return starting time for a task of the same duration as the task given
+     */
     LocalDateTime earliestStartingTimeForTaskAndEmployee(Task task, Employee employee);
+
+    /**
+     * Get the hours the employee has spend thsi week
+     * @param employee employee of interest
+     * @return time spend on tasks this week in hours
+     */
+    double getTimeSpendThisWeekInHours(Employee employee);
 
 }

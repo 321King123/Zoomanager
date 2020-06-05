@@ -89,8 +89,22 @@ public interface TaskService {
      */
     List<EnclosureTask> getAllTasksOfEnclosure(Long enclosureId);
 
-    void createEnclosureTaskByAutoAssignment(Task task, Enclosure enclosure, EmployeeType employeeType);
+    /**
+     * Assign a currently unassigned AnimalTask to an Employee,
+     * If its a priority tasks soonest possible time is found,
+     * otherwise it will be assigned to the least busy worker
+     * @param enclosureTaskId is the id of the enclosureTask
+     * @param employeeType type of employee this task is for
+     */
+    void automaticallyAssignEnclosureTask(Long enclosureTaskId, EmployeeType employeeType);
 
-    void createAnimalTaskByAutoAssignment(Task task, Animal animal, EmployeeType employeeType);
+    /**
+     * Assign a currently unassigned AnimalTask to an Employee,
+     * If its a priority tasks soonest possible time is found,
+     * otherwise it will be assigned to the least busy worker
+     * @param animalTaskId is the id of the animalTask
+     * @param employeeType type of employee this task is for
+     */
+    void automaticallyAssignAnimalTask(Long animalTaskId, EmployeeType employeeType);
 
 }
