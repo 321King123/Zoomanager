@@ -2,6 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.unittests.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
+import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
@@ -164,5 +165,25 @@ public class RepeatableTaskServiceTest implements TestData {
         firstTaskRepeatable = repeatableTaskRepository.findById(firstTask.getId()).get();
 
         assertEquals(thirdTask.getId(), firstTaskRepeatable.getFollowTask().getId());
+    }
+
+    @Test
+    public void repeatDeleteTask_thenAllTasksDeleted() {
+        List<AnimalTask> animalTaskList = taskService.createRepeatableAnimalTask(task_assigned, animal, 4, ChronoUnit.DAYS, 2);
+
+        RepeatableTask firstTaskRepeatable = repeatableTaskRepository.findById(animalTaskList.get(3).getId()).get();
+
+        taskService.repeatDeleteTask(firstTaskRepeatable.getId());
+
+        assertTrue(taskRepository.findAll().isEmpty());
+    }
+
+    @Test
+    public void creatingRepeatableTask_whenHighPriority_IncorrectTypeException() {
+        task_assigned.setPriority(true);
+
+        assertThrows(IncorrectTypeException.class, () -> taskService.createRepeatableAnimalTask(task_assigned, animal, 4, ChronoUnit.DAYS, 2));
+
+        task_assigned.setPriority(false);
     }
 }

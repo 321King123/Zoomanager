@@ -926,4 +926,29 @@ public class TaskEndpointTest implements TestData {
             () -> assertEquals(enclosure.getName(), messageResponse.getEnclosureName())
         );
     }
+
+    @Test
+    public void repeatDeleteTask_thenStatusOk() throws Exception {
+        Animal savedAnimal = animalRepository.save(animal);
+        Task savedTask = taskRepository.save(task);
+        animalTaskRepository.save(AnimalTask.builder().id(savedTask.getId()).subject(savedAnimal).build());
+        Task savedTask2 = taskRepository.save(Task.builder().title(task.getTitle())
+            .description(task.getDescription())
+            .startTime(task.getStartTime().plus(2, ChronoUnit.DAYS))
+            .endTime(task.getEndTime().plus(2, ChronoUnit.DAYS))
+            .status(task.getStatus())
+            .build());
+        animalTaskRepository.save(AnimalTask.builder().id(savedTask2.getId()).subject(savedAnimal).build());
+
+        repeatableTaskRepository.save(RepeatableTask.builder().id(savedTask.getId()).followTask(savedTask2).build());
+        repeatableTaskRepository.save(RepeatableTask.builder().id(savedTask2.getId()).followTask(null).build());
+
+        MvcResult mvcResult = this.mockMvc.perform(delete(TASK_BASE_URI + "/repeatable/" + savedTask.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+    }
 }

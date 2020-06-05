@@ -284,6 +284,30 @@ public class TaskEndpoint {
         }
     }
 
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping(value = "/repeatable/{taskId}")
+    @ApiOperation(value = "delete Task and future instances", authorizations = {@Authorization(value = "apiKey")})
+    public void repeatDeleteTask(@PathVariable Long taskId, Authentication authentication) {
+        LOGGER.info("DELETE /api/v1/tasks/repeatable/{}", taskId);
+
+        //Only Admin and Employees that are assigned to the subject can delete it
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if(isAdmin){
+            taskService.repeatDeleteTask(taskId);
+        } else {
+            String username = (String)authentication.getPrincipal();
+
+            if(employeeService.hasTaskAssignmentPermissions(username, taskId)) {
+                taskService.repeatDeleteTask(taskId);
+            } else {
+                throw new NotAuthorisedException("You cant delete Tasks of Animals or Enclosures that are not assigned to you");
+            }
+        }
+    }
+
+
+
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/employee/animal-task/{employeeUsername}")

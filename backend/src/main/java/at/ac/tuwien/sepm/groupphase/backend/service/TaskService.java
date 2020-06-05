@@ -110,4 +110,11 @@ public interface TaskService {
      * @return List of AnimalTasks that are created
      */
     List<EnclosureTask> createRepeatableEnclosureTask(Task task, Enclosure enclosure, int amount, ChronoUnit separation, int separationCount);
+
+    /**
+     * Deletes Task and all future instances
+     *
+     * @param taskId If of the first task to be deleted
+     */
+    void repeatDeleteTask(Long taskId);
 }

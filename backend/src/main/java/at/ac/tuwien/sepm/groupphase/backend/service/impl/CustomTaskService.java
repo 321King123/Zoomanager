@@ -251,6 +251,10 @@ public class CustomTaskService implements TaskService {
 
     @Override
     public List<AnimalTask> createRepeatableAnimalTask(Task task, Animal animal, int amount, ChronoUnit separation, int separationCount) {
+        if(task.isPriority()) {
+            throw new IncorrectTypeException("Priority tasks can't be repeatable.");
+        }
+
         validateStartAndEndTime(task);
 
         LocalDateTime newStartTime = task.getStartTime().plus(separationCount, separation);
@@ -285,6 +289,10 @@ public class CustomTaskService implements TaskService {
 
     @Override
     public List<EnclosureTask> createRepeatableEnclosureTask(Task task, Enclosure enclosure, int amount, ChronoUnit separation, int separationCount) {
+        if(task.isPriority()) {
+            throw new IncorrectTypeException("Priority tasks can't be repeatable.");
+        }
+
         validateStartAndEndTime(task);
 
         LocalDateTime newStartTime = task.getStartTime().plus(separationCount, separation);
@@ -325,5 +333,19 @@ public class CustomTaskService implements TaskService {
             repeatableTaskRepository.save(previousTask1);
         }
         repeatableTaskRepository.delete(repeatableTask);
+    }
+
+    @Override
+    public void repeatDeleteTask(Long taskId) {
+        Optional<RepeatableTask> task = repeatableTaskRepository.findById(taskId);
+        if(task.isEmpty()) {
+            deleteTask(taskId);
+        } else {
+            deleteTask(taskId);
+            Task nextTask = task.get().getFollowTask();
+            if(nextTask != null) {
+                repeatDeleteTask(nextTask.getId());
+            }
+        }
     }
 }
