@@ -159,10 +159,13 @@ public class CustomTaskService implements TaskService {
         }
         Optional<AnimalTask> animalTask = animalTaskRepository.findById(taskId);
         Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findById(taskId);
+        Optional<RepeatableTask> repeatableTask = repeatableTaskRepository.findById(taskId);
 
         if(!animalTask.isEmpty() && !enclosureTask.isEmpty()) {
             throw new InvalidDatabaseStateException("Task is both Animal and Enclosure Task, this should not happen.");
-        } else if (!animalTask.isEmpty()){
+        }
+        repeatableTask.ifPresent(this::deleteRepeatableTask);
+        if (!animalTask.isEmpty()){
             AnimalTask foundAnimalTask = animalTask.get();
             Task foundTask = task.get();
             animalTaskRepository.delete(foundAnimalTask);
@@ -248,6 +251,8 @@ public class CustomTaskService implements TaskService {
 
     @Override
     public List<AnimalTask> createRepeatableAnimalTask(Task task, Animal animal, int amount, ChronoUnit separation, int separationCount) {
+        validateStartAndEndTime(task);
+
         LocalDateTime newStartTime = task.getStartTime().plus(separationCount, separation);
         LocalDateTime newEndTime = task.getEndTime().plus(separationCount, separation);
 
@@ -276,5 +281,15 @@ public class CustomTaskService implements TaskService {
         animalTasks.add(thisTask);
 
         return animalTasks;
+    }
+
+    private void deleteRepeatableTask(RepeatableTask repeatableTask) {
+        Optional<RepeatableTask> previousTask = repeatableTaskRepository.findByFollowTask(repeatableTask.getTask());
+        if(previousTask.isPresent()) {
+            RepeatableTask previousTask1 = previousTask.get();
+            previousTask1.setFollowTask(repeatableTask.getFollowTask());
+            repeatableTaskRepository.save(previousTask1);
+        }
+        repeatableTaskRepository.delete(repeatableTask);
     }
 }

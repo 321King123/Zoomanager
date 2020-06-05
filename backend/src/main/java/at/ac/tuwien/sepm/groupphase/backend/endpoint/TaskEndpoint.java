@@ -96,6 +96,48 @@ public class TaskEndpoint {
         }
     }
 
+    /**
+     * Creates a specified number of tasks with a certain duration between them
+     * @param repeatableTaskDto contains the information of the task including the username of the employee it is assigned to and
+     *                          how many tasks should be created in what time intervals
+     * @param animalId identifies the animal the task is assigned to
+     * @return the AnimalTaskDto Object that occurs first, containing info about animal, task and employee
+     */
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(value = "/repeatable/animal/{animalId}")
+    @ApiOperation(value = "Create new Animal Task", authorizations = {@Authorization(value = "apiKey")})
+    public AnimalTaskDto createRepeatableAnimalTask(@Valid @RequestBody RepeatableTaskDto repeatableTaskDto, @PathVariable Long animalId, Authentication authentication) {
+        LOGGER.info("POST /api/v1/tasks/repeatable/animal/{} body: {}", animalId, repeatableTaskDto);
+
+        Task task = taskMapper.repeatableTaskDtoToTask(repeatableTaskDto);
+
+        //get Objects for Method call
+        task.setAssignedEmployee(employeeService.findByUsername(repeatableTaskDto.getAssignedEmployeeUsername()));
+        Animal animal = animalService.findAnimalById(animalId);
+
+        //Only Admin and Employees that are assigned to the animal can create it
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if(isAdmin){
+            List<AnimalTask> animalTasks = taskService.createRepeatableAnimalTask(task, animal,
+                repeatableTaskDto.getAmount(), repeatableTaskDto.getSeparation(), repeatableTaskDto.getSeparationAmount());
+
+            return animalTaskMapper.animalTaskToAnimalTaskDto(animalTasks.get(animalTasks.size() - 1));
+        }else{
+            String username = (String)authentication.getPrincipal();
+
+            if(employeeService.isAssignedToAnimal(username, animalId)) {
+                List<AnimalTask> animalTasks = taskService.createRepeatableAnimalTask(task, animal,
+                    repeatableTaskDto.getAmount(), repeatableTaskDto.getSeparation(), repeatableTaskDto.getSeparationAmount());
+
+                return animalTaskMapper.animalTaskToAnimalTaskDto(animalTasks.get(animalTasks.size() - 1));
+            }else {
+                throw new NotAuthorisedException("You cant assign Tasks to Animals that are not assigned to you");
+            }
+
+        }
+    }
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(value = "/enclosure/{enclosureId}")
     @ApiOperation(value = "Create new Enclosure Task", authorizations = {@Authorization(value = "apiKey")})

@@ -109,4 +109,21 @@ public class RepeatableTaskServiceTest implements TestData {
         assertEquals(4, taskRepository.findAll().size());
         assertEquals(firstTask.getStartTime().plus(2, ChronoUnit.DAYS), secondTask.getStartTime());
     }
+
+    @Test
+    public void deleteRepeatableTask_thenCorrectFollowingTask() {
+        List<AnimalTask> animalTaskList = taskService.createRepeatableAnimalTask(task_assigned, animal, 3, ChronoUnit.DAYS, 2);
+
+        RepeatableTask firstTaskRepeatable = repeatableTaskRepository.findById(animalTaskList.get(2).getId()).get();
+        Task firstTask = firstTaskRepeatable.getTask();
+        Task secondTask = firstTaskRepeatable.getFollowTask();
+        RepeatableTask secondTaskRepeatable = repeatableTaskRepository.findById(secondTask.getId()).get();
+        Task thirdTask = secondTaskRepeatable.getFollowTask();
+
+        taskService.deleteTask(secondTask.getId());
+
+        firstTaskRepeatable = repeatableTaskRepository.findById(firstTask.getId()).get();
+
+        assertEquals(thirdTask.getId(), firstTaskRepeatable.getFollowTask().getId());
+    }
 }
