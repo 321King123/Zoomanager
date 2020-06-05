@@ -9,6 +9,7 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EnclosureTaskMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.security.JwtTokenizer;
+import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -69,6 +70,9 @@ public class TaskEndpointTest implements TestData {
     private AnimalRepository animalRepository;
 
     @Autowired
+    private TaskService taskService;
+
+    @Autowired
     private UserLoginRepository userLoginRepository;
 
     @Autowired
@@ -116,6 +120,22 @@ public class TaskEndpointTest implements TestData {
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
         .type(TYPE_ANIMAL_CARE_EMPLOYEE)
         .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
+        .build();
+
+    private UserLogin doctor_login = UserLogin.builder()
+        .isAdmin(false)
+        .username(USERNAME_DOCTOR_EMPLOYEE)
+        .password(passwordEncoder.encode(VALID_TEST_PASSWORD))
+        .build();
+
+    private Employee doctor = Employee.builder()
+        .username(USERNAME_DOCTOR_EMPLOYEE)
+        .name(NAME_DOCTOR_EMPLOYEE)
+        .birthday(BIRTHDAY_DOCTOR_EMPLOYEE)
+        .type(TYPE_DOCTOR_EMPLOYEE)
+        .email(EMAIL_DOCTOR_EMPLOYEE)
         .workTimeStart(TEST_LOCAL_TIME_START)
         .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
@@ -770,6 +790,107 @@ public class TaskEndpointTest implements TestData {
         MockHttpServletResponse response = mvcResult.getResponse();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    }
+
+    @Test
+    public void updateTaskAsAdminValid_expectStatusCreated() throws Exception {
+        String description = "New description";
+        String title = "New title";
+        LocalDateTime startTime = LocalDateTime.of(2020, 7, 12, 11, 0, 0);
+        LocalDateTime endTime = LocalDateTime.of(2020, 7, 12, 12, 0, 0);
+        TaskStatus taskStatus = TaskStatus.NOT_ASSIGNED;
+
+        Animal subject = animalRepository.save(animal);
+        Animal subject2 = animalRepository.save(animal);
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        userLoginRepository.save(doctor_login);
+        employeeRepository.save(doctor);
+        animalRepository.assignAnimalToCaretaker(anmial_caretaker.getUsername(),subject.getId());
+        Task taskDef = taskRepository.save(task);
+
+        AnimalTask animalTask = taskService.createAnimalTask(taskDef, subject);
+
+        CombinedTaskDto combinedTaskDto = CombinedTaskDto.builder()
+            .id(taskDef.getId()).title(title).description(description)
+            .startTime(startTime).endTime(endTime).status(taskStatus)
+            .animalTask(true).subjectId(subject2.getId())
+            .assignedEmployeeUsername(doctor.getUsername())
+            .priority(true).build();
+
+        String body = objectMapper.writeValueAsString(combinedTaskDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(TASK_BASE_URI + "/update")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+        AnimalTask updatedTask = taskService.getAnimalTaskById(taskDef.getId());
+        assertAll(
+            () -> {assertEquals(updatedTask.getTask().getTitle(),title);},
+            () -> {assertEquals(updatedTask.getTask().getDescription(),description);},
+            () -> {assertEquals(updatedTask.getTask().getStartTime(),startTime);},
+            () -> {assertEquals(updatedTask.getTask().getEndTime(),endTime);},
+            () -> {assertEquals(updatedTask.getTask().getStatus(),TaskStatus.ASSIGNED);},
+            () -> {assertEquals(updatedTask.getTask().isPriority(),true);},
+            () -> {assertEquals(updatedTask.getTask().getAssignedEmployee().getUsername(),doctor.getUsername());},
+            () -> {assertEquals(updatedTask.getSubject().getId(),subject2.getId());}
+        );
+    }
+
+
+    @Test
+    public void updateTaskAsUserValid_expectStatusCreated() throws Exception {
+        String description = "New description";
+        String title = "New title";
+        LocalDateTime startTime = LocalDateTime.of(2020, 7, 12, 11, 0, 0);
+        LocalDateTime endTime = LocalDateTime.of(2020, 7, 12, 12, 0, 0);
+        TaskStatus taskStatus = TaskStatus.NOT_ASSIGNED;
+
+        Animal subject = animalRepository.save(animal);
+        Animal subject2 = animalRepository.save(animal);
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        userLoginRepository.save(doctor_login);
+        employeeRepository.save(doctor);
+        animalRepository.assignAnimalToCaretaker(anmial_caretaker.getUsername(),subject.getId());
+        Task taskDef = taskRepository.save(task);
+
+        AnimalTask animalTask = taskService.createAnimalTask(taskDef, subject);
+
+        CombinedTaskDto combinedTaskDto = CombinedTaskDto.builder()
+            .id(taskDef.getId()).title(title).description(description)
+            .startTime(startTime).endTime(endTime).status(taskStatus)
+            .animalTask(true).subjectId(subject2.getId())
+            .assignedEmployeeUsername(doctor.getUsername())
+            .priority(true).build();
+
+        String body = objectMapper.writeValueAsString(combinedTaskDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(TASK_BASE_URI + "/update")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(animal_caretaker_login.getUsername(), ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+        AnimalTask updatedTask = taskService.getAnimalTaskById(taskDef.getId());
+        assertAll(
+            () -> {assertEquals(updatedTask.getTask().getTitle(),title);},
+            () -> {assertEquals(updatedTask.getTask().getDescription(),description);},
+            () -> {assertEquals(updatedTask.getTask().getStartTime(),startTime);},
+            () -> {assertEquals(updatedTask.getTask().getEndTime(),endTime);},
+            () -> {assertEquals(updatedTask.getTask().getStatus(),TaskStatus.ASSIGNED);},
+            () -> {assertEquals(updatedTask.getTask().isPriority(),true);},
+            () -> {assertEquals(updatedTask.getTask().getAssignedEmployee().getUsername(),doctor.getUsername());},
+            () -> {assertEquals(updatedTask.getSubject().getId(),subject2.getId());}
+        );
     }
 
     @Test
