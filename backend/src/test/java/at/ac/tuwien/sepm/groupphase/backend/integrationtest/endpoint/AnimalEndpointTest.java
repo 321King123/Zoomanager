@@ -196,5 +196,61 @@ public class AnimalEndpointTest implements TestData {
         );
     }
 
+    @Test
+    public void EditingExistingAnimal_Status200() throws Exception {
+        animalRepository.save(animal);
+        Animal animal1 = Animal.builder()
+            .id(1L)
+            .name("Milly")
+            .description("fastest horse")
+            .enclosure(null)
+            .species("brown")
+            .publicInformation(null)
+            .build();
+
+        AnimalDto animalDto = animalMapper.animalToAnimalDto(animal1);
+        String body = objectMapper.writeValueAsString(animalDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(ANIMAL_BASE_URI + "/edit")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertAll(
+            () -> assertEquals(HttpStatus.OK.value(), response.getStatus())
+        );
+    }
+
+
+    @Test
+    public void EditingNonExistingAnimal_StatusNotFound() throws Exception {
+        animalRepository.save(animal);
+        Animal animal1 = Animal.builder()
+            .id(5L)
+            .name("Milly")
+            .description("fastest horse")
+            .enclosure(null)
+            .species("brown")
+            .publicInformation(null)
+            .build();
+
+        AnimalDto animalDto = animalMapper.animalToAnimalDto(animal1);
+        String body = objectMapper.writeValueAsString(animalDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(ANIMAL_BASE_URI + "/edit")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertAll(
+            () -> assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus())
+        );
+    }
 
 }
