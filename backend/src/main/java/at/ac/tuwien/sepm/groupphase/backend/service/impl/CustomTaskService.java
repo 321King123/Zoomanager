@@ -91,7 +91,7 @@ public class CustomTaskService implements TaskService {
 
     @Override
     public EnclosureTask createEnclosureTask(Task task, Enclosure enclosure) {
-        LOGGER.debug("Creating new Animal Task");
+        LOGGER.debug("Creating new Enclosure Task");
         Employee employee = task.getAssignedEmployee();
 
         if(enclosure == null)
@@ -281,6 +281,40 @@ public class CustomTaskService implements TaskService {
         animalTasks.add(thisTask);
 
         return animalTasks;
+    }
+
+    @Override
+    public List<EnclosureTask> createRepeatableEnclosureTask(Task task, Enclosure enclosure, int amount, ChronoUnit separation, int separationCount) {
+        validateStartAndEndTime(task);
+
+        LocalDateTime newStartTime = task.getStartTime().plus(separationCount, separation);
+        LocalDateTime newEndTime = task.getEndTime().plus(separationCount, separation);
+
+        Task newTask = Task.builder().title(task.getTitle())
+            .description(task.getDescription())
+            .startTime(newStartTime)
+            .endTime(newEndTime)
+            .assignedEmployee(task.getAssignedEmployee())
+            .status(task.getStatus())
+            .priority(task.isPriority())
+            .build();
+
+        List<EnclosureTask> enclosureTasks = new LinkedList<>();
+
+        Task nextTask = null;
+
+        if(amount > 1) {
+            enclosureTasks = createRepeatableEnclosureTask(newTask, enclosure, amount - 1, separation, separationCount);
+            nextTask = enclosureTasks.get(enclosureTasks.size()-1).getTask();
+        }
+
+        EnclosureTask thisTask = createEnclosureTask(task, enclosure);
+
+        repeatableTaskRepository.save(RepeatableTask.builder().id(thisTask.getId()).followTask(nextTask).build());
+
+        enclosureTasks.add(thisTask);
+
+        return enclosureTasks;
     }
 
     private void deleteRepeatableTask(RepeatableTask repeatableTask) {

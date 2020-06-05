@@ -3,6 +3,7 @@ package at.ac.tuwien.sepm.groupphase.backend.unittests.service;
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
+import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
@@ -35,16 +36,25 @@ public class RepeatableTaskServiceTest implements TestData {
     AnimalTaskRepository animalTaskRepository;
 
     @Autowired
+    EnclosureTaskRepository enclosureTaskRepository;
+
+    @Autowired
     RepeatableTaskRepository repeatableTaskRepository;
 
     @Autowired
     AnimalRepository animalRepository;
 
     @Autowired
+    EnclosureRepository enclosureRepository;
+
+    @Autowired
     EmployeeRepository employeeRepository;
 
     @Autowired
     EmployeeService employeeService;
+
+    @Autowired
+    AnimalService animalService;
 
     Animal animal = Animal.builder()
         .id(2L)
@@ -74,34 +84,63 @@ public class RepeatableTaskServiceTest implements TestData {
         .priority(false)
         .build();
 
+    private Enclosure enclosureDetailed = Enclosure.builder()
+        .name(NAME_LION_ENCLOSURE)
+        .description(DESCRIPTION_LION_ENCLOSURE)
+        .publicInfo(PUBLIC_INFO_LION_ENCLOSURE)
+        .picture(PICTURE_LION_ENCLOSURE)
+        .build();
+
+    private Enclosure enclosure;
+
     @BeforeEach
     public void beforeEach() {
+        enclosureTaskRepository.deleteAll();
         animalTaskRepository.deleteAll();
         repeatableTaskRepository.deleteAll();
         taskRepository.deleteAll();
         employeeRepository.deleteAll();
         animalRepository.deleteAll();
+        enclosureRepository.deleteAll();
+        enclosure = enclosureRepository.save(enclosureDetailed);
         animal.setId(animalRepository.save(animal).getId());
+        animalService.addAnimalToEnclosure(animal, enclosure.getId());
         task_assigned.setAssignedEmployee(employeeRepository.save(anmial_caretaker));
         employeeService.assignAnimal(anmial_caretaker.getUsername(), animal.getId());
     }
 
     @AfterEach
     public void afterEach() {
+        enclosureTaskRepository.deleteAll();
         animalTaskRepository.deleteAll();
         repeatableTaskRepository.deleteAll();
         taskRepository.deleteAll();
         employeeRepository.deleteAll();
         animalRepository.deleteAll();
+        enclosureRepository.deleteAll();
         animal.setId(2L);
         task_assigned.setAssignedEmployee(null);
+        enclosureDetailed.setId(null);
     }
 
     @Test
-    public void creatingRepeatableTasks_thenTasksInRepository() {
+    public void creatingRepeatableAnimalTasks_thenTasksInRepository() {
         List<AnimalTask> animalTaskList = taskService.createRepeatableAnimalTask(task_assigned, animal, 4, ChronoUnit.DAYS, 2);
 
         RepeatableTask firstTaskRepeatable = repeatableTaskRepository.findById(animalTaskList.get(3).getId()).get();
+        Task firstTask = firstTaskRepeatable.getTask();
+        Task secondTask = firstTaskRepeatable.getFollowTask();
+
+        assertNotNull(firstTaskRepeatable);
+        assertEquals(4, taskRepository.findAll().size());
+        assertEquals(firstTask.getStartTime().plus(2, ChronoUnit.DAYS), secondTask.getStartTime());
+    }
+
+    @Test
+    public void creatingRepeatableEnclosureTasks_thenTasksInRepository() {
+        List<EnclosureTask> enclosureTaskList = taskService.createRepeatableEnclosureTask(task_assigned, enclosureDetailed, 4, ChronoUnit.DAYS, 2);
+
+        RepeatableTask firstTaskRepeatable = repeatableTaskRepository.findById(enclosureTaskList.get(3).getId()).get();
         Task firstTask = firstTaskRepeatable.getTask();
         Task secondTask = firstTaskRepeatable.getFollowTask();
 

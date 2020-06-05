@@ -12,6 +12,7 @@ import at.ac.tuwien.sepm.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,6 +75,9 @@ public class TaskEndpointTest implements TestData {
 
     @Autowired
     private EnclosureRepository enclosureRepository;
+
+    @Autowired
+    private RepeatableTaskRepository repeatableTaskRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -173,6 +177,7 @@ public class TaskEndpointTest implements TestData {
 
     @BeforeEach
     public void beforeEach() {
+        repeatableTaskRepository.deleteAll();
         animalTaskRepository.deleteAll();
         taskRepository.deleteAll();
         employeeRepository.deleteAll();
@@ -195,6 +200,17 @@ public class TaskEndpointTest implements TestData {
             .status(TaskStatus.ASSIGNED)
             .build();
 
+    }
+
+    @AfterEach
+    public void afterEach() {
+        repeatableTaskRepository.deleteAll();
+        animalTaskRepository.deleteAll();
+        taskRepository.deleteAll();
+        employeeRepository.deleteAll();
+        userLoginRepository.deleteAll();
+        animalRepository.deleteAll();
+        enclosureRepository.deleteAll();
     }
 
     @Test
@@ -848,7 +864,7 @@ public class TaskEndpointTest implements TestData {
         String body = objectMapper.writeValueAsString(repeatableTaskDto);
         Animal savedAnimal = animalRepository.findAll().get(0);
 
-        MvcResult mvcResult = this.mockMvc.perform(post(TASK_BASE_URI + "/repeatable/animal/" + savedAnimal.getId())
+        MvcResult mvcResult = this.mockMvc.perform(post(TASK_BASE_URI + "/animal/repeatable/" + savedAnimal.getId())
             .contentType(MediaType.APPLICATION_JSON)
             .content(body)
             .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
@@ -869,6 +885,45 @@ public class TaskEndpointTest implements TestData {
             () -> assertEquals(repeatableTaskDto.getEndTime(), messageResponse.getEndTime()),
             () -> assertEquals(messageResponse.getStatus(), TaskStatus.ASSIGNED),
             () -> assertEquals(animal.getName(), messageResponse.getAnimalName())
+        );
+    }
+
+    @Test
+    public void validRepeatableEnclosureTask_createdByAdmin_returnsFirstEnclosureTaskDto() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
+        animalRepository.save(animal);
+        List<Animal> animals = new LinkedList<>();
+        animals.add(animal);
+        userLoginRepository.save(animal_caretaker_login);
+        anmial_caretaker.setAssignedAnimals(animals);
+        employeeRepository.save(anmial_caretaker);
+        repeatableTaskDto.setAssignedEmployeeUsername(USERNAME_ANIMAL_CARE_EMPLOYEE);
+        String body = objectMapper.writeValueAsString(repeatableTaskDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(TASK_BASE_URI + "/enclosure/repeatable/" + enclosure.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        EnclosureTaskDto messageResponse = objectMapper.readValue(response.getContentAsString(),
+            EnclosureTaskDto.class);
+
+        assertAll(
+            () -> assertEquals(HttpStatus.CREATED.value(), response.getStatus()),
+            () -> assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType()),
+            () -> assertEquals(repeatableTaskDto.getTitle(), messageResponse.getTitle()),
+            () -> assertEquals(repeatableTaskDto.getDescription(), messageResponse.getDescription()),
+            () -> assertEquals(repeatableTaskDto.getAssignedEmployeeUsername(), messageResponse.getAssignedEmployeeUsername()),
+            () -> assertEquals(repeatableTaskDto.getStartTime(), messageResponse.getStartTime()),
+            () -> assertEquals(repeatableTaskDto.getEndTime(), messageResponse.getEndTime()),
+            () -> assertEquals(messageResponse.getStatus(), TaskStatus.ASSIGNED),
+            () -> assertEquals(enclosure.getName(), messageResponse.getEnclosureName())
         );
     }
 }

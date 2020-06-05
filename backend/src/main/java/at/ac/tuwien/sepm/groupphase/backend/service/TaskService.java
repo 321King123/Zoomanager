@@ -99,4 +99,15 @@ public interface TaskService {
      */
     List<AnimalTask> createRepeatableAnimalTask(Task task, Animal animal, int amount, ChronoUnit separation, int separationCount);
 
+    /**
+     * Creates a set amount of tasks
+     *
+     * @param task template of the tasks that will be created, Start- and Endtime for the first task
+     * @param enclosure the tasks will be assigned to
+     * @param amount of tasks that wil be created
+     * @param separation which time-frame will be between the tasks
+     * @param separationCount how many of the specified time frame will be between the tasks
+     * @return List of AnimalTasks that are created
+     */
+    List<EnclosureTask> createRepeatableEnclosureTask(Task task, Enclosure enclosure, int amount, ChronoUnit separation, int separationCount);
 }
