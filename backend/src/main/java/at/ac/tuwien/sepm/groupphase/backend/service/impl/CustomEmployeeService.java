@@ -284,8 +284,6 @@ public class CustomEmployeeService implements EmployeeService {
             return isAssignedToAnimal(employee.getUsername(), animalTask.get().getSubject().getId());
         }
 
-        //TODO: if it is an Enclosure Task you have to add the check if there is Permission for this (so get the
-        // EnclosureTask and then check if there is an assignment relation between the Employee and the Enclosure Task)
         Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findById(task.getId());
         if(enclosureTask.isPresent()){
             return isAssignedToEnclosure(employee.getUsername(), enclosureTask.get().getSubject().getId());
@@ -430,11 +428,21 @@ public class CustomEmployeeService implements EmployeeService {
             return soonestStartTime;
 
         for(int i = 0; i < (currentTasksOfEmployee.length-1); i++){
+
             if(currentTasksOfEmployee[i].getEndTime().isAfter(soonestStartTime)){
-                LocalDateTime newTaskStartTime = currentTasksOfEmployee[i].getEndTime();
-                LocalDateTime newTaskEndTime = addDurationOfOneTaskToStartTime(newTaskStartTime, task);
-                if(newTaskEndTime.isBefore(currentTasksOfEmployee[i+1].getStartTime()))
-                    return newTaskStartTime;
+
+                if(employeeIsFreeForDurationFromStartTime(currentTasksOfEmployee[i].getEndTime(), task, employee)) {
+                    return currentTasksOfEmployee[i].getEndTime();
+                }
+
+                if(!currentTasksOfEmployee[i].getEndTime().toLocalDate().isEqual(currentTasksOfEmployee[i+1].getStartTime().toLocalDate())) {
+                    LocalDateTime startOfDayNextDay = currentTasksOfEmployee[i].getEndTime().plusDays(1)
+                        .withHour(employee.getWorkTimeStart().getHour())
+                        .withMinute(employee.getWorkTimeStart().getMinute())
+                        .withSecond(employee.getWorkTimeStart().getSecond());
+                    if(employeeIsFreeForDurationFromStartTime(startOfDayNextDay, task, employee))
+                        return startOfDayNextDay;
+                }
             }
         }
 
@@ -445,5 +453,11 @@ public class CustomEmployeeService implements EmployeeService {
         return startTime.plusHours(task.getEndTime().getHour() - task.getStartTime().getHour())
             .plusMinutes(task.getEndTime().getMinute() - task.getStartTime().getMinute())
             .plusSeconds(task.getEndTime().getSecond() - task.getStartTime().getSecond());
+    }
+
+    private boolean employeeIsFreeForDurationFromStartTime(LocalDateTime taskStartTime, Task task, Employee employee){
+        LocalDateTime taskEndTime = addDurationOfOneTaskToStartTime(taskStartTime, task);
+        Task tempTask = Task.builder().startTime(taskStartTime).endTime(taskEndTime).build();
+        return employeeIsFreeBetweenStartingAndEndtime(employee, tempTask);
     }
 }
