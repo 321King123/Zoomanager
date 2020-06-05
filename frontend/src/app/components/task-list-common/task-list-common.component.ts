@@ -7,6 +7,7 @@ import {Employee} from '../../dtos/employee';
 import {AnimalTask} from '../../dtos/animalTask';
 import {Task} from '../../dtos/task';
 import {AlertService} from '../../services/alert.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-task-list-common',

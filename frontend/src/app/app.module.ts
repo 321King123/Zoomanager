@@ -27,6 +27,7 @@ import { TaskListCommonComponent } from './components/task-list-common/task-list
 import { AlertComponent } from './components/alert/alert.component';
 import { TaskInfoUpdateComponent } from './components/task-info-update/task-info-update.component';
 import { EnclosureEditViewComponent } from './components/enclosure-edit-view/enclosure-edit-view.component';
+import { DeleteWarningComponent } from './components/delete-warning/delete-warning.component';
 
 @NgModule({
   declarations: [
@@ -51,6 +52,7 @@ import { EnclosureEditViewComponent } from './components/enclosure-edit-view/enc
     AlertComponent,
     EnclosureEditViewComponent,
     TaskInfoUpdateComponent,
+    DeleteWarningComponent,
   ],
   imports: [
     BrowserModule,

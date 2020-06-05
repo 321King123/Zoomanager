@@ -81,11 +81,17 @@
           <app-task-info-update (reloadTasks)="reloadTasks.emit()" *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'"
                                 [animalsOfEmployee]="animalsOfEmployee" [enclosuresOfEmployee]="enclosuresOfEmployee" [task]="task" [index]="i"></app-task-info-update>
 
-          <div class="mx-2">
-            <button *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'" (click)="deleteTask(task.id)"
-                    class="btn-sm btn-outline-danger btn">Delete
-            </button>
-          </div>
+<!--          <div class="mx-2">-->
+<!--            <button *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'" (click)="deleteTask(task.id)"-->
+<!--                    class="btn-sm btn-outline-danger btn">Delete-->
+<!--            </button>-->
+<!--          </div>-->
+          <app-delete-warning
+            *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'"
+            [deletionSubjectType]="'Task'"
+            [readableSubjectIdentifier]="task.title"
+            [smallButton]="true"
+            (deleteSubject)="deleteTask(task.id)"></app-delete-warning>
         </td>
       </tr>
     </ng-container>

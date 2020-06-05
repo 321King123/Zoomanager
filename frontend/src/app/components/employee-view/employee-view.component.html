@@ -31,9 +31,14 @@
   <div class="col-12 my-2">
     <div
       class="row d-flex justify-content-start mx-0 ">
-      <button *ngIf="isAdmin()" class="btn btn-outline-danger" type="button"
-              (click)="deleteEmployee()">Delete Employee
-      </button>
+      <app-delete-warning *ngIf="isAdmin()" (deleteSubject)="deleteEmployee()"
+                          [deletionSubjectType]="'Employee'"
+                          [readableSubjectIdentifier]="employee.username"
+                          [delBtnText]="'Delete Employee'"
+      ></app-delete-warning>
+<!--      <button *ngIf="isAdmin()" class="btn btn-outline-danger" type="button"-->
+<!--              (click)="deleteEmployee()">Delete Employee-->
+<!--      </button>-->
     </div>
   </div>
 </div>
