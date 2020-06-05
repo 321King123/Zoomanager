@@ -1,10 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
-import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
-import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
-import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
-import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.*;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
@@ -19,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
 import java.lang.invoke.MethodHandles;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -310,8 +308,6 @@ public class CustomEmployeeService implements EmployeeService {
                 throw new IncorrectTypeException("Employees of type Janitor can not be assigned to Animal Tasks");
         }
 
-        //TODO: if it is an Enclosure Task you have to add the check if there is Permission for this (so get the
-        // EnclosureTask and then check if there is an assignment relation between the Employee and the Enclosure Task/return false if Doctor etc.)
         Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findById(task.getId());
         if(enclosureTask.isPresent()){
             if(employee.getType() == EmployeeType.JANITOR)
@@ -323,5 +319,130 @@ public class CustomEmployeeService implements EmployeeService {
         }
 
         return false;
+    }
+
+    public Employee findEmployeeForAnimalTask(AnimalTask animalTask, EmployeeType employeeType){
+        if(employeeType == EmployeeType.JANITOR)
+            throw new IncorrectTypeException("Janitors cant do animal tasks");
+        List<Employee> possibleEmployees = new LinkedList<>();
+
+        //if employeeType = null both Docotors and Animal Carteakers get added to the List
+        if(employeeType != EmployeeType.DOCTOR)
+            possibleEmployees.addAll(getAllAssignedToAnimal(animalTask.getSubject()));
+        if(employeeType != EmployeeType.ANIMAL_CARE)
+            possibleEmployees.addAll(getAllDocotrs());
+
+        if(animalTask.getTask().isPriority()){
+            return filterEarliestAvailableEmployee(animalTask.getTask(), possibleEmployees);
+        }else{
+            return filterAvailableEmployeeWithLeastWork(animalTask.getTask(), possibleEmployees);
+        }
+    }
+
+    public Employee findEmployeeForEnclosureTask(EnclosureTask enclosureTask, EmployeeType employeeType){
+        if(employeeType == EmployeeType.DOCTOR)
+            throw new IncorrectTypeException("Doctors cant do enclosure tasks");
+        List<Employee> possibleEmployees = new LinkedList<>();
+
+        //if employeeType = null both Janitors and Animal Carteakers get added to the List
+        if(employeeType != EmployeeType.JANITOR)
+            possibleEmployees.addAll(getAllAssignedToEnclosure(enclosureTask.getSubject()));
+        if(employeeType != EmployeeType.ANIMAL_CARE)
+            possibleEmployees.addAll(getAllJanitors());
+
+        if(enclosureTask.getTask().isPriority()){
+            return filterEarliestAvailableEmployee(enclosureTask.getTask(), possibleEmployees);
+        }else{
+            return filterAvailableEmployeeWithLeastWork(enclosureTask.getTask(), possibleEmployees);
+        }
+    }
+
+    private Employee filterAvailableEmployeeWithLeastWork(Task task, List<Employee> employees){
+        List<Employee> employeesWithTime = new LinkedList<>();
+        for(Employee e: employees){
+            if(employeeIsFreeBetweenStartingAndEndtime(e, task))
+                employeesWithTime.add(e);
+        }
+        if(employeesWithTime.isEmpty())
+            throw new NotFreeException("There are no available employees for the task time");
+        Employee minWorkingTimeEmployee = employeesWithTime.get(0);
+        for(Employee e: employeesWithTime){
+            if(getTimeSpendThisWeekInHours(e) < getTimeSpendThisWeekInHours(minWorkingTimeEmployee))
+                minWorkingTimeEmployee = e;
+        }
+        return minWorkingTimeEmployee;
+    }
+
+    private Employee filterEarliestAvailableEmployee(Task task, List<Employee> employees){
+        LocalDateTime soonestPossibleTime = LocalDateTime.MAX;
+        Employee soonestAvailableEmployee = null;
+
+        for(Employee e: employees){
+            LocalDateTime earliestTimeForEmployee = earliestStartingTimeForTaskAndEmployee(task, e);
+            if(earliestTimeForEmployee.isBefore(soonestPossibleTime)){
+                soonestPossibleTime = earliestTimeForEmployee;
+                soonestAvailableEmployee = e;
+            }
+        }
+
+        if(soonestAvailableEmployee == null){
+            throw new NotFreeException("No free employee found");
+        }
+
+        return soonestAvailableEmployee;
+    }
+
+    public double getTimeSpendThisWeekInHours(Employee employee){
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DayOfWeek currentWeekday = LocalDateTime.now().getDayOfWeek();
+        List<Task> tasksOfEmployee = employee.getTasks();
+        double hoursThisWeek = 0.0;
+
+        for(Task t:tasksOfEmployee){
+            //if task starts and ends in current week
+            if(t.getStartTime().isAfter(currentDateTime.minusDays(currentWeekday.getValue())) && t.getEndTime().isBefore(currentDateTime.plusDays(7 - currentWeekday.getValue()))){
+                hoursThisWeek += getTaskDurationInHours(t.getStartTime(), t.getEndTime());
+            }
+        }
+
+        return hoursThisWeek;
+    }
+
+    private double getTaskDurationInHours(LocalDateTime startTime, LocalDateTime endTime){
+        return (endTime.getHour() - startTime.getHour())
+            + (((double)endTime.getMinute() - (double)startTime.getMinute())/60.0)
+            + (((double)endTime.getSecond() - (double)startTime.getSecond())/3600.0);
+    }
+
+    public LocalDateTime earliestStartingTimeForTaskAndEmployee(Task task, Employee employee){
+        //ordered by startingTime
+        Task currentTasksOfEmployee[] = employee.getTasks().toArray(Task[]::new);
+        //task that starts 5 min from now (since you have to get there first)
+        LocalDateTime soonestStartTime = LocalDateTime.now().plusMinutes(5);
+        Task instantTask = Task.builder().startTime(soonestStartTime)
+            .endTime(addDurationOfOneTaskToStartTime(soonestStartTime, task)).build();
+
+        if(employeeIsFreeBetweenStartingAndEndtime(employee, instantTask))
+            return soonestStartTime;
+
+        for(int i = 0; i < currentTasksOfEmployee.length-1; i++){
+            if(currentTasksOfEmployee[i].getEndTime().isAfter(currentTasksOfEmployee[i+1].getStartTime()))
+                throw new InvalidDatabaseStateException("Tasks are not ordered correctly");
+            if(currentTasksOfEmployee[i].getEndTime().isAfter(soonestStartTime)){
+                LocalDateTime newTaskStartTime = currentTasksOfEmployee[i].getEndTime();
+                LocalDateTime newTaskEndTime = addDurationOfOneTaskToStartTime(newTaskStartTime, task);
+                if(newTaskEndTime.isBefore(currentTasksOfEmployee[i+1].getStartTime()))
+                    return newTaskStartTime;
+            }
+        }
+
+        //should not be reached unless employee is booked till the end of time
+        return LocalDateTime.MAX;
+    }
+
+    private LocalDateTime addDurationOfOneTaskToStartTime(LocalDateTime startTime, Task task){
+        return startTime.plusHours(task.getEndTime().getHour() - task.getStartTime().getHour())
+            .plusMinutes(task.getEndTime().getMinute() - task.getStartTime().getMinute())
+            .plusSeconds(task.getEndTime().getSecond() - task.getStartTime().getSecond());
     }
 }

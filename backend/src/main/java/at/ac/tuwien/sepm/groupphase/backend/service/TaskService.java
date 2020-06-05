@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
+import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 
 import java.util.List;
 
@@ -87,5 +88,9 @@ public interface TaskService {
      * @return list of enclosureTasks
      */
     List<EnclosureTask> getAllTasksOfEnclosure(Long enclosureId);
+
+    void createEnclosureTaskByAutoAssignment(Task task, Enclosure enclosure, EmployeeType employeeType);
+
+    void createAnimalTaskByAutoAssignment(Task task, Animal animal, EmployeeType employeeType);
 
 }

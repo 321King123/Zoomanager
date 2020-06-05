@@ -1,12 +1,11 @@
 package at.ac.tuwien.sepm.groupphase.backend.service;
 
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
+import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
+import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EmployeeService  {
@@ -132,5 +131,11 @@ public interface EmployeeService  {
      * Gets all Doctors
      */
     List<Employee> getAllJanitors();
+
+    Employee findEmployeeForAnimalTask(AnimalTask animalTask, EmployeeType employeeType);
+
+    Employee findEmployeeForEnclosureTask(EnclosureTask enclosureTask, EmployeeType employeeType);
+
+    LocalDateTime earliestStartingTimeForTaskAndEmployee(Task task, Employee employee);
 
 }
