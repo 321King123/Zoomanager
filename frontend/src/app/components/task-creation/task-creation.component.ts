@@ -354,13 +354,12 @@ export class TaskCreationComponent implements OnInit {
     if (this.highPriority) {
 
     } else {
+      this.highPriority = true;
+      this.normalPriority = false;
       this.taskCreationForm.controls.startTime.clearValidators();
       this.taskCreationForm.controls.endTime.clearValidators();
       this.taskCreationForm.controls.duration.setValidators([Validators.required]);
       this.taskCreationForm.updateValueAndValidity();
-      this.highPriority = true;
-      this.normalPriority = false;
-      this.clearStartEndTimes();
     }
   }
 
@@ -368,12 +367,12 @@ export class TaskCreationComponent implements OnInit {
     if (this.normalPriority) {
 
     } else {
+      this.highPriority = false;
+      this.normalPriority = true;
       this.taskCreationForm.controls.startTime.setValidators([Validators.required]);
       this.taskCreationForm.controls.endTime.setValidators([Validators.required]);
       this.taskCreationForm.controls.duration.clearValidators();
       this.taskCreationForm.updateValueAndValidity();
-      this.highPriority = false;
-      this.normalPriority = true;
     }
   }
 
