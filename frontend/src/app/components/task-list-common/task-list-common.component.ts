@@ -1,4 +1,4 @@
-import {Component, OnInit, Output, EventEmitter, Input} from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, Input, ViewChildren, QueryList} from '@angular/core';
 import {AuthService} from '../../services/auth.service';
 import {TaskService} from '../../services/task.service';
 import {AnimalService} from '../../services/animal.service';
@@ -8,6 +8,9 @@ import {AnimalTask} from '../../dtos/animalTask';
 import {Task} from '../../dtos/task';
 import {AlertService} from '../../services/alert.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {DeleteWarningComponent} from '../delete-warning/delete-warning.component';
+import {Utilities} from '../../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 @Component({
   selector: 'app-task-list-common',
@@ -31,6 +34,10 @@ export class TaskListCommonComponent implements OnInit {
   @Input() currentUserType;
   currentUser: Employee;
 
+  @ViewChildren(DeleteWarningComponent)
+  deleteWarningComponents: QueryList<DeleteWarningComponent>;
+
+  stopDeleteClickPropagation: boolean = false;
 
   constructor(private authService: AuthService, private taskService: TaskService, private animalService: AnimalService,
               private employeeService: EmployeeService, private alertService: AlertService) {
@@ -77,6 +84,22 @@ export class TaskListCommonComponent implements OnInit {
    */
   isAdmin(): boolean {
     return this.authService.getUserRole() === 'ADMIN';
+  }
+
+  dl(msg: any) {
+    if (!this.stopDeleteClickPropagation) {
+      DEBUG_LOG(msg);
+    }
+  }
+
+  toggleDeleteClickPropagation () {
+    this.stopDeleteClickPropagation = !this.stopDeleteClickPropagation;
+  }
+
+  toggleDeleteModal(delWarningStringId: string) {
+    this.deleteWarningComponents
+      .find((el) => (el.stringId === delWarningStringId)
+     ).toggleModal();
   }
 
 }

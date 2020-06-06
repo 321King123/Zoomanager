@@ -1,50 +1,64 @@
-<div *ngIf="showEditOrDeleteButton" class="btn-group">
+<div>
+  <div #modalToggleBtn class="invisible no-gutters" [attr.data-target]="'#deleteWarning'+readableSubjectIdentifier"
+       data-toggle="modal"></div>
+</div>
+
+
+<div *ngIf="showEditOrDeleteButton" class="btn-group" appStopClickPropagation>
   <ng-container *ngIf="eOdBtnIsEdit">
     <button type="button" class="btn" (click)="editSubject.emit()"
             [class.btn-sm]="smallButton"
             [class.btn-outline-info]="outlinedButtons"
-            [class.btn-info]="!outlinedButtons">
+            [class.btn-info]="!outlinedButtons"
+
+            >
       Edit
     </button>
     <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">
       <button class="btn dropdown-toggle-split" ngbDropdownToggle
               [class.btn-sm]="smallButton"
               [class.btn-outline-info]="outlinedButtons"
-              [class.btn-info]="!outlinedButtons"></button>
+              [class.btn-info]="!outlinedButtons"
+              appStopClickPropagation
+              ></button>
       <div class="dropdown-menu" ngbDropdownMenu>
-        <button ngbDropdownItem (click)="toEditButton()">Edit</button>
-        <button ngbDropdownItem (click)="toDeleteButton()">{{delBtnText}}</button>
+        <button ngbDropdownItem (click)="toEditButton()" appStopClickPropagation>Edit</button>
+        <button ngbDropdownItem (click)="toDeleteButton()" appStopClickPropagation>{{delBtnText}}</button>
       </div>
     </div>
   </ng-container>
   <ng-container *ngIf="eOdBtnIsDelete">
-    <button type="button" class="btn " [attr.data-target]="'#deleteWarning'+readableSubjectIdentifier"
-           data-toggle="modal"
+    <button type="button" class="btn "
+            appStopClickPropagation
+            (click)="toggleModal()"
             [class.btn-sm]="smallButton"
             [class.btn-outline-danger]="outlinedButtons"
-            [class.btn-danger]="!outlinedButtons">Delete</button>
-    <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">
+            [class.btn-danger]="!outlinedButtons"
+            >{{delBtnText}}</button>
+    <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown" appStopClickPropagation>
       <button class="btn dropdown-toggle-split" ngbDropdownToggle
               [class.btn-sm]="smallButton"
               [class.btn-outline-danger]="outlinedButtons"
-              [class.btn-danger]="!outlinedButtons"></button>
+              [class.btn-danger]="!outlinedButtons"
+              appStopClickPropagation
+              ></button>
       <div class="dropdown-menu" ngbDropdownMenu>
-        <button ngbDropdownItem (click)="toEditButton()">Edit</button>
-        <button ngbDropdownItem (click)="toDeleteButton()">{{delBtnText}}</button>
+        <button ngbDropdownItem (click)="toEditButton()" appStopClickPropagation>Edit</button>
+        <button ngbDropdownItem (click)="toDeleteButton()" appStopClickPropagation>{{delBtnText}}</button>
       </div>
     </div>
   </ng-container>
 </div>
 
-<button *ngIf="showNormalButton" #modalToggleBtn type="button" class="btn mr-2"
+<button *ngIf="showNormalButton" type="button" class="btn mr-2"
         [class.btn-sm]="smallButton"
         [class.btn-outline-danger]="outlinedButtons"
         [class.btn-danger]="!outlinedButtons"
-        data-toggle="modal" [attr.data-target]="'#deleteWarning'+readableSubjectIdentifier" >
+        (click)="toggleModal()" appStopClickPropagation>
   {{delBtnText}}
 </button>
 
-<div class="modal" id="deleteWarning{{readableSubjectIdentifier}}" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+<div #delModalBody appStopClickPropagation class="modal" id="deleteWarning{{readableSubjectIdentifier}}" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
      aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -60,7 +74,7 @@
         <span class="text-danger">This cannot be undone, are you sure you want to continue?</span>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-info"  (click)="toggleModal()">Cancel</button>
         <button (click)="deleteSubject.emit()" type="button"
                 class="btn btn-danger" data-dismiss="modal">Yes, Delete!
         </button>
