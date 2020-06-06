@@ -26,6 +26,7 @@ import { AssignTaskComponent } from './components/assign-task/assign-task.compon
 import { TaskListCommonComponent } from './components/task-list-common/task-list-common.component';
 import { AlertComponent } from './components/alert/alert.component';
 import { TaskInfoUpdateComponent } from './components/task-info-update/task-info-update.component';
+import { EnclosureEditViewComponent } from './components/enclosure-edit-view/enclosure-edit-view.component';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { TaskInfoUpdateComponent } from './components/task-info-update/task-info
     TaskListCommonComponent,
     AlertComponent,
     TaskInfoUpdateComponent,
+    EnclosureEditViewComponent,
   ],
   imports: [
     BrowserModule,

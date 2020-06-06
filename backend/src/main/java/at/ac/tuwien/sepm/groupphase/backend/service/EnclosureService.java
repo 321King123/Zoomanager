@@ -51,6 +51,13 @@ public interface EnclosureService {
      *
      * @param id of enclosure to delete
      */
-    public void deleteEnclosure(Long id);
+    void deleteEnclosure(Long id);
 
+    /**
+     * Editing Enclosure that is already in the Database
+     *
+     * @param enclosure to be edited
+     * @return edited Enclosure as saved in the Database
+     */
+    Enclosure editEnclosure(Enclosure enclosure);
 }

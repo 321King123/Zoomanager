@@ -77,4 +77,8 @@ export class EnclosureService {
     DEBUG_LOG('Get Enclosures by employee username: ' + employeeUsername);
     return this.httpClient.get<Enclosure[]>(this.enclosureBaseUri + /employee/ + employeeUsername);
   }
+
+  editEnclosure(enclosureToView: Enclosure): Observable<Enclosure> {
+    return this.httpClient.put<Enclosure>(this.enclosureBaseUri + '/edit' , enclosureToView);
+  }
 }
