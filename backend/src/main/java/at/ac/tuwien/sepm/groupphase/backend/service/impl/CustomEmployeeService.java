@@ -177,7 +177,7 @@ public class CustomEmployeeService implements EmployeeService {
         for(Task t:tasks){
             LocalDateTime existingStart = t.getStartTime();
             LocalDateTime existingEnd = t.getEndTime();
-            if(existingStart.equals(start) && existingEnd.equals(end))
+            if(existingStart.equals(start) || existingEnd.equals(end))
                 throw new NotFreeException("Employee " + employee.getUsername()
                     + " already has work (" +  beautifyDateTimeFromTillStringIfSameDay(existingStart, existingEnd)
                     + ") during this task ("  + beautifyDateTimeFromTillStringIfSameDay(start, end) +  ").");
@@ -360,7 +360,7 @@ public class CustomEmployeeService implements EmployeeService {
     private Employee filterAvailableEmployeeWithLeastWork(Task task, List<Employee> employees){
         List<Employee> employeesWithTime = new LinkedList<>();
         for(Employee e: employees){
-            if(employeeIsFreeBetweenStartingAndEndtime(e, task))
+            if(noExceptionEmployeeIsFreeBetweenStartingAndEndtime(e, task))
                 employeesWithTime.add(e);
         }
         if(employeesWithTime.isEmpty())
@@ -396,7 +396,7 @@ public class CustomEmployeeService implements EmployeeService {
         LOGGER.debug("Finding time spend this week for employee {}", employee.getUsername());
         LocalDateTime currentDateTime = LocalDateTime.now();
         DayOfWeek currentWeekday = LocalDateTime.now().getDayOfWeek();
-        List<Task> tasksOfEmployee = employee.getTasks();
+        List<Task> tasksOfEmployee = taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee);
         double hoursThisWeek = 0.0;
 
         for(Task t:tasksOfEmployee){
@@ -424,7 +424,7 @@ public class CustomEmployeeService implements EmployeeService {
         Task instantTask = Task.builder().startTime(soonestStartTime)
             .endTime(addDurationOfOneTaskToStartTime(soonestStartTime, task)).build();
 
-        if(employeeIsFreeBetweenStartingAndEndtime(employee, instantTask))
+        if(noExceptionEmployeeIsFreeBetweenStartingAndEndtime(employee, instantTask))
             return soonestStartTime;
 
         for(int i = 0; i < (currentTasksOfEmployee.length-1); i++){
@@ -458,6 +458,14 @@ public class CustomEmployeeService implements EmployeeService {
     private boolean employeeIsFreeForDurationFromStartTime(LocalDateTime taskStartTime, Task task, Employee employee){
         LocalDateTime taskEndTime = addDurationOfOneTaskToStartTime(taskStartTime, task);
         Task tempTask = Task.builder().startTime(taskStartTime).endTime(taskEndTime).build();
-        return employeeIsFreeBetweenStartingAndEndtime(employee, tempTask);
+        return noExceptionEmployeeIsFreeBetweenStartingAndEndtime(employee, tempTask);
+    }
+
+    private boolean noExceptionEmployeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task){
+        try{
+            return employeeIsFreeBetweenStartingAndEndtime(employee, task);
+        }catch(Exception e){
+            return false;
+        }
     }
 }
