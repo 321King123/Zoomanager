@@ -13,7 +13,7 @@ export enum type {
   JANITOR = 'JANITOR'
 }
 export namespace Utilities {
-  export const DEBUG_MODE = true;
+  export const DEBUG_MODE = false;
   export const DEBUG_LOG = DEBUG_MODE ? console.log.bind(console) : function () {};
 }
 

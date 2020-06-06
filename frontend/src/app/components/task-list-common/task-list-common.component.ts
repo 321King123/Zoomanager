@@ -11,6 +11,7 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {DeleteWarningComponent} from '../delete-warning/delete-warning.component';
 import {Utilities} from '../../global/globals';
 import DEBUG_LOG = Utilities.DEBUG_LOG;
+import {TaskInfoUpdateComponent} from '../task-info-update/task-info-update.component';
 
 @Component({
   selector: 'app-task-list-common',
@@ -37,7 +38,12 @@ export class TaskListCommonComponent implements OnInit {
   @ViewChildren(DeleteWarningComponent)
   deleteWarningComponents: QueryList<DeleteWarningComponent>;
 
-  stopDeleteClickPropagation: boolean = false;
+
+  @ViewChildren(TaskInfoUpdateComponent)
+  taskInfoUpdateComponents: QueryList<TaskInfoUpdateComponent>;
+
+  stopClickPropagation: boolean = false;
+
 
   constructor(private authService: AuthService, private taskService: TaskService, private animalService: AnimalService,
               private employeeService: EmployeeService, private alertService: AlertService) {
@@ -87,19 +93,31 @@ export class TaskListCommonComponent implements OnInit {
   }
 
   dl(msg: any) {
-    if (!this.stopDeleteClickPropagation) {
+    if (!this.stopClickPropagation) {
       DEBUG_LOG(msg);
     }
   }
 
-  toggleDeleteClickPropagation () {
-    this.stopDeleteClickPropagation = !this.stopDeleteClickPropagation;
+  toggleClickPropagation () {
+    DEBUG_LOG('Before Toggled CLICK propagation: ' + this.stopClickPropagation);
+    this.stopClickPropagation = !this.stopClickPropagation;
+    DEBUG_LOG('Toggled CLICK click propagation: ' + this.stopClickPropagation);
   }
+
 
   toggleDeleteModal(delWarningStringId: string) {
     this.deleteWarningComponents
       .find((el) => (el.stringId === delWarningStringId)
      ).toggleModal();
+  }
+
+  toggleTaskInfoModal(stringId: string) {
+    if (!this.stopClickPropagation) {
+      this.taskInfoUpdateComponents
+        .find((el) => (el.stringId === stringId)
+        ).toggleModal();
+    }
+
   }
 
 }

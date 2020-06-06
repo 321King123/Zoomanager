@@ -61,7 +61,7 @@ export class DeleteWarningComponent implements OnInit {
 
   toggleModal() {
  //   this.stopClickPropagationEvent.emit();
-    DEBUG_LOG('Toggle Modal');
+    console.log('Toggle Modal ' + this.readableSubjectIdentifier);
     const modalToggleElement: HTMLElement = this.modalToggle.nativeElement;
     if (this.modalIsOpen) {
       this.closeModal(modalToggleElement);
@@ -74,7 +74,7 @@ export class DeleteWarningComponent implements OnInit {
   }
 
   closeModal(modalToggleElement: HTMLElement) {
-    DEBUG_LOG('close modal, modalIsOpen = ' + this.modalIsOpen);
+    console.log('close modal, modalIsOpen = ' + this.modalIsOpen);
     if (this.modalIsOpen) {
       modalToggleElement.click();
       this.modalIsOpen = false;
@@ -84,7 +84,7 @@ export class DeleteWarningComponent implements OnInit {
   }
 
   openModal(modalToggleElement: HTMLElement) {
-    DEBUG_LOG('open modal, modalIsOpen = ' + this.modalIsOpen);
+    console.log('open modal, modalIsOpen = ' + this.modalIsOpen);
     if (!this.modalIsOpen) {
       this.toggleClickPropagationEvent.emit();
       this.modalIsOpen = true;

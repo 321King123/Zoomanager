@@ -1,5 +1,5 @@
 <div>
-  <div #modalToggleBtn class="invisible no-gutters" [attr.data-target]="'#deleteWarning'+readableSubjectIdentifier"
+  <div #modalToggleBtn class="invisible no-gutters" [attr.data-target]="'#deleteWarning'+stringId.replace(' ', '')"
        data-toggle="modal"></div>
 </div>
 
@@ -58,7 +58,7 @@
   {{delBtnText}}
 </button>
 
-<div #delModalBody appStopClickPropagation class="modal" id="deleteWarning{{readableSubjectIdentifier}}" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+<div #delModalBody appStopClickPropagation class="modal" id="deleteWarning{{stringId.replace(' ', '')}}" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
      aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">

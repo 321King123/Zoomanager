@@ -67,7 +67,7 @@
 <div class="row no-gutters justify-content-end" *ngIf="editing===false && isAdmin()">
   <div class="btn-group col-2">
     <ng-container *ngIf="btnIsEdit">
-      <button type="button" class="btn btn-info" (click)="toEditButton()">Edit</button>
+      <button type="button" class="btn btn-info" (click)="editEnclosure()">Edit</button>
       <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">
         <button class="btn btn-info dropdown-toggle-split" ngbDropdownToggle></button>
         <div class="dropdown-menu" ngbDropdownMenu>

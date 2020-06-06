@@ -19,8 +19,7 @@
 
     <ng-container *ngFor="let task of tasks; index as i;">
       <tr class="row animal-list-item" [class.alert-warning]="task.priority"
-          (click)="!this.stopDeleteClickPropagation
-            ? dl('default') : dl('Cant click because Propagation from delete was stopped.')">
+          (click)="toggleTaskInfoModal(task.id+task.title)">
         <td class="col" >{{task.title}}</td>
       <!--  <td class="col">
 
@@ -40,6 +39,7 @@
         <td class="col d-flex justify-content-end align-items-baseline" >
           <ng-container *ngIf="task.priority"> ✪ </ng-container>
 
+<!--  DONE Button start         -->
           <ng-container *ngIf="task.status!='DONE'">
                 <ng-template #tipContent >
                   You cannot mark this task as done, since it is not assigned to you. (Assigned to: <b>{{task.assignedEmployeeUsername}}</b>)
@@ -81,10 +81,14 @@
 
 <!--            <div class="mx-3">Done!</div>-->
           </ng-container>
+<!--  DONE Button end         -->
 
-          <app-task-info-update (reloadTasks)="reloadTasks.emit()" *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'"
-                                [animalsOfEmployee]="animalsOfEmployee" [enclosuresOfEmployee]="enclosuresOfEmployee"
-                                [task]="task" [index]="i"></app-task-info-update>
+          <app-task-info-update
+            [stringId]="task.id+task.title"
+            (toggleClickPropagationEvent)="toggleClickPropagation()"
+            (reloadTasks)="reloadTasks.emit()" *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'"
+            [animalsOfEmployee]="animalsOfEmployee" [enclosuresOfEmployee]="enclosuresOfEmployee"
+            [task]="task" [index]="i"></app-task-info-update>
 
 <!--          <div class="mx-2">-->
 <!--            <button *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'" (click)="deleteTask(task.id)"-->
@@ -97,7 +101,8 @@
 
           <app-delete-warning
             *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'"
-            (toggleClickPropagationEvent)="toggleDeleteClickPropagation()"
+            [stringId]="(task.id + task.title).replace(' ', '')"
+            (toggleClickPropagationEvent)="toggleClickPropagation()"
             [deletionSubjectType]="'Task'"
             [readableSubjectIdentifier]="task.title"
             [smallButton]="true"
