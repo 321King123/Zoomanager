@@ -874,7 +874,7 @@ public class TaskEndpointTest implements TestData {
         MvcResult mvcResult = this.mockMvc.perform(put(TASK_BASE_URI + "/update")
             .contentType(MediaType.APPLICATION_JSON)
             .content(body)
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(animal_caretaker_login.getUsername(), ADMIN_ROLES)))
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(animal_caretaker_login.getUsername(), USER_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -891,6 +891,84 @@ public class TaskEndpointTest implements TestData {
             () -> {assertEquals(updatedTask.getTask().getAssignedEmployee().getUsername(),doctor.getUsername());},
             () -> {assertEquals(updatedTask.getSubject().getId(),subject2.getId());}
         );
+    }
+
+    @Test
+    public void updateTaskAsDoctorValid_expectStatusForbidded() throws Exception {
+        String description = "New description";
+        String title = "New title";
+        LocalDateTime startTime = LocalDateTime.of(2020, 7, 12, 11, 0, 0);
+        LocalDateTime endTime = LocalDateTime.of(2020, 7, 12, 12, 0, 0);
+        TaskStatus taskStatus = TaskStatus.NOT_ASSIGNED;
+
+        Animal subject = animalRepository.save(animal);
+        Animal subject2 = animalRepository.save(animal);
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        userLoginRepository.save(doctor_login);
+        employeeRepository.save(doctor);
+        animalRepository.assignAnimalToCaretaker(anmial_caretaker.getUsername(),subject.getId());
+        Task taskDef = taskRepository.save(task);
+
+        AnimalTask animalTask = taskService.createAnimalTask(taskDef, subject);
+
+        CombinedTaskDto combinedTaskDto = CombinedTaskDto.builder()
+            .id(taskDef.getId()).title(title).description(description)
+            .startTime(startTime).endTime(endTime).status(taskStatus)
+            .animalTask(true).subjectId(subject2.getId())
+            .assignedEmployeeUsername(doctor.getUsername())
+            .priority(true).build();
+
+        String body = objectMapper.writeValueAsString(combinedTaskDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(TASK_BASE_URI + "/update")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(doctor_login.getUsername(), USER_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
+    }
+
+    @Test
+    public void updateTaskAsAdminInvalidTime_expectStatusConflict() throws Exception {
+        String description = "New description";
+        String title = "New title";
+        LocalDateTime startTime = LocalDateTime.of(2020, 7, 12, 0, 0, 0);
+        LocalDateTime endTime = LocalDateTime.of(2020, 7, 12, 1, 0, 0);
+        TaskStatus taskStatus = TaskStatus.NOT_ASSIGNED;
+
+        Animal subject = animalRepository.save(animal);
+        Animal subject2 = animalRepository.save(animal);
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        userLoginRepository.save(doctor_login);
+        employeeRepository.save(doctor);
+        animalRepository.assignAnimalToCaretaker(anmial_caretaker.getUsername(),subject.getId());
+        Task taskDef = taskRepository.save(task);
+
+        AnimalTask animalTask = taskService.createAnimalTask(taskDef, subject);
+
+        CombinedTaskDto combinedTaskDto = CombinedTaskDto.builder()
+            .id(taskDef.getId()).title(title).description(description)
+            .startTime(startTime).endTime(endTime).status(taskStatus)
+            .animalTask(true).subjectId(subject2.getId())
+            .assignedEmployeeUsername(doctor.getUsername())
+            .priority(true).build();
+
+        String body = objectMapper.writeValueAsString(combinedTaskDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(TASK_BASE_URI + "/update")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(admin_login.getUsername(), ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.CONFLICT.value(), response.getStatus());
     }
 
     @Test
