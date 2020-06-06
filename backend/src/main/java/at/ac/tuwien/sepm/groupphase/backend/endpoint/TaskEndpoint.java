@@ -4,6 +4,7 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.*;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.*;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -292,5 +294,35 @@ public class TaskEndpoint {
             }
         }
         taskService.markTaskAsDone(taskId);
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PutMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void updateTask(@Valid @RequestBody CombinedTaskDto combinedTaskDto, Authentication authentication){
+        LOGGER.info("PUT /api/v1/tasks/update body: {}",combinedTaskDto);
+        //authorisation check
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String username = (String) authentication.getPrincipal();
+        if(!isAdmin){
+            if(!employeeService.hasTaskAssignmentPermissions(username,combinedTaskDto.getId())){
+                throw new NotAuthorisedException("You are not authorized to update this task.");
+            }
+        }
+        boolean animalTask = false;
+        // checking if the task is an animal or an enclosure task
+        // postman testing with isAnimalTask=true doesnt work, the api does not recognize the "true" value
+        taskService.getTaskById(combinedTaskDto.getId()); //checking if the task exists
+        try{
+            taskService.getAnimalTaskById(combinedTaskDto.getId());
+            animalTask=true;
+        }catch (NotFoundException e){}
+
+        if(animalTask)  taskService.updateFullAnimalTaskInformation(combinedTaskMapper.combinedTaskDtoToAnimalTask(combinedTaskDto));
+        else taskService.updateFullEnclosureTaskInformation(combinedTaskMapper.combinedTaskDtoToEnclosureTask(combinedTaskDto));
+
+
+
     }
 }

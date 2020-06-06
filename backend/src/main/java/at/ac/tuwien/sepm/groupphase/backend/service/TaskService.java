@@ -88,4 +88,14 @@ public interface TaskService {
      */
     List<EnclosureTask> getAllTasksOfEnclosure(Long enclosureId);
 
+    Task getTaskById(Long taskId);
+
+    void updateFullAnimalTaskInformation(AnimalTask animalTask);
+
+    void updateFullEnclosureTaskInformation(EnclosureTask enclosureTask);
+
+    EnclosureTask getEnclosureTaskById(Long enclosureTaskId);
+
+    AnimalTask getAnimalTaskById(Long animalTaskId);
+
 }
