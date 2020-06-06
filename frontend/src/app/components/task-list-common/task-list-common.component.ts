@@ -104,13 +104,6 @@ export class TaskListCommonComponent implements OnInit {
     DEBUG_LOG('Toggled CLICK click propagation: ' + this.stopClickPropagation);
   }
 
-
-  toggleDeleteModal(delWarningStringId: string) {
-    this.deleteWarningComponents
-      .find((el) => (el.stringId === delWarningStringId)
-     ).toggleModal();
-  }
-
   toggleTaskInfoModal(stringId: string) {
     if (!this.stopClickPropagation) {
       this.taskInfoUpdateComponents
