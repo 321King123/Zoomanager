@@ -171,13 +171,13 @@
         </div>
       </div>
       <div class="modal-footer">
+        <button type="button" (click)="switchSelectEmployeeTypeMode()" class="btn btn-info col">Select Employee Type</button>
         <ng-container *ngIf="normalPriority">
           <button *ngIf="!selectEmployeeTypeMode" type="button" (click)="taskSubmitted()" class="btn btn-success col">Create Task</button>
           <button *ngIf="selectEmployeeTypeMode && employeeTypeSelected" type="button" (click)="taskWithAutoAssignSubmitted()" class="btn btn-success col">Create and Auto-Assign</button>
-          <button type="button" (click)="switchSelectEmployeeTypeMode()" class="btn btn-info col">Select Employee Type</button>
         </ng-container>
         <ng-container *ngIf="highPriority">
-          <button type="button" (click)="priorityTaskSubmitted()" class="btn btn-warning col">Create Priority Task
+          <button *ngIf="selectEmployeeTypeMode && employeeTypeSelected" type="button" (click)="priorityTaskSubmitted()" class="btn btn-warning col">Create Priority Task
           </button>
         </ng-container>
       </div>

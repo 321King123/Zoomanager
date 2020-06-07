@@ -165,17 +165,8 @@ export class TaskCreationComponent implements OnInit {
 
   priorityTaskSubmitted() {
     DEBUG_LOG('hello0priority');
-    this.submittedTask = true;
     this.taskCreationForm.controls['priority'].setValue(true);
-    if (this.taskCreationForm.valid) {
-      if (this.isAnimalTask) {
-        this.getAnimalTaskFromForm();
-        this.createAnimalTask();
-      } else if (this.isEnclosureTask) {
-        this.getEnclosureTaskFromForm();
-        this.createEnclosureTask();
-      }
-    }
+    this.taskWithAutoAssignSubmitted();
   }
 
   getAnimalTaskFromForm() {
@@ -202,6 +193,9 @@ export class TaskCreationComponent implements OnInit {
       null,
       this.taskCreationForm.controls.priority.value
     );
+    if (this.autoAssignSubmission) {
+      this.task.assignedEmployeeUsername = null;
+    }
     if (this.task.assignedEmployeeUsername != null) {
       this.task.status = 'ASSIGNED';
     } else {
@@ -408,7 +402,6 @@ export class TaskCreationComponent implements OnInit {
       (res: any) => {
         this.alertService.success('Task successfully assigned!'
           , {componentId: this.componentId}, 'TaskCreation: autoAssignAnimalTaskToDoctor()');
-        this.switchSelectEmployeeTypeMode();
       },
       error => {
         this.alertService.alertFromError(error, {componentId: this.componentId}, 'TaskCreation: autoAssignAnimalTaskToDoctor()');

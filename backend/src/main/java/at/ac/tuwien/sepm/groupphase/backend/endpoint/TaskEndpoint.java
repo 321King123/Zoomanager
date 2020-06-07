@@ -191,7 +191,7 @@ public class TaskEndpoint {
      * @param id contains the information of the task including the username of the employee it is assigned to and Animal
      */
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping(value = "auto/enclosure/janitor")
+    @PostMapping(value = "auto/enclosure/janitor/{id}")
     @ApiOperation(value = "Automatically assign Enclosure Task to Janitor", authorizations = {@Authorization(value = "apiKey")})
     public void autoAssignEnclosureTaskJanitor(@PathVariable Long id, Authentication authentication) {
         LOGGER.info("POST /api/v1/tasks/auto/enclosure/janitor/{}", id);
