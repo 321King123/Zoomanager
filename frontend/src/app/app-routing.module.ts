@@ -25,7 +25,6 @@ const routes: Routes = [
   {path: 'enclosure-view/:enclosureId', canActivate: [AuthGuard], component: EnclosureViewComponent},
   {path: 'enclosure-edit-view/:enclosureId', canActivate: [AuthGuard], component: EnclosureEditViewComponent},
   {path: 'animal-view/:animalId', canActivate: [AuthGuard], component: AnimalViewComponent},
-  {path: 'animal-update-view/:animalId', canActivate: [AuthGuard], component: AnimalUpdateViewComponent},
 ];
 
 @NgModule({
