@@ -76,13 +76,7 @@
       </button>
     </form>
 
-  <form *ngIf="changingPassword===true || !isAdmin()" class="form" [formGroup]="passwordEdit" (ngSubmit)="savePassword()" >
-
-    <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
-      <label for="inputOldPassword">Current Password</label>
-      <input type="password" name="currentPassword" formControlName="currentPassword" class="form-control" id="inputOldPassword"
-             aria-describedby="passwordHelp" placeholder="Enter current password">
-    </div>
+  <form *ngIf="changingPassword===true && isAdmin()" class="form" [formGroup]="passwordEdit" (ngSubmit)="savePassword()" >
 
     <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
       <label for="inputPassword">New Password</label>
@@ -101,7 +95,7 @@
     <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
       <label for="inputConfirmPassword">Confirm new Password</label>
       <input type="password" name="confirmPassword" formControlName="confirmPassword" class="form-control" id="inputConfirmPassword"
-             aria-describedby="passwordHelp" placeholder="Enter current password">
+             aria-describedby="passwordHelp" placeholder="Confirm new password">
     </div>
 
     <button  class="float-md-right pull-right btn btn-outline-info" type="button"

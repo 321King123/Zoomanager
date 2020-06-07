@@ -119,4 +119,7 @@ export class EmployeeService {
   savePassword(newPasswordReq: NewPasswordReq): Observable<NewPasswordReq> {
     return this.httpClient.put<NewPasswordReq>(this.employeeBaseUri + '/editPassword/', newPasswordReq);
   }
+  savePasswordByAdmin(newPasswordReq: NewPasswordReq): Observable<NewPasswordReq> {
+    return this.httpClient.put<NewPasswordReq>(this.employeeBaseUri + '/editPasswordByAdmin/', newPasswordReq);
+  }
 }

@@ -56,7 +56,6 @@ export class EmployeeEditViewComponent implements OnInit {
         Validators.minLength(8),
         Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$')
       ])],
-      currentPassword: [''],
       confirmPassword: ['']
     });
     this.employeeLoaded = false;
@@ -177,10 +176,10 @@ export class EmployeeEditViewComponent implements OnInit {
       if (!this.passwordEdit.controls.password.value.valid) {
         this.newPasswordReq = new NewPasswordReq(
           this.currentUser,
-          this.passwordEdit.controls.currentPassword.value,
+          null,
           this.passwordEdit.controls.password.value
         );
-        this.employeeService.savePassword(this.newPasswordReq).subscribe(
+        this.employeeService.savePasswordByAdmin(this.newPasswordReq).subscribe(
           () => {
             this.backClicked();
           },

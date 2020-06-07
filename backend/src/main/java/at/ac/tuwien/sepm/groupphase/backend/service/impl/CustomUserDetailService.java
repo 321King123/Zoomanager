@@ -82,17 +82,6 @@ public class CustomUserDetailService implements UserService {
         userRepository.deleteById(userName);
     }
 
-    @Override
-    public void updateUserName(String oldUsername, String newUsername){
-        LOGGER.debug("Updating username.");
-        UserLogin exists = userRepository.findUserByUsername(oldUsername);
-        if(exists==null){
-            throw new NotFoundException("Can not find user to update");
-        }else{
-            exists.setUsername(newUsername);
-            userRepository.save(exists);
-        }
-    }
 
     @Override
     public void changePassword(NewPasswordReq newPasswordReq) {
@@ -106,5 +95,18 @@ public class CustomUserDetailService implements UserService {
         }else{
             throw new IncorrectTypeException("Wrong Password");
         }
+    }
+
+    @Override
+    public void changePasswordByAdmin(NewPasswordReq newPasswordReq) {
+        LOGGER.debug("Changing user password.");
+        UserLogin user = findApplicationUserByUsername(newPasswordReq.getUsername());
+        if(user==null){
+            throw new NotFoundException("Can not find user: "+ newPasswordReq.getUsername());
+        }
+        String newPassword= passwordEncoder.encode(newPasswordReq.getNewPassword());
+        user.setPassword(newPassword);
+        userRepository.save(user);
+        LOGGER.info("User password changed.");
     }
 }

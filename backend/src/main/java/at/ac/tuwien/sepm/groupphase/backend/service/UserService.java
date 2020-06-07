@@ -45,12 +45,18 @@ public interface UserService extends UserDetailsService {
      */
     void deleteUser(String username);
 
-    void updateUserName(String oldUsername, String newusername );
 
     /**
-     * Editing Enclosure that is already in the Database
+     * Editing password that is already in the Database
      *
      * @param newPasswordReq password to be changed
      */
     void changePassword(NewPasswordReq newPasswordReq);
+
+    /**
+     * Editing passwrod of employee by admin that is already in the Database
+     *
+     * @param newPasswordReq password to be changed
+     */
+    void changePasswordByAdmin(NewPasswordReq newPasswordReq);
 }

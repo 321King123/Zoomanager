@@ -254,4 +254,13 @@ public class EmployeeEndpoint {
         userService.changePassword(newPasswordReqMapper.newPasswordReqDtoToNewPasswordReq(newPasswordReqDto));
     }
 
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "/editPasswordByAdmin/")
+    @ApiOperation(value = "Change Password", authorizations = {@Authorization(value = "apiKey")})
+    public void editPasswordByAdmin(@RequestBody @Valid NewPasswordReqDto newPasswordReqDto){
+        LOGGER.info("PUT /api/v1/employee /editPasswordByAdmin/ body: {}",newPasswordReqDto);
+        userService.changePasswordByAdmin(newPasswordReqMapper.newPasswordReqDtoToNewPasswordReq(newPasswordReqDto));
+    }
+
 }
