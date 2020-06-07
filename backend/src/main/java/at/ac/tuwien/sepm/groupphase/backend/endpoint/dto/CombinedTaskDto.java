@@ -43,15 +43,15 @@ public class CombinedTaskDto {
     @NotNull(message = "Task Status must not be null")
     private TaskStatus status;
 
-    @NotNull(message = "Name must not be null")
-    @NotBlank(message = "Name must not be empty")
+  /*  @NotNull(message = "Name must not be null")
+    @NotBlank(message = "Name must not be empty")*/
     private String subjectName;
 
     @NotNull(message = "Name must not be null")
     private Long subjectId;
 
     @NotNull(message = "You have to specify the kind of task")
-    private boolean isAnimalTask;
+    private boolean animalTask;
 
     @NotNull
     private boolean priority;

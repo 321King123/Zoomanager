@@ -36,7 +36,6 @@ public class CustomTaskService implements TaskService {
 
     private final EnclosureTaskRepository enclosureTaskRepository;
 
-    private final RepeatableTaskRepository repeatableTaskRepository;
 
     @Autowired
     public CustomTaskService(TaskRepository taskRepository, AnimalTaskRepository animalTaskRepository,
@@ -202,10 +201,12 @@ public class CustomTaskService implements TaskService {
     public boolean isTaskPerformer(String employeeUsername, Long taskId) {
         LOGGER.debug("Check if employee with username {} is performing task with id {}", employeeUsername, taskId);
         Task task = getTaskById(taskId);
+        if(task.getAssignedEmployee()==null) return false;
         return task.getAssignedEmployee().getUsername().equals(employeeUsername);
     }
 
-    private Task getTaskById(Long taskId){
+    @Override
+    public Task getTaskById(Long taskId){
         LOGGER.debug("Find task with id {}", taskId);
         Optional<Task> task = taskRepository.findById(taskId);
         Task foundTask;
@@ -217,12 +218,24 @@ public class CustomTaskService implements TaskService {
         return foundTask;
     }
 
-    private AnimalTask getAnimalTaskById(Long animalTaskId){
+    public AnimalTask getAnimalTaskById(Long animalTaskId){
         LOGGER.debug("Find animal task with id {}", animalTaskId);
         Optional<AnimalTask> animalTask = animalTaskRepository.findById(animalTaskId);
         AnimalTask foundTask;
         if(animalTask.isPresent()){
             foundTask = animalTask.get();
+        }else{
+            throw new NotFoundException("Could not find Task with given Id");
+        }
+        return foundTask;
+    }
+
+    public EnclosureTask getEnclosureTaskById(Long animalTaskId){
+        LOGGER.debug("Find enclosure task with id {}", animalTaskId);
+        Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findById(animalTaskId);
+        EnclosureTask foundTask;
+        if(enclosureTask.isPresent()){
+            foundTask = enclosureTask.get();
         }else{
             throw new NotFoundException("Could not find Task with given Id");
         }
@@ -241,6 +254,54 @@ public class CustomTaskService implements TaskService {
     public List<EnclosureTask> getAllTasksOfEnclosure(Long enclosureId) {
         LOGGER.debug("Get All Tasks belonging to Enclosure with id: {}", enclosureId);
         return enclosureTaskRepository.findAllEnclosureTasksBySubject_Id(enclosureId);
+    }
+
+    @Override
+    public void updateFullAnimalTaskInformation(AnimalTask animalTask) {
+        LOGGER.debug("Update full information of an animal task");
+        //checking if such animal-task exists
+        if(animalTask==null) throw new NotFoundException("Non existing animal task.");
+        AnimalTask exists = getAnimalTaskById(animalTask.getId());
+        //checking if employee can be assigned to task
+        if(animalTask.getTask().getAssignedEmployee()!=null){
+           if(!employeeService.canBeAssignedToTask(animalTask.getTask().getAssignedEmployee(),animalTask.getTask())) {
+               throw new NotFreeException("This employee cannot be assigned to this task");
+           }
+        }
+        //changing the task status to the right one
+        if(animalTask.getTask().getAssignedEmployee()==null){
+            animalTask.getTask().setStatus(TaskStatus.NOT_ASSIGNED);
+        }
+        if(animalTask.getTask().getAssignedEmployee()!=null && animalTask.getTask().getStatus()==TaskStatus.NOT_ASSIGNED){
+            animalTask.getTask().setStatus(TaskStatus.ASSIGNED);
+        }
+        Task savedTask = taskRepository.saveAndFlush(animalTask.getTask());
+        animalTask.setTask(savedTask);
+        animalTaskRepository.saveAndFlush(animalTask);
+    }
+
+    @Override
+    public void updateFullEnclosureTaskInformation(EnclosureTask enclosureTask) {
+        LOGGER.debug("Update full information of an enclosure task");
+        //checking if such enclosure task exists
+        if(enclosureTask==null) throw new NotFoundException("Non existing enclosure task.");
+        EnclosureTask existsEnclosureTask = getEnclosureTaskById(enclosureTask.getId());
+        //checking if employee can be assigned to task
+        if(enclosureTask.getTask().getAssignedEmployee()!=null){
+            if(!employeeService.canBeAssignedToTask(enclosureTask.getTask().getAssignedEmployee(),enclosureTask.getTask())) {
+                throw new NotFreeException("This employee cannot be assigned to this task");
+            }
+        }
+        //changing the task status to the right one
+        if(enclosureTask.getTask().getAssignedEmployee()==null){
+            enclosureTask.getTask().setStatus(TaskStatus.NOT_ASSIGNED);
+        }
+        if(enclosureTask.getTask().getAssignedEmployee()!=null && enclosureTask.getTask().getStatus()==TaskStatus.NOT_ASSIGNED){
+            enclosureTask.getTask().setStatus(TaskStatus.ASSIGNED);
+        }
+        Task savedTask = taskRepository.saveAndFlush(enclosureTask.getTask());
+        enclosureTask.setTask(savedTask);
+        enclosureTaskRepository.saveAndFlush(enclosureTask);
     }
 
     private void validateEmployeeExists(String employeeUsername) {

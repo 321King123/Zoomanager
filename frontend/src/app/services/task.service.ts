@@ -69,4 +69,9 @@ export class TaskService {
     DEBUG_LOG('Get all tasks of employee ' + username);
     return this.httpClient.get<Task[]>(this.taskBaseUri + '/employee/' + username);
   }
+
+  updateFullTaskInformation(task: Task): Observable<any> {
+    DEBUG_LOG('Update full task information ' + JSON.stringify(task));
+    return this.httpClient.put(this.taskBaseUri + '/update', task);
+  }
 }

@@ -27,7 +27,7 @@ export class EnclosureService {
     return this.httpClient.get<Enclosure[]>(this.enclosureBaseUri);
   }
 
-  getById(enclosureId: number): Observable<Enclosure> {
+  getById(enclosureId): Observable<Enclosure> {
     DEBUG_LOG('Get Enclosure by id: ' + enclosureId);
     return this.httpClient.get<Enclosure>(this.enclosureBaseUri + '/' + enclosureId);
   }
@@ -76,5 +76,9 @@ export class EnclosureService {
   getEnclosuresOfEmployee(employeeUsername: string): Observable<Enclosure[]> {
     DEBUG_LOG('Get Enclosures by employee username: ' + employeeUsername);
     return this.httpClient.get<Enclosure[]>(this.enclosureBaseUri + /employee/ + employeeUsername);
+  }
+
+  editEnclosure(enclosureToView: Enclosure): Observable<Enclosure> {
+    return this.httpClient.put<Enclosure>(this.enclosureBaseUri + '/edit' , enclosureToView);
   }
 }
