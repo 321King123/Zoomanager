@@ -4,7 +4,8 @@ import {Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {tap} from 'rxjs/operators';
 import * as jwt_decode from 'jwt-decode';
-import {Globals} from '../global/globals';
+import {Globals, Utilities} from '../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +37,7 @@ export class AuthService {
   }
 
   logoutUser() {
-    console.log('Logout');
+    DEBUG_LOG('Logout');
     localStorage.removeItem('authToken');
   }
 

@@ -52,6 +52,8 @@ public class EnclosureTaskServiceTest {
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
         .type(TYPE_ANIMAL_CARE_EMPLOYEE)
         .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Employee animal_doctor = Employee.builder()
@@ -60,6 +62,8 @@ public class EnclosureTaskServiceTest {
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
         .type(EmployeeType.DOCTOR)
         .email("doctor@gmail.com")
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Task task_assigned = Task.builder()
@@ -70,6 +74,17 @@ public class EnclosureTaskServiceTest {
         .endTime(TAST_END_TIME)
         .status(TaskStatus.ASSIGNED)
         .assignedEmployee(animal_caretaker)
+        .build();
+
+    private Task task_assigned_high_priority = Task.builder()
+        .id(2L)
+        .title(TASK_TITLE)
+        .description(TASK_DESCRIPTION)
+        .startTime(TAST_START_TIME)
+        .endTime(TAST_END_TIME)
+        .status(TaskStatus.ASSIGNED)
+        .assignedEmployee(animal_caretaker)
+        .priority(true)
         .build();
 
     private Task task_assigned1 = Task.builder()
@@ -85,7 +100,6 @@ public class EnclosureTaskServiceTest {
     private EnclosureTask  enclosureTask = EnclosureTask.builder()
         .task(task_assigned)
         .subject(enclosureDetailed)
-        .priority(false)
         .id(1L)
         .build();
 

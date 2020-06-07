@@ -8,7 +8,7 @@ export class EnclosureTask {
               public status: string,
               public enclosureId: string,
               public enclosureName: string,
-              public priority: boolean
+              public priority: boolean = false
   ) {
   }
 }

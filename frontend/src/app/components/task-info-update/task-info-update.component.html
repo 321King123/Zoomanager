@@ -1,0 +1,192 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-sm mr-2 btn-outline-info" data-toggle="modal" [attr.data-target]="'#info'+index">
+  Info
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="info{{index}}" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+     aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title ml-1" id="staticBackdropLabel">{{task.title}}<span class="badge p-1 mx-2 badge-success"
+                                                                                  *ngIf="task.status=='DONE'">Done</span>
+          <span class="badge p-1 mx-2 badge-error" *ngIf="task.status=='NOT_ASSIGNED'">Not assigned</span>
+          <span class="badge p-1 mx-2 badge-dark" *ngIf="task.status=='ASSIGNED'">Assigned</span></h3>
+        <button (click)="reloadTasks.emit()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <app-alert [alertComponentId]="componentId"></app-alert>
+
+        <div *ngIf="infoMode" class="row p-1">
+          <div class="col-12"><h4>Description</h4>
+            <p>{{task.description}}</p></div>
+          <div class="col-6"><h4>Time </h4>
+            <p>
+              <b>Begin:</b> {{task.startTime}}
+            </p></div>
+          <div class="col-6"><h4 class="text-white">Time</h4>
+            <p>
+              <b>End:</b> {{task.endTime}}
+            </p></div>
+          <div class="col-6" *ngIf="task.animalTask == true"><h4>Animal</h4>
+            <p *ngIf="animal!=null">
+              Name: {{animal.name}} <br>
+              Description: {{animal.description}}<br>
+              Public: {{animal.publicInformation}}
+            </p></div>
+          <div class="col-6" *ngIf="task.animalTask == false"><h4>Enclosure</h4>
+            <p *ngIf="enclosure!=null">
+              Name: {{enclosure.name}} <br>
+              Description: {{enclosure.description}}<br>
+              Public: {{enclosure.publicInfo}}
+            </p></div>
+          <div class="col-6"><h4>Assignee</h4>
+            <p>
+              Username: {{task.assignedEmployeeUsername}} <br>
+            </p></div>
+        </div>
+        <div *ngIf="editMode" class="p-1">
+          <form>
+            <div class="row">
+              <div class="form-group col-12">
+                <label for="inputTitle">Title</label>
+                <input [(ngModel)]="editTask.title" type="text" name="title" class="form-control" id="inputTitle"
+                       aria-describedby="TitleHelp" placeholder="Enter Task Title">
+                <div *ngIf="!validEditTask && taskValidationError.title" class="error">
+                  <small class="form-text text-warning">
+                    Title cannot be empty.
+                  </small>
+                </div>
+              </div>
+              <div class="form-group col-12">
+                <label for="inputDescription">Description</label>
+                <textarea [(ngModel)]="editTask.description" type="text" name="description" class="form-control"
+                          id="inputDescription"
+                          aria-describedby="descriptionHelp" placeholder="Enter Task description"></textarea>
+                <div *ngIf="!validEditTask && taskValidationError.description" class="error">
+                  <small class="form-text text-warning">
+                    Description cannot be empty.
+                  </small>
+                </div>
+              </div>
+              <div class="form-group col-6">
+                <label for="inputStartTime">Start-Time</label>
+                <input [(ngModel)]="editTask.startTime" type="text" name="startTime" class="form-control"
+                       id="inputStartTime"
+                       aria-describedby="startTimeHelp" placeholder="Enter Start-Time">
+                <div *ngIf="!validEditTask && taskValidationError.startTime" class="error">
+                  <small class="form-text text-warning">
+                    Start-Time cannot be empty
+                  </small>
+                </div>
+              </div>
+              <div class="form-group col-6">
+                <label for="inputEndTime">End-Time</label>
+                <input [(ngModel)]="editTask.endTime" type="text" name="endTime" class="form-control"
+                       id="inputEndTime" aria-describedby="endTimeHelp" placeholder="Enter Start Time">
+                <div *ngIf="!validEditTask && taskValidationError.endTime" class="error">
+                  <small class="form-text text-warning">
+                    End-Time cannot be empty
+                  </small>
+                </div>
+              </div>
+
+              <div *ngIf="task.animalTask == true && animalsOfEmployee" class="form-group col-6 select-animal">
+                <label for="animalId">Change Animal</label>
+                <select [(ngModel)]="editTask.subjectId" (change)="getEmployeesOfAnimal()" name="animalId"
+                        class="form-control" id="animalId"
+                        aria-describedby="animalIdHelp">
+                  <option disabled [ngValue]="null">Change animal</option>
+                  <ng-container *ngIf="animalsOfEmployee!=null">
+                    <option *ngFor="let animal of animalsOfEmployee" [ngValue]="animal.id">{{animal.name}}
+                      ; {{animal.species}}</option>
+                  </ng-container>
+                </select>
+                <div *ngIf="!validEditTask && taskValidationError.subjectId" class="error">
+                  <small class="form-text text-warning">
+                    Animal cannot be empty
+                  </small>
+                </div>
+              </div>
+
+              <div *ngIf="task.animalTask == false && enclosuresOfEmployee" class="form-group col-6 select-Enclosure">
+                <label for="enclosureId">Change Enclosure</label>
+                <select [(ngModel)]="editTask.subjectId" (change)="getEmployeesOfEnclosure()" name="animalId"
+                        class="form-control" id="enclosureId"
+                        aria-describedby="animalIdHelp">
+                  <option disabled [ngValue]="null">Select Enclosure</option>
+                  <ng-container *ngIf="enclosuresOfEmployee!=null">
+                    <option *ngFor="let enclosure of enclosuresOfEmployee" [ngValue]="enclosure.id">{{enclosure.id}}
+                      ; {{enclosure.name}}</option>
+                  </ng-container>
+                </select>
+                <div *ngIf="!validEditTask && taskValidationError.subjectId" class="error">
+                  <small class="form-text text-warning">
+                    Enclosure cannot be empty
+                  </small>
+                </div>
+              </div>
+              <div class="form-group col-6">
+                <label for="assignedEmployeeUsername">Change Employee</label>
+
+                <select [(ngModel)]="editTask.assignedEmployeeUsername" name="assignedEmployeeUsername"
+                        class="form-control" id="assignedEmployeeUsername"
+                        aria-describedby="assignedEmployeeUsernameHelp">
+                  <option disabled [ngValue]="null">Select employee</option>
+                  <ng-container *ngIf="employeesFound">
+                    <option *ngFor="let employee of employeesFound;" [ngValue]="employee.username">
+                      {{employee.username}}; {{employee.name}}; caretaker
+                    </option>
+                  </ng-container>
+                  <ng-container *ngIf="task.animalTask && doctors">
+                    <option *ngFor="let doctor of doctors" [ngValue]="doctor.username">
+                      {{doctor.username}}; {{doctor.name}}; doctor
+                    </option>
+                  </ng-container>
+                  <ng-container *ngIf="!task.animalTask && janitors">
+                    <option *ngFor="let janitor of janitors" [ngValue]="janitor.username">
+                      {{janitor.username}}; {{janitor.name}}; janitor
+                    </option>
+                  </ng-container>
+                </select>
+              </div>
+
+              <div class="form-group col-6 select-Enclosure">
+                <label for="priority">Change Priority</label>
+                <select [(ngModel)]="editTask.priority" name="animalId"
+                        class="form-control" id="priority"
+                        aria-describedby="animalIdHelp">
+                  <option disabled [ngValue]="null">Select Priority</option>
+
+                  <option [ngValue]="true">High</option>
+                  <option [ngValue]="false">Normal</option>
+
+                </select>
+              </div>
+              <div class="form-group col-6 select-Enclosure">
+                <label for="status">Change Status</label>
+                <select [(ngModel)]="editTask.status" name="status"
+                        class="form-control" id="status"
+                        aria-describedby="statusIdHelp">
+                  <option disabled [ngValue]="null">Select Status</option>
+                  <option [ngValue]="'ASSIGNED'">Assigned</option>
+                  <option [ngValue]="'DONE'">Done</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="reloadTasks.emit()" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button *ngIf="infoMode" (click)="toEditMode()" type="button" class="btn btn-success">Edit</button>
+        <button *ngIf="editMode" (click)="taskEditSubmitted()" type="button"
+                class="btn btn-success">Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

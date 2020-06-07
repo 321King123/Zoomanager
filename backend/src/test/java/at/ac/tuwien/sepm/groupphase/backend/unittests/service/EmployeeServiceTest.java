@@ -3,7 +3,9 @@ package at.ac.tuwien.sepm.groupphase.backend.unittests.service;
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
@@ -59,6 +61,8 @@ public class EmployeeServiceTest implements TestData {
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
         .type(TYPE_ANIMAL_CARE_EMPLOYEE)
         .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Employee doctor = Employee.builder()
@@ -67,6 +71,8 @@ public class EmployeeServiceTest implements TestData {
         .birthday(BIRTHDAY_DOCTOR_EMPLOYEE)
         .type(TYPE_DOCTOR_EMPLOYEE)
         .email(EMAIL_DOCTOR_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Employee janitor = Employee.builder()
@@ -75,6 +81,8 @@ public class EmployeeServiceTest implements TestData {
         .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
         .type(TYPE_JANITOR_EMPLOYEE)
         .email(EMAIL_JANITOR_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Animal horse = Animal.builder()
@@ -91,7 +99,7 @@ public class EmployeeServiceTest implements TestData {
         .build();
 
     private Task task_not_assigned = Task.builder()
-        .id(1L)
+        .id(4L)
         .title(TASK_TITLE)
         .description(TASK_DESCRIPTION)
         .startTime(TAST_START_TIME)
@@ -239,7 +247,9 @@ public class EmployeeServiceTest implements TestData {
     public void canNotBeAssignedToAnimalTask_Janitor(){
         Optional<AnimalTask> animalTask = Optional.of(animalTask_not_assigned);
         Mockito.when(animalTaskRepository.findById(Mockito.anyLong())).thenReturn(animalTask);
-        assertFalse(employeeService.canBeAssignedToTask(janitor, task_not_assigned));
+        Exception exception = assertThrows(IncorrectTypeException.class, () -> {
+            employeeService.canBeAssignedToTask(janitor, task_not_assigned);
+        });
     }
 
     @Test
@@ -278,7 +288,7 @@ public class EmployeeServiceTest implements TestData {
     @Test
     public void employeeIsFree_whenNoOtherTaskAssigned(){
         List<Task> taskList = new LinkedList<>();
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
         assertTrue(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
     }
 
@@ -294,8 +304,10 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
-        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        Exception exception = assertThrows(NotFreeException.class, () -> {
+            employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
+        });
     }
 
     @Test
@@ -310,8 +322,10 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
-        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        Exception exception = assertThrows(NotFreeException.class, () -> {
+            employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
+        });
     }
 
     @Test
@@ -326,8 +340,10 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
-        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        Exception exception = assertThrows(NotFreeException.class, () -> {
+            employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
+        });
     }
 
     @Test
@@ -342,8 +358,10 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
-        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        Exception exception = assertThrows(NotFreeException.class, () -> {
+            employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
+        });
     }
 
 }

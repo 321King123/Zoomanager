@@ -45,7 +45,7 @@
             <ng-container *ngIf="task.status=='DONE'">
               <div class="mx-2"> Done!</div>
             </ng-container>
-            <button *ngIf="currentUserType=='ADMIM' || currentUserType=='ANIMAL_CARE'"  (click)="deleteTask(task.id)" class="btn-sm btn-outline-danger btn">Delete</button>
+            <button *ngIf="currentUserType!=='JANITOR' && currentUserType!='DOCTOR'"  (click)="deleteTask(task.id)" class="btn-sm btn-outline-danger btn">Delete</button>
           </td>
         </tr>
       </ng-container>
@@ -73,7 +73,7 @@
             <ng-container *ngIf="task.status=='DONE'">
               <div class="mx-2"> Done!</div>
             </ng-container>
-            <button *ngIf="currentUserType=='ADMIM' || currentUserType=='ANIMAL_CARE'" (click)="deleteTask(task.id)" class="btn-sm btn-outline-danger btn">Delete</button>
+            <button *ngIf="currentUserType!=='JANITOR' && currentUserType!='DOCTOR'" (click)="deleteTask(task.id)" class="btn-sm btn-outline-danger btn">Delete</button>
           </td>
       </ng-container>
     </ng-container>

@@ -14,6 +14,7 @@ import io.swagger.annotations.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
@@ -106,11 +107,11 @@ public class EnclosureEndpoint {
 
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping(value = "")
+    @DeleteMapping(value = "/{id}")
     @ApiOperation(value = "Delete enclosure", authorizations = {@Authorization(value = "apiKey")})
-    public void deleteEnclosure(@RequestBody @Valid EnclosureDto enclosureDto){
-        LOGGER.info("PUT /api/v1/enclosure body: {}",enclosureDto);
-        enclosureService.deleteEnclosure(enclosureMapper.enclosureDtoToEnclosure(enclosureDto));
+    public void deleteEnclosure(@PathVariable Long id){
+        LOGGER.info("DELETE /api/v1/enclosure/{}",id);
+        enclosureService.deleteEnclosure(id);
     }
 
     @Secured("ROLE_USER")
@@ -126,5 +127,14 @@ public class EnclosureEndpoint {
             enclosureDtos.add(enclosureMapper.enclosureToEnclosureDto(e));
         }
         return enclosureDtos;
+    }
+
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "/edit")
+    @ApiOperation(value = "Edit enclosure", authorizations = {@Authorization(value = "apiKey")})
+    public EnclosureDto editEnclosure(@RequestBody @Valid EnclosureDto enclosureDto){
+        LOGGER.info("PUT /api/v1/enclosure/edit body: {}",enclosureDto);
+        return enclosureMapper.enclosureToEnclosureDto(enclosureService.editEnclosure(enclosureMapper.enclosureDtoToEnclosure(enclosureDto)));
     }
 }

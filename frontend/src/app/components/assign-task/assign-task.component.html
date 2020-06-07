@@ -1,58 +1,42 @@
 <!-- Button trigger modal -->
 <button type="button" class="btn btn-sm btn-outline-success" data-toggle="modal"
-        [attr.data-target]="'#test'+uniqId+index">
+        [attr.data-target]="'#assign-task' + index" >
   Assign
 </button>
 
 <!-- Modal -->
-<div class="modal fade" [attr.id]="'test'+uniqId+index"  tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" [attr.id]="'assign-task'+ index"  tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true" data-backdrop="static" data-keyboard="false" >
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">Assign Task to employee</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="vanishAll()">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <div class="row p-3" *ngIf="error">
-          <div class="col">
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-              <strong>Error! </strong> {{ errorMessage }}
-              <button type="button" (click)="vanishError()" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="row p-3" *ngIf="success">
-          <div class="col">
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-              <strong>Success! </strong> Task was successfully assigned!
-              <button type="button" (click)="vanishSuccess()" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-          </div>
-        </div>
-        <label>Select employee to assign task</label>
+
+        <app-alert class="p-3" [alertComponentId]="componentId"></app-alert>
+
+        <label for="id">Select employee to assign task</label>
         <select [(ngModel)]="selectedEmployee" name="assignedEmployeeUsername"
-                class="form-control" id="iddddd"
+                class="form-control" id="id"
                 aria-describedby="assignedEmployeeUsernameHelp">
           <option disabled [ngValue]="null">Select employee</option>
           <ng-container *ngIf="employees!=null">
             <option *ngFor="let employee of employees;" [ngValue]="employee">
-              {{employee.username}}; {{employee.name}}
+              {{employee.username}}; {{employee.name}}; {{employee.type}};
             </option>
           </ng-container>
           <ng-container *ngIf="doctors!=null">
             <option *ngFor="let employee of doctors;" [ngValue]="employee">
-              {{employee.username}}; {{employee.name}}
+              {{employee.username}}; {{employee.name}}; {{employee.type}};
             </option>
           </ng-container>
           <ng-container *ngIf="janitors!=null">
             <option *ngFor="let employee of janitors;" [ngValue]="employee">
-              {{employee.username}}; {{employee.name}}
+              {{employee.username}}; {{employee.name}}; {{employee.type}};
             </option>
           </ng-container>
         </select>

@@ -7,6 +7,7 @@ export class AnimalTask {
               public assignedEmployeeUsername: string,
               public status: string,
               public animalId: string,
-              public animalName: string) {
+              public animalName: string,
+              public priority: boolean = false) {
   }
 }

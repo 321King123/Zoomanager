@@ -1,8 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.unittests.repository;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.TaskDto;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
 import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
@@ -23,7 +21,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
@@ -57,6 +54,8 @@ public class TaskRepositoryTest implements TestData {
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
         .type(TYPE_ANIMAL_CARE_EMPLOYEE)
         .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Task task_not_assigned = Task.builder()
@@ -125,7 +124,7 @@ public class TaskRepositoryTest implements TestData {
         taskRepository.save(task_assigned2);
         taskRepository.save(task_assigned3);
 
-        List<Task> searchTask = taskRepository.findAllByAssignedEmployee(caretaker);
+        List<Task> searchTask = taskRepository.findAllByAssignedEmployeeOrderByStartTime(caretaker);
         assertEquals(searchTask.size(), 3);
     }
 
