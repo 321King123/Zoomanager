@@ -36,6 +36,7 @@ public class CustomTaskService implements TaskService {
 
     private final EnclosureTaskRepository enclosureTaskRepository;
 
+    private final RepeatableTaskRepository repeatableTaskRepository;
 
     @Autowired
     public CustomTaskService(TaskRepository taskRepository, AnimalTaskRepository animalTaskRepository,
