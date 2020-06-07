@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
+import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -86,6 +87,24 @@ public interface TaskService {
      * @return list of enclosureTasks
      */
     List<EnclosureTask> getAllTasksOfEnclosure(Long enclosureId);
+
+    /**
+     * Assign a currently unassigned AnimalTask to an Employee,
+     * If its a priority tasks soonest possible time is found,
+     * otherwise it will be assigned to the least busy worker
+     * @param enclosureTaskId is the id of the enclosureTask
+     * @param employeeType type of employee this task is for
+     */
+    void automaticallyAssignEnclosureTask(Long enclosureTaskId, EmployeeType employeeType);
+
+    /**
+     * Assign a currently unassigned AnimalTask to an Employee,
+     * If its a priority tasks soonest possible time is found,
+     * otherwise it will be assigned to the least busy worker
+     * @param animalTaskId is the id of the animalTask
+     * @param employeeType type of employee this task is for
+     */
+    void automaticallyAssignAnimalTask(Long animalTaskId, EmployeeType employeeType);
 
     Task getTaskById(Long taskId);
 

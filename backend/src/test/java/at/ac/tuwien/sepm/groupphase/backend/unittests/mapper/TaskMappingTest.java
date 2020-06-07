@@ -86,6 +86,7 @@ public class TaskMappingTest implements TestData {
         .startTime(TAST_START_TIME)
         .endTime(TAST_END_TIME)
         .status(TaskStatus.ASSIGNED)
+        .priority(true)
         .build();
 
     private Animal animal = Animal.builder()
@@ -168,6 +169,7 @@ public class TaskMappingTest implements TestData {
             () -> assertEquals(taskDto.getDescription(), task_assigned.getDescription()),
             () -> assertEquals(taskDto.getStartTime(), task_assigned.getStartTime()),
             () -> assertEquals(taskDto.getEndTime(), task_assigned.getEndTime()),
+            () -> assertEquals(taskDto.isPriority(), task_assigned.isPriority()),
             () -> assertEquals(taskDto.getStatus(), task_assigned.getStatus()));
     }
 
@@ -180,6 +182,7 @@ public class TaskMappingTest implements TestData {
             () -> assertEquals(taskDto.getDescription(), task.getDescription()),
             () -> assertEquals(taskDto.getStartTime(), task.getStartTime()),
             () -> assertEquals(taskDto.getEndTime(), task.getEndTime()),
+            () -> assertEquals(taskDto.isPriority(), task.isPriority()),
             () -> assertEquals(taskDto.getStatus(), task.getStatus()));
     }
 

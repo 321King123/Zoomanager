@@ -40,6 +40,14 @@ export class TaskCreationComponent implements OnInit {
   isEnclosureTask = false;
   isAnimalTask = true;
 
+  highPriority = false;
+  normalPriority = true;
+
+  selectEmployeeTypeMode = false;
+  employeeTypeSelected = false;
+  employeeTypeForAutoAssignment;
+  autoAssignSubmission = false;
+
   @Output() reloadTasks = new EventEmitter();
   submittedTask = false;
 
@@ -58,7 +66,8 @@ export class TaskCreationComponent implements OnInit {
       endTime: ['', Validators.required],
       assignedEmployeeUsername: [],
       subjectId: ['', Validators.required],
-      priority: [false]
+      priority: [false],
+      duration: ['']
     });
   }
 
@@ -82,7 +91,7 @@ export class TaskCreationComponent implements OnInit {
         DEBUG_LOG('Getting Doctors: ' + JSON.stringify(doctors));
       },
       error => {
-                this.alertService.alertFromError(error,
+        this.alertService.alertFromError(error,
           {componentId: this.componentId},
           'task-creation getDoctors');
       }
@@ -96,7 +105,7 @@ export class TaskCreationComponent implements OnInit {
         DEBUG_LOG('Getting Janitors: ' + JSON.stringify(janitors));
       },
       error => {
-                this.alertService.alertFromError(error,
+        this.alertService.alertFromError(error,
           {componentId: this.componentId},
           'task-creation getJanitors');
       }
@@ -112,7 +121,7 @@ export class TaskCreationComponent implements OnInit {
         DEBUG_LOG('Getting Employees of animal: ' + this.taskCreationForm.controls.subjectId.value);
       },
       error => {
-                this.alertService.alertFromError(error,
+        this.alertService.alertFromError(error,
           {componentId: this.componentId},
           'task-creation getEmployeesOfAnimal');
       }
@@ -127,14 +136,21 @@ export class TaskCreationComponent implements OnInit {
         this.employeesFound = true;
       },
       error => {
-                this.alertService.alertFromError(error,
+        this.alertService.alertFromError(error,
           {componentId: this.componentId},
           'task-creation getEmployeesOfEnclosure');
       }
     );
   }
 
+  taskWithAutoAssignSubmitted() {
+    DEBUG_LOG('helloAuto0');
+    this.autoAssignSubmission = true;
+    this.taskSubmitted();
+  }
+
   taskSubmitted() {
+    DEBUG_LOG('hello0');
     this.submittedTask = true;
     if (this.taskCreationForm.valid) {
       if (this.isAnimalTask) {
@@ -148,21 +164,23 @@ export class TaskCreationComponent implements OnInit {
   }
 
   priorityTaskSubmitted() {
+    DEBUG_LOG('hello0priority');
     this.taskCreationForm.controls['priority'].setValue(true);
-    if (this.taskCreationForm.valid) {
-      if (this.isAnimalTask) {
-        this.getAnimalTaskFromForm();
-        this.createAnimalTask();
-      } else if (this.isEnclosureTask) {
-        this.getEnclosureTaskFromForm();
-        this.createEnclosureTask();
-      }
-    }
+    this.taskWithAutoAssignSubmitted();
   }
 
   getAnimalTaskFromForm() {
-    const startTimeParsed = this.parseDate(this.taskCreationForm.controls.startTime.value);
-    const endTimeParsed = this.parseDate(this.taskCreationForm.controls.endTime.value);
+    DEBUG_LOG('hello1');
+    let startTimeParsed;
+    let endTimeParsed;
+    if (this.highPriority) {
+      startTimeParsed = this.parseDateForHighPriority(true);
+      endTimeParsed = this.parseDateForHighPriority(false);
+    } else {
+      startTimeParsed = this.parseDate(this.taskCreationForm.controls.startTime.value);
+      endTimeParsed = this.parseDate(this.taskCreationForm.controls.endTime.value);
+    }
+
     this.task = new AnimalTask(
       null,
       this.taskCreationForm.controls.title.value,
@@ -175,6 +193,9 @@ export class TaskCreationComponent implements OnInit {
       null,
       this.taskCreationForm.controls.priority.value
     );
+    if (this.autoAssignSubmission) {
+      this.task.assignedEmployeeUsername = null;
+    }
     if (this.task.assignedEmployeeUsername != null) {
       this.task.status = 'ASSIGNED';
     } else {
@@ -183,8 +204,17 @@ export class TaskCreationComponent implements OnInit {
   }
 
   getEnclosureTaskFromForm() {
-    const startTimeParsed = this.parseDate(this.taskCreationForm.controls.startTime.value);
-    const endTimeParsed = this.parseDate(this.taskCreationForm.controls.endTime.value);
+    DEBUG_LOG('hello1enclosure');
+    let startTimeParsed;
+    let endTimeParsed;
+    if (this.highPriority) {
+      startTimeParsed = this.parseDateForHighPriority(true);
+      endTimeParsed = this.parseDateForHighPriority(false);
+    } else {
+      startTimeParsed = this.parseDate(this.taskCreationForm.controls.startTime.value);
+      endTimeParsed = this.parseDate(this.taskCreationForm.controls.endTime.value);
+    }
+
     this.enclosureTask = new EnclosureTask(
       null,
       this.taskCreationForm.controls.title.value,
@@ -220,6 +250,29 @@ export class TaskCreationComponent implements OnInit {
     return date + ' ' + time;
   }
 
+  parseDateForHighPriority(mode: boolean) {
+    const ten = function (x) {
+      return x < 10 ? '0' + x : x;
+    };
+    const date = new Date(Date.now());
+    date.setFullYear(date.getFullYear() + 1);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const monthZero = (month < 10) ? '0' : '';
+    const dayZero = (day < 10) ? '0' : '';
+
+    const dateParsed = year + '-' + monthZero + month + '-' + dayZero + day;
+    if (mode === true) {
+      return dateParsed + ' 00:00:00';
+    } else {
+      const duration = this.taskCreationForm.controls.duration.value;
+      const time = ten(duration.hour) + ':' + ten(duration.minute) + ':' + ten(duration.second);
+      return dateParsed + ' ' + time;
+    }
+
+  }
+
   clearForm() {
     this.taskCreationForm.reset();
     this.submittedTask = false;
@@ -231,15 +284,18 @@ export class TaskCreationComponent implements OnInit {
 
   createEnclosureTask() {
     this.taskService.createNewTaskEnclosure(this.enclosureTask).subscribe(
-      (res: any) => {
+      (enclosureTask: EnclosureTask) => {
         this.clearForm();
         this.reloadTasks.emit();
         this.alertService.success('Task was successfully created!',
           {componentId: this.componentId, title: 'Success!'},
           'task-creation createEnclosureTask');
+        if (this.autoAssignSubmission) {
+          this.assignAfterCreation(enclosureTask.id, 'ENCLOSURE_TASK', this.employeeTypeForAutoAssignment);
+        }
       },
       error => {
-                this.alertService.alertFromError(error,
+        this.alertService.alertFromError(error,
           {componentId: this.componentId},
           'task-creation createEnclosureTask');
 
@@ -247,17 +303,21 @@ export class TaskCreationComponent implements OnInit {
     );
   }
 
+
   createAnimalTask() {
     this.taskService.createNewTask(this.task).subscribe(
-      (res: any) => {
+      (animalTask: AnimalTask) => {
         this.clearForm();
         this.reloadTasks.emit();
         this.alertService.success('Task was successfully created!',
           {componentId: this.componentId, title: 'Success!'},
           'task-creation createEnclosureTask');
+        if (this.autoAssignSubmission) {
+          this.assignAfterCreation(animalTask.id, 'ANIMAL_TASK', this.employeeTypeForAutoAssignment);
+        }
       },
       error => {
-                this.alertService.alertFromError(error,
+        this.alertService.alertFromError(error,
           {componentId: this.componentId},
           'task-creation createAnimalTask');
       }
@@ -284,6 +344,37 @@ export class TaskCreationComponent implements OnInit {
     }
   }
 
+  setToPriorityTask() {
+    if (this.highPriority) {
+
+    } else {
+      this.highPriority = true;
+      this.normalPriority = false;
+      this.taskCreationForm.get('startTime').clearValidators();
+      this.taskCreationForm.get('endTime').clearValidators();
+      this.taskCreationForm.controls.duration.setValidators([Validators.required]);
+      this.taskCreationForm.controls.endTime.updateValueAndValidity();
+      this.taskCreationForm.controls.startTime.updateValueAndValidity();
+      this.taskCreationForm.controls.durion.updateValueAndValidity();
+
+    }
+  }
+
+  setToNonPriorityTask() {
+    if (this.normalPriority) {
+
+    } else {
+      this.highPriority = false;
+      this.normalPriority = true;
+      this.taskCreationForm.controls.startTime.setValidators([Validators.required]);
+      this.taskCreationForm.controls.endTime.setValidators([Validators.required]);
+      this.taskCreationForm.get('duration').clearValidators();
+      this.taskCreationForm.controls.endTime.updateValueAndValidity();
+      this.taskCreationForm.controls.startTime.updateValueAndValidity();
+      this.taskCreationForm.controls.duration.updateValueAndValidity();
+    }
+  }
+
   clearSubject() {
     this.taskCreationForm.controls.subjectId.reset('', Validators.required);
     if (this.employeesOfTaskSubject !== undefined) {
@@ -291,8 +382,96 @@ export class TaskCreationComponent implements OnInit {
     }
   }
 
+  clearStartEndTimes() {
+    this.taskCreationForm.controls.startTime.reset('', Validators.required);
+    this.taskCreationForm.controls.endTime.reset('', Validators.required);
+  }
+
   clearAlerts() {
     this.alertService.clear(this.componentId);
   }
 
+  switchSelectEmployeeTypeMode() {
+    this.selectEmployeeTypeMode = !this.selectEmployeeTypeMode;
+    this.employeeTypeSelected = false;
+    this.employeeTypeForAutoAssignment = null;
+  }
+
+  autoAssignAnimalTaskToDoctor(taskId) {
+    this.taskService.autoAssignAnimalTaskToDoctor(taskId).subscribe(
+      (res: any) => {
+        this.alertService.success('Task successfully assigned!'
+          , {componentId: this.componentId}, 'TaskCreation: autoAssignAnimalTaskToDoctor()');
+      },
+      error => {
+        this.alertService.alertFromError(error, {componentId: this.componentId}, 'TaskCreation: autoAssignAnimalTaskToDoctor()');
+      }
+    );
+  }
+
+  autoAssignAnimalTaskToCaretaker(taskId) {
+    this.taskService.autoAssignAnimalTaskToCaretaker(taskId).subscribe(
+      (res: any) => {
+        this.alertService.success('Task successfully assigned!'
+          , {componentId: this.componentId}, 'TaskCreation: autoAssignAnimalTaskToCaretaker()');
+      }, error => {
+        this.alertService.alertFromError(error, {componentId: this.componentId}, 'TaskCreation: autoAssignAnimalTaskToCaretaker()');
+      }
+    );
+  }
+
+  autoAssignEnclosureTaskToCaretaker(taskId) {
+    this.taskService.autoAssignEnclosureTaskToCaretaker(taskId).subscribe(
+      (res: any) => {
+        this.alertService.success('Task successfully assigned!'
+          , {componentId: this.componentId}, 'TaskCreation: autoAssignEnclosureTaskTaskToCaretaker()');
+
+      }, error => {
+        this.alertService.alertFromError(error, {componentId: this.componentId}, 'TaskCreation: autoAssignEnclosureTaskTaskToCaretaker()');
+      }
+    );
+  }
+
+  autoAssignEnclosureTaskToJanitor(taskId) {
+    this.taskService.autoAssignEnclosureTaskToJanitor(taskId).subscribe(
+      (res: any) => {
+        this.alertService.success('Task successfully assigned!'
+          , {componentId: this.componentId}, 'TaskCreation: autoAssignEnclosureTaskTaskToJanitor()');
+      }, error => {
+        this.alertService.alertFromError(error, {componentId: this.componentId}, 'TaskCreation: autoAssignEnclosureTaskTaskToJanitor()');
+      }
+    );
+  }
+
+  assignAfterCreation(taskId, taskType, employeeType) {
+    if (taskType === 'ANIMAL_TASK') {
+      if (employeeType === 'DOCTOR') {
+        this.autoAssignAnimalTaskToDoctor(taskId);
+      } else if (employeeType === 'CARETAKER') {
+        this.autoAssignAnimalTaskToCaretaker(taskId);
+      }
+    } else if (taskType === 'ENCLOSURE_TASK') {
+      if (employeeType === 'JANITOR') {
+        this.autoAssignEnclosureTaskToJanitor(taskId);
+      } else if (employeeType === 'CARETAKER') {
+        this.autoAssignEnclosureTaskToCaretaker(taskId);
+      }
+    }
+    this.switchSelectEmployeeTypeMode();
+  }
+
+  selectDoctor() {
+    this.employeeTypeForAutoAssignment = 'DOCTOR';
+    this.employeeTypeSelected = true;
+  }
+
+  selectCaretaker() {
+    this.employeeTypeForAutoAssignment = 'CARETAKER';
+    this.employeeTypeSelected = true;
+  }
+
+  selectJanitor() {
+    this.employeeTypeForAutoAssignment = 'JANITOR';
+    this.employeeTypeSelected = true;
+  }
 }

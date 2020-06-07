@@ -9,6 +9,7 @@ import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
+import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -100,40 +102,26 @@ public class TaskEndpoint {
     }
 
     /**
-     * Creates a specified number of tasks with a certain duration between them
-     * @param repeatableTaskDto contains the information of the task including the username of the employee it is assigned to and
-     *                          how many tasks should be created in what time intervals
-     * @param animalId identifies the animal the task is assigned to
-     * @return the AnimalTaskDto Object that occurs first, containing info about animal, task and employee
+     * Method to assign an animal Task to a doctor automatically
+     * If its a priority tasks soonest possible time is found otherwise it will be assigned to the least busy worker that has time
+     * Requirements for assignment: Person that assigns is either an administrator or is assigned to the animal
+     * @param id contains the information of the task including the username of the employee it is assigned to and Animal
      */
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(value = "/animal/repeatable/{animalId}")
-    @ApiOperation(value = "Create new repeatable Animal Task", authorizations = {@Authorization(value = "apiKey")})
-    public AnimalTaskDto createRepeatableAnimalTask(@Valid @RequestBody RepeatableTaskDto repeatableTaskDto, @PathVariable Long animalId, Authentication authentication) {
-        LOGGER.info("POST /api/v1/tasks/animal/repeatable/{} body: {}", animalId, repeatableTaskDto);
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(value = "auto/animal/doctor/{id}")
+    @ApiOperation(value = "Automatically assign Animal Task to Doctor", authorizations = {@Authorization(value = "apiKey")})
+    public void autoAssignAnimalTaskDoctor(@PathVariable Long id, Authentication authentication) {
+        LOGGER.info("POST /api/v1/tasks/auto/animal/doctor/{}", id);
 
-        Task task = taskMapper.repeatableTaskDtoToTask(repeatableTaskDto);
-
-        //get Objects for Method call
-        task.setAssignedEmployee(employeeService.findByUsername(repeatableTaskDto.getAssignedEmployeeUsername()));
-        Animal animal = animalService.findAnimalById(animalId);
-
-        //Only Admin and Employees that are assigned to the animal can create it
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
         if(isAdmin){
-            List<AnimalTask> animalTasks = taskService.createRepeatableAnimalTask(task, animal,
-                repeatableTaskDto.getAmount(), repeatableTaskDto.getSeparation(), repeatableTaskDto.getSeparationAmount());
-
-            return animalTaskMapper.animalTaskToAnimalTaskDto(animalTasks.get(animalTasks.size() - 1));
+            taskService.automaticallyAssignAnimalTask(id, EmployeeType.DOCTOR);
         }else{
             String username = (String)authentication.getPrincipal();
 
-            if(employeeService.isAssignedToAnimal(username, animalId)) {
-                List<AnimalTask> animalTasks = taskService.createRepeatableAnimalTask(task, animal,
-                    repeatableTaskDto.getAmount(), repeatableTaskDto.getSeparation(), repeatableTaskDto.getSeparationAmount());
-
-                return animalTaskMapper.animalTaskToAnimalTaskDto(animalTasks.get(animalTasks.size() - 1));
+            if(employeeService.hasTaskAssignmentPermissions(username,id)) {
+                taskService.automaticallyAssignAnimalTask(id, EmployeeType.DOCTOR);
             }else {
                 throw new NotAuthorisedException("You cant assign Tasks to Animals that are not assigned to you");
             }
@@ -142,44 +130,89 @@ public class TaskEndpoint {
     }
 
     /**
-     * Creates a specified number of tasks with a certain duration between them
-     * @param repeatableTaskDto contains the information of the task including the username of the employee it is assigned to and
-     *                          how many tasks should be created in what time intervals
-     * @param enclosureId identifies the animal the task is assigned to
-     * @return the AnimalTaskDto Object that occurs first, containing info about animal, task and employee
+     * Method to assign an animal Task to a caretaker automatically
+     * If its a priority tasks soonest possible time is found otherwise it will be assigned to the least busy worker that has time
+     * Requirements for assignment: Person that assigns is either an administrator or is assigned to the animal
+     * @param id of animal task to be automaticly assigned
      */
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(value = "/enclosure/repeatable/{enclosureId}")
-    @ApiOperation(value = "Create new repeatable Enclosure Task", authorizations = {@Authorization(value = "apiKey")})
-    public EnclosureTaskDto createRepeatableEnclosureTask(@Valid @RequestBody RepeatableTaskDto repeatableTaskDto, @PathVariable Long enclosureId, Authentication authentication) {
-        LOGGER.info("POST /api/v1/tasks/enclosure/repeatable/{} body: {}", enclosureId, repeatableTaskDto);
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(value = "auto/animal/caretaker/{id}")
+    @ApiOperation(value = "Automatically assign Animal Task to Animal Caretaker", authorizations = {@Authorization(value = "apiKey")})
+    public void autoAssignAnimalTaskCaretaker(@PathVariable Long id, Authentication authentication) {
+        LOGGER.info("POST /api/v1/tasks/auto/animal/caretaker/{}",id);
 
-        Task task = taskMapper.repeatableTaskDtoToTask(repeatableTaskDto);
+        //Only Admin and Employees that are assigned to the animal can create it
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if(isAdmin){
+            taskService.automaticallyAssignAnimalTask(id, EmployeeType.ANIMAL_CARE);
+        }else{
+            String username = (String)authentication.getPrincipal();
 
-        //get Objects for Method call
-        task.setAssignedEmployee(employeeService.findByUsername(repeatableTaskDto.getAssignedEmployeeUsername()));
-        Enclosure enclosure = enclosureService.findById(enclosureId);
+            if(employeeService.hasTaskAssignmentPermissions(username,id)) {
+                taskService.automaticallyAssignAnimalTask(id, EmployeeType.ANIMAL_CARE);
+            }else {
+                throw new NotAuthorisedException("You cant assign Tasks to Animals that are not assigned to you");
+            }
+
+        }
+    }
+
+    /**
+     * Method to assign a enclosure Task to a caretaker automatically
+     * If its a priority tasks soonest possible time is found otherwise it will be assigned to the least busy worker that has time
+     * Requirements for assignment: Person that assigns is either an administrator or is assigned to the enclosure
+     * @param id contains the information of the task including the username of the employee it is assigned to and Animal
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(value = "auto/enclosure/caretaker/{id}")
+    @ApiOperation(value = "Automatically assign Enclosure Task to Animal Caretaker", authorizations = {@Authorization(value = "apiKey")})
+    public void autoAssignEnclosureTaskCaretaker(@PathVariable Long id, Authentication authentication) {
+        LOGGER.info("POST /api/v1/tasks/auto/enclosure/{}", id);
 
         //Only Admin and Employees that are assigned to the enclosure can create it
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
         if(isAdmin){
-            List<EnclosureTask> enclosureTasks = taskService.createRepeatableEnclosureTask(task, enclosure,
-                repeatableTaskDto.getAmount(), repeatableTaskDto.getSeparation(), repeatableTaskDto.getSeparationAmount());
-
-            return enclosureTaskMapper.enclosureTaskToEclosureTaskDto(enclosureTasks.get(enclosureTasks.size() - 1));
+            taskService.automaticallyAssignEnclosureTask(id, EmployeeType.ANIMAL_CARE);
         }else{
             String username = (String)authentication.getPrincipal();
 
-            if(employeeService.isAssignedToEnclosure(username, enclosureId)) {
-                List<EnclosureTask> enclosureTasks = taskService.createRepeatableEnclosureTask(task, enclosure,
-                    repeatableTaskDto.getAmount(), repeatableTaskDto.getSeparation(), repeatableTaskDto.getSeparationAmount());
-
-                return enclosureTaskMapper.enclosureTaskToEclosureTaskDto(enclosureTasks.get(enclosureTasks.size() - 1));
+            if(employeeService.hasTaskAssignmentPermissions(username,id)) {
+                taskService.automaticallyAssignEnclosureTask(id, EmployeeType.ANIMAL_CARE);
             }else {
-                //if no animal with transmitted Id is assigned to User
                 throw new NotAuthorisedException("You cant assign Tasks to Enclosures that are not assigned to you");
             }
+
+        }
+    }
+
+    /**
+     * Method to assign a enclosure Task to a janitor automatically
+     * If its a priority tasks soonest possible time is found otherwise it will be assigned to the least busy worker that has time
+     * Requirements for assignment: Person that assigns is either an administrator or is assigned to the enclosure
+     * @param id contains the information of the task including the username of the employee it is assigned to and Animal
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(value = "auto/enclosure/janitor/{id}")
+    @ApiOperation(value = "Automatically assign Enclosure Task to Janitor", authorizations = {@Authorization(value = "apiKey")})
+    public void autoAssignEnclosureTaskJanitor(@PathVariable Long id, Authentication authentication) {
+        LOGGER.info("POST /api/v1/tasks/auto/enclosure/janitor/{}", id);
+
+        //Only Admin and Employees that are assigned to the enclosure can create it
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if(isAdmin){
+            taskService.automaticallyAssignEnclosureTask(id, EmployeeType.JANITOR);
+        }else{
+            String username = (String)authentication.getPrincipal();
+
+            if(employeeService.hasTaskAssignmentPermissions(username,id)) {
+                taskService.automaticallyAssignEnclosureTask(id, EmployeeType.JANITOR);
+            }else {
+                throw new NotAuthorisedException("You cant assign Tasks to Enclosures that are not assigned to you");
+            }
+
         }
     }
 

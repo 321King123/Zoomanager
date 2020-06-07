@@ -70,6 +70,26 @@ export class TaskService {
     return this.httpClient.get<Task[]>(this.taskBaseUri + '/employee/' + username);
   }
 
+  autoAssignAnimalTaskToDoctor(taskId) {
+    DEBUG_LOG('Auto-assign animal task to a doctor ' + taskId);
+    return this.httpClient.post(this.taskBaseUri + '/auto/animal/doctor/' + taskId, {});
+  }
+
+  autoAssignAnimalTaskToCaretaker(taskId) {
+    DEBUG_LOG('Auto-assign animal task to a caretaker ' + taskId);
+    return this.httpClient.post(this.taskBaseUri + '/auto/animal/caretaker/' + taskId, {});
+  }
+
+  autoAssignEnclosureTaskToCaretaker(taskId) {
+    DEBUG_LOG('Auto-assign enclosure task to a caretaker ' + taskId);
+    return this.httpClient.post(this.taskBaseUri + '/auto/enclosure/caretaker/' + taskId, {});
+  }
+
+  autoAssignEnclosureTaskToJanitor(taskId) {
+    DEBUG_LOG('Auto-assign enclosure task to a janitor ' + taskId);
+    return this.httpClient.post(this.taskBaseUri + '/auto/enclosure/janitor/' + taskId, {});
+  }
+  
   updateFullTaskInformation(task: Task): Observable<any> {
     DEBUG_LOG('Update full task information ' + JSON.stringify(task));
     return this.httpClient.put(this.taskBaseUri + '/update', task);

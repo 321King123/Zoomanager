@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.validation.ValidationException;
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
+
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
@@ -77,6 +78,50 @@ public class CustomTaskService implements TaskService {
         animalTask.setTask(createdTask);
         animalTask.setSubject(animal);
         return animalTask;
+    }
+
+
+    public void automaticallyAssignAnimalTask(Long animalTaskId, EmployeeType employeeType) {
+        LOGGER.debug("Automatically assigning animal task with id {} to employee of type {}", animalTaskId, employeeType);
+        Optional<AnimalTask> animalTaskOptional = animalTaskRepository.findById(animalTaskId);
+        if(animalTaskOptional.isEmpty())
+            throw new NotFoundException("Could not find enclosure task");
+        AnimalTask animalTask = animalTaskOptional.get();
+        if(animalTask.getTask().getStatus() != TaskStatus.NOT_ASSIGNED)
+            throw new IncorrectTypeException("Only Tasks without an assigned employee can be automatically assigned");
+        Employee assignedEmployee = employeeService.findEmployeeForAnimalTask(animalTask, employeeType);
+
+        if(animalTask.getTask().isPriority()){
+            LocalDateTime foundStartTime = employeeService.earliestStartingTimeForTaskAndEmployee(animalTask.getTask(), assignedEmployee);
+            LocalDateTime foundEndTime = addDurationOfOneTaskToStartTime(foundStartTime, animalTask.getTask());
+            animalTask.getTask().setStartTime(foundStartTime);
+            animalTask.getTask().setEndTime(foundEndTime);
+        }
+        animalTask.getTask().setAssignedEmployee(assignedEmployee);
+        animalTask.getTask().setStatus(TaskStatus.ASSIGNED);
+        taskRepository.save(animalTask.getTask());
+
+    }
+
+    public void automaticallyAssignEnclosureTask(Long enclosureTaskId, EmployeeType employeeType) {
+        LOGGER.debug("Automatically assigning enclosure task with id {} to employee of type {}", enclosureTaskId, employeeType);
+        EnclosureTask enclosureTask = enclosureTaskRepository.findEnclosureTaskById(enclosureTaskId);
+        if(enclosureTask == null)
+            throw new NotFoundException("Could not find enclosure task");
+        if(enclosureTask.getTask().getStatus() != TaskStatus.NOT_ASSIGNED)
+            throw new IncorrectTypeException("Only Tasks without an assigned employee can be automatically assigned");
+        Employee assignedEmployee = employeeService.findEmployeeForEnclosureTask(enclosureTask, employeeType);
+
+        if(enclosureTask.getTask().isPriority()){
+            LocalDateTime foundStartTime = employeeService.earliestStartingTimeForTaskAndEmployee(enclosureTask.getTask(), assignedEmployee);
+            LocalDateTime foundEndTime = addDurationOfOneTaskToStartTime(foundStartTime, enclosureTask.getTask());
+            enclosureTask.getTask().setStartTime(foundStartTime);
+            enclosureTask.getTask().setEndTime(foundEndTime);
+        }
+        enclosureTask.getTask().setAssignedEmployee(assignedEmployee);
+        enclosureTask.getTask().setStatus(TaskStatus.ASSIGNED);
+        taskRepository.save(enclosureTask.getTask());
+
     }
 
     @Override
@@ -308,6 +353,12 @@ public class CustomTaskService implements TaskService {
             throw new NotFoundException("Could not find Employee with given Username");
     }
 
+    private LocalDateTime addDurationOfOneTaskToStartTime(LocalDateTime startTime, Task task){
+        return startTime.plusHours(task.getEndTime().getHour() - task.getStartTime().getHour())
+            .plusMinutes(task.getEndTime().getMinute() - task.getStartTime().getMinute())
+            .plusSeconds(task.getEndTime().getSecond() - task.getStartTime().getSecond());
+    }
+    
     @Override
     public List<AnimalTask> createRepeatableAnimalTask(Task task, Animal animal, int amount, ChronoUnit separation, int separationCount) {
         if(task.isPriority()) {
