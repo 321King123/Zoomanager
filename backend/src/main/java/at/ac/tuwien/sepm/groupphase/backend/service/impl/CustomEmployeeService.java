@@ -420,7 +420,7 @@ public class CustomEmployeeService implements EmployeeService {
         //ordered by startingTime
         Task[] currentTasksOfEmployee = taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee).toArray(Task[]::new);
         //task that starts 5 min from now (since you have to get there first)
-        LocalDateTime soonestStartTime = LocalDateTime.now().plusMinutes(5);
+        LocalDateTime soonestStartTime = LocalDateTime.now().plusMinutes(5).withSecond(0).withNano(0);
         Task instantTask = Task.builder().startTime(soonestStartTime)
             .endTime(addDurationOfOneTaskToStartTime(soonestStartTime, task)).build();
 
