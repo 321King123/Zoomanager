@@ -79,6 +79,7 @@ export class TaskCreationComponent implements OnInit {
       separation: ['1'],
       separationAmount: ['1']
     });
+    this.clearForm();
   }
 
   getAllAnimals() {
