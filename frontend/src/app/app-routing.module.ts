@@ -11,6 +11,7 @@ import {EnclosureComponent} from './components/enclosure/enclosure.component';
 import {EnclosureViewComponent} from './components/enclosure-view/enclosure-view.component';
 import {AnimalViewComponent} from './components/animal-view/animal-view.component';
 import {EnclosureEditViewComponent} from './components/enclosure-edit-view/enclosure-edit-view.component';
+import {AnimalUpdateViewComponent} from './components/animal-update-view/animal-update-view.component';
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -23,7 +24,8 @@ const routes: Routes = [
   {path: 'enclosure', canActivate: [AuthGuard], component: EnclosureComponent},
   {path: 'enclosure-view/:enclosureId', canActivate: [AuthGuard], component: EnclosureViewComponent},
   {path: 'enclosure-edit-view/:enclosureId', canActivate: [AuthGuard], component: EnclosureEditViewComponent},
-  {path: 'animal-view/:animalId', canActivate: [AuthGuard], component: AnimalViewComponent}
+  {path: 'animal-view/:animalId', canActivate: [AuthGuard], component: AnimalViewComponent},
+  {path: 'animal-update-view/:animalId', canActivate: [AuthGuard], component: AnimalUpdateViewComponent},
 ];
 
 @NgModule({

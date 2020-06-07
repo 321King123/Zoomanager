@@ -26,6 +26,7 @@ import { AssignTaskComponent } from './components/assign-task/assign-task.compon
 import { TaskListCommonComponent } from './components/task-list-common/task-list-common.component';
 import { AlertComponent } from './components/alert/alert.component';
 import { EnclosureEditViewComponent } from './components/enclosure-edit-view/enclosure-edit-view.component';
+import { AnimalUpdateViewComponent } from './components/animal-update-view/animal-update-view.component';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { EnclosureEditViewComponent } from './components/enclosure-edit-view/enc
     TaskListCommonComponent,
     AlertComponent,
     EnclosureEditViewComponent,
+    AnimalUpdateViewComponent,
   ],
   imports: [
     BrowserModule,
