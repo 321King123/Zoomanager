@@ -2,15 +2,14 @@ package at.ac.tuwien.sepm.groupphase.backend.integrationtest.endpoint;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalTaskDto;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EmployeeDto;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.TaskDto;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.*;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EnclosureTaskMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.security.JwtTokenizer;
+import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -1214,6 +1213,219 @@ public class TaskEndpointTest implements TestData {
             () -> assertEquals(messageResponse.getStatus(), TaskStatus.ASSIGNED),
             () -> assertEquals(animal.getName(), messageResponse.getAnimalName()),
             () -> assertEquals(false, messageResponse.isPriority())
+        );
+    }
+
+    @Test
+    public void validRepeatableAnimalTask_createdByAdmin_returnsFirstAnimalTaskDto() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
+        animalRepository.save(animal);
+        List<Animal> animals = new LinkedList<>();
+        animals.add(animal);
+        userLoginRepository.save(animal_caretaker_login);
+        anmial_caretaker.setAssignedAnimals(animals);
+        employeeRepository.save(anmial_caretaker);
+        repeatableTaskDto.setAssignedEmployeeUsername(USERNAME_ANIMAL_CARE_EMPLOYEE);
+        String body = objectMapper.writeValueAsString(repeatableTaskDto);
+        Animal savedAnimal = animalRepository.findAll().get(0);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(TASK_BASE_URI + "/animal/repeatable/" + savedAnimal.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        AnimalTaskDto messageResponse = objectMapper.readValue(response.getContentAsString(),
+            AnimalTaskDto.class);
+
+        assertAll(
+            () -> assertEquals(HttpStatus.CREATED.value(), response.getStatus()),
+            () -> assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType()),
+            () -> assertEquals(repeatableTaskDto.getTitle(), messageResponse.getTitle()),
+            () -> assertEquals(repeatableTaskDto.getDescription(), messageResponse.getDescription()),
+            () -> assertEquals(repeatableTaskDto.getAssignedEmployeeUsername(), messageResponse.getAssignedEmployeeUsername()),
+            () -> assertEquals(repeatableTaskDto.getStartTime(), messageResponse.getStartTime()),
+            () -> assertEquals(repeatableTaskDto.getEndTime(), messageResponse.getEndTime()),
+            () -> assertEquals(messageResponse.getStatus(), TaskStatus.ASSIGNED),
+            () -> assertEquals(animal.getName(), messageResponse.getAnimalName())
+        );
+    }
+
+    @Test
+    public void validRepeatableEnclosureTask_createdByAdmin_returnsFirstEnclosureTaskDto() throws Exception {
+        enclosureRepository.save(barn);
+        Enclosure enclosure = enclosureRepository.findAll().get(0);
+        animal.setEnclosure(enclosure);
+
+        animalRepository.save(animal);
+        List<Animal> animals = new LinkedList<>();
+        animals.add(animal);
+        userLoginRepository.save(animal_caretaker_login);
+        anmial_caretaker.setAssignedAnimals(animals);
+        employeeRepository.save(anmial_caretaker);
+        repeatableTaskDto.setAssignedEmployeeUsername(USERNAME_ANIMAL_CARE_EMPLOYEE);
+        String body = objectMapper.writeValueAsString(repeatableTaskDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(TASK_BASE_URI + "/enclosure/repeatable/" + enclosure.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        EnclosureTaskDto messageResponse = objectMapper.readValue(response.getContentAsString(),
+            EnclosureTaskDto.class);
+
+        assertAll(
+            () -> assertEquals(HttpStatus.CREATED.value(), response.getStatus()),
+            () -> assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType()),
+            () -> assertEquals(repeatableTaskDto.getTitle(), messageResponse.getTitle()),
+            () -> assertEquals(repeatableTaskDto.getDescription(), messageResponse.getDescription()),
+            () -> assertEquals(repeatableTaskDto.getAssignedEmployeeUsername(), messageResponse.getAssignedEmployeeUsername()),
+            () -> assertEquals(repeatableTaskDto.getStartTime(), messageResponse.getStartTime()),
+            () -> assertEquals(repeatableTaskDto.getEndTime(), messageResponse.getEndTime()),
+            () -> assertEquals(messageResponse.getStatus(), TaskStatus.ASSIGNED),
+            () -> assertEquals(enclosure.getName(), messageResponse.getEnclosureName())
+        );
+    }
+
+    @Test
+    public void repeatDeleteTask_thenStatusOk() throws Exception {
+        Animal savedAnimal = animalRepository.save(animal);
+        Task savedTask = taskRepository.save(task);
+        animalTaskRepository.save(AnimalTask.builder().id(savedTask.getId()).subject(savedAnimal).build());
+        Task savedTask2 = taskRepository.save(Task.builder().title(task.getTitle())
+            .description(task.getDescription())
+            .startTime(task.getStartTime().plus(2, ChronoUnit.DAYS))
+            .endTime(task.getEndTime().plus(2, ChronoUnit.DAYS))
+            .status(task.getStatus())
+            .build());
+        animalTaskRepository.save(AnimalTask.builder().id(savedTask2.getId()).subject(savedAnimal).build());
+
+        repeatableTaskRepository.save(RepeatableTask.builder().id(savedTask.getId()).followTask(savedTask2).build());
+        repeatableTaskRepository.save(RepeatableTask.builder().id(savedTask2.getId()).followTask(null).build());
+
+        MvcResult mvcResult = this.mockMvc.perform(delete(TASK_BASE_URI + "/repeatable/" + savedTask.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+    }
+
+    @Test
+    public void repeatUpdateAnimalTask_thenStatusCreated() throws Exception {
+        String description = "New description";
+        String title = "New title";
+
+        Animal subject = animalRepository.save(animal);
+        Animal subject2 = animalRepository.save(animal);
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        animalRepository.assignAnimalToCaretaker(anmial_caretaker.getUsername(),subject.getId());
+        Task task1 = taskRepository.save(task);
+        Task task2 = taskRepository.save(task);
+
+        AnimalTask animalTask = animalTaskRepository.save(AnimalTask.builder().id(task1.getId()).subject(subject).build());
+        AnimalTask animalTask2 = animalTaskRepository.save(AnimalTask.builder().id(task2.getId()).subject(subject).build());
+
+        RepeatableTask repeatableTask = repeatableTaskRepository.save(RepeatableTask.builder().id(task1.getId()).followTask(task2).build());
+        RepeatableTask repeatableTask2 = repeatableTaskRepository.save(RepeatableTask.builder().id(task2.getId()).followTask(null).build());
+
+        CombinedTaskDto combinedTaskDto = CombinedTaskDto.builder()
+            .id(task1.getId()).title(title).description(description)
+            .animalTask(true).subjectId(subject2.getId())
+            .build();
+
+        String body = objectMapper.writeValueAsString(combinedTaskDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(TASK_BASE_URI + "/update/repeat")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+        AnimalTask updatedTask = taskService.getAnimalTaskById(task1.getId());
+        assertAll(
+            () -> {assertEquals(updatedTask.getTask().getTitle(),title);},
+            () -> {assertEquals(updatedTask.getTask().getDescription(),description);},
+            () -> {assertEquals(updatedTask.getSubject().getId(),subject2.getId());}
+        );
+    }
+
+    @Test
+    public void repeatUpdateAnimalTask_whenInvalid_thenStatusUnprocessableEntity() throws Exception {
+        String description = "New description";
+        String title = null;
+
+        CombinedTaskDto combinedTaskDto = CombinedTaskDto.builder()
+            .id(1L).title(title).description(description)
+            .animalTask(true).subjectId(2L)
+            .build();
+
+        String body = objectMapper.writeValueAsString(combinedTaskDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(TASK_BASE_URI + "/update/repeat")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    }
+
+    @Test
+    public void repeatUpdateEnclosureTask_thenStatusCreated() throws Exception {
+        String description = "New description";
+        String title = "new title";
+
+        Enclosure subject = enclosureRepository.save(barn);
+        Enclosure subject2 = enclosureRepository.save(Enclosure.builder().name("barn2").build());
+
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        Task task1 = taskRepository.save(task);
+        Task task2 = taskRepository.save(task);
+
+        EnclosureTask enclosureTask = enclosureTaskRepository.save(EnclosureTask.builder().id(task1.getId()).subject(subject).build());
+        EnclosureTask enclosureTask1 = enclosureTaskRepository.save(EnclosureTask.builder().id(task2.getId()).subject(subject).build());
+
+        RepeatableTask repeatableTask = repeatableTaskRepository.save(RepeatableTask.builder().id(task1.getId()).followTask(task2).build());
+        RepeatableTask repeatableTask2 = repeatableTaskRepository.save(RepeatableTask.builder().id(task2.getId()).followTask(null).build());
+
+        CombinedTaskDto combinedTaskDto = CombinedTaskDto.builder()
+            .id(task1.getId()).title(title).description(description)
+            .animalTask(false).subjectId(subject2.getId())
+            .build();
+
+        String body = objectMapper.writeValueAsString(combinedTaskDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(TASK_BASE_URI + "/update/repeat")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+        EnclosureTask updatedTask = taskService.getEnclosureTaskById(task1.getId());
+        assertAll(
+            () -> {assertEquals(updatedTask.getTask().getTitle(),title);},
+            () -> {assertEquals(updatedTask.getTask().getDescription(),description);},
+            () -> {assertEquals(updatedTask.getSubject().getId(),subject2.getId());}
         );
     }
 }

@@ -2,10 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.*;
-import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalTaskRepository;
-import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureTaskRepository;
-import at.ac.tuwien.sepm.groupphase.backend.repository.RepeatableTaskRepository;
-import at.ac.tuwien.sepm.groupphase.backend.repository.TaskRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
@@ -36,6 +33,7 @@ public class CustomTaskService implements TaskService {
 
     private final EnclosureTaskRepository enclosureTaskRepository;
 
+    private final RepeatableTaskRepository repeatableTaskRepository;
 
     @Autowired
     public CustomTaskService(TaskRepository taskRepository, AnimalTaskRepository animalTaskRepository,
@@ -406,6 +404,58 @@ public class CustomTaskService implements TaskService {
             Task nextTask = task.get().getFollowTask();
             if(nextTask != null) {
                 repeatDeleteTask(nextTask.getId());
+            }
+        }
+    }
+
+    @Override
+    public void repeatUpdateAnimalTaskInformation(AnimalTask animalTask) {
+        AnimalTask savedAnimalTask = getAnimalTaskById(animalTask.getId());
+        Task savedTask = savedAnimalTask.getTask();
+
+        Task task = animalTask.getTask();
+
+        savedTask.setPriority(task.isPriority());
+        savedTask.setTitle(task.getTitle());
+        savedTask.setDescription(task.getDescription());
+
+        savedAnimalTask.setSubject(animalTask.getSubject());
+
+        taskRepository.save(savedTask);
+        animalTaskRepository.save(savedAnimalTask);
+
+        Optional<RepeatableTask> repeatableTask = repeatableTaskRepository.findById(animalTask.getId());
+
+        if(repeatableTask.isPresent()) {
+            if(repeatableTask.get().getFollowTask() != null) {
+                animalTask.setId(repeatableTask.get().getFollowTask().getId());
+                repeatUpdateAnimalTaskInformation(animalTask);
+            }
+        }
+    }
+
+    @Override
+    public void repeatUpdateEnclosureTaskInformation(EnclosureTask enclosureTask) {
+        EnclosureTask savedEnclosureTask = getEnclosureTaskById(enclosureTask.getId());
+        Task savedTask = savedEnclosureTask.getTask();
+
+        Task task = enclosureTask.getTask();
+
+        savedTask.setPriority(task.isPriority());
+        savedTask.setTitle(task.getTitle());
+        savedTask.setDescription(task.getDescription());
+
+        savedEnclosureTask.setSubject(enclosureTask.getSubject());
+
+        taskRepository.save(savedTask);
+        enclosureTaskRepository.save(savedEnclosureTask);
+
+        Optional<RepeatableTask> repeatableTask = repeatableTaskRepository.findById(enclosureTask.getId());
+
+        if(repeatableTask.isPresent()) {
+            if(repeatableTask.get().getFollowTask() != null) {
+                enclosureTask.setId(repeatableTask.get().getFollowTask().getId());
+                repeatUpdateEnclosureTaskInformation(enclosureTask);
             }
         }
     }

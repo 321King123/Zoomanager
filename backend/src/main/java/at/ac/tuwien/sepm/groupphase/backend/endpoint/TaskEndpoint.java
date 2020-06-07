@@ -20,6 +20,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -432,5 +433,32 @@ public class TaskEndpoint {
 
 
 
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PutMapping(value = "/update/repeat", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void repeatUpdateTask(@Validated(CombinedTaskDto.ValidRepeatUpdate.class) @RequestBody CombinedTaskDto combinedTaskDto, Authentication authentication){
+        LOGGER.info("PUT /api/v1/tasks/update/repeat body: {}",combinedTaskDto);
+        //authorisation check
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String username = (String) authentication.getPrincipal();
+        if(!isAdmin){
+            if(!employeeService.hasTaskAssignmentPermissions(username,combinedTaskDto.getId())){
+                throw new NotAuthorisedException("You are not authorized to update this task.");
+            }
+        }
+        boolean animalTask = false;
+        // checking if the task is an animal or an enclosure task
+        // postman testing with isAnimalTask=true doesnt work, the api does not recognize the "true" value
+        taskService.getTaskById(combinedTaskDto.getId()); //checking if the task exists
+        try{
+            taskService.getAnimalTaskById(combinedTaskDto.getId());
+            animalTask=true;
+        }catch (NotFoundException ignored){}
+
+        if(animalTask)  taskService.repeatUpdateAnimalTaskInformation(combinedTaskMapper.combinedTaskDtoToAnimalTask(combinedTaskDto));
+        else taskService.repeatUpdateEnclosureTaskInformation(combinedTaskMapper.combinedTaskDtoToEnclosureTask(combinedTaskDto));
     }
 }
