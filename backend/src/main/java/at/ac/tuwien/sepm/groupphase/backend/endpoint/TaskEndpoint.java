@@ -4,6 +4,7 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.*;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.*;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
@@ -15,10 +16,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -317,6 +320,30 @@ public class TaskEndpoint {
         }
     }
 
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping(value = "/repeatable/{taskId}")
+    @ApiOperation(value = "delete Task and future instances", authorizations = {@Authorization(value = "apiKey")})
+    public void repeatDeleteTask(@PathVariable Long taskId, Authentication authentication) {
+        LOGGER.info("DELETE /api/v1/tasks/repeatable/{}", taskId);
+
+        //Only Admin and Employees that are assigned to the subject can delete it
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if(isAdmin){
+            taskService.repeatDeleteTask(taskId);
+        } else {
+            String username = (String)authentication.getPrincipal();
+
+            if(employeeService.hasTaskAssignmentPermissions(username, taskId)) {
+                taskService.repeatDeleteTask(taskId);
+            } else {
+                throw new NotAuthorisedException("You cant delete Tasks of Animals or Enclosures that are not assigned to you");
+            }
+        }
+    }
+
+
+
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/employee/animal-task/{employeeUsername}")
@@ -409,5 +436,62 @@ public class TaskEndpoint {
             }
         }
         taskService.markTaskAsDone(taskId);
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PutMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void updateTask(@Valid @RequestBody CombinedTaskDto combinedTaskDto, Authentication authentication){
+        LOGGER.info("PUT /api/v1/tasks/update body: {}",combinedTaskDto);
+        //authorisation check
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String username = (String) authentication.getPrincipal();
+        if(!isAdmin){
+            if(!employeeService.hasTaskAssignmentPermissions(username,combinedTaskDto.getId())){
+                throw new NotAuthorisedException("You are not authorized to update this task.");
+            }
+        }
+        boolean animalTask = false;
+        // checking if the task is an animal or an enclosure task
+        // postman testing with isAnimalTask=true doesnt work, the api does not recognize the "true" value
+        taskService.getTaskById(combinedTaskDto.getId()); //checking if the task exists
+        try{
+            taskService.getAnimalTaskById(combinedTaskDto.getId());
+            animalTask=true;
+        }catch (NotFoundException e){}
+
+        if(animalTask)  taskService.updateFullAnimalTaskInformation(combinedTaskMapper.combinedTaskDtoToAnimalTask(combinedTaskDto));
+        else taskService.updateFullEnclosureTaskInformation(combinedTaskMapper.combinedTaskDtoToEnclosureTask(combinedTaskDto));
+
+
+
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PutMapping(value = "/update/repeat", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void repeatUpdateTask(@Validated(CombinedTaskDto.ValidRepeatUpdate.class) @RequestBody CombinedTaskDto combinedTaskDto, Authentication authentication){
+        LOGGER.info("PUT /api/v1/tasks/update/repeat body: {}",combinedTaskDto);
+        //authorisation check
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String username = (String) authentication.getPrincipal();
+        if(!isAdmin){
+            if(!employeeService.hasTaskAssignmentPermissions(username,combinedTaskDto.getId())){
+                throw new NotAuthorisedException("You are not authorized to update this task.");
+            }
+        }
+        boolean animalTask = false;
+        // checking if the task is an animal or an enclosure task
+        // postman testing with isAnimalTask=true doesnt work, the api does not recognize the "true" value
+        taskService.getTaskById(combinedTaskDto.getId()); //checking if the task exists
+        try{
+            taskService.getAnimalTaskById(combinedTaskDto.getId());
+            animalTask=true;
+        }catch (NotFoundException ignored){}
+
+        if(animalTask)  taskService.repeatUpdateAnimalTaskInformation(combinedTaskMapper.combinedTaskDtoToAnimalTask(combinedTaskDto));
+        else taskService.repeatUpdateEnclosureTaskInformation(combinedTaskMapper.combinedTaskDtoToEnclosureTask(combinedTaskDto));
     }
 }

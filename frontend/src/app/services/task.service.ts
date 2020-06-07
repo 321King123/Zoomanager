@@ -89,4 +89,9 @@ export class TaskService {
     DEBUG_LOG('Auto-assign enclosure task to a janitor ' + taskId);
     return this.httpClient.post(this.taskBaseUri + '/auto/enclosure/janitor/' + taskId, {});
   }
+  
+  updateFullTaskInformation(task: Task): Observable<any> {
+    DEBUG_LOG('Update full task information ' + JSON.stringify(task));
+    return this.httpClient.put(this.taskBaseUri + '/update', task);
+  }
 }

@@ -2,9 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.*;
-import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalTaskRepository;
-import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureTaskRepository;
-import at.ac.tuwien.sepm.groupphase.backend.repository.TaskRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
@@ -13,10 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.ValidationException;
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
+
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -33,13 +34,17 @@ public class CustomTaskService implements TaskService {
 
     private final EnclosureTaskRepository enclosureTaskRepository;
 
+    private final RepeatableTaskRepository repeatableTaskRepository;
+
     @Autowired
     public CustomTaskService(TaskRepository taskRepository, AnimalTaskRepository animalTaskRepository,
-                             EmployeeService employeeService, EnclosureTaskRepository enclosureTaskRepository) {
+                             EmployeeService employeeService, EnclosureTaskRepository enclosureTaskRepository,
+                             RepeatableTaskRepository repeatableTaskRepository) {
         this.taskRepository = taskRepository;
         this.animalTaskRepository = animalTaskRepository;
         this.employeeService = employeeService;
         this.enclosureTaskRepository = enclosureTaskRepository;
+        this.repeatableTaskRepository = repeatableTaskRepository;
     }
 
     @Override
@@ -128,7 +133,7 @@ public class CustomTaskService implements TaskService {
 
     @Override
     public EnclosureTask createEnclosureTask(Task task, Enclosure enclosure) {
-        LOGGER.debug("Creating new Animal Task");
+        LOGGER.debug("Creating new Enclosure Task");
         Employee employee = task.getAssignedEmployee();
 
         if(enclosure == null)
@@ -196,10 +201,13 @@ public class CustomTaskService implements TaskService {
         }
         Optional<AnimalTask> animalTask = animalTaskRepository.findById(taskId);
         Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findById(taskId);
+        Optional<RepeatableTask> repeatableTask = repeatableTaskRepository.findById(taskId);
 
         if(!animalTask.isEmpty() && !enclosureTask.isEmpty()) {
             throw new InvalidDatabaseStateException("Task is both Animal and Enclosure Task, this should not happen.");
-        } else if (!animalTask.isEmpty()){
+        }
+        repeatableTask.ifPresent(this::deleteRepeatableTask);
+        if (!animalTask.isEmpty()){
             AnimalTask foundAnimalTask = animalTask.get();
             Task foundTask = task.get();
             animalTaskRepository.delete(foundAnimalTask);
@@ -236,10 +244,12 @@ public class CustomTaskService implements TaskService {
     public boolean isTaskPerformer(String employeeUsername, Long taskId) {
         LOGGER.debug("Check if employee with username {} is performing task with id {}", employeeUsername, taskId);
         Task task = getTaskById(taskId);
+        if(task.getAssignedEmployee()==null) return false;
         return task.getAssignedEmployee().getUsername().equals(employeeUsername);
     }
 
-    private Task getTaskById(Long taskId){
+    @Override
+    public Task getTaskById(Long taskId){
         LOGGER.debug("Find task with id {}", taskId);
         Optional<Task> task = taskRepository.findById(taskId);
         Task foundTask;
@@ -251,12 +261,24 @@ public class CustomTaskService implements TaskService {
         return foundTask;
     }
 
-    private AnimalTask getAnimalTaskById(Long animalTaskId){
+    public AnimalTask getAnimalTaskById(Long animalTaskId){
         LOGGER.debug("Find animal task with id {}", animalTaskId);
         Optional<AnimalTask> animalTask = animalTaskRepository.findById(animalTaskId);
         AnimalTask foundTask;
         if(animalTask.isPresent()){
             foundTask = animalTask.get();
+        }else{
+            throw new NotFoundException("Could not find Task with given Id");
+        }
+        return foundTask;
+    }
+
+    public EnclosureTask getEnclosureTaskById(Long animalTaskId){
+        LOGGER.debug("Find enclosure task with id {}", animalTaskId);
+        Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findById(animalTaskId);
+        EnclosureTask foundTask;
+        if(enclosureTask.isPresent()){
+            foundTask = enclosureTask.get();
         }else{
             throw new NotFoundException("Could not find Task with given Id");
         }
@@ -277,6 +299,54 @@ public class CustomTaskService implements TaskService {
         return enclosureTaskRepository.findAllEnclosureTasksBySubject_Id(enclosureId);
     }
 
+    @Override
+    public void updateFullAnimalTaskInformation(AnimalTask animalTask) {
+        LOGGER.debug("Update full information of an animal task");
+        //checking if such animal-task exists
+        if(animalTask==null) throw new NotFoundException("Non existing animal task.");
+        AnimalTask exists = getAnimalTaskById(animalTask.getId());
+        //checking if employee can be assigned to task
+        if(animalTask.getTask().getAssignedEmployee()!=null){
+           if(!employeeService.canBeAssignedToTask(animalTask.getTask().getAssignedEmployee(),animalTask.getTask())) {
+               throw new NotFreeException("This employee cannot be assigned to this task");
+           }
+        }
+        //changing the task status to the right one
+        if(animalTask.getTask().getAssignedEmployee()==null){
+            animalTask.getTask().setStatus(TaskStatus.NOT_ASSIGNED);
+        }
+        if(animalTask.getTask().getAssignedEmployee()!=null && animalTask.getTask().getStatus()==TaskStatus.NOT_ASSIGNED){
+            animalTask.getTask().setStatus(TaskStatus.ASSIGNED);
+        }
+        Task savedTask = taskRepository.saveAndFlush(animalTask.getTask());
+        animalTask.setTask(savedTask);
+        animalTaskRepository.saveAndFlush(animalTask);
+    }
+
+    @Override
+    public void updateFullEnclosureTaskInformation(EnclosureTask enclosureTask) {
+        LOGGER.debug("Update full information of an enclosure task");
+        //checking if such enclosure task exists
+        if(enclosureTask==null) throw new NotFoundException("Non existing enclosure task.");
+        EnclosureTask existsEnclosureTask = getEnclosureTaskById(enclosureTask.getId());
+        //checking if employee can be assigned to task
+        if(enclosureTask.getTask().getAssignedEmployee()!=null){
+            if(!employeeService.canBeAssignedToTask(enclosureTask.getTask().getAssignedEmployee(),enclosureTask.getTask())) {
+                throw new NotFreeException("This employee cannot be assigned to this task");
+            }
+        }
+        //changing the task status to the right one
+        if(enclosureTask.getTask().getAssignedEmployee()==null){
+            enclosureTask.getTask().setStatus(TaskStatus.NOT_ASSIGNED);
+        }
+        if(enclosureTask.getTask().getAssignedEmployee()!=null && enclosureTask.getTask().getStatus()==TaskStatus.NOT_ASSIGNED){
+            enclosureTask.getTask().setStatus(TaskStatus.ASSIGNED);
+        }
+        Task savedTask = taskRepository.saveAndFlush(enclosureTask.getTask());
+        enclosureTask.setTask(savedTask);
+        enclosureTaskRepository.saveAndFlush(enclosureTask);
+    }
+
     private void validateEmployeeExists(String employeeUsername) {
         Employee employee = employeeService.findByUsername(employeeUsername);
         if(employee == null)
@@ -287,5 +357,157 @@ public class CustomTaskService implements TaskService {
         return startTime.plusHours(task.getEndTime().getHour() - task.getStartTime().getHour())
             .plusMinutes(task.getEndTime().getMinute() - task.getStartTime().getMinute())
             .plusSeconds(task.getEndTime().getSecond() - task.getStartTime().getSecond());
+    }
+    
+    @Override
+    public List<AnimalTask> createRepeatableAnimalTask(Task task, Animal animal, int amount, ChronoUnit separation, int separationCount) {
+        if(task.isPriority()) {
+            throw new IncorrectTypeException("Priority tasks can't be repeatable.");
+        }
+
+        validateStartAndEndTime(task);
+
+        LocalDateTime newStartTime = task.getStartTime().plus(separationCount, separation);
+        LocalDateTime newEndTime = task.getEndTime().plus(separationCount, separation);
+
+        Task newTask = Task.builder().title(task.getTitle())
+            .description(task.getDescription())
+            .startTime(newStartTime)
+            .endTime(newEndTime)
+            .assignedEmployee(task.getAssignedEmployee())
+            .status(task.getStatus())
+            .priority(task.isPriority())
+            .build();
+
+        List<AnimalTask> animalTasks = new LinkedList<>();
+
+        Task nextTask = null;
+
+        if(amount > 1) {
+            animalTasks = createRepeatableAnimalTask(newTask, animal, amount - 1, separation, separationCount);
+            nextTask = animalTasks.get(animalTasks.size()-1).getTask();
+        }
+
+        AnimalTask thisTask = createAnimalTask(task, animal);
+
+        repeatableTaskRepository.save(RepeatableTask.builder().id(thisTask.getId()).followTask(nextTask).build());
+
+        animalTasks.add(thisTask);
+
+        return animalTasks;
+    }
+
+    @Override
+    public List<EnclosureTask> createRepeatableEnclosureTask(Task task, Enclosure enclosure, int amount, ChronoUnit separation, int separationCount) {
+        if(task.isPriority()) {
+            throw new IncorrectTypeException("Priority tasks can't be repeatable.");
+        }
+
+        validateStartAndEndTime(task);
+
+        LocalDateTime newStartTime = task.getStartTime().plus(separationCount, separation);
+        LocalDateTime newEndTime = task.getEndTime().plus(separationCount, separation);
+
+        Task newTask = Task.builder().title(task.getTitle())
+            .description(task.getDescription())
+            .startTime(newStartTime)
+            .endTime(newEndTime)
+            .assignedEmployee(task.getAssignedEmployee())
+            .status(task.getStatus())
+            .priority(task.isPriority())
+            .build();
+
+        List<EnclosureTask> enclosureTasks = new LinkedList<>();
+
+        Task nextTask = null;
+
+        if(amount > 1) {
+            enclosureTasks = createRepeatableEnclosureTask(newTask, enclosure, amount - 1, separation, separationCount);
+            nextTask = enclosureTasks.get(enclosureTasks.size()-1).getTask();
+        }
+
+        EnclosureTask thisTask = createEnclosureTask(task, enclosure);
+
+        repeatableTaskRepository.save(RepeatableTask.builder().id(thisTask.getId()).followTask(nextTask).build());
+
+        enclosureTasks.add(thisTask);
+
+        return enclosureTasks;
+    }
+
+    private void deleteRepeatableTask(RepeatableTask repeatableTask) {
+        Optional<RepeatableTask> previousTask = repeatableTaskRepository.findByFollowTask(repeatableTask.getTask());
+        if(previousTask.isPresent()) {
+            RepeatableTask previousTask1 = previousTask.get();
+            previousTask1.setFollowTask(repeatableTask.getFollowTask());
+            repeatableTaskRepository.save(previousTask1);
+        }
+        repeatableTaskRepository.delete(repeatableTask);
+    }
+
+    @Override
+    public void repeatDeleteTask(Long taskId) {
+        Optional<RepeatableTask> task = repeatableTaskRepository.findById(taskId);
+        if(task.isEmpty()) {
+            deleteTask(taskId);
+        } else {
+            deleteTask(taskId);
+            Task nextTask = task.get().getFollowTask();
+            if(nextTask != null) {
+                repeatDeleteTask(nextTask.getId());
+            }
+        }
+    }
+
+    @Override
+    public void repeatUpdateAnimalTaskInformation(AnimalTask animalTask) {
+        AnimalTask savedAnimalTask = getAnimalTaskById(animalTask.getId());
+        Task savedTask = savedAnimalTask.getTask();
+
+        Task task = animalTask.getTask();
+
+        savedTask.setPriority(task.isPriority());
+        savedTask.setTitle(task.getTitle());
+        savedTask.setDescription(task.getDescription());
+
+        savedAnimalTask.setSubject(animalTask.getSubject());
+
+        taskRepository.save(savedTask);
+        animalTaskRepository.save(savedAnimalTask);
+
+        Optional<RepeatableTask> repeatableTask = repeatableTaskRepository.findById(animalTask.getId());
+
+        if(repeatableTask.isPresent()) {
+            if(repeatableTask.get().getFollowTask() != null) {
+                animalTask.setId(repeatableTask.get().getFollowTask().getId());
+                repeatUpdateAnimalTaskInformation(animalTask);
+            }
+        }
+    }
+
+    @Override
+    public void repeatUpdateEnclosureTaskInformation(EnclosureTask enclosureTask) {
+        EnclosureTask savedEnclosureTask = getEnclosureTaskById(enclosureTask.getId());
+        Task savedTask = savedEnclosureTask.getTask();
+
+        Task task = enclosureTask.getTask();
+
+        savedTask.setPriority(task.isPriority());
+        savedTask.setTitle(task.getTitle());
+        savedTask.setDescription(task.getDescription());
+
+        savedEnclosureTask.setSubject(enclosureTask.getSubject());
+
+        taskRepository.save(savedTask);
+        enclosureTaskRepository.save(savedEnclosureTask);
+
+        Optional<RepeatableTask> repeatableTask = repeatableTaskRepository.findById(enclosureTask.getId());
+
+        if(repeatableTask.isPresent()) {
+            if(repeatableTask.get().getFollowTask() != null) {
+                enclosureTask.setId(repeatableTask.get().getFollowTask().getId());
+                repeatUpdateEnclosureTaskInformation(enclosureTask);
+            }
+        }
     }
 }

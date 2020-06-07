@@ -12,18 +12,15 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
-public class EnclosureTask {
+public class RepeatableTask {
 
     @Id
     private Long id;
 
-    @OneToOne
+    @OneToOne(optional = false)
     @PrimaryKeyJoinColumn
     private Task task;
 
-
-    @NonNull
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Enclosure subject;
+    @OneToOne
+    private Task followTask;
 }
