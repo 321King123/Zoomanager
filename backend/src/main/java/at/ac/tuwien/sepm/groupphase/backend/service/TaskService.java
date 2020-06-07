@@ -160,4 +160,20 @@ public interface TaskService {
      * @param enclosureTask with id of the first task to be changed, and the new desired properties
      */
     void repeatUpdateEnclosureTaskInformation(EnclosureTask enclosureTask);
+
+    /**
+     * Assign a currently unassigned AnimalTask and all following Tasks to an Employee,
+     * It will be assigned to the least busy worker
+     * @param animalTaskId is the id of the animalTask
+     * @param employeeType type of employee this task is for
+     */
+    void automaticallyAssignAnimalTaskRepeat(Long animalTaskId, EmployeeType employeeType);
+
+    /**
+     * Assign a currently unassigned AnimalTask and all following Tasks to an Employee,
+     * It will be assigned to the least busy worker
+     * @param enclosureTaskId is the id of the animalTask
+     * @param employeeType type of employee this task is for
+     */
+    void automaticallyAssignEnclosureTaskRepeat(Long enclosureTaskId, EmployeeType employeeType);
 }

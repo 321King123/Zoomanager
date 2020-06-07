@@ -358,7 +358,7 @@ public class CustomTaskService implements TaskService {
             .plusMinutes(task.getEndTime().getMinute() - task.getStartTime().getMinute())
             .plusSeconds(task.getEndTime().getSecond() - task.getStartTime().getSecond());
     }
-    
+
     @Override
     public List<AnimalTask> createRepeatableAnimalTask(Task task, Animal animal, int amount, ChronoUnit separation, int separationCount) {
         if(task.isPriority()) {
@@ -508,6 +508,24 @@ public class CustomTaskService implements TaskService {
                 enclosureTask.setId(repeatableTask.get().getFollowTask().getId());
                 repeatUpdateEnclosureTaskInformation(enclosureTask);
             }
+        }
+    }
+
+    @Override
+    public void automaticallyAssignAnimalTaskRepeat(Long animalTaskId, EmployeeType employeeType) {
+        Optional<RepeatableTask> repeatableTask = repeatableTaskRepository.findById(animalTaskId);
+        automaticallyAssignAnimalTask(animalTaskId, employeeType);
+        if(repeatableTask.isPresent() && repeatableTask.get().getFollowTask() != null) {
+            automaticallyAssignAnimalTaskRepeat(repeatableTask.get().getFollowTask().getId(), employeeType);
+        }
+    }
+
+    @Override
+    public void automaticallyAssignEnclosureTaskRepeat(Long enclosureTaskId, EmployeeType employeeType) {
+        Optional<RepeatableTask> repeatableTask = repeatableTaskRepository.findById(enclosureTaskId);
+        automaticallyAssignEnclosureTask(enclosureTaskId, employeeType);
+        if(repeatableTask.isPresent() && repeatableTask.get().getFollowTask() != null) {
+            automaticallyAssignEnclosureTaskRepeat(repeatableTask.get().getFollowTask().getId(), employeeType);
         }
     }
 }

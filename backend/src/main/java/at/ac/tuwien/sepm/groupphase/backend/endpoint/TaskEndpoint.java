@@ -130,6 +130,34 @@ public class TaskEndpoint {
     }
 
     /**
+     * Method to assign an animal Task and all following tasks to a doctor automatically
+     * It will be assigned to the least busy worker that has time
+     * Requirements for assignment: Person that assigns is either an administrator or is assigned to the animal
+     * @param id contains the information of the task including the username of the employee it is assigned to and Animal
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(value = "auto/animal/doctor/repeat/{id}")
+    @ApiOperation(value = "Automatically assign Animal Tasks to Doctor", authorizations = {@Authorization(value = "apiKey")})
+    public void autoAssignAnimalTaskDoctorRepeat(@PathVariable Long id, Authentication authentication) {
+        LOGGER.info("POST /api/v1/tasks/auto/animal/doctor/repeat/{}", id);
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if(isAdmin){
+            taskService.automaticallyAssignAnimalTaskRepeat(id, EmployeeType.DOCTOR);
+        }else{
+            String username = (String)authentication.getPrincipal();
+
+            if(employeeService.hasTaskAssignmentPermissions(username,id)) {
+                taskService.automaticallyAssignAnimalTaskRepeat(id, EmployeeType.DOCTOR);
+            }else {
+                throw new NotAuthorisedException("You cant assign Tasks to Animals that are not assigned to you");
+            }
+
+        }
+    }
+
+    /**
      * Method to assign an animal Task to a caretaker automatically
      * If its a priority tasks soonest possible time is found otherwise it will be assigned to the least busy worker that has time
      * Requirements for assignment: Person that assigns is either an administrator or is assigned to the animal
@@ -151,6 +179,35 @@ public class TaskEndpoint {
 
             if(employeeService.hasTaskAssignmentPermissions(username,id)) {
                 taskService.automaticallyAssignAnimalTask(id, EmployeeType.ANIMAL_CARE);
+            }else {
+                throw new NotAuthorisedException("You cant assign Tasks to Animals that are not assigned to you");
+            }
+
+        }
+    }
+
+    /**
+     * Method to assign an animal Task and all following tasks to a caretaker automatically
+     * It will be assigned to the least busy worker that has time
+     * Requirements for assignment: Person that assigns is either an administrator or is assigned to the animal
+     * @param id of animal task to be automaticly assigned
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(value = "auto/animal/caretaker/repeat/{id}")
+    @ApiOperation(value = "Automatically assign Animal Tasks to Animal Caretaker", authorizations = {@Authorization(value = "apiKey")})
+    public void autoAssignAnimalTaskCaretakerRepeat(@PathVariable Long id, Authentication authentication) {
+        LOGGER.info("POST /api/v1/tasks/auto/animal/caretaker/repeat/{}",id);
+
+        //Only Admin and Employees that are assigned to the animal can create it
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if(isAdmin){
+            taskService.automaticallyAssignAnimalTaskRepeat(id, EmployeeType.ANIMAL_CARE);
+        }else{
+            String username = (String)authentication.getPrincipal();
+
+            if(employeeService.hasTaskAssignmentPermissions(username,id)) {
+                taskService.automaticallyAssignAnimalTaskRepeat(id, EmployeeType.ANIMAL_CARE);
             }else {
                 throw new NotAuthorisedException("You cant assign Tasks to Animals that are not assigned to you");
             }
@@ -188,6 +245,36 @@ public class TaskEndpoint {
     }
 
     /**
+     * Method to assign an enclosure Task and all following tasks to a caretaker automatically
+     * It will be assigned to the least busy worker that has time
+     * Requirements for assignment: Person that assigns is either an administrator or is assigned to the enclosure
+     * @param id contains the information of the task including the username of the employee it is assigned to and Animal
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(value = "auto/enclosure/caretaker/repeat/{id}")
+    @ApiOperation(value = "Automatically assign Enclosure Tasks to Animal Caretaker", authorizations = {@Authorization(value = "apiKey")})
+    public void autoAssignEnclosureTaskCaretakerRepeat(@PathVariable Long id, Authentication authentication) {
+        LOGGER.info("POST /api/v1/tasks/auto/enclosure/repeat/{}", id);
+
+        //Only Admin and Employees that are assigned to the enclosure can create it
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if(isAdmin){
+            taskService.automaticallyAssignEnclosureTaskRepeat(id, EmployeeType.ANIMAL_CARE);
+        }else{
+            String username = (String)authentication.getPrincipal();
+
+            if(employeeService.hasTaskAssignmentPermissions(username,id)) {
+                taskService.automaticallyAssignEnclosureTaskRepeat(id, EmployeeType.ANIMAL_CARE);
+            }else {
+                throw new NotAuthorisedException("You cant assign Tasks to Enclosures that are not assigned to you");
+            }
+
+        }
+    }
+
+
+    /**
      * Method to assign a enclosure Task to a janitor automatically
      * If its a priority tasks soonest possible time is found otherwise it will be assigned to the least busy worker that has time
      * Requirements for assignment: Person that assigns is either an administrator or is assigned to the enclosure
@@ -209,6 +296,35 @@ public class TaskEndpoint {
 
             if(employeeService.hasTaskAssignmentPermissions(username,id)) {
                 taskService.automaticallyAssignEnclosureTask(id, EmployeeType.JANITOR);
+            }else {
+                throw new NotAuthorisedException("You cant assign Tasks to Enclosures that are not assigned to you");
+            }
+
+        }
+    }
+
+    /**
+     * Method to assign a enclosure Task to a janitor automatically
+     * If its a priority tasks soonest possible time is found otherwise it will be assigned to the least busy worker that has time
+     * Requirements for assignment: Person that assigns is either an administrator or is assigned to the enclosure
+     * @param id contains the information of the task including the username of the employee it is assigned to and Animal
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(value = "auto/enclosure/janitor/repeat/{id}")
+    @ApiOperation(value = "Automatically assign Enclosure Task to Janitor", authorizations = {@Authorization(value = "apiKey")})
+    public void autoAssignEnclosureTaskJanitorRepeat(@PathVariable Long id, Authentication authentication) {
+        LOGGER.info("POST /api/v1/tasks/auto/enclosure/janitor/repeat/{}", id);
+
+        //Only Admin and Employees that are assigned to the enclosure can create it
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if(isAdmin){
+            taskService.automaticallyAssignEnclosureTaskRepeat(id, EmployeeType.JANITOR);
+        }else{
+            String username = (String)authentication.getPrincipal();
+
+            if(employeeService.hasTaskAssignmentPermissions(username,id)) {
+                taskService.automaticallyAssignEnclosureTaskRepeat(id, EmployeeType.JANITOR);
             }else {
                 throw new NotAuthorisedException("You cant assign Tasks to Enclosures that are not assigned to you");
             }
