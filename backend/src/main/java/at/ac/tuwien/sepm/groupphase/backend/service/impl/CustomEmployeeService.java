@@ -164,6 +164,11 @@ public class CustomEmployeeService implements EmployeeService {
         LocalTime workStart = employee.getWorkTimeStart();
         LocalTime workEnd = employee.getWorkTimeEnd();
 
+        if(!start.toLocalDate().equals(end.toLocalDate()))
+            throw new NotFreeException("Employee " + employee.getUsername() + " can't be assigned to this task, " +
+                "they only work from " + workStart + " - " + workEnd + ". <br>" +
+                "(Task is from " + start.toLocalTime() + " - " + end.toLocalTime() + ")" );
+
         if( (start.toLocalTime().equals(workEnd) && end.toLocalTime().equals(workStart))
             || start.toLocalTime().isAfter(workEnd)     // starts after work end
             || end.toLocalTime().isAfter(workEnd)       // ends after work
@@ -378,7 +383,12 @@ public class CustomEmployeeService implements EmployeeService {
         Employee soonestAvailableEmployee = null;
 
         for(Employee e: employees){
-            LocalDateTime earliestTimeForEmployee = earliestStartingTimeForTaskAndEmployee(task, e);
+            LocalDateTime earliestTimeForEmployee;
+            try {
+                earliestTimeForEmployee = earliestStartingTimeForTaskAndEmployee(task, e);
+            }catch (Exception exc){
+                continue;
+            }
             if(earliestTimeForEmployee.isBefore(soonestPossibleTime)){
                 soonestPossibleTime = earliestTimeForEmployee;
                 soonestAvailableEmployee = e;
@@ -386,7 +396,7 @@ public class CustomEmployeeService implements EmployeeService {
         }
 
         if(soonestAvailableEmployee == null){
-            throw new NotFreeException("No free employee found");
+            throw new NotFreeException("No employee fulfills assignment criteria for this task");
         }
 
         return soonestAvailableEmployee;
@@ -436,23 +446,34 @@ public class CustomEmployeeService implements EmployeeService {
                 }
 
                 if(!currentTasksOfEmployee[i].getEndTime().toLocalDate().isEqual(currentTasksOfEmployee[i+1].getStartTime().toLocalDate())) {
-                    LocalDateTime startOfDayNextDay = currentTasksOfEmployee[i].getEndTime().plusDays(1)
-                        .withHour(employee.getWorkTimeStart().getHour())
-                        .withMinute(employee.getWorkTimeStart().getMinute())
-                        .withSecond(employee.getWorkTimeStart().getSecond());
+                    LocalDateTime startOfDayNextDay = startOfNextWorkingDayFromTime(currentTasksOfEmployee[i].getEndTime(), employee);
                     if(employeeIsFreeForDurationFromStartTime(startOfDayNextDay, task, employee))
                         return startOfDayNextDay;
                 }
             }
         }
 
-        return currentTasksOfEmployee[currentTasksOfEmployee.length-1].getEndTime();
+        if(employeeIsFreeForDurationFromStartTime(currentTasksOfEmployee[currentTasksOfEmployee.length-1].getEndTime(), task, employee))
+            return currentTasksOfEmployee[currentTasksOfEmployee.length-1].getEndTime();
+
+        LocalDateTime startOfDayNextDay = startOfNextWorkingDayFromTime(currentTasksOfEmployee[currentTasksOfEmployee.length-1].getEndTime(), employee);
+        if(employeeIsFreeForDurationFromStartTime(startOfDayNextDay, task, employee))
+            return startOfDayNextDay;
+
+        throw new NotFreeException("Task is longer than employees working time");
     }
 
     private LocalDateTime addDurationOfOneTaskToStartTime(LocalDateTime startTime, Task task){
         return startTime.plusHours(task.getEndTime().getHour() - task.getStartTime().getHour())
             .plusMinutes(task.getEndTime().getMinute() - task.getStartTime().getMinute())
             .plusSeconds(task.getEndTime().getSecond() - task.getStartTime().getSecond());
+    }
+
+    private LocalDateTime startOfNextWorkingDayFromTime(LocalDateTime time, Employee employee){
+        return time.plusDays(1)
+            .withHour(employee.getWorkTimeStart().getHour())
+            .withMinute(employee.getWorkTimeStart().getMinute())
+            .withSecond(employee.getWorkTimeStart().getSecond());
     }
 
     private boolean employeeIsFreeForDurationFromStartTime(LocalDateTime taskStartTime, Task task, Employee employee){
