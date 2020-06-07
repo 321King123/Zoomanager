@@ -15,6 +15,7 @@ import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +35,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -78,6 +80,9 @@ public class TaskEndpointTest implements TestData {
 
     @Autowired
     private EnclosureRepository enclosureRepository;
+
+    @Autowired
+    private RepeatableTaskRepository repeatableTaskRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -173,6 +178,16 @@ public class TaskEndpointTest implements TestData {
         .endTime(TAST_END_TIME)
         .build();
 
+    private RepeatableTaskDto repeatableTaskDto = RepeatableTaskDto.builder()
+        .title(TASK_TITLE)
+        .description(TASK_DESCRIPTION)
+        .startTime(TAST_START_TIME)
+        .endTime(TAST_END_TIME)
+        .amount(3)
+        .separation(ChronoUnit.WEEKS)
+        .separationAmount(2)
+        .build();
+
     private Task task = Task.builder()
         .title(TASK_TITLE)
         .description(TASK_DESCRIPTION)
@@ -183,6 +198,7 @@ public class TaskEndpointTest implements TestData {
 
     @BeforeEach
     public void beforeEach() {
+        repeatableTaskRepository.deleteAll();
         animalTaskRepository.deleteAll();
         taskRepository.deleteAll();
         employeeRepository.deleteAll();
@@ -205,6 +221,17 @@ public class TaskEndpointTest implements TestData {
             .status(TaskStatus.ASSIGNED)
             .build();
 
+    }
+
+    @AfterEach
+    public void afterEach() {
+        repeatableTaskRepository.deleteAll();
+        animalTaskRepository.deleteAll();
+        taskRepository.deleteAll();
+        employeeRepository.deleteAll();
+        userLoginRepository.deleteAll();
+        animalRepository.deleteAll();
+        enclosureRepository.deleteAll();
     }
 
     @Test
