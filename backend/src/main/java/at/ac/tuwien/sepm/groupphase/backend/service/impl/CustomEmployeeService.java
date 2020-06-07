@@ -324,4 +324,42 @@ public class CustomEmployeeService implements EmployeeService {
 
         return false;
     }
+
+    @Override
+    public Employee editEmployee(Employee employeeToEdit, String oldUsername){
+
+        Employee exists = employeeRepository.findEmployeeByUsername(employeeToEdit.getUsername());
+        if(exists!=null){
+            employeeWorkingTimesValid(employeeToEdit);
+            checkIfThereAreTaskBetweenGivenWorkHours(employeeToEdit);
+            exists.setName(employeeToEdit.getName());
+            exists.setEmail(employeeToEdit.getEmail());
+            exists.setBirthday(employeeToEdit.getBirthday());
+            exists.setWorkTimeStart(employeeToEdit.getWorkTimeStart());
+            exists.setWorkTimeEnd(employeeToEdit.getWorkTimeEnd());
+            return employeeRepository.save(exists);
+        }else{
+            throw new NotFoundException(" Can not find employee");
+        }
+    }
+
+    @Override
+    public boolean checkIfThereAreTaskBetweenGivenWorkHours(Employee employee) {
+
+        LocalTime start = employee.getWorkTimeStart();
+        LocalTime end = employee.getWorkTimeEnd();
+        List<Task> tasks = taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee);
+        for(Task t:tasks){
+
+            LocalTime existingStart = t.getStartTime().toLocalTime();
+            LocalTime existingEnd = t.getEndTime().toLocalTime();
+            if(existingStart.isBefore(start))
+                throw new NotFreeException("Employee " + employee.getUsername()
+                    + " has task starting earlier than: " + start);
+            if(existingEnd.isAfter(end))
+                throw new NotFreeException("Employee " + employee.getUsername()
+                    + " has task to finish after: " + end);
+        }
+        return false;
+    }
 }

@@ -1,9 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.service;
 
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
+import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
 
@@ -133,4 +130,14 @@ public interface EmployeeService  {
      */
     List<Employee> getAllJanitors();
 
+    /**
+     * Editing Enclosure that is already in the Database
+     *
+     * @param employeeToEdit to be edited
+     * @param oldUsername username to be edited
+     * @return edited Enployee as saved in the Database
+     */
+    Employee editEmployee(Employee employeeToEdit, String oldUsername);
+
+    boolean checkIfThereAreTaskBetweenGivenWorkHours(Employee employee);
 }

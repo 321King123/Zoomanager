@@ -1,8 +1,11 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepm.groupphase.backend.entity.NewPasswordReq;
 import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
 import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.CurrentPasswordNotCorrect;
+import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.UserLoginRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.UserRepository;
@@ -73,8 +76,35 @@ public class CustomUserDetailService implements UserService {
         throw new AlreadyExistsException("User with such username already exists.");
     }
 
+
     @Override
     public void deleteUser(String userName) {
         userRepository.deleteById(userName);
+    }
+
+    @Override
+    public void updateUserName(String oldUsername, String newUsername){
+        LOGGER.debug("Updating username.");
+        UserLogin exists = userRepository.findUserByUsername(oldUsername);
+        if(exists==null){
+            throw new NotFoundException("Can not find user to update");
+        }else{
+            exists.setUsername(newUsername);
+            userRepository.save(exists);
+        }
+    }
+
+    @Override
+    public void changePassword(NewPasswordReq newPasswordReq) {
+        LOGGER.debug("Changing user password.");
+        if(passwordEncoder.matches(newPasswordReq.getCurrentPassword(), this.loadUserByUsername(newPasswordReq.getUsername()).getPassword())){
+            UserLogin user = findApplicationUserByUsername(newPasswordReq.getUsername());
+            String newPassword= passwordEncoder.encode(newPasswordReq.getNewPassword());
+            user.setPassword(newPassword);
+            userRepository.save(user);
+            LOGGER.info("User password changed.");
+        }else{
+            throw new IncorrectTypeException("Wrong Password");
+        }
     }
 }
