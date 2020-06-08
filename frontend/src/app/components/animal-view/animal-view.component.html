@@ -11,6 +11,11 @@
     </div>
   </div>
 </div>
+<div *ngIf="isAdmin()" class="row">
+  <div class="col">
+    <app-animal-update-view (reloadAnimal)="getCurrentAnimal(currentAnimal.id)" [animalCurr]="currentAnimal"></app-animal-update-view>
+  </div>
+</div>
 <hr>
 
 <div class="row">

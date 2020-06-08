@@ -100,4 +100,30 @@ public class SimpleAnimalService implements AnimalService {
         }
         return animalRepository.findAllByEnclosure(enclosure);
     }
+
+    @Override
+    public Animal editAnimal(Animal animal){
+        Animal animal1 = findAnimalById(animal.getId());
+        if(animal1 == null){
+            throw new NotFoundException("Can not find animal to edit.");
+        }
+        if(animal == null) {
+            throw new IllegalArgumentException("Animal must not be null");
+        } else if(animal.getName() == null || animal.getName().isBlank()) {
+            throw new IllegalArgumentException("Name of Animal must not be empty");
+        } else if(animal.getSpecies() == null) {
+            throw new IllegalArgumentException("Specie of Animal must not be empty");
+        } else if(animal.getDescription() == null) {
+            throw new IllegalArgumentException("Description of Animal must not be empty");
+        }
+
+        animal1.setName(animal.getName());
+        animal1.setDescription(animal.getDescription());
+        animal1.setSpecies(animal.getSpecies());
+        animal1.setPublicInformation(animal.getPublicInformation());
+
+        return animalRepository.save(animal1);
+
+    }
+
 }

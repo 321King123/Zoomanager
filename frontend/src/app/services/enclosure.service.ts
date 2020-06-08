@@ -27,7 +27,7 @@ export class EnclosureService {
     return this.httpClient.get<Enclosure[]>(this.enclosureBaseUri);
   }
 
-  getById(enclosureId: number): Observable<Enclosure> {
+  getById(enclosureId): Observable<Enclosure> {
     DEBUG_LOG('Get Enclosure by id: ' + enclosureId);
     return this.httpClient.get<Enclosure>(this.enclosureBaseUri + '/' + enclosureId);
   }

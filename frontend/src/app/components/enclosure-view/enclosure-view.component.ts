@@ -246,6 +246,9 @@ export class EnclosureViewComponent implements OnInit {
   toEditButton() {
     this.btnIsEdit = true;
     this.btnIsDelete = false;
+  }
+
+  editEnclosure() {
     this.router.navigate(['/enclosure-edit-view/' + this.enclosureToView.id ]);
   }
 }

@@ -73,4 +73,36 @@ public class AnimalServiceTest implements TestData {
         Mockito.when(animalRepository.findById(1L)).thenReturn(null);
         assertThrows(NotFoundException.class, ()->{animalService.deleteAnimal(1L);});
     }
+
+    @Test
+    public void whenEditingNotExistingAnimal_thenNotFoundException(){
+        animalRepository.deleteAll();
+         Animal animal1 = Animal.builder()
+            .id(5L)
+            .name("Milly")
+            .description("fastest horse")
+            .enclosure(null)
+            .species("brown")
+            .publicInformation(null)
+            .build();
+        Mockito.when(animalRepository.findById(5L)).thenReturn(null);
+        assertThrows(NotFoundException.class, ()->{animalService.editAnimal(animal1);});
+    }
+
+    @Test
+    public void whenEditingExistingAnimal_thenSuccess(){
+        animalRepository.deleteAll();
+        Animal animal1 = Animal.builder()
+            .id(5L)
+            .name("Milly")
+            .description("fastest horse")
+            .enclosure(null)
+            .species("brown")
+            .publicInformation(null)
+            .build();
+        Mockito.when(animalRepository.findById(5L)).thenReturn(animal1);
+        assertTrue(animalRepository.findById(5L).getName() == "Milly");
+        assertTrue(animalRepository.findById(5L).getDescription() == "fastest horse");
+        assertTrue(animalRepository.findById(5L).getSpecies() == "brown");
+    }
 }

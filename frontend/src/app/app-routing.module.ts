@@ -11,6 +11,7 @@ import {EnclosureComponent} from './components/enclosure/enclosure.component';
 import {EnclosureViewComponent} from './components/enclosure-view/enclosure-view.component';
 import {AnimalViewComponent} from './components/animal-view/animal-view.component';
 import {EnclosureEditViewComponent} from './components/enclosure-edit-view/enclosure-edit-view.component';
+import {AnimalUpdateViewComponent} from './components/animal-update-view/animal-update-view.component';
 import {EmployeeEditViewComponent} from './components/employee-edit-view/employee-edit-view.component';
 import {EmployeePasswordChangeComponent} from './components/employee-password-change/employee-password-change.component';
 
