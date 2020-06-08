@@ -37,4 +37,9 @@ export class AnimalService {
     DEBUG_LOG('Get animal by id: ' + id);
     return this.httpClient.get<Animal>(this.animalBaseUri + '/' + id);
   }
+
+  updateAnimal(animal: Animal) {
+    DEBUG_LOG('Update animal: ' + JSON.stringify(animal));
+    return this.httpClient.put(this.animalBaseUri + '/edit', animal);
+  }
 }
