@@ -34,7 +34,7 @@
   </div>
 </div>
 
-<app-delete-warning *ngIf="isAdmin()"
+<app-delete-warning *ngIf="isAdmin() && employee!=null"
                     (deleteSubject)="deleteEmployee()"
                     (editSubject)="editEmployee()"
                     [deletionSubjectType]="'Employee'"

@@ -16,7 +16,7 @@
       <div class="modal-body">
         <app-alert [alertComponentId]="componentId"></app-alert>
         <form class="form">
-          <div class="row">
+          <div class="row" *ngIf="animal!=null">
             <div class="form-group col-6">
               <label for="inputName">Name</label>
               <input [(ngModel)]="animal.name" type="text" name="name" class="form-control" id="inputName"
