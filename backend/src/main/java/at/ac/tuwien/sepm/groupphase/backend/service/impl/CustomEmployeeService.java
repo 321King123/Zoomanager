@@ -335,6 +335,9 @@ public class CustomEmployeeService implements EmployeeService {
         if(employeeType != EmployeeType.ANIMAL_CARE)
             possibleEmployees.addAll(getAllDocotrs());
 
+        if(possibleEmployees.isEmpty())
+            throw new NotFoundException("There are no employees able to do this task");
+
         if(animalTask.getTask().isPriority()){
             return filterEarliestAvailableEmployee(animalTask.getTask(), possibleEmployees);
         }else{
@@ -353,6 +356,9 @@ public class CustomEmployeeService implements EmployeeService {
             possibleEmployees.addAll(getAllAssignedToEnclosure(enclosureTask.getSubject()));
         if(employeeType != EmployeeType.ANIMAL_CARE)
             possibleEmployees.addAll(getAllJanitors());
+
+        if(possibleEmployees.isEmpty())
+            throw new NotFoundException("There are no employees able to do this task");
 
         if(enclosureTask.getTask().isPriority()){
             return filterEarliestAvailableEmployee(enclosureTask.getTask(), possibleEmployees);

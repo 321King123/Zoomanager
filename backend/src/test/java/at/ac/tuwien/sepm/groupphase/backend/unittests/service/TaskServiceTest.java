@@ -1,10 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.unittests.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.AnimalTask;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
+import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
@@ -13,6 +10,7 @@ import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureTaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.TaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
+import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +28,7 @@ import static org.mockito.AdditionalAnswers.returnsFirstArg;
 
 import javax.validation.ValidationException;
 
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -88,6 +87,7 @@ public class TaskServiceTest implements TestData {
         .startTime(TAST_START_TIME)
         .endTime(TAST_END_TIME)
         .status(TaskStatus.NOT_ASSIGNED)
+        .priority(false)
         .build();
 
     private Task task_endTimeBeforeStartTime = Task.builder()
@@ -129,6 +129,19 @@ public class TaskServiceTest implements TestData {
         .assignedEmployee(janitor)
         .build();
 
+    private Enclosure enclosureDetailed = Enclosure.builder()
+        .name(NAME_LION_ENCLOSURE)
+        .description(DESCRIPTION_LION_ENCLOSURE)
+        .publicInfo(PUBLIC_INFO_LION_ENCLOSURE)
+        .picture(PICTURE_LION_ENCLOSURE)
+        .build();
+
+    private EnclosureTask enclosureTask = EnclosureTask.builder()
+        .task(task_not_assigned)
+        .subject(enclosureDetailed)
+        .id(1L)
+        .build();
+
     @BeforeEach
     public void beforeEach() {
         Mockito.when(taskRepository.save(Mockito.any(Task.class))).then(returnsFirstArg());
@@ -158,7 +171,7 @@ public class TaskServiceTest implements TestData {
         });
     }
 
-   @Test
+    @Test
     public void testReturnedAnimal_expectStatusNotAssigned(){
         task_assigned.setStatus(TaskStatus.ASSIGNED);
          AnimalTask animalTask = taskService.createAnimalTask(task_assigned,animal);
@@ -289,6 +302,57 @@ public class TaskServiceTest implements TestData {
         Mockito.when(employeeService.findByUsername(Mockito.anyString())).thenReturn(null);
         assertDoesNotThrow(() -> taskService.markTaskAsDone(task_assigned.getId()));
     }
+
+    @Test
+    public void autoAssignNonPriorityEnclosureTaskValid(){
+        Mockito.when(enclosureTaskRepository.findEnclosureTaskById(Mockito.anyLong())).thenReturn(enclosureTask);
+        Mockito.when(employeeService.findEmployeeForEnclosureTask(Mockito.any(EnclosureTask.class), Mockito.any(EmployeeType.class))).thenReturn(anmial_caretaker);
+        assertDoesNotThrow(() -> taskService.automaticallyAssignEnclosureTask(enclosureTask.getId(), EmployeeType.ANIMAL_CARE));
+    }
+
+    @Test
+    public void autoAssignPriorityEnclosureTaskValid(){
+        enclosureTask.getTask().setPriority(true);
+        Mockito.when(enclosureTaskRepository.findEnclosureTaskById(Mockito.anyLong())).thenReturn(enclosureTask);
+        Mockito.when(employeeService.findEmployeeForEnclosureTask(Mockito.any(EnclosureTask.class), Mockito.any(EmployeeType.class))).thenReturn(anmial_caretaker);
+        Mockito.when(employeeService.earliestStartingTimeForTaskAndEmployee(Mockito.any(Task.class), Mockito.any(Employee.class))).thenReturn(LocalDateTime.now());
+        assertDoesNotThrow(() -> taskService.automaticallyAssignEnclosureTask(enclosureTask.getId(), EmployeeType.ANIMAL_CARE));
+        enclosureTask.getTask().setPriority(false);
+    }
+
+    @Test
+    public void autoAssignEnclosureTaskAlreadyAssigned(){
+        enclosureTask.getTask().setStatus(TaskStatus.ASSIGNED);
+        Mockito.when(enclosureTaskRepository.findEnclosureTaskById(Mockito.anyLong())).thenReturn(enclosureTask);
+        Mockito.when(employeeService.findEmployeeForEnclosureTask(Mockito.any(EnclosureTask.class), Mockito.any(EmployeeType.class))).thenReturn(anmial_caretaker);
+        assertThrows(IncorrectTypeException.class, () -> taskService.automaticallyAssignEnclosureTask(enclosureTask.getId(), EmployeeType.ANIMAL_CARE));
+        enclosureTask.getTask().setStatus(TaskStatus.NOT_ASSIGNED);
+    }
+
+    @Test
+    public void autoAssignNonPriorityAnimalTaskValid(){
+        Mockito.when(animalTaskRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(animalTask_not_assigned));
+        Mockito.when(employeeService.findEmployeeForAnimalTask(Mockito.any(AnimalTask.class), Mockito.any(EmployeeType.class))).thenReturn(anmial_caretaker);
+        assertDoesNotThrow(() -> taskService.automaticallyAssignAnimalTask(animalTask_not_assigned.getId(), EmployeeType.ANIMAL_CARE));
+    }
+
+    @Test
+    public void autoAssignPriorityAnimalTaskValid(){
+        animalTask_not_assigned.getTask().setPriority(true);
+        Mockito.when(animalTaskRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(animalTask_not_assigned));
+        Mockito.when(employeeService.findEmployeeForAnimalTask(Mockito.any(AnimalTask.class), Mockito.any(EmployeeType.class))).thenReturn(anmial_caretaker);
+        Mockito.when(employeeService.earliestStartingTimeForTaskAndEmployee(Mockito.any(Task.class), Mockito.any(Employee.class))).thenReturn(LocalDateTime.now());
+        assertDoesNotThrow(() -> taskService.automaticallyAssignAnimalTask(animalTask_not_assigned.getId(), EmployeeType.ANIMAL_CARE));
+        animalTask_not_assigned.getTask().setPriority(false);
+    }
+
+    @Test
+    public void autoAssignAnimalTaskAlreadyAssigned(){
+        animalTask_not_assigned.getTask().setStatus(TaskStatus.ASSIGNED);
+        Mockito.when(animalTaskRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(animalTask_not_assigned));
+        Mockito.when(employeeService.findEmployeeForAnimalTask(Mockito.any(AnimalTask.class), Mockito.any(EmployeeType.class))).thenReturn(anmial_caretaker);
+        assertThrows(IncorrectTypeException.class, () -> taskService.automaticallyAssignAnimalTask(animalTask_not_assigned.getId(), EmployeeType.ANIMAL_CARE));
+        animalTask_not_assigned.getTask().setStatus(TaskStatus.NOT_ASSIGNED);
 
     @Test
     public void updateTaskCheckForTimeInvalid(){
