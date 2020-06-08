@@ -13,6 +13,7 @@ public class AnimalMapper {
         }
 
         return AnimalDto.builder().id(animal.getId())
+            .id(animal.getId())
             .name(animal.getName())
             .description(animal.getDescription())
             .species(animal.getSpecies())
@@ -26,6 +27,7 @@ public class AnimalMapper {
         }
 
         return Animal.builder().id(animalDto.getId())
+            .id(animalDto.getId())
             .name(animalDto.getName())
             .description(animalDto.getDescription())
             .species(animalDto.getSpecies())

@@ -1,10 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
-import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
-import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
-import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
-import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.*;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
@@ -19,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
 import java.lang.invoke.MethodHandles;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -165,37 +163,40 @@ public class CustomEmployeeService implements EmployeeService {
         LocalTime workStart = employee.getWorkTimeStart();
         LocalTime workEnd = employee.getWorkTimeEnd();
 
-        if ((start.toLocalTime().equals(workEnd) && end.toLocalTime().equals(workStart))
+        if(!start.toLocalDate().equals(end.toLocalDate()))
+            throw new NotFreeException("Employee " + employee.getUsername() + " can't be assigned to this task, " +
+                "they only work from " + workStart + " - " + workEnd + ". <br>" +
+                "(Task is from " + start.toLocalTime() + " - " + end.toLocalTime() + ")" );
+
+        if( (start.toLocalTime().equals(workEnd) && end.toLocalTime().equals(workStart))
             || start.toLocalTime().isAfter(workEnd)     // starts after work end
             || end.toLocalTime().isAfter(workEnd)       // ends after work
             || start.toLocalTime().isBefore(workStart)  // starts before work
             || end.toLocalTime().isBefore(workStart))   // ends before start
             throw new NotFreeException("Employee " + employee.getUsername() + " can't be assigned to this task, " +
                 "they only work from " + workStart + " - " + workEnd + ". <br>" +
-                "(Task is from " + start.toLocalTime() + " - " + end.toLocalTime() + ")");
+                "(Task is from " + start.toLocalTime() + " - " + end.toLocalTime() + ")" );
 
 
-        for (Task t : tasks) {
-           if (!t.getId().equals(task.getId())) {
-                LocalDateTime existingStart = t.getStartTime();
-                LocalDateTime existingEnd = t.getEndTime();
-                if (existingStart.equals(start) && existingEnd.equals(end))
-                    throw new NotFreeException("Employee " + employee.getUsername()
-                        + " already has work (" + beautifyDateTimeFromTillStringIfSameDay(existingStart, existingEnd)
-                        + ") during this task (" + beautifyDateTimeFromTillStringIfSameDay(start, end) + ").");
-                if (existingStart.isBefore(start) && existingEnd.isAfter(end))
-                    throw new NotFreeException("Employee " + employee.getUsername() + " " +
-                        "has work (" + beautifyDateTimeFromTillStringIfSameDay(existingStart, existingEnd)
-                        + ") that overlaps this task (" + beautifyDateTimeFromTillStringIfSameDay(start, end) + ").");
-                if (existingStart.isAfter(start) && existingStart.isBefore(end))
-                    throw new NotFreeException("Employee " + employee.getUsername()
-                        + " already has work (" + beautifyDateTimeFromTillStringIfSameDay(existingStart, existingEnd)
-                        + ") that starts during this task (" + beautifyDateTimeFromTillStringIfSameDay(start, end) + ").");
-                if (existingEnd.isAfter(start) && existingEnd.isBefore(end))
-                    throw new NotFreeException("Employee " + employee.getUsername()
-                        + " has work (" + beautifyDateTimeFromTillStringIfSameDay(existingStart, existingEnd)
-                        + ") that ends during this task (" + beautifyDateTimeFromTillStringIfSameDay(start, end) + ").");
-            }
+        for(Task t:tasks){
+            LocalDateTime existingStart = t.getStartTime();
+            LocalDateTime existingEnd = t.getEndTime();
+            if(existingStart.equals(start) || existingEnd.equals(end))
+                throw new NotFreeException("Employee " + employee.getUsername()
+                    + " already has work (" +  beautifyDateTimeFromTillStringIfSameDay(existingStart, existingEnd)
+                    + ") during this task ("  + beautifyDateTimeFromTillStringIfSameDay(start, end) +  ").");
+            if(existingStart.isBefore(start) && existingEnd.isAfter(end))
+                throw new NotFreeException("Employee " + employee.getUsername() + " " +
+                    "has work (" + beautifyDateTimeFromTillStringIfSameDay(existingStart, existingEnd)
+                    + ") that overlaps this task ("  + beautifyDateTimeFromTillStringIfSameDay(start, end) + ").");
+            if(existingStart.isAfter(start) && existingStart.isBefore(end))
+                throw new NotFreeException("Employee " + employee.getUsername()
+                    + " already has work (" + beautifyDateTimeFromTillStringIfSameDay(existingStart, existingEnd)
+                    + ") that starts during this task (" + beautifyDateTimeFromTillStringIfSameDay(start, end) + ").");
+            if(existingEnd.isAfter(start) && existingEnd.isBefore(end))
+                throw new NotFreeException("Employee " + employee.getUsername()
+                    + " has work (" + beautifyDateTimeFromTillStringIfSameDay(existingStart, existingEnd)
+                    +") that ends during this task (" + beautifyDateTimeFromTillStringIfSameDay(start, end) +  ").");
         }
         return true;
     }
@@ -287,8 +288,6 @@ public class CustomEmployeeService implements EmployeeService {
             return isAssignedToAnimal(employee.getUsername(), animalTask.get().getSubject().getId());
         }
 
-        //TODO: if it is an Enclosure Task you have to add the check if there is Permission for this (so get the
-        // EnclosureTask and then check if there is an assignment relation between the Employee and the Enclosure Task)
         Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findById(task.getId());
         if (enclosureTask.isPresent()) {
             return isAssignedToEnclosure(employee.getUsername(), enclosureTask.get().getSubject().getId());
@@ -311,8 +310,6 @@ public class CustomEmployeeService implements EmployeeService {
                 throw new IncorrectTypeException("Employees of type Janitor can not be assigned to Animal Tasks");
         }
 
-        //TODO: if it is an Enclosure Task you have to add the check if there is Permission for this (so get the
-        // EnclosureTask and then check if there is an assignment relation between the Employee and the Enclosure Task/return false if Doctor etc.)
         Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findById(task.getId());
         if (enclosureTask.isPresent()) {
             if (employee.getType() == EmployeeType.JANITOR)
@@ -323,6 +320,216 @@ public class CustomEmployeeService implements EmployeeService {
                 throw new IncorrectTypeException("Employees of type Janitor can not be assigned to Enclosure Tasks");
         }
 
+        return false;
+    }
+
+    public Employee findEmployeeForAnimalTask(AnimalTask animalTask, EmployeeType employeeType){
+        LOGGER.debug("Finding employee of type {} for animal task with id {}", employeeType, animalTask.getId());
+        if(employeeType == EmployeeType.JANITOR)
+            throw new IncorrectTypeException("Janitors cant do animal tasks");
+        List<Employee> possibleEmployees = new LinkedList<>();
+
+        //if employeeType = null both Docotors and Animal Carteakers get added to the List
+        if(employeeType != EmployeeType.DOCTOR)
+            possibleEmployees.addAll(getAllAssignedToAnimal(animalTask.getSubject()));
+        if(employeeType != EmployeeType.ANIMAL_CARE)
+            possibleEmployees.addAll(getAllDocotrs());
+
+        if(possibleEmployees.isEmpty())
+            throw new NotFoundException("There are no employees able to do this task");
+
+        if(animalTask.getTask().isPriority()){
+            return filterEarliestAvailableEmployee(animalTask.getTask(), possibleEmployees);
+        }else{
+            return filterAvailableEmployeeWithLeastWork(animalTask.getTask(), possibleEmployees);
+        }
+    }
+
+    public Employee findEmployeeForEnclosureTask(EnclosureTask enclosureTask, EmployeeType employeeType){
+        LOGGER.debug("Finding employee of type {} for enclosure task with id {}", employeeType, enclosureTask.getId());
+        if(employeeType == EmployeeType.DOCTOR)
+            throw new IncorrectTypeException("Doctors cant do enclosure tasks");
+        List<Employee> possibleEmployees = new LinkedList<>();
+
+        //if employeeType = null both Janitors and Animal Carteakers get added to the List
+        if(employeeType != EmployeeType.JANITOR)
+            possibleEmployees.addAll(getAllAssignedToEnclosure(enclosureTask.getSubject()));
+        if(employeeType != EmployeeType.ANIMAL_CARE)
+            possibleEmployees.addAll(getAllJanitors());
+
+        if(possibleEmployees.isEmpty())
+            throw new NotFoundException("There are no employees able to do this task");
+
+        if(enclosureTask.getTask().isPriority()){
+            return filterEarliestAvailableEmployee(enclosureTask.getTask(), possibleEmployees);
+        }else{
+            return filterAvailableEmployeeWithLeastWork(enclosureTask.getTask(), possibleEmployees);
+        }
+    }
+
+    private Employee filterAvailableEmployeeWithLeastWork(Task task, List<Employee> employees){
+        List<Employee> employeesWithTime = new LinkedList<>();
+        for(Employee e: employees){
+            if(noExceptionEmployeeIsFreeBetweenStartingAndEndtime(e, task))
+                employeesWithTime.add(e);
+        }
+        if(employeesWithTime.isEmpty())
+            throw new NotFreeException("There are no available employees for the task time");
+        Employee minWorkingTimeEmployee = employeesWithTime.get(0);
+        for(Employee e: employeesWithTime){
+            if(getTimeSpendThisWeekInHours(e) < getTimeSpendThisWeekInHours(minWorkingTimeEmployee))
+                minWorkingTimeEmployee = e;
+        }
+        return minWorkingTimeEmployee;
+    }
+
+    private Employee filterEarliestAvailableEmployee(Task task, List<Employee> employees){
+        LocalDateTime soonestPossibleTime = LocalDateTime.MAX;
+        Employee soonestAvailableEmployee = null;
+
+        for(Employee e: employees){
+            LocalDateTime earliestTimeForEmployee;
+            try {
+                earliestTimeForEmployee = earliestStartingTimeForTaskAndEmployee(task, e);
+            }catch (Exception exc){
+                continue;
+            }
+            if(earliestTimeForEmployee.isBefore(soonestPossibleTime)){
+                soonestPossibleTime = earliestTimeForEmployee;
+                soonestAvailableEmployee = e;
+            }
+        }
+
+        if(soonestAvailableEmployee == null){
+            throw new NotFreeException("No employee fulfills assignment criteria for this task");
+        }
+
+        return soonestAvailableEmployee;
+    }
+
+    public double getTimeSpendThisWeekInHours(Employee employee){
+        LOGGER.debug("Finding time spend this week for employee {}", employee.getUsername());
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DayOfWeek currentWeekday = LocalDateTime.now().getDayOfWeek();
+        List<Task> tasksOfEmployee = taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee);
+        double hoursThisWeek = 0.0;
+
+        for(Task t:tasksOfEmployee){
+            //if task starts and ends in current week
+            if(t.getStartTime().isAfter(currentDateTime.minusDays(currentWeekday.getValue())) && t.getEndTime().isBefore(currentDateTime.plusDays(7 - currentWeekday.getValue()))){
+                hoursThisWeek += getTaskDurationInHours(t.getStartTime(), t.getEndTime());
+            }
+        }
+
+        return hoursThisWeek;
+    }
+
+    private double getTaskDurationInHours(LocalDateTime startTime, LocalDateTime endTime){
+        return (endTime.getHour() - startTime.getHour())
+            + (((double)endTime.getMinute() - (double)startTime.getMinute())/60.0)
+            + (((double)endTime.getSecond() - (double)startTime.getSecond())/3600.0);
+    }
+
+    public LocalDateTime earliestStartingTimeForTaskAndEmployee(Task task, Employee employee){
+        LOGGER.debug("Finding earliest starting time for a task for employee {}", employee.getUsername());
+        //ordered by startingTime
+        Task[] currentTasksOfEmployee = taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee).toArray(Task[]::new);
+        //task that starts 5 min from now (since you have to get there first)
+        LocalDateTime soonestStartTime = LocalDateTime.now().plusMinutes(5).withSecond(0).withNano(0);
+        Task instantTask = Task.builder().startTime(soonestStartTime)
+            .endTime(addDurationOfOneTaskToStartTime(soonestStartTime, task)).build();
+
+        if(noExceptionEmployeeIsFreeBetweenStartingAndEndtime(employee, instantTask))
+            return soonestStartTime;
+
+        for(int i = 0; i < (currentTasksOfEmployee.length-1); i++){
+
+            if(currentTasksOfEmployee[i].getEndTime().isAfter(soonestStartTime)){
+
+                if(employeeIsFreeForDurationFromStartTime(currentTasksOfEmployee[i].getEndTime(), task, employee)) {
+                    return currentTasksOfEmployee[i].getEndTime();
+                }
+
+                if(!currentTasksOfEmployee[i].getEndTime().toLocalDate().isEqual(currentTasksOfEmployee[i+1].getStartTime().toLocalDate())) {
+                    LocalDateTime startOfDayNextDay = startOfNextWorkingDayFromTime(currentTasksOfEmployee[i].getEndTime(), employee);
+                    if(employeeIsFreeForDurationFromStartTime(startOfDayNextDay, task, employee))
+                        return startOfDayNextDay;
+                }
+            }
+        }
+
+        if(employeeIsFreeForDurationFromStartTime(currentTasksOfEmployee[currentTasksOfEmployee.length-1].getEndTime(), task, employee))
+            return currentTasksOfEmployee[currentTasksOfEmployee.length-1].getEndTime();
+
+        LocalDateTime startOfDayNextDay = startOfNextWorkingDayFromTime(currentTasksOfEmployee[currentTasksOfEmployee.length-1].getEndTime(), employee);
+        if(employeeIsFreeForDurationFromStartTime(startOfDayNextDay, task, employee))
+            return startOfDayNextDay;
+
+        throw new NotFreeException("Task is longer than employees working time");
+    }
+
+    private LocalDateTime addDurationOfOneTaskToStartTime(LocalDateTime startTime, Task task){
+        return startTime.plusHours(task.getEndTime().getHour() - task.getStartTime().getHour())
+            .plusMinutes(task.getEndTime().getMinute() - task.getStartTime().getMinute())
+            .plusSeconds(task.getEndTime().getSecond() - task.getStartTime().getSecond());
+    }
+
+    private LocalDateTime startOfNextWorkingDayFromTime(LocalDateTime time, Employee employee){
+        return time.plusDays(1)
+            .withHour(employee.getWorkTimeStart().getHour())
+            .withMinute(employee.getWorkTimeStart().getMinute())
+            .withSecond(employee.getWorkTimeStart().getSecond());
+    }
+
+    private boolean employeeIsFreeForDurationFromStartTime(LocalDateTime taskStartTime, Task task, Employee employee){
+        LocalDateTime taskEndTime = addDurationOfOneTaskToStartTime(taskStartTime, task);
+        Task tempTask = Task.builder().startTime(taskStartTime).endTime(taskEndTime).build();
+        return noExceptionEmployeeIsFreeBetweenStartingAndEndtime(employee, tempTask);
+    }
+
+    private boolean noExceptionEmployeeIsFreeBetweenStartingAndEndtime(Employee employee, Task task){
+        try{
+            return employeeIsFreeBetweenStartingAndEndtime(employee, task);
+        }catch(Exception e){
+            return false;
+        }
+    }
+        
+    @Override
+    public Employee editEmployee(Employee employeeToEdit, String oldUsername){
+
+        Employee exists = employeeRepository.findEmployeeByUsername(employeeToEdit.getUsername());
+        if(exists!=null){
+            employeeWorkingTimesValid(employeeToEdit);
+            checkIfThereAreTaskBetweenGivenWorkHours(employeeToEdit);
+            exists.setName(employeeToEdit.getName());
+            exists.setEmail(employeeToEdit.getEmail());
+            exists.setBirthday(employeeToEdit.getBirthday());
+            exists.setWorkTimeStart(employeeToEdit.getWorkTimeStart());
+            exists.setWorkTimeEnd(employeeToEdit.getWorkTimeEnd());
+            return employeeRepository.save(exists);
+        }else{
+            throw new NotFoundException(" Can not find employee");
+        }
+    }
+
+    @Override
+    public boolean checkIfThereAreTaskBetweenGivenWorkHours(Employee employee) {
+
+        LocalTime start = employee.getWorkTimeStart();
+        LocalTime end = employee.getWorkTimeEnd();
+        List<Task> tasks = taskRepository.findAllByAssignedEmployeeOrderByStartTime(employee);
+        for(Task t:tasks){
+
+            LocalTime existingStart = t.getStartTime().toLocalTime();
+            LocalTime existingEnd = t.getEndTime().toLocalTime();
+            if(existingStart.isBefore(start))
+                throw new NotFreeException("Employee " + employee.getUsername()
+                    + " has task starting earlier than: " + start);
+            if(existingEnd.isAfter(end))
+                throw new NotFreeException("Employee " + employee.getUsername()
+                    + " has task to finish after: " + end);
+        }
         return false;
     }
 }

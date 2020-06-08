@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
+import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -87,6 +88,24 @@ public interface TaskService {
      */
     List<EnclosureTask> getAllTasksOfEnclosure(Long enclosureId);
 
+    /**
+     * Assign a currently unassigned AnimalTask to an Employee,
+     * If its a priority tasks soonest possible time is found,
+     * otherwise it will be assigned to the least busy worker
+     * @param enclosureTaskId is the id of the enclosureTask
+     * @param employeeType type of employee this task is for
+     */
+    void automaticallyAssignEnclosureTask(Long enclosureTaskId, EmployeeType employeeType);
+
+    /**
+     * Assign a currently unassigned AnimalTask to an Employee,
+     * If its a priority tasks soonest possible time is found,
+     * otherwise it will be assigned to the least busy worker
+     * @param animalTaskId is the id of the animalTask
+     * @param employeeType type of employee this task is for
+     */
+    void automaticallyAssignAnimalTask(Long animalTaskId, EmployeeType employeeType);
+
     Task getTaskById(Long taskId);
 
     void updateFullAnimalTaskInformation(AnimalTask animalTask);
@@ -127,4 +146,34 @@ public interface TaskService {
      * @param taskId If of the first task to be deleted
      */
     void repeatDeleteTask(Long taskId);
+
+    /**
+     * Edits priority, title, description and subject of this task and all that follow.
+     *
+     * @param animalTask with id of the first task to be changed, and the new desired properties
+     */
+    void repeatUpdateAnimalTaskInformation(AnimalTask animalTask);
+
+    /**
+     * Edits priority, title, description and subject of this task and all that follow.
+     *
+     * @param enclosureTask with id of the first task to be changed, and the new desired properties
+     */
+    void repeatUpdateEnclosureTaskInformation(EnclosureTask enclosureTask);
+
+    /**
+     * Assign a currently unassigned AnimalTask and all following Tasks to an Employee,
+     * It will be assigned to the least busy worker
+     * @param animalTaskId is the id of the animalTask
+     * @param employeeType type of employee this task is for
+     */
+    void automaticallyAssignAnimalTaskRepeat(Long animalTaskId, EmployeeType employeeType);
+
+    /**
+     * Assign a currently unassigned AnimalTask and all following Tasks to an Employee,
+     * It will be assigned to the least busy worker
+     * @param enclosureTaskId is the id of the animalTask
+     * @param employeeType type of employee this task is for
+     */
+    void automaticallyAssignEnclosureTaskRepeat(Long enclosureTaskId, EmployeeType employeeType);
 }

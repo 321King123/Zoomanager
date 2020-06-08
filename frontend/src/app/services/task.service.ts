@@ -7,6 +7,7 @@ import {EnclosureTask} from '../dtos/enclosureTask';
 import {Employee} from '../dtos/employee';
 import {Task} from '../dtos/task';
 import DEBUG_LOG = Utilities.DEBUG_LOG;
+import {RepeatableTask} from '../dtos/RepeatableTask';
 
 @Injectable({
   providedIn: 'root'
@@ -24,9 +25,19 @@ export class TaskService {
     return this.httpClient.post<AnimalTask>(this.animalTaskBaseUri + '/' + task.animalId, task);
   }
 
+  createNewTaskAnimalRepeatable(task: RepeatableTask): Observable<AnimalTask> {
+    DEBUG_LOG('Creating repeatable Task: ' + JSON.stringify(task));
+    return this.httpClient.post<AnimalTask>(this.animalTaskBaseUri + '/repeatable/' + task.subjectId, task);
+  }
+
   createNewTaskEnclosure(task: EnclosureTask): Observable<EnclosureTask> {
     DEBUG_LOG('Creating Task: ' + JSON.stringify(task));
     return this.httpClient.post<EnclosureTask>(this.enclosureTaskBaseUri + '/' + task.enclosureId, task);
+  }
+
+  createNewTaskEnclosureRepeatable(task: RepeatableTask): Observable<EnclosureTask> {
+    DEBUG_LOG('Creating Task: ' + JSON.stringify(task));
+    return this.httpClient.post<EnclosureTask>(this.enclosureTaskBaseUri + '/repeatable/' + task.subjectId, task);
   }
 
   assignTask(id, employee) {
@@ -42,6 +53,11 @@ export class TaskService {
   deleteTask(id): Observable<any> {
     DEBUG_LOG('Delete Task: ' + id);
     return this.httpClient.delete(this.taskBaseUri + '/' + id);
+  }
+
+  deleteTaskRepeat(id: Observable<any>) {
+    DEBUG_LOG('Delete Task and following: ' + id);
+    return this.httpClient.delete(this.taskBaseUri + '/repeatable/' + id);
   }
 
   getAnimalTasksOfEmployee(username): Observable<AnimalTask[]> {
@@ -70,8 +86,53 @@ export class TaskService {
     return this.httpClient.get<Task[]>(this.taskBaseUri + '/employee/' + username);
   }
 
+  autoAssignAnimalTaskToDoctor(taskId) {
+    DEBUG_LOG('Auto-assign animal task to a doctor ' + taskId);
+    return this.httpClient.post(this.taskBaseUri + '/auto/animal/doctor/' + taskId, {});
+  }
+
+  autoAssignAnimalTaskToDoctorRepeat(taskId) {
+    DEBUG_LOG('Auto-assign animal task and following to a doctor ' + taskId);
+    return this.httpClient.post(this.taskBaseUri + '/auto/animal/doctor/repeat/' + taskId, {});
+  }
+
+  autoAssignAnimalTaskToCaretaker(taskId) {
+    DEBUG_LOG('Auto-assign animal task to a caretaker ' + taskId);
+    return this.httpClient.post(this.taskBaseUri + '/auto/animal/caretaker/' + taskId, {});
+  }
+
+  autoAssignAnimalTaskToCaretakerRepeat(taskId) {
+    DEBUG_LOG('Auto-assign animal task and following to a caretaker ' + taskId);
+    return this.httpClient.post(this.taskBaseUri + '/auto/animal/caretaker/repeat/' + taskId, {});
+  }
+
+  autoAssignEnclosureTaskToCaretaker(taskId) {
+    DEBUG_LOG('Auto-assign enclosure task to a caretaker ' + taskId);
+    return this.httpClient.post(this.taskBaseUri + '/auto/enclosure/caretaker/' + taskId, {});
+  }
+
+  autoAssignEnclosureTaskToCaretakerRepeat(taskId) {
+    DEBUG_LOG('Auto-assign enclosure task and following to a caretaker ' + taskId);
+    return this.httpClient.post(this.taskBaseUri + '/auto/enclosure/caretaker/repeat/' + taskId, {});
+  }
+
+  autoAssignEnclosureTaskToJanitor(taskId) {
+    DEBUG_LOG('Auto-assign enclosure task to a janitor ' + taskId);
+    return this.httpClient.post(this.taskBaseUri + '/auto/enclosure/janitor/' + taskId, {});
+  }
+
+  autoAssignEnclosureTaskToJanitorRepeat(taskId) {
+    DEBUG_LOG('Auto-assign enclosure task and following to a janitor ' + taskId);
+    return this.httpClient.post(this.taskBaseUri + '/auto/enclosure/janitor/repeat/' + taskId, {});
+  }
+
   updateFullTaskInformation(task: Task): Observable<any> {
     DEBUG_LOG('Update full task information ' + JSON.stringify(task));
     return this.httpClient.put(this.taskBaseUri + '/update', task);
+  }
+
+  updateTaskInformationRepeat(task: Task): Observable<any> {
+    DEBUG_LOG('Update task information and following tasks ' + JSON.stringify(task));
+    return this.httpClient.put(this.taskBaseUri + '/update/repeat', task);
   }
 }

@@ -38,6 +38,10 @@ export class EmployeeViewComponent implements OnInit {
   taskListMode: boolean;
   animalListMode: boolean;
 
+  btnIsEdit: boolean = true;
+  btnIsDelete: boolean = false;
+
+
   constructor(private employeeService: EmployeeService, private authService: AuthService, private route: ActivatedRoute,
               private _location: Location, private animalService: AnimalService, private router: Router,
               private taskService: TaskService, private enclosureService: EnclosureService,
@@ -247,5 +251,19 @@ export class EmployeeViewComponent implements OnInit {
   toAnimalMode() {
     this.animalListMode = true;
     this.taskListMode = false;
+  }
+
+  toDeleteButton() {
+    this.btnIsDelete = true;
+    this.btnIsEdit = false;
+  }
+
+  toEditButton() {
+    this.btnIsEdit = true;
+    this.btnIsDelete = false;
+    this.router.navigate(['/employee-edit-view/' + this.employee.username]);
+  }
+  toChangePassword() {
+    this.router.navigate(['employee-password-change/' + this.employee.username]);
   }
 }

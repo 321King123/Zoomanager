@@ -13,4 +13,5 @@ public interface UserLoginMapper {
 
     UserLogin eployeeDtoToUserLogin(EmployeeDto employeeDto);
 
+    UserLoginDto userLoginToUserLoginDto(UserLogin applicationUserByUsername);
 }

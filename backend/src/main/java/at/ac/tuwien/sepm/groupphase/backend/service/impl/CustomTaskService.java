@@ -2,10 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.*;
-import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalTaskRepository;
-import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureTaskRepository;
-import at.ac.tuwien.sepm.groupphase.backend.repository.RepeatableTaskRepository;
-import at.ac.tuwien.sepm.groupphase.backend.repository.TaskRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
@@ -19,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.validation.ValidationException;
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
+
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
@@ -80,6 +78,50 @@ public class CustomTaskService implements TaskService {
         animalTask.setTask(createdTask);
         animalTask.setSubject(animal);
         return animalTask;
+    }
+
+
+    public void automaticallyAssignAnimalTask(Long animalTaskId, EmployeeType employeeType) {
+        LOGGER.debug("Automatically assigning animal task with id {} to employee of type {}", animalTaskId, employeeType);
+        Optional<AnimalTask> animalTaskOptional = animalTaskRepository.findById(animalTaskId);
+        if(animalTaskOptional.isEmpty())
+            throw new NotFoundException("Could not find enclosure task");
+        AnimalTask animalTask = animalTaskOptional.get();
+        if(animalTask.getTask().getStatus() != TaskStatus.NOT_ASSIGNED)
+            throw new IncorrectTypeException("Only Tasks without an assigned employee can be automatically assigned");
+        Employee assignedEmployee = employeeService.findEmployeeForAnimalTask(animalTask, employeeType);
+
+        if(animalTask.getTask().isPriority()){
+            LocalDateTime foundStartTime = employeeService.earliestStartingTimeForTaskAndEmployee(animalTask.getTask(), assignedEmployee);
+            LocalDateTime foundEndTime = addDurationOfOneTaskToStartTime(foundStartTime, animalTask.getTask());
+            animalTask.getTask().setStartTime(foundStartTime);
+            animalTask.getTask().setEndTime(foundEndTime);
+        }
+        animalTask.getTask().setAssignedEmployee(assignedEmployee);
+        animalTask.getTask().setStatus(TaskStatus.ASSIGNED);
+        taskRepository.save(animalTask.getTask());
+
+    }
+
+    public void automaticallyAssignEnclosureTask(Long enclosureTaskId, EmployeeType employeeType) {
+        LOGGER.debug("Automatically assigning enclosure task with id {} to employee of type {}", enclosureTaskId, employeeType);
+        EnclosureTask enclosureTask = enclosureTaskRepository.findEnclosureTaskById(enclosureTaskId);
+        if(enclosureTask == null)
+            throw new NotFoundException("Could not find enclosure task");
+        if(enclosureTask.getTask().getStatus() != TaskStatus.NOT_ASSIGNED)
+            throw new IncorrectTypeException("Only Tasks without an assigned employee can be automatically assigned");
+        Employee assignedEmployee = employeeService.findEmployeeForEnclosureTask(enclosureTask, employeeType);
+
+        if(enclosureTask.getTask().isPriority()){
+            LocalDateTime foundStartTime = employeeService.earliestStartingTimeForTaskAndEmployee(enclosureTask.getTask(), assignedEmployee);
+            LocalDateTime foundEndTime = addDurationOfOneTaskToStartTime(foundStartTime, enclosureTask.getTask());
+            enclosureTask.getTask().setStartTime(foundStartTime);
+            enclosureTask.getTask().setEndTime(foundEndTime);
+        }
+        enclosureTask.getTask().setAssignedEmployee(assignedEmployee);
+        enclosureTask.getTask().setStatus(TaskStatus.ASSIGNED);
+        taskRepository.save(enclosureTask.getTask());
+
     }
 
     @Override
@@ -311,6 +353,12 @@ public class CustomTaskService implements TaskService {
             throw new NotFoundException("Could not find Employee with given Username");
     }
 
+    private LocalDateTime addDurationOfOneTaskToStartTime(LocalDateTime startTime, Task task){
+        return startTime.plusHours(task.getEndTime().getHour() - task.getStartTime().getHour())
+            .plusMinutes(task.getEndTime().getMinute() - task.getStartTime().getMinute())
+            .plusSeconds(task.getEndTime().getSecond() - task.getStartTime().getSecond());
+    }
+
     @Override
     public List<AnimalTask> createRepeatableAnimalTask(Task task, Animal animal, int amount, ChronoUnit separation, int separationCount) {
         if(task.isPriority()) {
@@ -408,6 +456,76 @@ public class CustomTaskService implements TaskService {
             if(nextTask != null) {
                 repeatDeleteTask(nextTask.getId());
             }
+        }
+    }
+
+    @Override
+    public void repeatUpdateAnimalTaskInformation(AnimalTask animalTask) {
+        AnimalTask savedAnimalTask = getAnimalTaskById(animalTask.getId());
+        Task savedTask = savedAnimalTask.getTask();
+
+        Task task = animalTask.getTask();
+
+        savedTask.setPriority(task.isPriority());
+        savedTask.setTitle(task.getTitle());
+        savedTask.setDescription(task.getDescription());
+
+        savedAnimalTask.setSubject(animalTask.getSubject());
+
+        taskRepository.save(savedTask);
+        animalTaskRepository.save(savedAnimalTask);
+
+        Optional<RepeatableTask> repeatableTask = repeatableTaskRepository.findById(animalTask.getId());
+
+        if(repeatableTask.isPresent()) {
+            if(repeatableTask.get().getFollowTask() != null) {
+                animalTask.setId(repeatableTask.get().getFollowTask().getId());
+                repeatUpdateAnimalTaskInformation(animalTask);
+            }
+        }
+    }
+
+    @Override
+    public void repeatUpdateEnclosureTaskInformation(EnclosureTask enclosureTask) {
+        EnclosureTask savedEnclosureTask = getEnclosureTaskById(enclosureTask.getId());
+        Task savedTask = savedEnclosureTask.getTask();
+
+        Task task = enclosureTask.getTask();
+
+        savedTask.setPriority(task.isPriority());
+        savedTask.setTitle(task.getTitle());
+        savedTask.setDescription(task.getDescription());
+
+        savedEnclosureTask.setSubject(enclosureTask.getSubject());
+
+        taskRepository.save(savedTask);
+        enclosureTaskRepository.save(savedEnclosureTask);
+
+        Optional<RepeatableTask> repeatableTask = repeatableTaskRepository.findById(enclosureTask.getId());
+
+        if(repeatableTask.isPresent()) {
+            if(repeatableTask.get().getFollowTask() != null) {
+                enclosureTask.setId(repeatableTask.get().getFollowTask().getId());
+                repeatUpdateEnclosureTaskInformation(enclosureTask);
+            }
+        }
+    }
+
+    @Override
+    public void automaticallyAssignAnimalTaskRepeat(Long animalTaskId, EmployeeType employeeType) {
+        Optional<RepeatableTask> repeatableTask = repeatableTaskRepository.findById(animalTaskId);
+        automaticallyAssignAnimalTask(animalTaskId, employeeType);
+        if(repeatableTask.isPresent() && repeatableTask.get().getFollowTask() != null) {
+            automaticallyAssignAnimalTaskRepeat(repeatableTask.get().getFollowTask().getId(), employeeType);
+        }
+    }
+
+    @Override
+    public void automaticallyAssignEnclosureTaskRepeat(Long enclosureTaskId, EmployeeType employeeType) {
+        Optional<RepeatableTask> repeatableTask = repeatableTaskRepository.findById(enclosureTaskId);
+        automaticallyAssignEnclosureTask(enclosureTaskId, employeeType);
+        if(repeatableTask.isPresent() && repeatableTask.get().getFollowTask() != null) {
+            automaticallyAssignEnclosureTaskRepeat(repeatableTask.get().getFollowTask().getId(), employeeType);
         }
     }
 }

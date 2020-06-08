@@ -4,10 +4,12 @@ import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EmployeeDto;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.NewPasswordReqDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.entity.NewPasswordReq;
 import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
@@ -35,8 +37,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
@@ -588,18 +589,154 @@ public class EmployeeEndpointTest implements TestData {
         assertEquals(HttpStatus.FORBIDDEN.value(),  response.getStatus());
     }
 
-   // @Test
+    @Test
     public void deletingEmployee() throws Exception {
         userLoginRepository.save(animal_caretaker_login);
         employeeRepository.save(anmial_caretaker);
+        List<Employee> employees= employeeRepository.findAll();
+        Employee employee = employees.get(0);
+        MvcResult mvcResult = this.mockMvc.perform(delete(EMPLOYEE_BASE_URI +"/"+ employee.getUsername())
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
 
-        MvcResult mvcResult = this.mockMvc.perform(delete(EMPLOYEE_BASE_URI +"/"+ animal_caretaker_login.getUsername()))
-            //.header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertEquals(HttpStatus.OK.value(),  response.getStatus());
+
+    }
+
+    @Test
+    public void editingEmployeeEmptyName() throws Exception {
+        userLoginRepository.save(default_user_login);
+        employeeRepository.save(default_user);
+        default_user.setName("");
+        String body = objectMapper.writeValueAsString(employeeMapper.employeeToEmployeeDto(default_user));
+
+        MvcResult mvcResult = this.mockMvc.perform(put(EMPLOYEE_BASE_URI+ "/edit/"+ default_user.getUsername())
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .content(body))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
 
-        assertEquals(HttpStatus.OK.value(),  response.getStatus());
+        assertEquals(HttpStatus.BAD_REQUEST.value(),  response.getStatus());
+    }
 
+    @Test
+    public void editingEmployeeName() throws Exception {
+        EmployeeDto emp = EmployeeDto.builder()
+            .name("Test")
+            .type(EmployeeType.ANIMAL_CARE)
+            .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
+            .email("test@email.com")
+            .username("tester")
+            .password("Password1")
+            .workTimeStart(TEST_LOCAL_TIME_START)
+            .workTimeEnd(TEST_LOCAL_TIME_END)
+            .build();
+        employeeRepository.save(employeeMapper.employeeDtoToEmployee(emp));
+
+        emp.setName("Don");
+        String body = objectMapper.writeValueAsString(emp);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(EMPLOYEE_BASE_URI+ "/edit/"+ emp.getUsername())
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .content(body))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        List<Employee> employees = this.employeeRepository.findAll();
+        assertEquals("Don", employees.get(0).getName());
+        assertEquals(HttpStatus.OK.value(),  response.getStatus());
+    }
+
+    @Test
+    public void changePasswordByAdmin() throws Exception{
+        userLoginRepository.save(default_user_login);
+        NewPasswordReqDto newRequest= NewPasswordReqDto.builder()
+            .newPassword("TestPassword1")
+            .username(default_user_login.getUsername())
+            .build();
+        String body = objectMapper.writeValueAsString(newRequest);
+        MvcResult mvcResult = this.mockMvc.perform(put(EMPLOYEE_BASE_URI+ "/editPasswordByAdmin/")
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .content(body))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        boolean newPassword = passwordEncoder.matches(newRequest.getNewPassword(), userLoginRepository.findUserByUsername(default_user_login.getUsername()).getPassword());
+        assertTrue(newPassword);
+        assertEquals(HttpStatus.OK.value(),  response.getStatus());
+    }
+
+    @Test
+    public void changePasswordByAdminNotAdmin() throws Exception{
+        userLoginRepository.save(default_user_login);
+        NewPasswordReqDto newRequest= NewPasswordReqDto.builder()
+            .newPassword("TestPassword1")
+            .username(default_user_login.getUsername())
+            .build();
+        String body = objectMapper.writeValueAsString(newRequest);
+        MvcResult mvcResult = this.mockMvc.perform(put(EMPLOYEE_BASE_URI+ "/editPasswordByAdmin/")
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .content(body))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.FORBIDDEN.value(),  response.getStatus());
+    }
+
+    @Test
+    public void changePasswordAsEmployee() throws Exception{
+        userLoginRepository.save(default_user_login);
+        NewPasswordReqDto newRequest= NewPasswordReqDto.builder()
+            .currentPassword("Password1")
+            .newPassword("TestPassword1")
+            .username(default_user_login.getUsername())
+            .build();
+        String body = objectMapper.writeValueAsString(newRequest);
+        MvcResult mvcResult = this.mockMvc.perform(put(EMPLOYEE_BASE_URI+ "/editPassword/")
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .content(body))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        boolean newPassword = passwordEncoder.matches(newRequest.getNewPassword(), userLoginRepository.findUserByUsername(default_user_login.getUsername()).getPassword());
+        assertTrue(newPassword);
+        assertEquals(HttpStatus.OK.value(),  response.getStatus());
+    }
+
+    @Test
+    public void changePasswordAsEmployeeWrongCurrentPassword() throws Exception{
+        userLoginRepository.save(default_user_login);
+        NewPasswordReqDto newRequest= NewPasswordReqDto.builder()
+            .currentPassword("Password2")
+            .newPassword("TestPassword1")
+            .username(default_user_login.getUsername())
+            .build();
+        String body = objectMapper.writeValueAsString(newRequest);
+        MvcResult mvcResult = this.mockMvc.perform(put(EMPLOYEE_BASE_URI+ "/editPassword/")
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .content(body))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        boolean newPassword = passwordEncoder.matches(newRequest.getNewPassword(), userLoginRepository.findUserByUsername(default_user_login.getUsername()).getPassword());
+        assertFalse(newPassword);
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(),  response.getStatus());
     }
 }
