@@ -1,7 +1,5 @@
-<div>
-  <div #modalToggleBtn class="invisible no-gutters" [attr.data-target]="'#deleteWarning'+stringId.replace(' ', '')"
+<div #modalToggleBtn class="invisible no-gutters" [attr.data-target]="'#deleteWarning'+stringId.replace(' ', '')"
        data-toggle="modal"></div>
-</div>
 
 
 <div *ngIf="showEditOrDeleteButton" class="btn-group" appStopClickPropagation>
@@ -10,7 +8,6 @@
             [class.btn-sm]="smallButton"
             [class.btn-outline-info]="outlinedButtons"
             [class.btn-info]="!outlinedButtons"
-
             >
       Edit
     </button>
@@ -50,7 +47,7 @@
   </ng-container>
 </div>
 
-<button *ngIf="showNormalButton" type="button" class="btn mr-2"
+<button *ngIf="!showEditOrDeleteButton" type="button" class="btn mr-2"
         [class.btn-sm]="smallButton"
         [class.btn-outline-danger]="outlinedButtons"
         [class.btn-danger]="!outlinedButtons"

@@ -22,7 +22,6 @@ export class DeleteWarningComponent implements OnInit {
   @Input() outlinedButtons = true;
   @Input() smallButton = false;
 
-  showNormalButton = true;
   @Input() showEditOrDeleteButton = false;
 
   @Output() editSubject = new EventEmitter();
@@ -38,9 +37,6 @@ export class DeleteWarningComponent implements OnInit {
   constructor(private modalService: NgbModal) { }
 
   ngOnInit(): void {
-    if (this.showEditOrDeleteButton) {
-      this.showNormalButton = false;
-    }
   }
 
   toDeleteButton() {

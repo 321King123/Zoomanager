@@ -34,18 +34,7 @@
   </div>
 </div>
 
-<app-delete-warning *ngIf="isAdmin()"
-                    (deleteSubject)="deleteEmployee()"
-                    (editSubject)="editEmployee()"
-                    [deletionSubjectType]="'Employee'"
-                    [readableSubjectIdentifier]="employee.username"
-                    [delBtnText]="'Delete Employee'"
-                    [showEditOrDeleteButton]="true"
-                    class="btn"
-></app-delete-warning>
-
 <!--<div *ngIf="isAdmin()">-->
-
 <!--  <div class="btn-group">-->
 <!--    <ng-container *ngIf="btnIsEdit">-->
 <!--      <button type="button" class="btn-group btn btn-info" (click)="editEmployee()">Edit</button>-->
@@ -78,19 +67,14 @@
 <!--  </div>-->
 <!--</div>-->
 
-<!--
-<div class="col-12 my-2">
-  <div
-    class="row d-flex justify-content-start mx-0 ">
-    <app-delete-warning *ngIf="isAdmin()" (deleteSubject)="deleteEmployee()"
-                        [deletionSubjectType]="'Employee'"
-                        [readableSubjectIdentifier]="employee.username"
-                        [delBtnText]="'Delete Employee'"
-    ></app-delete-warning>
-
-  </div>
-</div>
--->
+<app-delete-warning *ngIf="isAdmin()"
+                    (deleteSubject)="deleteEmployee()"
+                    (editSubject)="editEmployee()"
+                    [deletionSubjectType]="'Employee'"
+                    [readableSubjectIdentifier]="employee.username"
+                    [delBtnText]="'Delete Employee'"
+                    [showEditOrDeleteButton]="true"
+></app-delete-warning>
 
 <hr>
 <div class="row">
