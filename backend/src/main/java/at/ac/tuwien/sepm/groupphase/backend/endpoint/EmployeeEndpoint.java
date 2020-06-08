@@ -1,9 +1,9 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EmployeeDto;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.*;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.EmployeeMapper;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.NewPasswordReqMapper;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.UserLoginMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
@@ -43,11 +43,12 @@ public class EmployeeEndpoint {
     private final AnimalMapper animalMapper;
     private final AnimalService animalService;
     private final EnclosureService enclosureService;
+    private final NewPasswordReqMapper newPasswordReqMapper;
 
     @Autowired
     public EmployeeEndpoint(EmployeeService employeeService, UserService userService,
                             EmployeeMapper employeeMapper, UserLoginMapper userLoginMapper,
-                            AnimalMapper animalMapper, AnimalService animalService, EnclosureService enclosureService){
+                            AnimalMapper animalMapper, AnimalService animalService, EnclosureService enclosureService, NewPasswordReqMapper newPasswordReqMapper){
         this.animalService = animalService;
         this.employeeService=employeeService;
         this.userService=userService;
@@ -55,6 +56,7 @@ public class EmployeeEndpoint {
         this.userLoginMapper=userLoginMapper;
         this.animalMapper = animalMapper;
         this.enclosureService = enclosureService;
+        this.newPasswordReqMapper = newPasswordReqMapper;
     }
 
 
@@ -225,4 +227,40 @@ public class EmployeeEndpoint {
         LOGGER.info("DELETE /api/v1/employee/{}", username);
        employeeService.deleteEmployeeByUsername(username);
     }
+
+    @Secured("ROLE_ADMIN")
+    @GetMapping(value = "/user/{username}")
+    @ApiOperation(value = "Get detailed information about a specific user",
+        authorizations = {@Authorization(value = "apiKey")})
+    public UserLoginDto findUser(@PathVariable String username, Authentication authentication) {
+        LOGGER.info("GET /api/v1/user/{}", username);
+        return userLoginMapper.userLoginToUserLoginDto(userService.findApplicationUserByUsername(username));
+    }
+
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "/edit/{oldUsername}")
+    @ApiOperation(value = "Edit employee", authorizations = {@Authorization(value = "apiKey")})
+    public EmployeeDto editEmployee(@RequestBody @Valid EmployeeDto employeeDto, @PathVariable String oldUsername){
+        LOGGER.info("PUT /api/v1/employee /edit/ body: {}",employeeDto);
+        return employeeMapper.employeeToEmployeeDto(employeeService.editEmployee(employeeMapper.employeeDtoToEmployee(employeeDto), oldUsername));
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "/editPassword/")
+    @ApiOperation(value = "Change Password", authorizations = {@Authorization(value = "apiKey")})
+    public void editPassword(@RequestBody @Valid NewPasswordReqDto newPasswordReqDto){
+        LOGGER.info("PUT /api/v1/employee /editPassword/ body: {}",newPasswordReqDto);
+        userService.changePassword(newPasswordReqMapper.newPasswordReqDtoToNewPasswordReq(newPasswordReqDto));
+    }
+
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "/editPasswordByAdmin/")
+    @ApiOperation(value = "Change Password", authorizations = {@Authorization(value = "apiKey")})
+    public void editPasswordByAdmin(@RequestBody @Valid NewPasswordReqDto newPasswordReqDto){
+        LOGGER.info("PUT /api/v1/employee /editPasswordByAdmin/ body: {}",newPasswordReqDto);
+        userService.changePasswordByAdmin(newPasswordReqMapper.newPasswordReqDtoToNewPasswordReq(newPasswordReqDto));
+    }
+
 }

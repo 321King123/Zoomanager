@@ -91,7 +91,7 @@ export class AnimalComponent implements OnInit {
   deleteAnimal(animal: Animal) {
     this.animalService.deleteAnimal(animal).subscribe(
       () => {
-        this.backClicked();
+        this.getAnimals();
       },
       error => {
         this.alertService.alertFromError(error, {}, 'animal-overview deleteAnimal(' + JSON.stringify(animal) + ')');

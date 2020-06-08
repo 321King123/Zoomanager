@@ -18,17 +18,27 @@
     <tbody *ngIf="animals">
 
     <ng-container *ngFor="let animal of animals">
-      <tr  class="d-flex animal-list-item" (click)="showInfo(animal)">
+      <tr class="d-flex animal-list-item" (click)="!(stopClickPropagation) ? showInfo(animal) : null">
         <td class="col">{{animal.name}}</td>
         <td class="col">{{animal.species}}</td>
         <td class="col">{{animal.description}}</td>
         <td class="col" *ngIf="animalPage">
-          <button *ngIf="enableDelete&&animalPage" (click)="deleteAnimal.emit(animal)"
-                  class="btn-sm btn-outline-danger btn">Delete
-          </button>
+          <app-delete-warning
+            *ngIf="enableDelete&&animalPage"
+            [stringId]="animal.id.toString()"
+            [deletionSubjectType]="'Animal'"
+            [readableSubjectIdentifier]="animal.name"
+            (deleteSubject)="deleteAnimalFn(animal)"
+            (toggleClickPropagationEvent)="toggleClickPropagation()"
+          ></app-delete-warning>
+<!--          <button *ngIf="enableDelete&&animalPage" (click)="deleteAnimalFn(animal)"-->
+<!--                  class="btn-sm btn-outline-danger btn">Delete-->
+<!--          </button>-->
 
         </td>
-        <td class="col" *ngIf="enclosurePage"><button *ngIf="enclosurePage" (click)="unassignAnimal.emit(animal)" class="btn-sm btn-outline-danger btn">remove</button></td>
+        <td class="col" *ngIf="enclosurePage">
+          <button *ngIf="enclosurePage" (click)="unassignAnimal.emit(animal)" class="btn-sm btn-outline-danger btn">remove</button>
+        </td>
       </tr>
     </ng-container>
 

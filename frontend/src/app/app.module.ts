@@ -25,7 +25,13 @@ import { TaskListComponent } from './components/task-list/task-list.component';
 import { AssignTaskComponent } from './components/assign-task/assign-task.component';
 import { TaskListCommonComponent } from './components/task-list-common/task-list-common.component';
 import { AlertComponent } from './components/alert/alert.component';
+import { TaskInfoUpdateComponent } from './components/task-info-update/task-info-update.component';
 import { EnclosureEditViewComponent } from './components/enclosure-edit-view/enclosure-edit-view.component';
+import { EmployeeEditViewComponent } from './components/employee-edit-view/employee-edit-view.component';
+import { EmployeePasswordChangeComponent } from './components/employee-password-change/employee-password-change.component';
+import { AnimalUpdateViewComponent } from './components/animal-update-view/animal-update-view.component';
+import { DeleteWarningComponent } from './components/delete-warning/delete-warning.component';
+import { StopClickPropagationDirective } from './directives/stop-click-propagation.directive';
 
 @NgModule({
   declarations: [
@@ -48,7 +54,13 @@ import { EnclosureEditViewComponent } from './components/enclosure-edit-view/enc
     AssignTaskComponent,
     TaskListCommonComponent,
     AlertComponent,
+    TaskInfoUpdateComponent,
     EnclosureEditViewComponent,
+    AnimalUpdateViewComponent,
+    DeleteWarningComponent,
+    StopClickPropagationDirective,
+    EmployeeEditViewComponent,
+    EmployeePasswordChangeComponent,
   ],
   imports: [
     BrowserModule,

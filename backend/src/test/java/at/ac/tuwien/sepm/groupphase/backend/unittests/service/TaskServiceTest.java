@@ -4,6 +4,7 @@ import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalTaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureTaskRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.TaskRepository;
@@ -104,6 +105,12 @@ public class TaskServiceTest implements TestData {
         .task(task_not_assigned)
         .build();
 
+    private AnimalTask animalTask_assigned = AnimalTask.builder()
+        .id(1L)
+        .subject(animal)
+        .task(task_assigned)
+        .build();
+
     private Employee janitor = Employee.builder()
         .username(USERNAME_JANITOR_EMPLOYEE)
         .name(NAME_JANITOR_EMPLOYEE)
@@ -164,7 +171,7 @@ public class TaskServiceTest implements TestData {
         });
     }
 
-   @Test
+    @Test
     public void testReturnedAnimal_expectStatusNotAssigned(){
         task_assigned.setStatus(TaskStatus.ASSIGNED);
          AnimalTask animalTask = taskService.createAnimalTask(task_assigned,animal);
@@ -346,5 +353,22 @@ public class TaskServiceTest implements TestData {
         Mockito.when(employeeService.findEmployeeForAnimalTask(Mockito.any(AnimalTask.class), Mockito.any(EmployeeType.class))).thenReturn(anmial_caretaker);
         assertThrows(IncorrectTypeException.class, () -> taskService.automaticallyAssignAnimalTask(animalTask_not_assigned.getId(), EmployeeType.ANIMAL_CARE));
         animalTask_not_assigned.getTask().setStatus(TaskStatus.NOT_ASSIGNED);
+
+    @Test
+    public void updateTaskCheckForTimeInvalid(){
+        Task task_assigned = Task.builder()
+            .id(2L)
+            .title(TASK_TITLE)
+            .description(TASK_DESCRIPTION)
+            .startTime(TAST_START_TIME)
+            .endTime(TAST_END_TIME)
+            .status(TaskStatus.ASSIGNED)
+            .assignedEmployee(anmial_caretaker)
+            .build();
+        AnimalTask animalTask = AnimalTask.builder()
+            .id(2L).task(task_assigned).subject(animal).build();
+        Mockito.when(animalTaskRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(animalTask));
+        Mockito.when(employeeService.employeeIsFreeBetweenStartingAndEndtime(Mockito.any(Employee.class),Mockito.any(Task.class))).thenReturn(false);
+        assertThrows(NotFreeException.class, () -> taskService.updateFullAnimalTaskInformation(animalTask));
     }
 }

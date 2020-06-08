@@ -163,4 +163,14 @@ public interface EmployeeService  {
      */
     double getTimeSpendThisWeekInHours(Employee employee);
 
+    /**
+     * Editing Enclosure that is already in the Database
+     *
+     * @param employeeToEdit to be edited
+     * @param oldUsername username to be edited
+     * @return edited Enployee as saved in the Database
+     */
+    Employee editEmployee(Employee employeeToEdit, String oldUsername);
+
+    boolean checkIfThereAreTaskBetweenGivenWorkHours(Employee employee);
 }

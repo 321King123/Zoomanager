@@ -6,6 +6,9 @@ import {HttpClient} from '@angular/common/http';
 import {Message} from '../dtos/message';
 import {Animal} from '../dtos/animal';
 import DEBUG_LOG = Utilities.DEBUG_LOG;
+import {AuthRequest} from '../dtos/auth-request';
+import {Enclosure} from '../dtos/enclosure';
+import {NewPasswordReq} from '../dtos/newPasswordReq';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +18,10 @@ export class EmployeeService {
   private employeeBaseUri: string = this.globals.backendUri + '/employee';
 
   constructor(private httpClient: HttpClient, private globals: Globals) {
+  }
+
+  getUser(username: String): Observable<AuthRequest> {
+    return this.httpClient.get<AuthRequest>(this.employeeBaseUri + '/user/' + username);
   }
 
   /**
@@ -103,5 +110,16 @@ export class EmployeeService {
   deleteEmployee(username: string): Observable<Employee> {
     DEBUG_LOG('Delete employee ' + username);
     return this.httpClient.delete<Employee>(this.employeeBaseUri + '/' + username);
+  }
+
+  editEmployee(employeeEdited: Employee, oldUsername: string): Observable<Employee> {
+    return this.httpClient.put<Employee>(this.employeeBaseUri + '/edit/' + oldUsername , employeeEdited);
+  }
+
+  savePassword(newPasswordReq: NewPasswordReq): Observable<NewPasswordReq> {
+    return this.httpClient.put<NewPasswordReq>(this.employeeBaseUri + '/editPassword/', newPasswordReq);
+  }
+  savePasswordByAdmin(newPasswordReq: NewPasswordReq): Observable<NewPasswordReq> {
+    return this.httpClient.put<NewPasswordReq>(this.employeeBaseUri + '/editPasswordByAdmin/', newPasswordReq);
   }
 }

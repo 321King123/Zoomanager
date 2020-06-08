@@ -24,7 +24,6 @@ public class EnclosureTask {
 
 
     @NonNull
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Enclosure subject;
-
 }

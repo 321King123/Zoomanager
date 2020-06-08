@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Directive, HostListener, Injectable} from '@angular/core';
 import {NgbTimeAdapter, NgbTimeStruct} from '@ng-bootstrap/ng-bootstrap';
 
 @Injectable({
@@ -15,6 +15,12 @@ export enum type {
 export namespace Utilities {
   export const DEBUG_MODE = true;
   export const DEBUG_LOG = DEBUG_MODE ? console.log.bind(console) : function () {};
+}
+export enum TimeUnits {
+  DAY = 'DAYS',
+  WEEK = 'WEEKS',
+  MONTH = 'MONTHS',
+  YEAR = 'YEARS'
 }
 
 const pad = (i: number): string => i < 10 ? `0${i}` : `${i}`;

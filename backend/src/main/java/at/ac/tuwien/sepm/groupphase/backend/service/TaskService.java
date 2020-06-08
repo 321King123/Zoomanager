@@ -3,8 +3,7 @@ package at.ac.tuwien.sepm.groupphase.backend.service;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 
-import java.util.List;
-
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 public interface TaskService {
@@ -107,4 +106,74 @@ public interface TaskService {
      */
     void automaticallyAssignAnimalTask(Long animalTaskId, EmployeeType employeeType);
 
+    Task getTaskById(Long taskId);
+
+    void updateFullAnimalTaskInformation(AnimalTask animalTask);
+
+    void updateFullEnclosureTaskInformation(EnclosureTask enclosureTask);
+
+    EnclosureTask getEnclosureTaskById(Long enclosureTaskId);
+
+    AnimalTask getAnimalTaskById(Long animalTaskId);
+
+    /**
+     * Creates a set amount of tasks
+     *
+     * @param task template of the tasks that will be created, Start- and Endtime for the first task
+     * @param animal the tasks will be assigned to
+     * @param amount of tasks that wil be created
+     * @param separation which time-frame will be between the tasks
+     * @param separationCount how many of the specified time frame will be between the tasks
+     * @return List of AnimalTasks that are created
+     */
+    List<AnimalTask> createRepeatableAnimalTask(Task task, Animal animal, int amount, ChronoUnit separation, int separationCount);
+
+    /**
+     * Creates a set amount of tasks
+     *
+     * @param task template of the tasks that will be created, Start- and Endtime for the first task
+     * @param enclosure the tasks will be assigned to
+     * @param amount of tasks that wil be created
+     * @param separation which time-frame will be between the tasks
+     * @param separationCount how many of the specified time frame will be between the tasks
+     * @return List of AnimalTasks that are created
+     */
+    List<EnclosureTask> createRepeatableEnclosureTask(Task task, Enclosure enclosure, int amount, ChronoUnit separation, int separationCount);
+
+    /**
+     * Deletes Task and all future instances
+     *
+     * @param taskId If of the first task to be deleted
+     */
+    void repeatDeleteTask(Long taskId);
+
+    /**
+     * Edits priority, title, description and subject of this task and all that follow.
+     *
+     * @param animalTask with id of the first task to be changed, and the new desired properties
+     */
+    void repeatUpdateAnimalTaskInformation(AnimalTask animalTask);
+
+    /**
+     * Edits priority, title, description and subject of this task and all that follow.
+     *
+     * @param enclosureTask with id of the first task to be changed, and the new desired properties
+     */
+    void repeatUpdateEnclosureTaskInformation(EnclosureTask enclosureTask);
+
+    /**
+     * Assign a currently unassigned AnimalTask and all following Tasks to an Employee,
+     * It will be assigned to the least busy worker
+     * @param animalTaskId is the id of the animalTask
+     * @param employeeType type of employee this task is for
+     */
+    void automaticallyAssignAnimalTaskRepeat(Long animalTaskId, EmployeeType employeeType);
+
+    /**
+     * Assign a currently unassigned AnimalTask and all following Tasks to an Employee,
+     * It will be assigned to the least busy worker
+     * @param enclosureTaskId is the id of the animalTask
+     * @param employeeType type of employee this task is for
+     */
+    void automaticallyAssignEnclosureTaskRepeat(Long enclosureTaskId, EmployeeType employeeType);
 }

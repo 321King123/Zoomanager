@@ -65,28 +65,39 @@
 <br>
 
 <div class="row no-gutters justify-content-end" *ngIf="editing===false && isAdmin()">
-  <div class="btn-group col-2">
-    <ng-container *ngIf="btnIsEdit">
-      <button type="button" class="btn btn-info" (click)="toEditButton()">Edit</button>
-      <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">
-        <button class="btn btn-info dropdown-toggle-split" ngbDropdownToggle></button>
-        <div class="dropdown-menu" ngbDropdownMenu>
-          <button ngbDropdownItem (click)="toEditButton()">Edit</button>
-          <button ngbDropdownItem (click)="toDeleteButton()">Delete</button>
-        </div>
-      </div>
-    </ng-container>
-    <ng-container *ngIf="btnIsDelete">
-      <button type="button" class="btn btn-danger" (click)="deleteEnclosure()">Delete</button>
-      <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">
-        <button class="btn btn-danger dropdown-toggle-split" ngbDropdownToggle></button>
-        <div class="dropdown-menu" ngbDropdownMenu>
-          <button ngbDropdownItem (click)="toEditButton()">Edit</button>
-          <button ngbDropdownItem (click)="toDeleteButton()">Delete</button>
-        </div>
-      </div>
-    </ng-container>
-  </div>
+  <app-delete-warning
+    (deleteSubject)="deleteEnclosure()"
+    (editSubject)="editEnclosure()"
+    [deletionSubjectType]="'Enclosure'"
+    [readableSubjectIdentifier]="enclosureToView.name"
+    [showEditOrDeleteButton]="true"
+    [outlinedButtons]="false"></app-delete-warning>
+
+
+<!--  <div class="btn-group col-2">-->
+<!--    <ng-container *ngIf="btnIsEdit">-->
+<!--      <button type="button" class="btn btn-info" (click)="editEnclosure()">Edit</button>-->
+<!--      <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">-->
+<!--        <button class="btn btn-info dropdown-toggle-split" ngbDropdownToggle></button>-->
+<!--        <div class="dropdown-menu" ngbDropdownMenu>-->
+<!--          <button ngbDropdownItem (click)="toEditButton()">Edit</button>-->
+<!--          <button ngbDropdownItem (click)="toDeleteButton()">Delete</button>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </ng-container>-->
+<!--    <ng-container *ngIf="btnIsDelete">-->
+<!--      <button type="button" class="btn btn-danger" (click)="deleteEnclosure()">Delete</button>-->
+<!--      <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">-->
+<!--        <button class="btn btn-danger dropdown-toggle-split" ngbDropdownToggle></button>-->
+<!--        <div class="dropdown-menu" ngbDropdownMenu>-->
+<!--          <button ngbDropdownItem (click)="toEditButton()">Edit</button>-->
+<!--          <button ngbDropdownItem (click)="toDeleteButton()">Delete</button>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </ng-container>-->
+<!--  </div>-->
+
+
 
 <!--  1 Button, dropdown Elements lead directly to deletion/Editing-->
 <!--  <div class="btn-group col-2">-->

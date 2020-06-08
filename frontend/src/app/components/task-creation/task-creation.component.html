@@ -28,6 +28,11 @@
             <button (click)="setToPriorityTask()" type="radio" class="btn btn-secondary">Hight</button>
           </div>
         </div>
+        <div class="row p-3 justify-content-center">
+          <div class="col btn-group btn-group-toggle" data-toggle="buttons">
+            <button (click)="changeRepeatable()" type="radio" class="col btn btn-outline-info">Repeatable</button>
+          </div>
+        </div>
         <div class="row p-3">
           <div class="col">
             <form [formGroup]="taskCreationForm" (ngSubmit)="taskSubmitted()">
@@ -158,6 +163,25 @@
                     </div>
                   </div>
                 </ng-container>
+                <div class="form-group col-12" *ngIf="isRepeatable">
+                  <label for="inputAmount">Amount</label>
+                  <input type="number" name="amount" formControlName="amount" class="form-control" id="inputAmount"
+                         aria-describedby="AmountHelp" value="1" min="1">
+                </div>
+                <div class="form-group col-6" *ngIf="isRepeatable">
+                  <label for="inputSeparation">Separation</label>
+                  <select name="separation" formControlName="separation" class="form-control" id="inputSeparation"
+                         aria-describedby="AmountHelp">
+                    <option *ngFor="let timeUnit of timeUnitValues" [ngValue]="timeUnits[timeUnit]" [defaultSelected]="true">{{timeUnit}}
+                    </option>
+                  </select>
+                </div>
+                <div class="form-group col-6" *ngIf="isRepeatable">
+                  <label for="inputSeparationAmount">Separation-Amount</label>
+                  <input type="number" name="separationAmount" formControlName="separationAmount" class="form-control" id="inputSeparationAmount"
+                         aria-describedby="AmountHelp" value="1" min="1">
+                </div>
+
               </div>
             </form>
           </div>

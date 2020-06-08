@@ -11,6 +11,9 @@ import {EnclosureComponent} from './components/enclosure/enclosure.component';
 import {EnclosureViewComponent} from './components/enclosure-view/enclosure-view.component';
 import {AnimalViewComponent} from './components/animal-view/animal-view.component';
 import {EnclosureEditViewComponent} from './components/enclosure-edit-view/enclosure-edit-view.component';
+import {AnimalUpdateViewComponent} from './components/animal-update-view/animal-update-view.component';
+import {EmployeeEditViewComponent} from './components/employee-edit-view/employee-edit-view.component';
+import {EmployeePasswordChangeComponent} from './components/employee-password-change/employee-password-change.component';
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -19,11 +22,13 @@ const routes: Routes = [
   {path: 'employee', canActivate: [AuthGuard], component: EmployeeComponent},
   {path: 'animal', canActivate: [AuthGuard], component: AnimalComponent},
   {path: 'employee-view/:username', canActivate: [AuthGuard], component: EmployeeViewComponent},
+  {path: 'employee-edit-view/:username', canActivate: [AuthGuard], component: EmployeeEditViewComponent},
   {path: 'personal-info', canActivate: [AuthGuard], component: EmployeeViewComponent},
   {path: 'enclosure', canActivate: [AuthGuard], component: EnclosureComponent},
   {path: 'enclosure-view/:enclosureId', canActivate: [AuthGuard], component: EnclosureViewComponent},
   {path: 'enclosure-edit-view/:enclosureId', canActivate: [AuthGuard], component: EnclosureEditViewComponent},
-  {path: 'animal-view/:animalId', canActivate: [AuthGuard], component: AnimalViewComponent}
+  {path: 'animal-view/:animalId', canActivate: [AuthGuard], component: AnimalViewComponent},
+  {path: 'employee-password-change/:username', canActivate: [AuthGuard], component: EmployeePasswordChangeComponent}
 ];
 
 @NgModule({

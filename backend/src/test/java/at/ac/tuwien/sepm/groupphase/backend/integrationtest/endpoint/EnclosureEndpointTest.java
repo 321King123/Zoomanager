@@ -240,4 +240,27 @@ public class EnclosureEndpointTest implements TestData {
 
         assertEquals(HttpStatus.NOT_FOUND.value(),  response.getStatus());
     }
+
+    @Test
+    public void editEnclosureName() throws Exception {
+        enclosureRepository.save(enclosureMinimal);
+        List<Enclosure> enclosures = enclosureRepository.findAll();
+        EnclosureDto enclosureDto = enclosureMapper.enclosureToEnclosureDto(enclosures.get(0));
+
+        enclosureDto.setName("Don");
+        String body = objectMapper.writeValueAsString(enclosureDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(ENCLOSURE_BASE_URI +"/edit")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        enclosures = enclosureRepository.findAll();
+        assertEquals("Don",enclosures.get(0).getName());
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+
+    }
 }
