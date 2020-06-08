@@ -8,6 +8,7 @@ import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
+import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import org.aspectj.weaver.ast.Not;
 import org.junit.jupiter.api.AfterEach;
@@ -92,6 +93,14 @@ public class RepeatableTaskServiceTest implements TestData {
         .description(DESCRIPTION_LION_ENCLOSURE)
         .publicInfo(PUBLIC_INFO_LION_ENCLOSURE)
         .picture(PICTURE_LION_ENCLOSURE)
+        .build();
+
+    private Task task = Task.builder()
+        .title(TASK_TITLE)
+        .description(TASK_DESCRIPTION)
+        .startTime(TAST_START_TIME)
+        .endTime(TAST_END_TIME)
+        .status(TaskStatus.ASSIGNED)
         .build();
 
     private Enclosure enclosure;
@@ -270,5 +279,47 @@ public class RepeatableTaskServiceTest implements TestData {
         RepeatableTask firstTaskRepeatable = repeatableTaskRepository.findById(enclosureTaskList.get(0).getId()).get();
 
         assertThrows(NotFoundException.class, () -> taskService.repeatUpdateEnclosureTaskInformation(EnclosureTask.builder().id(firstTaskRepeatable.getId() + 1).subject(new Enclosure()).build()));
+    }
+
+    @Test
+    public void automaticallyAssignAnimalTaskRepeat_whenEmployeeAvailable_thenAssigned() {
+        anmial_caretaker.setType(EmployeeType.DOCTOR);
+        Employee employee = employeeRepository.save(anmial_caretaker);
+        anmial_caretaker.setType(TYPE_ANIMAL_CARE_EMPLOYEE);
+
+        List<AnimalTask> animalTaskList = taskService.createRepeatableAnimalTask(task, animal, 4, ChronoUnit.DAYS, 2);
+
+        RepeatableTask firstTaskRepeatable = repeatableTaskRepository.findById(animalTaskList.get(3).getId()).get();
+        Task firstTask = firstTaskRepeatable.getTask();
+
+        taskService.automaticallyAssignAnimalTaskRepeat(firstTask.getId(), EmployeeType.DOCTOR);
+
+        List<Task> tasks = taskRepository.findAll();
+
+        for(Task t : tasks) {
+            assertEquals(TaskStatus.ASSIGNED, t.getStatus());
+            assertEquals(employee.getUsername(), t.getAssignedEmployee().getUsername());
+        }
+    }
+
+    @Test
+    public void automaticallyAssignEnclosureTaskRepeat_whenEmployeeAvailable_thenAssigned() {
+        anmial_caretaker.setType(EmployeeType.JANITOR);
+        Employee employee = employeeRepository.save(anmial_caretaker);
+        anmial_caretaker.setType(TYPE_ANIMAL_CARE_EMPLOYEE);
+
+        List<EnclosureTask> enclosureTasks = taskService.createRepeatableEnclosureTask(task, enclosure, 4, ChronoUnit.DAYS, 2);
+
+        RepeatableTask firstTaskRepeatable = repeatableTaskRepository.findById(enclosureTasks.get(3).getId()).get();
+        Task firstTask = firstTaskRepeatable.getTask();
+
+        taskService.automaticallyAssignEnclosureTaskRepeat(firstTask.getId(), EmployeeType.JANITOR);
+
+        List<Task> tasks = taskRepository.findAll();
+
+        for(Task t : tasks) {
+            assertEquals(TaskStatus.ASSIGNED, t.getStatus());
+            assertEquals(employee.getUsername(), t.getAssignedEmployee().getUsername());
+        }
     }
 }

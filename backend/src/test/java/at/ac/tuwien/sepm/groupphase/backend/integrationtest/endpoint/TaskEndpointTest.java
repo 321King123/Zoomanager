@@ -1428,4 +1428,131 @@ public class TaskEndpointTest implements TestData {
             () -> {assertEquals(updatedTask.getSubject().getId(),subject2.getId());}
         );
     }
+
+    @Test
+    public void assignAnimalTaskDoctorRepeat() throws Exception {
+        task.setStatus(TaskStatus.NOT_ASSIGNED);
+        Animal subject = animalRepository.save(animal);
+        userLoginRepository.save(doctor_login);
+        employeeRepository.save(doctor);
+        Task task1 = taskRepository.save(task);
+        Task task2 = taskRepository.save(task);
+
+        AnimalTask animalTask = animalTaskRepository.save(AnimalTask.builder().id(task1.getId()).subject(subject).build());
+        AnimalTask animalTask2 = animalTaskRepository.save(AnimalTask.builder().id(task2.getId()).subject(subject).build());
+
+        RepeatableTask repeatableTask = repeatableTaskRepository.save(RepeatableTask.builder().id(task1.getId()).followTask(task2).build());
+        RepeatableTask repeatableTask2 = repeatableTaskRepository.save(RepeatableTask.builder().id(task2.getId()).followTask(null).build());
+
+        MvcResult mvcResult = this.mockMvc.perform(post(TASK_BASE_URI + "/auto/animal/doctor/repeat/" + task1.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        List<Task> tasks = taskRepository.findAll();
+        for(Task t : tasks) {
+            assertEquals(TaskStatus.ASSIGNED, t.getStatus());
+            assertEquals(doctor.getUsername(), t.getAssignedEmployee().getUsername());
+        }
+    }
+
+    @Test
+    public void assignAnimalTaskCaretakerRepeat() throws Exception {
+        task.setStatus(TaskStatus.NOT_ASSIGNED);
+        Animal subject = animalRepository.save(animal);
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        animalRepository.assignAnimalToCaretaker(anmial_caretaker.getUsername(),subject.getId());
+        Task task1 = taskRepository.save(task);
+        Task task2 = taskRepository.save(task);
+
+        AnimalTask animalTask = animalTaskRepository.save(AnimalTask.builder().id(task1.getId()).subject(subject).build());
+        AnimalTask animalTask2 = animalTaskRepository.save(AnimalTask.builder().id(task2.getId()).subject(subject).build());
+
+        RepeatableTask repeatableTask = repeatableTaskRepository.save(RepeatableTask.builder().id(task1.getId()).followTask(task2).build());
+        RepeatableTask repeatableTask2 = repeatableTaskRepository.save(RepeatableTask.builder().id(task2.getId()).followTask(null).build());
+
+        MvcResult mvcResult = this.mockMvc.perform(post(TASK_BASE_URI + "/auto/animal/caretaker/repeat/" + task1.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        List<Task> tasks = taskRepository.findAll();
+        for(Task t : tasks) {
+            assertEquals(TaskStatus.ASSIGNED, t.getStatus());
+            assertEquals(anmial_caretaker.getUsername(), t.getAssignedEmployee().getUsername());
+        }
+    }
+
+    @Test
+    public void assignEnclosureTaskCaretakerRepeat() throws Exception {
+        task.setStatus(TaskStatus.NOT_ASSIGNED);
+        Enclosure subject = enclosureRepository.save(barn);
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        Animal animal1 = animalRepository.save(animal);
+        animal1.setEnclosure(subject);
+        animalRepository.save(animal1);
+        animalRepository.assignAnimalToCaretaker(anmial_caretaker.getUsername(),animal1.getId());
+
+        Task task1 = taskRepository.save(task);
+        Task task2 = taskRepository.save(task);
+
+        EnclosureTask enclosureTask = enclosureTaskRepository.save(EnclosureTask.builder().id(task1.getId()).subject(subject).build());
+        EnclosureTask enclosureTask2 = enclosureTaskRepository.save(EnclosureTask.builder().id(task2.getId()).subject(subject).build());
+
+        RepeatableTask repeatableTask = repeatableTaskRepository.save(RepeatableTask.builder().id(task1.getId()).followTask(task2).build());
+        RepeatableTask repeatableTask2 = repeatableTaskRepository.save(RepeatableTask.builder().id(task2.getId()).followTask(null).build());
+
+        MvcResult mvcResult = this.mockMvc.perform(post(TASK_BASE_URI + "/auto/enclosure/caretaker/repeat/" + task1.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        List<Task> tasks = taskRepository.findAll();
+        for(Task t : tasks) {
+            assertEquals(TaskStatus.ASSIGNED, t.getStatus());
+            assertEquals(anmial_caretaker.getUsername(), t.getAssignedEmployee().getUsername());
+        }
+    }
+
+    @Test
+    public void assignEnclosureTaskJanitorRepeat() throws Exception {
+        task.setStatus(TaskStatus.NOT_ASSIGNED);
+        Enclosure subject = enclosureRepository.save(barn);
+        userLoginRepository.save(janitor_login);
+        employeeRepository.save(janitor);
+
+        Task task1 = taskRepository.save(task);
+        Task task2 = taskRepository.save(task);
+
+        EnclosureTask enclosureTask = enclosureTaskRepository.save(EnclosureTask.builder().id(task1.getId()).subject(subject).build());
+        EnclosureTask enclosureTask2 = enclosureTaskRepository.save(EnclosureTask.builder().id(task2.getId()).subject(subject).build());
+
+        RepeatableTask repeatableTask = repeatableTaskRepository.save(RepeatableTask.builder().id(task1.getId()).followTask(task2).build());
+        RepeatableTask repeatableTask2 = repeatableTaskRepository.save(RepeatableTask.builder().id(task2.getId()).followTask(null).build());
+
+        MvcResult mvcResult = this.mockMvc.perform(post(TASK_BASE_URI + "/auto/enclosure/janitor/repeat/" + task1.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        List<Task> tasks = taskRepository.findAll();
+        for(Task t : tasks) {
+            assertEquals(TaskStatus.ASSIGNED, t.getStatus());
+            assertEquals(janitor.getUsername(), t.getAssignedEmployee().getUsername());
+        }
+    }
 }
