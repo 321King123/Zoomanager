@@ -31,9 +31,14 @@
   <div class="col-12 my-2">
     <div
       class="row d-flex justify-content-start mx-0 ">
-      <button *ngIf="isAdmin()" class="btn btn-outline-danger" type="button"
-              (click)="deleteEmployee()">Delete Employee
-      </button>
+      <app-delete-warning *ngIf="isAdmin()" (deleteSubject)="deleteEmployee()"
+                          [deletionSubjectType]="'Employee'"
+                          [readableSubjectIdentifier]="employee.username"
+                          [delBtnText]="'Delete Employee'"
+      ></app-delete-warning>
+<!--      <button *ngIf="isAdmin()" class="btn btn-outline-danger" type="button"-->
+<!--              (click)="deleteEmployee()">Delete Employee-->
+<!--      </button>-->
     </div>
   </div>
 </div>
@@ -79,7 +84,9 @@
 <ng-container *ngIf="employee!=null && taskListMode">
   <div class="row mb-4">
     <div class="col-lg-12">
-      <app-task-list-common [currentUserType]="currentUserType" (reloadTasks)="loadTasksOfEmployee()" [tasks]="tasks"></app-task-list-common>
+      <app-task-list-common [enclosuresOfEmployee]="enclosuresOfEmployee" [animalsOfEmployee]="assignedAnimals"
+                            [currentUserType]="currentUserType" (reloadTasks)="loadTasksOfEmployee()"
+                            [tasks]="tasks"></app-task-list-common>
     </div>
   </div>
 </ng-container>

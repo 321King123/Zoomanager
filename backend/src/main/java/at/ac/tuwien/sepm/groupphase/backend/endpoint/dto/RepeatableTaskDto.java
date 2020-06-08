@@ -7,7 +7,9 @@ import lombok.*;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Getter
 @Setter
@@ -16,7 +18,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CombinedTaskDto {
+public class RepeatableTaskDto {
 
     private Long id;
 
@@ -40,19 +42,17 @@ public class CombinedTaskDto {
 
     private String assignedEmployeeUsername;
 
-    @NotNull(message = "Task Status must not be null")
     private TaskStatus status;
-
-  /*  @NotNull(message = "Name must not be null")
-    @NotBlank(message = "Name must not be empty")*/
-    private String subjectName;
-
-    @NotNull(message = "Name must not be null")
-    private Long subjectId;
-
-    @NotNull(message = "You have to specify the kind of task")
-    private boolean animalTask;
 
     @NotNull
     private boolean priority;
+
+    @Positive
+    private int amount;
+
+    @NotNull
+    private ChronoUnit separation;
+
+    @Positive
+    private int separationAmount;
 }
