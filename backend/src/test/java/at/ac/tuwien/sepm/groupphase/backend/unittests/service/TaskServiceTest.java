@@ -347,12 +347,13 @@ public class TaskServiceTest implements TestData {
     }
 
     @Test
-    public void autoAssignAnimalTaskAlreadyAssigned(){
+    public void autoAssignAnimalTaskAlreadyAssigned() {
         animalTask_not_assigned.getTask().setStatus(TaskStatus.ASSIGNED);
         Mockito.when(animalTaskRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(animalTask_not_assigned));
         Mockito.when(employeeService.findEmployeeForAnimalTask(Mockito.any(AnimalTask.class), Mockito.any(EmployeeType.class))).thenReturn(anmial_caretaker);
         assertThrows(IncorrectTypeException.class, () -> taskService.automaticallyAssignAnimalTask(animalTask_not_assigned.getId(), EmployeeType.ANIMAL_CARE));
         animalTask_not_assigned.getTask().setStatus(TaskStatus.NOT_ASSIGNED);
+    }
 
     @Test
     public void updateTaskCheckForTimeInvalid(){
