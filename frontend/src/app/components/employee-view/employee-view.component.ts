@@ -258,10 +258,13 @@ export class EmployeeViewComponent implements OnInit {
     this.btnIsEdit = false;
   }
 
+  editEmployee() {
+    this.router.navigate(['/employee-edit-view/' + this.employee.username]);
+  }
+
   toEditButton() {
     this.btnIsEdit = true;
     this.btnIsDelete = false;
-    this.router.navigate(['/employee-edit-view/' + this.employee.username]);
   }
   toChangePassword() {
     this.router.navigate(['employee-password-change/' + this.employee.username]);

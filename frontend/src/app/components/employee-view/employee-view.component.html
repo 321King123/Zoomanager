@@ -34,35 +34,49 @@
   </div>
 </div>
 
-<div *ngIf="isAdmin()">
-  <div class="btn-group">
-    <ng-container *ngIf="btnIsEdit">
-      <button type="button" class="btn-group btn btn-info" (click)="toEditButton()">Edit</button>
-      <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">
-        <button class="btn-group btn btn-info dropdown-toggle-split" ngbDropdownToggle></button>
-        <div class="dropdown-menu" ngbDropdownMenu>
-          <button ngbDropdownItem (click)="toEditButton()">Edit</button>
-          <button ngbDropdownItem (click)="toDeleteButton()">Delete</button>
-        </div>
-      </div>
-    </ng-container>
-    <ng-container *ngIf="btnIsDelete">
-      <app-delete-warning *ngIf="isAdmin()" (deleteSubject)="deleteEmployee()"
-                          [deletionSubjectType]="'Employee'"
-                          [readableSubjectIdentifier]="employee.username"
-                          [delBtnText]="'Delete Employee'"
-                          class="btn"
-      ></app-delete-warning>
-      <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">
-        <button class="btn-group btn btn-danger dropdown-toggle-split" ngbDropdownToggle></button>
-        <div class="dropdown-menu" ngbDropdownMenu>
-          <button ngbDropdownItem (click)="toEditButton()">Edit</button>
-          <button ngbDropdownItem (click)="toDeleteButton()">Delete</button>
-        </div>
-      </div>
-    </ng-container>
-  </div>
-</div>
+<app-delete-warning *ngIf="isAdmin()"
+                    (deleteSubject)="deleteEmployee()"
+                    (editSubject)="editEmployee()"
+                    [deletionSubjectType]="'Employee'"
+                    [readableSubjectIdentifier]="employee.username"
+                    [delBtnText]="'Delete Employee'"
+                    [showEditOrDeleteButton]="true"
+                    class="btn"
+></app-delete-warning>
+
+<!--<div *ngIf="isAdmin()">-->
+
+<!--  <div class="btn-group">-->
+<!--    <ng-container *ngIf="btnIsEdit">-->
+<!--      <button type="button" class="btn-group btn btn-info" (click)="editEmployee()">Edit</button>-->
+<!--      <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">-->
+<!--        <button class="btn-group btn btn-info dropdown-toggle-split" ngbDropdownToggle></button>-->
+<!--        <div class="dropdown-menu" ngbDropdownMenu>-->
+<!--          <button ngbDropdownItem (click)="toEditButton()">Edit</button>-->
+<!--          <button ngbDropdownItem (click)="toDeleteButton()">Delete</button>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </ng-container>-->
+<!--    <ng-container *ngIf="btnIsDelete">-->
+<!--      <app-delete-warning *ngIf="isAdmin()"-->
+<!--                          (deleteSubject)="deleteEmployee()"-->
+<!--                          (editSubject)="editEmployee()"-->
+<!--                          [deletionSubjectType]="'Employee'"-->
+<!--                          [readableSubjectIdentifier]="employee.username"-->
+<!--                          [delBtnText]="'Delete Employee'"-->
+<!--                          [showEditOrDeleteButton]="true"-->
+<!--                          class="btn"-->
+<!--      ></app-delete-warning>-->
+<!--      <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">-->
+<!--        <button class="btn-group btn btn-danger dropdown-toggle-split" ngbDropdownToggle></button>-->
+<!--        <div class="dropdown-menu" ngbDropdownMenu>-->
+<!--          <button ngbDropdownItem (click)="toEditButton()">Edit</button>-->
+<!--          <button ngbDropdownItem (click)="toDeleteButton()">Delete</button>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </ng-container>-->
+<!--  </div>-->
+<!--</div>-->
 
 <!--
 <div class="col-12 my-2">
