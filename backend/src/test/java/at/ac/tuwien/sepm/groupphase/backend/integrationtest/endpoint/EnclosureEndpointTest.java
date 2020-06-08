@@ -261,6 +261,6 @@ public class EnclosureEndpointTest implements TestData {
         enclosures = enclosureRepository.findAll();
         assertEquals("Don",enclosures.get(0).getName());
         assertEquals(HttpStatus.OK.value(), response.getStatus());
-        
+
     }
 }

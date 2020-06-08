@@ -47,7 +47,12 @@
       </div>
     </ng-container>
     <ng-container *ngIf="btnIsDelete">
-      <button type="button" class="btn-group btn btn-danger" (click)="deleteEmployee()">Delete</button>
+      <app-delete-warning *ngIf="isAdmin()" (deleteSubject)="deleteEmployee()"
+                          [deletionSubjectType]="'Employee'"
+                          [readableSubjectIdentifier]="employee.username"
+                          [delBtnText]="'Delete Employee'"
+                          class="btn"
+      ></app-delete-warning>
       <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">
         <button class="btn-group btn btn-danger dropdown-toggle-split" ngbDropdownToggle></button>
         <div class="dropdown-menu" ngbDropdownMenu>
@@ -58,6 +63,8 @@
     </ng-container>
   </div>
 </div>
+
+<!--
 <div class="col-12 my-2">
   <div
     class="row d-flex justify-content-start mx-0 ">
@@ -66,12 +73,10 @@
                         [readableSubjectIdentifier]="employee.username"
                         [delBtnText]="'Delete Employee'"
     ></app-delete-warning>
-    <!--      <button *ngIf="isAdmin()" class="btn btn-outline-danger" type="button"-->
-    <!--              (click)="deleteEmployee()">Delete Employee-->
-    <!--      </button>-->
+
   </div>
 </div>
-
+-->
 
 <hr>
 <div class="row">
