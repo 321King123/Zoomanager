@@ -30,6 +30,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -199,8 +201,9 @@ public class AnimalEndpointTest implements TestData {
     @Test
     public void EditingExistingAnimal_Status200() throws Exception {
         animalRepository.save(animal);
+        Animal saved = animalRepository.findAll().get(0);
         Animal animal1 = Animal.builder()
-            .id(1L)
+            .id(saved.getId())
             .name("Milly")
             .description("fastest horse")
             .enclosure(null)
