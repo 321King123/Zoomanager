@@ -34,15 +34,7 @@
   </div>
 </div>
 
-<app-delete-warning *ngIf="isAdmin() && employee!=null"
-                    (deleteSubject)="deleteEmployee()"
-                    (editSubject)="editEmployee()"
-                    [deletionSubjectType]="'Employee'"
-                    [readableSubjectIdentifier]="employee.username"
-                    [delBtnText]="'Delete Employee'"
-                    [showEditOrDeleteButton]="true"
-                    class="btn"
-></app-delete-warning>
+
 
 <!--<div *ngIf="isAdmin()">-->
 
@@ -91,6 +83,14 @@
   </div>
 </div>
 -->
+<app-delete-warning *ngIf="isAdmin()"
+                    (deleteSubject)="deleteEmployee()"
+                    (editSubject)="editEmployee()"
+                    [deletionSubjectType]="'Employee'"
+                    [readableSubjectIdentifier]="employee.username"
+                    [delBtnText]="'Delete Employee'"
+                    [showEditOrDeleteButton]="true"
+></app-delete-warning>
 
 <hr>
 <div class="row">
