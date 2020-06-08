@@ -57,7 +57,7 @@ export class EnclosureEditViewComponent implements OnInit {
   }
 
   saveChanges() {
-    if (!this.enclosureEditInfo.valid){
+    if (!this.enclosureEditInfo.valid) {
       this.alertService.info('Name cannot be empty');
     } else {
       const enclosureEdited: Enclosure = new Enclosure(

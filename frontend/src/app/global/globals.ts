@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Directive, HostListener, Injectable} from '@angular/core';
 import {NgbTimeAdapter, NgbTimeStruct} from '@ng-bootstrap/ng-bootstrap';
 
 @Injectable({

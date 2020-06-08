@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {Task} from '../../dtos/task';
 import {Employee} from '../../dtos/employee';
 import {Animal} from '../../dtos/animal';
@@ -18,6 +18,7 @@ import DEBUG_LOG = Utilities.DEBUG_LOG;
   styleUrls: ['./task-info-update.component.css']
 })
 export class TaskInfoUpdateComponent implements OnInit {
+  @Input() stringId: String = 'default';
   @Input() task: Task;
   copyTask: Task;
   @Input() index;
@@ -51,6 +52,13 @@ export class TaskInfoUpdateComponent implements OnInit {
     subjectId: false,
     priority: false
   };
+
+  @Output() toggleClickPropagationEvent = new EventEmitter();
+
+  @ViewChild('modalToggleBtn')
+  modalToggle: ElementRef<HTMLElement>;
+
+  private modalIsOpen: boolean = false;
 
   constructor(private employeeService: EmployeeService, private animalService: AnimalService,
               private taskService: TaskService, private formBuilder: FormBuilder,
@@ -256,5 +264,38 @@ export class TaskInfoUpdateComponent implements OnInit {
 
   changeRepeat() {
     this.repeatMode = !this.repeatMode;
+  }
+  
+  toggleModal() {
+    //   this.stopClickPropagationEvent.emit();
+    DEBUG_LOG('Toggle Modal');
+    const modalToggleElement: HTMLElement = this.modalToggle.nativeElement;
+    if (this.modalIsOpen) {
+      this.closeModal(modalToggleElement);
+    } else if (!this.modalIsOpen) {
+      this.openModal(modalToggleElement);
+    }
+
+    // modalToggleElement.click();
+    // this.enableClickPropagationEvent.emit();
+  }
+
+  closeModal(modalToggleElement: HTMLElement) {
+    DEBUG_LOG('close modal, modalIsOpen = ' + this.modalIsOpen);
+    if (this.modalIsOpen) {
+      modalToggleElement.click();
+      this.modalIsOpen = false;
+      this.toggleClickPropagationEvent.emit();
+    }
+
+  }
+
+  openModal(modalToggleElement: HTMLElement) {
+    DEBUG_LOG('open modal, modalIsOpen = ' + this.modalIsOpen);
+    if (!this.modalIsOpen) {
+      this.toggleClickPropagationEvent.emit();
+      this.modalIsOpen = true;
+      modalToggleElement.click();
+    }
   }
 }
