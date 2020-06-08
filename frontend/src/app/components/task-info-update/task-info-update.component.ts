@@ -34,6 +34,7 @@ export class TaskInfoUpdateComponent implements OnInit {
 
   editMode: boolean;
   infoMode: boolean;
+  repeatMode = false;
 
   animals: Animal[];
   enclosures: Enclosure[];
@@ -194,17 +195,31 @@ export class TaskInfoUpdateComponent implements OnInit {
     this.clearValidationErrors();
     this.validateEditedTask();
     if (this.validEditTask) {
-      this.taskService.updateFullTaskInformation(this.editTask).subscribe(
-        (res: any) => {
-          this.task = this.editTask;
-          this.toInfoMode();
-        },
-        error => {
-          this.alertService.alertFromError(error,
-            {componentId: this.componentId},
-            'TaskInfoUpdate: taskEditSubmitted');
-        }
-      );
+      if(this.repeatMode) {
+        this.taskService.updateTaskInformationRepeat(this.editTask).subscribe(
+          (res: any) => {
+            this.task = this.editTask;
+            this.toInfoMode();
+          },
+          error => {
+            this.alertService.alertFromError(error,
+              {componentId: this.componentId},
+              'TaskInfoUpdate: taskEditSubmitted');
+          }
+        );
+      } else {
+        this.taskService.updateFullTaskInformation(this.editTask).subscribe(
+          (res: any) => {
+            this.task = this.editTask;
+            this.toInfoMode();
+          },
+          error => {
+            this.alertService.alertFromError(error,
+              {componentId: this.componentId},
+              'TaskInfoUpdate: taskEditSubmitted');
+          }
+        );
+      }
     }
   }
 
@@ -217,11 +232,11 @@ export class TaskInfoUpdateComponent implements OnInit {
       this.taskValidationError.description = true;
       this.validEditTask = false;
     }
-    if (this.editTask.startTime == null || this.editTask.startTime === '') {
+    if (this.editTask.startTime == null || this.editTask.startTime === '' && !this.repeatMode) {
       this.taskValidationError.startTime = true;
       this.validEditTask = false;
     }
-    if (this.editTask.endTime == null || this.editTask.endTime === '') {
+    if (this.editTask.endTime == null || this.editTask.endTime === '' && !this.repeatMode) {
       this.taskValidationError.endTime = true;
       this.validEditTask = false;
     }
@@ -247,6 +262,10 @@ export class TaskInfoUpdateComponent implements OnInit {
     return date + ' ' + time;
   }
 
+  changeRepeat() {
+    this.repeatMode = !this.repeatMode;
+  }
+  
   toggleModal() {
     //   this.stopClickPropagationEvent.emit();
     DEBUG_LOG('Toggle Modal');

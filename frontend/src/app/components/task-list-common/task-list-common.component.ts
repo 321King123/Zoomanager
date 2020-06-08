@@ -45,6 +45,8 @@ export class TaskListCommonComponent implements OnInit {
   stopClickPropagation: boolean = false;
 
 
+  deleteFollowing = false;
+
   constructor(private authService: AuthService, private taskService: TaskService, private animalService: AnimalService,
               private employeeService: EmployeeService, private alertService: AlertService) {
   }
@@ -65,14 +67,25 @@ export class TaskListCommonComponent implements OnInit {
   }
 
   deleteTask(taskId) {
-    this.taskService.deleteTask(taskId).subscribe(
-      () => {
-        this.reloadTasks.emit();
-      },
-      error => {
-        this.alertService.alertFromError(error, { componentId: this.componentId}, 'TaskList component: markTaskAsDone');
-      }
-    );
+    if(this.deleteFollowing) {
+      this.taskService.deleteTaskRepeat(taskId).subscribe(
+        () => {
+          this.reloadTasks.emit();
+        },
+        error => {
+          this.alertService.alertFromError(error, { componentId: this.componentId}, 'TaskList component: markTaskAsDone');
+        }
+      );
+    } else {
+      this.taskService.deleteTask(taskId).subscribe(
+        () => {
+          this.reloadTasks.emit();
+        },
+        error => {
+          this.alertService.alertFromError(error, {componentId: this.componentId}, 'TaskList component: markTaskAsDone');
+        }
+      );
+    }
   }
 
   getCurrentUser() {
@@ -92,6 +105,10 @@ export class TaskListCommonComponent implements OnInit {
     return this.authService.getUserRole() === 'ADMIN';
   }
 
+  changeDeleteState() {
+    this.deleteFollowing = !this.deleteFollowing;
+  }
+  
   dl(msg: any) {
     if (!this.stopClickPropagation) {
       DEBUG_LOG(msg);
@@ -112,5 +129,4 @@ export class TaskListCommonComponent implements OnInit {
     }
 
   }
-
 }

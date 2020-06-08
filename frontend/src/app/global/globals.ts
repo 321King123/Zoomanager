@@ -16,6 +16,12 @@ export namespace Utilities {
   export const DEBUG_MODE = true;
   export const DEBUG_LOG = DEBUG_MODE ? console.log.bind(console) : function () {};
 }
+export enum TimeUnits {
+  DAY = 'DAYS',
+  WEEK = 'WEEKS',
+  MONTH = 'MONTHS',
+  YEAR = 'YEARS'
+}
 
 const pad = (i: number): string => i < 10 ? `0${i}` : `${i}`;
 
