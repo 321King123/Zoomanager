@@ -76,7 +76,7 @@
                 <label for="inputStartTime">Start-Time</label>
                 <input [(ngModel)]="editTask.startTime" type="text" name="startTime" class="form-control"
                        id="inputStartTime"
-                       aria-describedby="startTimeHelp" placeholder="Enter Start-Time">
+                       aria-describedby="startTimeHelp" placeholder="Enter Start-Time" [disabled]="repeatMode">
                 <div *ngIf="!validEditTask && taskValidationError.startTime" class="error">
                   <small class="form-text text-warning">
                     Start-Time cannot be empty
@@ -86,7 +86,7 @@
               <div class="form-group col-6">
                 <label for="inputEndTime">End-Time</label>
                 <input [(ngModel)]="editTask.endTime" type="text" name="endTime" class="form-control"
-                       id="inputEndTime" aria-describedby="endTimeHelp" placeholder="Enter Start Time">
+                       id="inputEndTime" aria-describedby="endTimeHelp" placeholder="Enter Start Time" [disabled]="repeatMode">
                 <div *ngIf="!validEditTask && taskValidationError.endTime" class="error">
                   <small class="form-text text-warning">
                     End-Time cannot be empty
@@ -134,7 +134,7 @@
 
                 <select [(ngModel)]="editTask.assignedEmployeeUsername" name="assignedEmployeeUsername"
                         class="form-control" id="assignedEmployeeUsername"
-                        aria-describedby="assignedEmployeeUsernameHelp">
+                        aria-describedby="assignedEmployeeUsernameHelp" [disabled]="repeatMode">
                   <option disabled [ngValue]="null">Select employee</option>
                   <ng-container *ngIf="employeesFound">
                     <option *ngFor="let employee of employeesFound;" [ngValue]="employee.username">
@@ -170,7 +170,7 @@
                 <label for="status">Change Status</label>
                 <select [(ngModel)]="editTask.status" name="status"
                         class="form-control" id="status"
-                        aria-describedby="statusIdHelp">
+                        aria-describedby="statusIdHelp" [disabled]="repeatMode">
                   <option disabled [ngValue]="null">Select Status</option>
                   <option [ngValue]="'ASSIGNED'">Assigned</option>
                   <option [ngValue]="'DONE'">Done</option>
@@ -183,6 +183,8 @@
       <div class="modal-footer">
         <button (click)="reloadTasks.emit()" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         <button *ngIf="infoMode" (click)="toEditMode()" type="button" class="btn btn-success">Edit</button>
+        <button *ngIf="editMode&&!repeatMode" (click)="changeRepeat()" type="button" class="btn btn-success">Edit with following Tasks</button>
+        <button *ngIf="editMode&&repeatMode" (click)="changeRepeat()" type="button" class="btn btn-success">Edit without following Tasks</button>
         <button *ngIf="editMode" (click)="taskEditSubmitted()" type="button"
                 class="btn btn-success">Save
         </button>

@@ -13,8 +13,8 @@
       <th class="col" scope="col">End</th>
       <th class="col" scope="col">Assignee</th>
       <th class="col" scope="col">
-        <button *ngIf="!deleteFollowing" (click)="changeDeleteState()" class="btn my-0 btn-secondary btn-sm">Delete with following</button>
-        <button *ngIf="deleteFollowing" (click)="changeDeleteState()" class="btn my-0 btn-primary btn-sm">Delete without following</button>
+        <button *ngIf="deleteFollowing" (click)="changeDeleteState()" class="btn my-0 btn-warning btn-sm">Delete with following</button>
+        <button *ngIf="!deleteFollowing" (click)="changeDeleteState()" class="btn my-0 btn-primary btn-sm">Delete without following</button>
       </th>
     </tr>
     </thead>
