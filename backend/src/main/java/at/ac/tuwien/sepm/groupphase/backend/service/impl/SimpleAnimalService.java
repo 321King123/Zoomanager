@@ -5,6 +5,7 @@ import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
+import at.ac.tuwien.sepm.groupphase.backend.repository.EmployeeRepository;
 import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import org.slf4j.Logger;
@@ -27,14 +28,14 @@ public class SimpleAnimalService implements AnimalService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final AnimalRepository animalRepository;
     private final EnclosureRepository enclosureRepository;
-    private final CustomEmployeeService employeeService;
+    private final EmployeeRepository employeeRepository;
+
 
     @Autowired
-    public SimpleAnimalService(AnimalRepository animalRepository, EnclosureRepository enclosureRepository, CustomEmployeeService employeeService) {
+    public SimpleAnimalService(AnimalRepository animalRepository, EnclosureRepository enclosureRepository, EmployeeRepository employeeRepository) {
         this.animalRepository = animalRepository;
         this.enclosureRepository = enclosureRepository;
-        this.employeeService = employeeService;
-
+        this.employeeRepository = employeeRepository;
     }
 
 
@@ -82,14 +83,14 @@ public class SimpleAnimalService implements AnimalService {
 
 
         List <Employee> caretakers= new LinkedList<>();
-        caretakers.add(employeeService.findByUsername(username));
+        caretakers.add(employeeRepository.findEmployeeByUsername(username));
         Example<Animal> example = Example.of(Animal.builder().caretakers(caretakers).name(animal.getName())
             .species(animal.getSpecies()).description(animal.getDescription()).enclosure(animal.getEnclosure()).build(),
             customExampleMatcher);
 
         List<Animal> animalsFiltered =  animalRepository.findAll(example);
 
-        List<Animal> animalsAssigned = employeeService.findAssignedAnimals(username);
+        List<Animal> animalsAssigned = animalRepository.findAllByCaretakers(employeeRepository.findEmployeeByUsername(username));
 
         if(animalsFiltered.isEmpty())
             throw new NotFoundException("No animal fits the given criteria");
