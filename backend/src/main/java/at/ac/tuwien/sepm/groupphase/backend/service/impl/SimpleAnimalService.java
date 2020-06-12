@@ -1,19 +1,24 @@
 package at.ac.tuwien.sepm.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.AnimalRepository;
-
 import at.ac.tuwien.sepm.groupphase.backend.repository.EnclosureRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.stereotype.Service;
+
 import java.lang.invoke.MethodHandles;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -22,11 +27,14 @@ public class SimpleAnimalService implements AnimalService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final AnimalRepository animalRepository;
     private final EnclosureRepository enclosureRepository;
+    private final CustomEmployeeService employeeService;
 
     @Autowired
-    public SimpleAnimalService(AnimalRepository animalRepository, EnclosureRepository enclosureRepository) {
+    public SimpleAnimalService(AnimalRepository animalRepository, EnclosureRepository enclosureRepository, CustomEmployeeService employeeService) {
         this.animalRepository = animalRepository;
         this.enclosureRepository = enclosureRepository;
+        this.employeeService = employeeService;
+
     }
 
 
@@ -46,6 +54,57 @@ public class SimpleAnimalService implements AnimalService {
     }
 
     @Override
+    public List<Animal> searchAnimals(Animal animal){
+        LOGGER.debug("Animal Service: Getting filtered List of animals.");
+        ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAll().withIgnoreNullValues().withIgnoreCase()
+            .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains())
+            .withMatcher("description", ExampleMatcher.GenericPropertyMatchers.contains())
+            .withMatcher("species", ExampleMatcher.GenericPropertyMatchers.exact())
+            .withMatcher("enclosure", ExampleMatcher.GenericPropertyMatchers.exact());
+
+        Example<Animal> example = Example.of(Animal.builder().name(animal.getName()).species(animal.getSpecies()).description(animal.getDescription())
+            .enclosure(animal.getEnclosure()).build(), customExampleMatcher);
+        List<Animal> animalsFiltered = animalRepository.findAll(example);
+
+        if(animalsFiltered.isEmpty())
+            throw new NotFoundException("No animal fits the given criteria");
+        return animalsFiltered;
+    }
+
+    @Override
+    public List<Animal> searchAnimalsOfEmployee(Animal animal, String username){
+        LOGGER.debug("Animal Service: Getting filtered List of animals.");
+        ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAll().withIgnoreNullValues().withIgnoreCase()
+            .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains())
+            .withMatcher("description", ExampleMatcher.GenericPropertyMatchers.contains())
+            .withMatcher("species", ExampleMatcher.GenericPropertyMatchers.exact())
+            .withMatcher("enclosure", ExampleMatcher.GenericPropertyMatchers.exact());
+
+
+        List <Employee> caretakers= new LinkedList<>();
+        caretakers.add(employeeService.findByUsername(username));
+        Example<Animal> example = Example.of(Animal.builder().caretakers(caretakers).name(animal.getName())
+            .species(animal.getSpecies()).description(animal.getDescription()).enclosure(animal.getEnclosure()).build(),
+            customExampleMatcher);
+
+        List<Animal> animalsFiltered =  animalRepository.findAll(example);
+
+        List<Animal> animalsAssigned = employeeService.findAssignedAnimals(username);
+
+        if(animalsFiltered.isEmpty())
+            throw new NotFoundException("No animal fits the given criteria");
+        if(animalsAssigned.isEmpty())
+            throw new NotFoundException("No animal is assigned to this employee");
+
+        List<Animal> result = animalsFiltered.stream()
+            .distinct()
+            .filter(animalsAssigned::contains)
+            .collect(Collectors.toList());
+
+        return result;
+    }
+
+    @Override
     public void deleteAnimal(Long id){
         LOGGER.debug("Deleting an animal.");
         Optional<Animal> animalOptional = animalRepository.findById(id);
@@ -54,8 +113,6 @@ public class SimpleAnimalService implements AnimalService {
             animalRepository.deleteAssignmentsOfAnimal(id);
             animalRepository.delete(animal);
         },()->{throw new NotFoundException("No such animal exists.");});
-
-
     }
 
     @Override

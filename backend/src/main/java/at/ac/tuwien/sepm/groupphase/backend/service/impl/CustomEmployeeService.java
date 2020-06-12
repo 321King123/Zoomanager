@@ -125,6 +125,14 @@ public class CustomEmployeeService implements EmployeeService {
     }
 
     @Override
+    public void removeAssignedAnimal(String employeeUsername, long AnimalId){
+
+        LOGGER.debug("Unassigning animal with id " + AnimalId + " from " + employeeUsername);
+        employeeRepository.removeAssignedAnimal(employeeUsername, AnimalId);
+
+    }
+
+    @Override
     public Employee findByUsername(String username) {
         LOGGER.debug("Getting Specific employee: " + username);
         return employeeRepository.findEmployeeByUsername(username);

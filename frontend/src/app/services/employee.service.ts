@@ -97,6 +97,10 @@ export class EmployeeService {
     return this.httpClient.post(this.employeeBaseUri + '/animal/' + employee.username, animal);
   }
 
+  unassignAnimal(animal: Animal, employee: Employee): Observable<any> {
+    return this.httpClient.put<Animal>(this.employeeBaseUri + '/animal/' + employee.username, animal);
+  }
+
   getEmployeeByUsername(username: string): Observable<Employee> {
     DEBUG_LOG('Get info about employee ' + username);
     return this.httpClient.get<Employee>(this.employeeBaseUri + '/' + username);

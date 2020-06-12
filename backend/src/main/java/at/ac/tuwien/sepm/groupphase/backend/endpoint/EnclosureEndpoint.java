@@ -14,7 +14,6 @@ import io.swagger.annotations.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
@@ -61,11 +60,11 @@ public class EnclosureEndpoint {
     }
 
 
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
     @ApiOperation(value = "Get list of all enclosures", authorizations = {@Authorization(value = "apiKey")})
-    public List<EnclosureDto> getAllEnclosures(){
+    public List<EnclosureDto> getAllEnclosures(Authentication authentication){
         LOGGER.info("GET /api/v1/enclosure");
         List<Enclosure> enclosures = enclosureService.getAll();
         List<EnclosureDto> enclosureDtos = new LinkedList<>();

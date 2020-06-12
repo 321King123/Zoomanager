@@ -10,6 +10,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -24,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AnimalServiceTest implements TestData {
 
     @Autowired
-    AnimalService animalService;
+    private AnimalService animalService;
 
     @MockBean
     AnimalRepository animalRepository;
@@ -37,6 +39,9 @@ public class AnimalServiceTest implements TestData {
         .species("race")
         .publicInformation(null)
         .build();
+
+
+
 
     @Test
     public void saveAnimalbyGivingOnlyMandatoryValues_thenFindAnimalById() {
@@ -72,6 +77,40 @@ public class AnimalServiceTest implements TestData {
         animalRepository.deleteAll();
         Mockito.when(animalRepository.findById(1L)).thenReturn(null);
         assertThrows(NotFoundException.class, ()->{animalService.deleteAnimal(1L);});
+    }
+
+   // @Test
+    public void filledRepository_searchAnimalNoMatching_thenThrowNotFoundException() {
+        ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAll().withIgnoreNullValues().withIgnoreCase()
+            .withMatcher("noName", ExampleMatcher.GenericPropertyMatchers.contains())
+            .withMatcher("NoSpecie", ExampleMatcher.GenericPropertyMatchers.exact());
+        Example<Animal> example = Example.of(Animal.builder().name("noName").species("NoSpecie").build(), customExampleMatcher);
+        Mockito.when(animalRepository.findAll(example)).thenReturn(new LinkedList<>());
+        assertThrows(NotFoundException.class, () -> animalService.searchAnimals(Animal.builder().name("noName").species("NoSpecie").build()));
+    }
+
+
+    //@Test
+    public void filledRepository_searchAnimalMatching_thenReturnOneAnimal() {
+        animalRepository.deleteAll();
+        animalRepository.save(animal);
+
+        ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAll().withIgnoreNullValues().withIgnoreCase()
+            .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains())
+            .withMatcher("description", ExampleMatcher.GenericPropertyMatchers.contains())
+            .withMatcher("species", ExampleMatcher.GenericPropertyMatchers.exact())
+            .withMatcher("enclosure", ExampleMatcher.GenericPropertyMatchers.exact());
+
+        Example<Animal> example = Example.of(Animal.builder().name(animal.getName()).species(animal.getSpecies()).description(animal.getDescription())
+            .enclosure(animal.getEnclosure()).build(), customExampleMatcher);
+
+        List<Animal> mockResult= new LinkedList<>();
+        mockResult.add(animal);
+
+        Mockito.when(animalRepository.findAll(example)).thenReturn(mockResult);
+        List<Animal> result = animalService.searchAnimals(animal);
+
+        assertTrue(result.contains(animal));
     }
 
     @Test

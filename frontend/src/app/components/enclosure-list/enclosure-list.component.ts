@@ -8,6 +8,7 @@ import {Router} from '@angular/router';
   styleUrls: ['./enclosure-list.component.css']
 })
 export class EnclosureListComponent implements OnInit {
+  // tslint:disable-next-line:no-input-rename
   @Input('enclosures') enclosures: Enclosure[];
 
   constructor(private router: Router) { }

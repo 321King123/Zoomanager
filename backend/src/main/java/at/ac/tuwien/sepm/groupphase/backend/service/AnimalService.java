@@ -30,7 +30,7 @@ public interface AnimalService {
     /**
      * finds an single animal.
      * @param id of animal to be deleted.
-     * @return animal if found
+     * @return
      */
     Animal findAnimalById(Long id);
 
@@ -58,6 +58,18 @@ public interface AnimalService {
      * @return Animals that inhabit the Enclosure with the corresponding Id
      */
     List<Animal> findAnimalsByEnclosure(long enclosureId);
+
+    /**
+     * Method for filtered list of all current employees search fields can be combined.
+     * If a field is null it is not taken into consideration
+     *
+     * @param animal with saved properties for search
+     * @return animals that fulfill the criterums.
+     */
+    List<Animal> searchAnimals(Animal animal);
+
+
+    List<Animal> searchAnimalsOfEmployee(Animal animal, String username);
 
 
     /**

@@ -6,6 +6,7 @@ import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
+import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
@@ -34,13 +35,16 @@ public class AnimalEndpoint {
     private final TaskService taskService;
     private final AnimalMapper animalMapper;
     private final EmployeeService employeeService;
+    private final EnclosureService enclosureService;
 
     @Autowired
-    public AnimalEndpoint(AnimalService animalService, AnimalMapper animalMapper, TaskService taskService, EmployeeService employeeService) {
+    public AnimalEndpoint(AnimalService animalService, AnimalMapper animalMapper, TaskService taskService,
+                          EmployeeService employeeService, EnclosureService enclosureService) {
         this.taskService = taskService;
         this.animalService = animalService;
         this.animalMapper = animalMapper;
         this.employeeService = employeeService;
+        this.enclosureService = enclosureService;
     }
 
     @Secured("ROLE_ADMIN")
@@ -117,6 +121,71 @@ public class AnimalEndpoint {
         LOGGER.info("PUT /api/v1/animals/removeEnclosure body: {}",animalDto);
         animalService.removeAnimalFromEnclosure(animalMapper.AnimalDtoToAnimal(animalDto));
     }
+
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/search")
+    @ApiOperation(value = "Get filtered list of animals")
+    public List<AnimalDto> searchAnimals(  @RequestParam(value = "name", required = false) String name,
+                                           @RequestParam(value = "description", required = false) String description,
+                                           @RequestParam(value = "species", required = false) String species,
+                                           @RequestParam(value = "enclosureId", required = false) Long enclosureId,
+                                           @RequestParam(value = "employeeUsername", required = false) String employeeUsername,
+                                           Authentication authentication){
+
+        LOGGER.info("GET /api/v1/animal/search name: {}, description: {}, species: {}, enclosureId: {} ", name, description, species, enclosureId);
+
+        Animal searchAnimal;
+        if(enclosureId != null){
+        //Enclosure enclosure = enclosureService.findById(enclosureId);
+        searchAnimal = Animal.builder().enclosure(enclosureService.findById(enclosureId)).description(description).name(name).species(species).build();
+        }
+        else{
+        searchAnimal = Animal.builder().description(description).name(name).species(species).build();
+        }
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        List<Animal> animals;
+
+        if (isAdmin) {
+
+            if(employeeUsername == null){
+             animals = animalService.searchAnimals(searchAnimal);}
+            else{
+                animals = animalService.searchAnimalsOfEmployee(searchAnimal,employeeUsername);
+            }
+
+        }else{ //employee
+            String username = (String) authentication.getPrincipal();
+            //Employee employee = employeeService.findByUsername(username);
+            animals = animalService.searchAnimalsOfEmployee(searchAnimal,username);
+        }
+
+        List<AnimalDto> animalDtos = new LinkedList<>();
+        for(Animal a: animals ){
+            animalDtos.add(animalMapper.animalToAnimalDto(a));
+        }
+        return animalDtos;
+    }
+
+    /*
+         @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public AnimalDto getAnimalById(@PathVariable("id") Long id, Authentication authentication) {
+        LOGGER.info("GET /api/v1/animal/" + id);
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String username = (String) authentication.getPrincipal();
+        if (!isAdmin) {
+            if (!employeeService.isAssignedToAnimal(username, id)) {
+                throw new NotAuthorisedException("You are not allowed to see this animals information.");
+            }
+        }
+        return animalMapper.animalToAnimalDto(animalService.findAnimalById(id));
+    }
+    * */
 
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)

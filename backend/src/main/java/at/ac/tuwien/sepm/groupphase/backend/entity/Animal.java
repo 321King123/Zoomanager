@@ -2,12 +2,9 @@ package at.ac.tuwien.sepm.groupphase.backend.entity;
 
 import lombok.*;
 
-import java.util.LinkedList;
-import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Getter
@@ -43,4 +40,13 @@ public class Animal implements Serializable {
 
     @OneToMany(mappedBy = "subject", fetch = FetchType.EAGER)
     private List<AnimalTask> tasks;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Animal)) return false;
+        Animal animal = (Animal) o;
+        return getId().equals(animal.getId());
+    }
+
 }

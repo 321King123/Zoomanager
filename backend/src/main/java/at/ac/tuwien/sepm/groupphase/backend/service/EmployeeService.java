@@ -50,6 +50,8 @@ public interface EmployeeService  {
      */
     void assignAnimal(String employeeUsername, long AnimalId);
 
+    void removeAssignedAnimal(String employeeUsername, long AnimalId);
+
     /**
      * Find a single employee by username.
      *

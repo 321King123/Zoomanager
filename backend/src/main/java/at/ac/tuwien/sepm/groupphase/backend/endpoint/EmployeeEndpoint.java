@@ -134,6 +134,15 @@ public class EmployeeEndpoint {
         employeeService.assignAnimal(employeeUsername, animal.getId());
     }
 
+
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "/animal/{employeeUsername}")
+    @ApiOperation(value = "Remove assigned animal from employee", authorizations = {@Authorization(value = "apiKey")})
+    public void removeAssignedAnimal(@PathVariable String employeeUsername, @RequestBody AnimalDto animal) {
+        LOGGER.info("Post /api/v1/employee/animal/{} Animal: {}", employeeUsername, animal.getId());
+        employeeService.removeAssignedAnimal(employeeUsername, animal.getId());
+    }
+
     @Secured("ROLE_ADMIN")
     @GetMapping(value = "/{username}")
     @ApiOperation(value = "Get detailed information about a specific employee",

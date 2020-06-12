@@ -2,14 +2,15 @@ package at.ac.tuwien.sepm.groupphase.backend.repository;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository
@@ -70,4 +71,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
      * @return List containing all Employees of specific Type
      */
     List<Employee> findAllByType(EmployeeType type);
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete from ANIMALS_CARETAKERS a where a.EMPLOYEE_USERNAME = :username and a.ANIMAL_ID= :animalId",
+        nativeQuery = true)
+    void removeAssignedAnimal (@Param("username") String username, @Param("animalId") Long animalId);
 }

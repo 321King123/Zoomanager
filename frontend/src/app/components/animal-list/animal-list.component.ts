@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, Output, EventEmitter, ViewChildren, QueryList} from '@angular/core';
+import {Component, OnInit, Input, Output, EventEmitter, QueryList, ViewChildren} from '@angular/core';
 import {AuthService} from '../../services/auth.service';
 import {Animal} from '../../dtos/animal';
 import {AnimalService} from '../../services/animal.service';
@@ -7,6 +7,12 @@ import {DeleteWarningComponent} from '../delete-warning/delete-warning.component
 import {Utilities} from '../../global/globals';
 import DEBUG_LOG = Utilities.DEBUG_LOG;
 import {AlertService} from '../../services/alert.service';
+import {Employee} from '../../dtos/employee';
+import {AnimalComponent} from '../animal/animal.component';
+import {Enclosure} from '../../dtos/enclosure';
+import {EnclosureComponent} from '../enclosure/enclosure.component';
+import {EnclosureService} from '../../services/enclosure.service';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-animal-list',
@@ -14,22 +20,76 @@ import {AlertService} from '../../services/alert.service';
   styleUrls: ['./animal-list.component.css']
 })
 export class AnimalListComponent implements OnInit {
+
+  // tslint:disable-next-line:no-input-rename
   @Input('animals') animals: Animal[];
-  enableDelete: boolean = false;
   @Input() animalPage;
   @Output() deleteAnimal = new EventEmitter<Animal>();
   @Input() enclosurePage;
+  @Input() employeePage;
   @Output() unassignAnimal = new EventEmitter<Animal>();
-
   @ViewChildren(DeleteWarningComponent)
+
   deleteWarningComponents: QueryList<DeleteWarningComponent>;
   stopClickPropagation: boolean = false;
+  enableDelete: boolean = false;
 
   constructor(private authService: AuthService, private animalService: AnimalService, private route: Router,
-              private alertService: AlertService) {
-  }
+              private alertService: AlertService, private enclosureService: EnclosureService) { }
+ // currentEnclosures = this.enclosureComponent.enclosures;
+  searchAnimal = new Animal(null, null, null, null, null, null);
+  allAnimals: Animal[];
+  allEnclosures: Enclosure[];
+  error: boolean = false;
+  errorMessage: string = '';
+  visitedEmployeeUsername: String;
+  visitedEnclosureId: String;
+  currentRoute: String;
 
   ngOnInit(): void {
+    this.getAnimals();
+    this.getAllEnclosures();
+  }
+
+  getAnimals() {
+    this.animalService.getAnimals().subscribe(
+      animals => {
+        this.allAnimals = animals;
+      },
+      error => {
+        if (error.status === 404) {
+          this.animals.length = 0;
+        }
+        console.log('Failed to load all animals');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+  getAllEnclosures() {
+    this.enclosureService.getAllEnclosures().subscribe(
+      enclosures => {
+        this.allEnclosures = enclosures;
+      },
+      error => {
+        if (error.status === 404) {
+          this.allEnclosures.length = 0;
+        }
+        console.log('Failed to load all enclosures');
+        this.defaultServiceErrorHandling(error);
+      }
+    );
+  }
+
+
+  private defaultServiceErrorHandling(error: any) {
+    console.log(error);
+    this.error = true;
+    if (typeof error.error === 'object') {
+      this.errorMessage = error.error.error;
+    } else {
+      this.errorMessage = error.error;
+    }
   }
 
   /**
@@ -37,6 +97,10 @@ export class AnimalListComponent implements OnInit {
    */
   isAdmin(): boolean {
     return this.authService.getUserRole() === 'ADMIN';
+  }
+
+  isEnclosureView(): boolean {
+    return this.route.url.includes('enclosure-view');
   }
 
   changeDeleteState() {
@@ -50,6 +114,38 @@ export class AnimalListComponent implements OnInit {
     }
   }
 
+  getFilteredAnimals() {
+
+    this.currentRoute = this.route.url;
+    this.visitedEmployeeUsername = this.currentRoute.substring(this.currentRoute.lastIndexOf('/') + 1);
+    if (this.visitedEmployeeUsername === 'animal') {
+      this.visitedEmployeeUsername = null;
+    }
+    if (this.currentRoute.includes('enclosure-view')) {
+      this.visitedEnclosureId = this.currentRoute.substring(this.currentRoute.lastIndexOf('/') + 1);
+    }
+    if ( this.visitedEnclosureId == null) {
+    this.animalService.searchAnimals(this.searchAnimal, this.visitedEmployeeUsername, null).subscribe(
+      animals => {
+        this.animals = animals;
+      },
+      error => {
+        DEBUG_LOG('Failed to load all animals');
+        this.alertService.alertFromError(error, {}, 'getFilteredAnimals');
+      }
+    );
+  } else {
+      this.animalService.searchAnimals(this.searchAnimal, null, this.visitedEnclosureId).subscribe(
+        animals => {
+          this.animals = animals;
+        },
+        error => {
+          DEBUG_LOG('Failed to load all animals');
+          this.alertService.alertFromError(error, {}, 'getFilteredAnimals');
+        }
+      );
+    }
+  }
   deleteAnimalFn(animal: any) {
     this.deleteAnimal.emit(animal);
   }
