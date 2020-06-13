@@ -269,4 +269,20 @@ export class EmployeeViewComponent implements OnInit {
   toChangePassword() {
     this.router.navigate(['employee-password-change/' + this.employee.username]);
   }
+
+  removeAssignedAnimal(animal: Animal) {
+    if (animal != null) {
+      this.employeeService.unassignAnimal(animal, this.employee).subscribe(
+        () => {
+          console.log('Removed animal' + animal);
+          this.showAssignedAnimalsEmployee();
+        },
+        error => {
+          console.log('Failed to remove animal');
+          this.alertService.alertFromError(error, {}, 'removeAnimal');
+        }
+      );
+    }
+
+  }
 }

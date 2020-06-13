@@ -35,54 +35,6 @@
 </div>
 
 
-
-<!--<div *ngIf="isAdmin()">-->
-
-<!--  <div class="btn-group">-->
-<!--    <ng-container *ngIf="btnIsEdit">-->
-<!--      <button type="button" class="btn-group btn btn-info" (click)="editEmployee()">Edit</button>-->
-<!--      <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">-->
-<!--        <button class="btn-group btn btn-info dropdown-toggle-split" ngbDropdownToggle></button>-->
-<!--        <div class="dropdown-menu" ngbDropdownMenu>-->
-<!--          <button ngbDropdownItem (click)="toEditButton()">Edit</button>-->
-<!--          <button ngbDropdownItem (click)="toDeleteButton()">Delete</button>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </ng-container>-->
-<!--    <ng-container *ngIf="btnIsDelete">-->
-<!--      <app-delete-warning *ngIf="isAdmin()"-->
-<!--                          (deleteSubject)="deleteEmployee()"-->
-<!--                          (editSubject)="editEmployee()"-->
-<!--                          [deletionSubjectType]="'Employee'"-->
-<!--                          [readableSubjectIdentifier]="employee.username"-->
-<!--                          [delBtnText]="'Delete Employee'"-->
-<!--                          [showEditOrDeleteButton]="true"-->
-<!--                          class="btn"-->
-<!--      ></app-delete-warning>-->
-<!--      <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">-->
-<!--        <button class="btn-group btn btn-danger dropdown-toggle-split" ngbDropdownToggle></button>-->
-<!--        <div class="dropdown-menu" ngbDropdownMenu>-->
-<!--          <button ngbDropdownItem (click)="toEditButton()">Edit</button>-->
-<!--          <button ngbDropdownItem (click)="toDeleteButton()">Delete</button>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </ng-container>-->
-<!--  </div>-->
-<!--</div>-->
-
-<!--
-<div class="col-12 my-2">
-  <div
-    class="row d-flex justify-content-start mx-0 ">
-    <app-delete-warning *ngIf="isAdmin()" (deleteSubject)="deleteEmployee()"
-                        [deletionSubjectType]="'Employee'"
-                        [readableSubjectIdentifier]="employee.username"
-                        [delBtnText]="'Delete Employee'"
-    ></app-delete-warning>
-
-  </div>
-</div>
--->
 <app-delete-warning *ngIf="isAdmin()"
                     (deleteSubject)="deleteEmployee()"
                     (editSubject)="editEmployee()"
@@ -104,11 +56,15 @@
   </div>
 </div>
 
-<ng-container *ngIf="employee!=null && employee.type=='ANIMAL_CARE' && animalListMode">
+<ng-container *ngIf=" employee!=null && employee.type=='ANIMAL_CARE' && animalListMode">
   <div class="row">
-    <div class="col-lg-12" *ngIf="assignedAnimals != null && assignedAnimals.length != 0">
-      <app-animal-list [animals]="assignedAnimals"></app-animal-list>
+    <div class="col-lg-12" *ngIf=" isAdmin() && assignedAnimals != null && assignedAnimals.length != 0">
+      <app-animal-list (unassignAnimal)="removeAssignedAnimal($event)" [employeePage]="true" [animals]="assignedAnimals"></app-animal-list>
     </div>
+    <div class="col-lg-12" *ngIf=" !isAdmin() && assignedAnimals != null && assignedAnimals.length != 0">
+      <app-animal-list [employeePage]="true" [animals]="assignedAnimals"></app-animal-list>
+    </div>
+
   </div>
   <ng-container *ngIf="isAdmin()">
     <div class="row my-3">

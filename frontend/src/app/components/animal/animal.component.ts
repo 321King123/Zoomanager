@@ -4,6 +4,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AnimalService} from '../../services/animal.service';
 import {Animal} from '../../dtos/animal';
 import {Location} from '@angular/common';
+import {AnimalListComponent} from '../animal-list/animal-list.component';
 import {AlertService} from '../../services/alert.service';
 import {Utilities} from '../../global/globals';
 import DEBUG_LOG = Utilities.DEBUG_LOG;
@@ -14,9 +15,12 @@ import DEBUG_LOG = Utilities.DEBUG_LOG;
   styleUrls: ['./animal.component.css']
 })
 export class AnimalComponent implements OnInit {
+  error: boolean = false;
+  errorMessage: string = '';
   animalCreationForm: FormGroup;
   submittedAnimal = false;
   animals: Animal[];
+
 
 
   constructor(private _location: Location, private animalService: AnimalService, private formBuilder: FormBuilder,
@@ -39,6 +43,14 @@ export class AnimalComponent implements OnInit {
   isAdmin(): boolean {
     return this.authService.getUserRole() === 'ADMIN';
   }
+
+  /**
+   * Error flag will be deactivated, which clears the error message
+   */
+  vanishError() {
+    this.error = false;
+  }
+
 
   addAnimal() {
     this.submittedAnimal = true;
@@ -102,6 +114,16 @@ export class AnimalComponent implements OnInit {
   private clearForm() {
     this.animalCreationForm.reset();
     this.submittedAnimal = false;
+  }
+
+   defaultServiceErrorHandling(error: any) {
+    console.log(error);
+    this.error = true;
+    if (typeof error.error === 'object') {
+      this.errorMessage = error.error.error;
+    } else {
+      this.errorMessage = error.error;
+    }
   }
 
   backClicked() {

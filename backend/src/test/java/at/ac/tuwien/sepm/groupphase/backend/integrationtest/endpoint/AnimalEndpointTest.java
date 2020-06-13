@@ -30,8 +30,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -68,6 +66,9 @@ public class AnimalEndpointTest implements TestData {
 
     @Autowired
     private SecurityProperties securityProperties;
+
+
+    String GET_FILTERED_ANIMALS_URI = ANIMAL_BASE_URI + "/search";
 
     private Animal animal= Animal.builder()
         .id(1L)
@@ -198,7 +199,7 @@ public class AnimalEndpointTest implements TestData {
         );
     }
 
-    @Test
+        @Test
     public void EditingExistingAnimal_Status200() throws Exception {
         animalRepository.save(animal);
         Animal saved = animalRepository.findAll().get(0);
@@ -227,7 +228,6 @@ public class AnimalEndpointTest implements TestData {
         );
     }
 
-
     @Test
     public void EditingNonExistingAnimal_StatusNotFound() throws Exception {
         animalRepository.save(animal);
@@ -254,6 +254,35 @@ public class AnimalEndpointTest implements TestData {
         assertAll(
             () -> assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus())
         );
+
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
+
     }
 
+    @Test
+    public void filledRepository_whenSearchWithNoMatch_thenReturnNotFoundException() throws Exception{
+
+        MvcResult mvcResult = this.mockMvc.perform(get(GET_FILTERED_ANIMALS_URI + "?name=notInRepository")
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertAll(
+            () -> assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus())
+        );
+    }
+
+
+    @Test
+    public void filledRepository_whenSearchWithOneMatch_thenReturnOneAnimal() throws Exception {
+        animalRepository.save(animal);
+        MvcResult mvcResult = this.mockMvc.perform(get(GET_FILTERED_ANIMALS_URI + "?name=horse" + "&species=race")
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+
+    }
 }
