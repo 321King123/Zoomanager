@@ -1,7 +1,5 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint.dto;
 
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
@@ -44,6 +42,8 @@ public class AnimalTaskDto {
 
     @NotNull(message = "Task Status must not be null")
     private TaskStatus status;
+
+    private boolean priority;
 
     @NotNull(message = "Name must not be null")
     @NotBlank(message = "Name must not be empty")

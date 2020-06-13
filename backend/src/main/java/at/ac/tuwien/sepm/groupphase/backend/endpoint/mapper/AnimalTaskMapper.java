@@ -18,6 +18,7 @@ public class AnimalTaskMapper {
             .status(animalTask.getTask().getStatus())
             .animalName(animalTask.getSubject().getName())
             .animalId(animalTask.getSubject().getId())
+            .priority(animalTask.getTask().isPriority())
             .build();
     }
 }

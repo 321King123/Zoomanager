@@ -220,13 +220,9 @@ public class EnclosureEndpointTest implements TestData {
         enclosureRepository.save(enclosureMinimal2);
         List<Enclosure> enclosures= enclosureRepository.findAll();
         Enclosure enclosure = enclosures.get(0);
-        EnclosureDto enclosureDto = enclosureMapper.enclosureToEnclosureDto(enclosure);
-         String body= objectMapper.writeValueAsString(enclosureDto);
-        MvcResult mvcResult = this.mockMvc.perform(put(ENCLOSURE_BASE_URI)
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .accept(MediaType.APPLICATION_JSON_VALUE)
-            .content(body))
+
+        MvcResult mvcResult = this.mockMvc.perform(delete(ENCLOSURE_BASE_URI+'/'+enclosure.getId())
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -236,17 +232,35 @@ public class EnclosureEndpointTest implements TestData {
 
     @Test
     public void adminDeletesEnclosureNotFound() throws Exception {
-        EnclosureDto enclosureDto = enclosureMapper.enclosureToEnclosureDto(enclosureMinimal2);
-        String body= objectMapper.writeValueAsString(enclosureDto);
-        MvcResult mvcResult = this.mockMvc.perform(put(ENCLOSURE_BASE_URI)
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .accept(MediaType.APPLICATION_JSON_VALUE)
-            .content(body))
+        MvcResult mvcResult = this.mockMvc.perform(delete(ENCLOSURE_BASE_URI+'/'+enclosureMinimal2.getId())
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
 
         assertEquals(HttpStatus.NOT_FOUND.value(),  response.getStatus());
+    }
+
+    @Test
+    public void editEnclosureName() throws Exception {
+        enclosureRepository.save(enclosureMinimal);
+        List<Enclosure> enclosures = enclosureRepository.findAll();
+        EnclosureDto enclosureDto = enclosureMapper.enclosureToEnclosureDto(enclosures.get(0));
+
+        enclosureDto.setName("Don");
+        String body = objectMapper.writeValueAsString(enclosureDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(ENCLOSURE_BASE_URI +"/edit")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        enclosures = enclosureRepository.findAll();
+        assertEquals("Don",enclosures.get(0).getName());
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+
     }
 }

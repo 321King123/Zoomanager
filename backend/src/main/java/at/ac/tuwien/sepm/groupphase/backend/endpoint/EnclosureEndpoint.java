@@ -60,11 +60,11 @@ public class EnclosureEndpoint {
     }
 
 
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
     @ApiOperation(value = "Get list of all enclosures", authorizations = {@Authorization(value = "apiKey")})
-    public List<EnclosureDto> getAllEnclosures(){
+    public List<EnclosureDto> getAllEnclosures(Authentication authentication){
         LOGGER.info("GET /api/v1/enclosure");
         List<Enclosure> enclosures = enclosureService.getAll();
         List<EnclosureDto> enclosureDtos = new LinkedList<>();
@@ -106,11 +106,11 @@ public class EnclosureEndpoint {
 
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping(value = "")
+    @DeleteMapping(value = "/{id}")
     @ApiOperation(value = "Delete enclosure", authorizations = {@Authorization(value = "apiKey")})
-    public void deleteEnclosure(@RequestBody @Valid EnclosureDto enclosureDto){
-        LOGGER.info("PUT /api/v1/enclosure body: {}",enclosureDto);
-        enclosureService.deleteEnclosure(enclosureMapper.enclosureDtoToEnclosure(enclosureDto));
+    public void deleteEnclosure(@PathVariable Long id){
+        LOGGER.info("DELETE /api/v1/enclosure/{}",id);
+        enclosureService.deleteEnclosure(id);
     }
 
     @Secured("ROLE_USER")
@@ -126,5 +126,14 @@ public class EnclosureEndpoint {
             enclosureDtos.add(enclosureMapper.enclosureToEnclosureDto(e));
         }
         return enclosureDtos;
+    }
+
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "/edit")
+    @ApiOperation(value = "Edit enclosure", authorizations = {@Authorization(value = "apiKey")})
+    public EnclosureDto editEnclosure(@RequestBody @Valid EnclosureDto enclosureDto){
+        LOGGER.info("PUT /api/v1/enclosure/edit body: {}",enclosureDto);
+        return enclosureMapper.enclosureToEnclosureDto(enclosureService.editEnclosure(enclosureMapper.enclosureDtoToEnclosure(enclosureDto)));
     }
 }

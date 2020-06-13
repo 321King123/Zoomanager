@@ -4,7 +4,6 @@ package at.ac.tuwien.sepm.groupphase.backend.integrationtest.endpoint;
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.AnimalDto;
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.MessageInquiryDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.AnimalMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
@@ -30,10 +29,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,6 +67,9 @@ public class AnimalEndpointTest implements TestData {
     @Autowired
     private SecurityProperties securityProperties;
 
+
+    String GET_FILTERED_ANIMALS_URI = ANIMAL_BASE_URI + "/search";
+
     private Animal animal= Animal.builder()
         .id(1L)
         .name("Horse")
@@ -93,6 +91,8 @@ public class AnimalEndpointTest implements TestData {
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
         .type(TYPE_ANIMAL_CARE_EMPLOYEE)
         .email(EMAIL_JANITOR_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
 
@@ -199,5 +199,90 @@ public class AnimalEndpointTest implements TestData {
         );
     }
 
+        @Test
+    public void EditingExistingAnimal_Status200() throws Exception {
+        animalRepository.save(animal);
+        Animal saved = animalRepository.findAll().get(0);
+        Animal animal1 = Animal.builder()
+            .id(saved.getId())
+            .name("Milly")
+            .description("fastest horse")
+            .enclosure(null)
+            .species("brown")
+            .publicInformation(null)
+            .build();
 
+        AnimalDto animalDto = animalMapper.animalToAnimalDto(animal1);
+        String body = objectMapper.writeValueAsString(animalDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(ANIMAL_BASE_URI + "/edit")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertAll(
+            () -> assertEquals(HttpStatus.OK.value(), response.getStatus())
+        );
+    }
+
+    @Test
+    public void EditingNonExistingAnimal_StatusNotFound() throws Exception {
+        animalRepository.save(animal);
+        Animal animal1 = Animal.builder()
+            .id(5L)
+            .name("Milly")
+            .description("fastest horse")
+            .enclosure(null)
+            .species("brown")
+            .publicInformation(null)
+            .build();
+
+        AnimalDto animalDto = animalMapper.animalToAnimalDto(animal1);
+        String body = objectMapper.writeValueAsString(animalDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(put(ANIMAL_BASE_URI + "/edit")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertAll(
+            () -> assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus())
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
+
+    }
+
+    @Test
+    public void filledRepository_whenSearchWithNoMatch_thenReturnNotFoundException() throws Exception{
+
+        MvcResult mvcResult = this.mockMvc.perform(get(GET_FILTERED_ANIMALS_URI + "?name=notInRepository")
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertAll(
+            () -> assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus())
+        );
+    }
+
+
+    @Test
+    public void filledRepository_whenSearchWithOneMatch_thenReturnOneAnimal() throws Exception {
+        animalRepository.save(animal);
+        MvcResult mvcResult = this.mockMvc.perform(get(GET_FILTERED_ANIMALS_URI + "?name=horse" + "&species=race")
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+
+    }
 }

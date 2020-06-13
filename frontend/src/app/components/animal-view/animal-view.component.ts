@@ -5,10 +5,13 @@ import {TaskService} from '../../services/task.service';
 import {Animal} from '../../dtos/animal';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Employee} from '../../dtos/employee';
-import {AnimalTask} from '../../dtos/animalTask';
 import {AuthService} from '../../services/auth.service';
 import {EnclosureService} from '../../services/enclosure.service';
 import {Enclosure} from '../../dtos/enclosure';
+import {Task} from '../../dtos/task';
+import {AlertService} from '../../services/alert.service';
+import {Utilities} from '../../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 @Component({
   selector: 'app-animal-view',
@@ -16,13 +19,11 @@ import {Enclosure} from '../../dtos/enclosure';
   styleUrls: ['./animal-view.component.css']
 })
 export class AnimalViewComponent implements OnInit {
-  error = false;
-  errorMessage = '';
   currentAnimal: Animal;
 
   doctors: Employee[];
   employees: Employee[];
-  tasks: AnimalTask[];
+  tasks: Task[];
   selectedEnclosure: Enclosure;
   enclosureList: Enclosure[];
   selectedEmployee: Employee;
@@ -30,14 +31,16 @@ export class AnimalViewComponent implements OnInit {
 
   constructor(private animalService: AnimalService, private employeeService: EmployeeService,
               private taskService: TaskService, private route: ActivatedRoute, private authService: AuthService,
-              private enclosureService: EnclosureService) {
+              private enclosureService: EnclosureService, private alertService: AlertService) {
   }
 
   ngOnInit(): void {
     const currentAnimalId = (this.route.snapshot.paramMap.get('animalId'));
     this.getCurrentAnimal(currentAnimalId);
-    this.getAllEnclosures();
-    this.getAllEmployees();
+    if (this.isAdmin()) {
+      this.getAllEnclosures();
+      this.getAllEmployees();
+    }
   }
 
   getCurrentAnimal(id) {
@@ -49,34 +52,22 @@ export class AnimalViewComponent implements OnInit {
         this.getDoctors();
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error, {},
+          'animal-view getCurrentAnimal(' + id + ')');
       }
     );
   }
 
   getTasksOfAnimal() {
     this.taskService.getTasksOfAnimal(this.currentAnimal.id).subscribe(
-      (tasks: AnimalTask[]) => {
+      (tasks: Task[]) => {
         this.tasks = tasks;
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error, {},
+          'animal-view-' + this.currentAnimal.id + '  getTasksOfAnimal()');
       }
     );
-  }
-
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
-    } else {
-      this.errorMessage = error.error;
-    }
-  }
-
-  vanishError() {
-    this.error = false;
   }
 
   getDoctors() {
@@ -85,7 +76,8 @@ export class AnimalViewComponent implements OnInit {
         this.doctors = doctors;
       },
       error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error, {},
+          'animal-view-' + this.currentAnimal.id + '  getDoctors()');
       }
     );
   }
@@ -96,18 +88,8 @@ export class AnimalViewComponent implements OnInit {
         this.employees = employees;
       },
       error => {
-        this.defaultServiceErrorHandling(error);
-      }
-    );
-  }
-
-  deleteTask(animalTask: AnimalTask) {
-    this.taskService.deleteTask(animalTask.id).subscribe(
-      () => {
-        this.getTasksOfAnimal();
-      },
-      error => {
-        this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error, {},
+          'animal-view-' + this.currentAnimal.id + '  getEmployeesOfAnimal()');
       }
     );
   }
@@ -119,7 +101,7 @@ export class AnimalViewComponent implements OnInit {
     return this.authService.getUserRole() === 'ADMIN';
   }
 
-  assignAnimaltoEnclosureOrEmployee() {
+  assignAnimalToEnclosureOrEmployee() {
     if (this.selectedEnclosure != null) {
 
       this.enclosureService.assignAnimalToEnclosure(this.currentAnimal, this.selectedEnclosure).subscribe(
@@ -127,8 +109,9 @@ export class AnimalViewComponent implements OnInit {
           this.selectedEnclosure = null;
         },
         error => {
-          console.log('Failed to assign enclosure');
-          this.defaultServiceErrorHandling(error);
+          DEBUG_LOG('Failed to assign enclosure');
+          this.alertService.alertFromError(error, {},
+            'animal-view-' + this.currentAnimal.id + '  assignAnimalToEnclosureOrEmployee()');
         }
       );
     }
@@ -138,8 +121,9 @@ export class AnimalViewComponent implements OnInit {
           this.selectedEmployee = null;
         },
         error => {
-          console.log('Failed to assign employee');
-          this.defaultServiceErrorHandling(error);
+          DEBUG_LOG('Failed to assign employee');
+          this.alertService.alertFromError(error, {},
+            'animal-view-' + this.currentAnimal.id + '  assignAnimalToEnclosureOrEmployee()');
         }
       );
     }
@@ -154,8 +138,9 @@ export class AnimalViewComponent implements OnInit {
         if (error.status === 404) {
           this.enclosureList.length = 0;
         }
-        console.log('Failed to load all enclosures');
-        this.defaultServiceErrorHandling(error);
+        DEBUG_LOG('Failed to load all enclosures');
+        this.alertService.alertFromError(error, {},
+          'animal-view-' + this.currentAnimal.id + '  getAllEnclosures()');
       }
     );
   }
@@ -169,8 +154,9 @@ export class AnimalViewComponent implements OnInit {
         if (error.status === 404) {
           this.employeeList.length = 0;
         }
-        console.log('Failed to load all employees');
-        this.defaultServiceErrorHandling(error);
+        DEBUG_LOG('Failed to load all employees');
+        this.alertService.alertFromError(error, {},
+          'animal-view-' + this.currentAnimal.id + ' getAllEmployees()');
       }
     );
   }

@@ -1,10 +1,8 @@
 package at.ac.tuwien.sepm.groupphase.backend.service;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface AnimalService {
 
@@ -60,4 +58,25 @@ public interface AnimalService {
      * @return Animals that inhabit the Enclosure with the corresponding Id
      */
     List<Animal> findAnimalsByEnclosure(long enclosureId);
+
+    /**
+     * Method for filtered list of all current employees search fields can be combined.
+     * If a field is null it is not taken into consideration
+     *
+     * @param animal with saved properties for search
+     * @return animals that fulfill the criterums.
+     */
+    List<Animal> searchAnimals(Animal animal);
+
+
+    List<Animal> searchAnimalsOfEmployee(Animal animal, String username);
+
+
+    /**
+     * Editing Animal that is already in the Database
+     *
+     * @param animal to be edited
+     * @return edited Animal as saved in the Database
+     */
+    Animal editAnimal(Animal animal);
 }

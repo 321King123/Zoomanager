@@ -126,8 +126,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
-                    <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
-                    <forkedProcessExitTimeoutInSeconds>120</forkedProcessExitTimeoutInSeconds>
+                    <forkedProcessTimeoutInSeconds>500</forkedProcessTimeoutInSeconds>
+                    <forkedProcessExitTimeoutInSeconds>500</forkedProcessExitTimeoutInSeconds>
                 </configuration>
             </plugin>
             <plugin>

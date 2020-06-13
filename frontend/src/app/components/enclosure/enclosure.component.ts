@@ -1,17 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {AuthService} from '../../services/auth.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {EnclosureService} from '../../services/enclosure.service';
 import {Enclosure} from '../../dtos/enclosure';
+import {AlertService} from '../../services/alert.service';
+import {Utilities} from '../../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
+
 @Component({
   selector: 'app-enclosure',
   templateUrl: './enclosure.component.html',
   styleUrls: ['./enclosure.component.css']
 })
 export class EnclosureComponent implements OnInit {
-  error: boolean = false;
-  errorMessage: string = '';
-
   enclosureCreationForm: FormGroup;
   submittedEnclosure = false;
 
@@ -22,15 +23,15 @@ export class EnclosureComponent implements OnInit {
   enclosures: Enclosure[];
 
   constructor(private enclosureService: EnclosureService, private formBuilder: FormBuilder,
-              private authService: AuthService) {
-      this.initForm();
+              private authService: AuthService, private alertService: AlertService) {
+    this.initForm();
   }
 
   initForm(): void {
     this.enclosureCreationForm = this.formBuilder.group({
       name: ['', [Validators.required]],
       description: [''],
-      publicInformation: ['' ],
+      publicInformation: [''],
       picture: ['']
     });
   }
@@ -48,8 +49,8 @@ export class EnclosureComponent implements OnInit {
         if (error.status === 404) {
           this.enclosures.length = 0;
         }
-        console.log('Failed to load all enclosures');
-        this.defaultServiceErrorHandling(error);
+        DEBUG_LOG('Failed to load all enclosures');
+        this.alertService.alertFromError(error, {}, 'Enclosure component: getAllEnclosures()');
       }
     );
   }
@@ -73,7 +74,7 @@ export class EnclosureComponent implements OnInit {
       this.createEnclosure(enclosure);
       this.clearForm();
     } else {
-      console.log('Invalid input.');
+      DEBUG_LOG('Invalid input.');
     }
   }
 
@@ -83,11 +84,11 @@ export class EnclosureComponent implements OnInit {
         this.getAllEnclosures();
       },
       error => {
-          this.defaultServiceErrorHandling(error);
+        this.alertService.alertFromError(error, {}, 'Enclosure component: createEnclosure()');
       });
   }
 
-  public OnImageFileSelected(event)  {
+  public OnImageFileSelected(event) {
     const files = event.target.files;
     const file = files[0];
     const maxSize = 259000000;
@@ -95,12 +96,12 @@ export class EnclosureComponent implements OnInit {
 
     if (files && file) {
       if (file.size > maxSize) {
-        this.error = true;
-        this.errorMessage = 'File is to large. Max size is: ' + maxSize / 1000 + ' MB.';
+        this.alertService.warn('File is to large. Max size is: ' + maxSize / 1000 + ' MB.',
+          {}, 'Enclosure component: OnImageFileSelected');
       } else {
         if (!acceptedImageTypes.includes(file.type)) {
-          this.error = true;
-          this.errorMessage = 'File has to either be jpeg or png.';
+          this.alertService.warn('File has to either be jpeg or png.' + maxSize / 1000 + ' MB.',
+            {}, 'Enclosure component: OnImageFileSelected');
         } else {
           const reader = new FileReader();
 
@@ -124,22 +125,6 @@ export class EnclosureComponent implements OnInit {
     this.initForm();
     this.uploadedPicture = null;
     this.submittedEnclosure = false;
-   }
-
-  /**
-   * Error flag will be deactivated, which clears the error message
-   */
-  vanishError() {
-    this.error = false;
   }
 
-  private defaultServiceErrorHandling(error: any) {
-    console.log(error);
-    this.error = true;
-    if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
-    } else {
-      this.errorMessage = error.error;
-    }
-  }
 }

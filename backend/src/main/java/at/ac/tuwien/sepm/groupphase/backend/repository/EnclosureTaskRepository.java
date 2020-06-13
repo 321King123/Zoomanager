@@ -1,9 +1,7 @@
 package at.ac.tuwien.sepm.groupphase.backend.repository;
 
-import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.entity.EnclosureTask;
-import org.hibernate.sql.Select;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,8 +18,8 @@ public interface EnclosureTaskRepository extends JpaRepository<EnclosureTask, Lo
      * @param enclosureIdLong id of the enclosure to find associated tasks from
      * @return The tasks associated with the given enclosure
      */
-    @Query("SELECT new EnclosureTask(et.id, et.priority, t, et.subject) " +
-        "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE et.subject.id=:enclosureId")
+    @Query("SELECT new EnclosureTask(et.id, t, et.subject) " +
+        "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE et.subject.id=:enclosureId ORDER BY t.startTime")
     List<EnclosureTask> findAllEnclosureTasksBySubject_Id(@Param("enclosureId")long enclosureIdLong);
 
 
@@ -40,7 +38,7 @@ public interface EnclosureTaskRepository extends JpaRepository<EnclosureTask, Lo
      * @param taskIdLong id of Task to find
      * @return The EnclosureTask with the given id
      */
-    @Query("SELECT new EnclosureTask(et.id, et.priority, t, et.subject) " +
+    @Query("SELECT new EnclosureTask(et.id, t, et.subject) " +
         "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE et.id=:taskId")
     EnclosureTask findEnclosureTaskById(@Param("taskId") long taskIdLong);
 
@@ -51,8 +49,8 @@ public interface EnclosureTaskRepository extends JpaRepository<EnclosureTask, Lo
      * @param employeeUsername username of Employee to find the tasks of
      * @return The EnclosureTask with of the given employee
      */
-    @Query("SELECT new EnclosureTask (et.id, et.priority, t, et.subject)" +
-        "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE t.assignedEmployee.username =:employeeUsername")
+    @Query("SELECT new EnclosureTask (et.id, t, et.subject)" +
+        "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE t.assignedEmployee.username =:employeeUsername ORDER BY t.startTime")
     List<EnclosureTask> findEnclosureTaskByEmployeeUsername(@Param("employeeUsername")String employeeUsername);
 
     @Transactional

@@ -1,15 +1,14 @@
 package at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper;
 
-import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EnclosureDto;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.EnclosureTaskDto;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
 import at.ac.tuwien.sepm.groupphase.backend.entity.EnclosureTask;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
+import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 
 @Component
 public class EnclosureTaskMapper {
@@ -37,6 +36,7 @@ public class EnclosureTaskMapper {
             .status(enclosureTask.getTask().getStatus())
             .enclosureName(enclosureTask.getSubject() != null ? enclosureTask.getSubject().getName() : null)
             .enclosureId(enclosureTask.getSubject() != null ? enclosureTask.getSubject().getId() : null)
+            .priority(enclosureTask.getTask().isPriority())
             .build();
     }
 
@@ -57,6 +57,7 @@ public class EnclosureTaskMapper {
             .startTime(enclosureTaskDto.getStartTime())
             .endTime(enclosureTaskDto.getEndTime())
             .status(enclosureTaskDto.getStatus())
+            .priority(enclosureTaskDto.isPriority())
             .build();
 
         return EnclosureTask.builder()

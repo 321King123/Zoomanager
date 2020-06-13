@@ -1,3 +1,5 @@
+import {Enclosure} from './enclosure';
+
 export class Animal {
   constructor(
     public id: number,
@@ -5,6 +7,7 @@ export class Animal {
     public description: string,
     public species: string,
     public enclosure: string,
-    public publicInformation: string) {
+    public publicInformation: string,
+    ) {
   }
 }

@@ -3,7 +3,9 @@ package at.ac.tuwien.sepm.groupphase.backend.unittests.service;
 import at.ac.tuwien.sepm.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.exception.AlreadyExistsException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFreeException;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.UserService;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +62,8 @@ public class EmployeeServiceTest implements TestData {
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
         .type(TYPE_ANIMAL_CARE_EMPLOYEE)
         .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Employee doctor = Employee.builder()
@@ -67,6 +72,8 @@ public class EmployeeServiceTest implements TestData {
         .birthday(BIRTHDAY_DOCTOR_EMPLOYEE)
         .type(TYPE_DOCTOR_EMPLOYEE)
         .email(EMAIL_DOCTOR_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Employee janitor = Employee.builder()
@@ -75,6 +82,8 @@ public class EmployeeServiceTest implements TestData {
         .birthday(BIRTHDAY_JANITOR_EMPLOYEE)
         .type(TYPE_JANITOR_EMPLOYEE)
         .email(EMAIL_JANITOR_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
         .build();
 
     private Animal horse = Animal.builder()
@@ -91,17 +100,33 @@ public class EmployeeServiceTest implements TestData {
         .build();
 
     private Task task_not_assigned = Task.builder()
-        .id(1L)
+        .id(4L)
         .title(TASK_TITLE)
         .description(TASK_DESCRIPTION)
         .startTime(TAST_START_TIME)
         .endTime(TAST_END_TIME)
         .status(TaskStatus.NOT_ASSIGNED)
+        .priority(false)
         .build();
 
     private AnimalTask animalTask_not_assigned = AnimalTask.builder()
         .id(1L)
         .subject(horse)
+        .task(task_not_assigned)
+        .build();
+
+
+    private Enclosure enclosureMinimal = Enclosure.builder()
+        .name("Wolf Enclosure")
+        .id(5L)
+        .description(null)
+        .publicInfo(null)
+        .picture(null)
+        .build();
+
+    private EnclosureTask enclosureTask_not_assigned = EnclosureTask.builder()
+        .id(1L)
+        .subject(enclosureMinimal)
         .task(task_not_assigned)
         .build();
 
@@ -239,7 +264,9 @@ public class EmployeeServiceTest implements TestData {
     public void canNotBeAssignedToAnimalTask_Janitor(){
         Optional<AnimalTask> animalTask = Optional.of(animalTask_not_assigned);
         Mockito.when(animalTaskRepository.findById(Mockito.anyLong())).thenReturn(animalTask);
-        assertFalse(employeeService.canBeAssignedToTask(janitor, task_not_assigned));
+        Exception exception = assertThrows(IncorrectTypeException.class, () -> {
+            employeeService.canBeAssignedToTask(janitor, task_not_assigned);
+        });
     }
 
     @Test
@@ -278,7 +305,7 @@ public class EmployeeServiceTest implements TestData {
     @Test
     public void employeeIsFree_whenNoOtherTaskAssigned(){
         List<Task> taskList = new LinkedList<>();
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
         assertTrue(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
     }
 
@@ -294,8 +321,10 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
-        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        Exception exception = assertThrows(NotFreeException.class, () -> {
+            employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
+        });
     }
 
     @Test
@@ -310,8 +339,10 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
-        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        Exception exception = assertThrows(NotFreeException.class, () -> {
+            employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
+        });
     }
 
     @Test
@@ -326,8 +357,10 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
-        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        Exception exception = assertThrows(NotFreeException.class, () -> {
+            employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
+        });
     }
 
     @Test
@@ -342,8 +375,183 @@ public class EmployeeServiceTest implements TestData {
             .build();
         List<Task> taskList = new LinkedList<>();
         taskList.add(task);
-        Mockito.when(taskRepository.findAllByAssignedEmployee(Mockito.any(Employee.class))).thenReturn(taskList);
-        assertFalse(employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned));
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        Exception exception = assertThrows(NotFreeException.class, () -> {
+            employeeService.employeeIsFreeBetweenStartingAndEndtime(animal_caretaker, task_not_assigned);
+        });
+    }
+
+    @Test
+    public void employeeForAnimalTaskNonPriority(){
+        Task task = Task.builder()
+            .id(1L)
+            .title(TASK_TITLE)
+            .description(TASK_DESCRIPTION)
+            .startTime(TAST_START_TIME.plusSeconds(5).plusYears(2))
+            .endTime(TAST_END_TIME.minusSeconds(5).plusYears(2))
+            .status(TaskStatus.NOT_ASSIGNED)
+            .build();
+        List<Task> taskList = new LinkedList<>();
+        taskList.add(task);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        List<Employee> employees = new LinkedList<>();
+        employees.add(animal_caretaker);
+        Mockito.when(employeeRepository.findByAssignedAnimalsContains(Mockito.any(Animal.class))).thenReturn(employees);
+        assertDoesNotThrow( () -> employeeService.findEmployeeForAnimalTask(animalTask_not_assigned, EmployeeType.ANIMAL_CARE));
+    }
+
+    @Test
+    public void employeeForAnimalTaskNonPriorityNoOneFree(){
+        Task task = Task.builder()
+            .id(1L)
+            .title(TASK_TITLE)
+            .description(TASK_DESCRIPTION)
+            .startTime(TAST_START_TIME.plusSeconds(5))
+            .endTime(TAST_END_TIME.minusSeconds(5))
+            .status(TaskStatus.NOT_ASSIGNED)
+            .build();
+        List<Task> taskList = new LinkedList<>();
+        taskList.add(task);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        List<Employee> employees = new LinkedList<>();
+        employees.add(animal_caretaker);
+        Mockito.when(employeeRepository.findByAssignedAnimalsContains(Mockito.any(Animal.class))).thenReturn(employees);
+
+        assertThrows(NotFreeException.class, () -> employeeService.findEmployeeForAnimalTask(animalTask_not_assigned, EmployeeType.ANIMAL_CARE));
+    }
+
+    @Test
+    public void employeeForAnimalTaskPriority(){
+        Task task = Task.builder()
+            .id(1L)
+            .title(TASK_TITLE)
+            .description(TASK_DESCRIPTION)
+            .startTime(TAST_START_TIME.plusSeconds(5).plusYears(2))
+            .endTime(TAST_END_TIME.minusSeconds(5).plusYears(2))
+            .status(TaskStatus.NOT_ASSIGNED)
+            .build();
+        List<Task> taskList = new LinkedList<>();
+        taskList.add(task);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        List<Employee> employees = new LinkedList<>();
+        employees.add(animal_caretaker);
+        Mockito.when(employeeRepository.findByAssignedAnimalsContains(Mockito.any(Animal.class))).thenReturn(employees);
+        animalTask_not_assigned.getTask().setPriority(true);
+        assertDoesNotThrow( () -> employeeService.findEmployeeForAnimalTask(animalTask_not_assigned, EmployeeType.ANIMAL_CARE));
+        animalTask_not_assigned.getTask().setPriority(false);
+    }
+
+    @Test
+    public void employeeForAnimalTaskPriorityNonFittingTime(){
+        Task task = Task.builder()
+            .id(1L)
+            .title(TASK_TITLE)
+            .description(TASK_DESCRIPTION)
+            .startTime(TAST_START_TIME.plusSeconds(5).plusYears(2))
+            .endTime(TAST_END_TIME.minusSeconds(5).plusYears(2))
+            .status(TaskStatus.NOT_ASSIGNED)
+            .build();
+        List<Task> taskList = new LinkedList<>();
+        taskList.add(task);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        List<Employee> employees = new LinkedList<>();
+        employees.add(animal_caretaker);
+        Mockito.when(employeeRepository.findByAssignedAnimalsContains(Mockito.any(Animal.class))).thenReturn(employees);
+        animalTask_not_assigned.getTask().setPriority(true);
+        LocalDateTime startTimeSaved = animalTask_not_assigned.getTask().getStartTime();
+        LocalDateTime endTimeSave = animalTask_not_assigned.getTask().getEndTime();
+        animalTask_not_assigned.getTask().setStartTime(LocalDateTime.of(2020, 9, 25, 0, 10));
+        animalTask_not_assigned.getTask().setEndTime(LocalDateTime.of(2020, 9, 25, 23, 10));
+        assertThrows(NotFreeException.class, () -> employeeService.findEmployeeForAnimalTask(animalTask_not_assigned, EmployeeType.ANIMAL_CARE));
+        animalTask_not_assigned.getTask().setPriority(false);
+        animalTask_not_assigned.getTask().setStartTime(startTimeSaved);
+        animalTask_not_assigned.getTask().setEndTime(endTimeSave);
+    }
+
+    @Test
+    public void employeeForEnclosureTaskNonPriority(){
+        Task task = Task.builder()
+            .id(1L)
+            .title(TASK_TITLE)
+            .description(TASK_DESCRIPTION)
+            .startTime(TAST_START_TIME.plusSeconds(5).plusYears(2))
+            .endTime(TAST_END_TIME.minusSeconds(5).plusYears(2))
+            .status(TaskStatus.NOT_ASSIGNED)
+            .build();
+        List<Task> taskList = new LinkedList<>();
+        taskList.add(task);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        List<Employee> employees = new LinkedList<>();
+        employees.add(animal_caretaker);
+        Mockito.when(employeeRepository.getEmployeesByEnclosureID(Mockito.any(Long.class))).thenReturn(employees);
+        assertDoesNotThrow( () -> employeeService.findEmployeeForEnclosureTask(enclosureTask_not_assigned, EmployeeType.ANIMAL_CARE));
+    }
+
+    @Test
+    public void employeeForEnclosureTaskNonPriorityNoOneFree(){
+        Task task = Task.builder()
+            .id(1L)
+            .title(TASK_TITLE)
+            .description(TASK_DESCRIPTION)
+            .startTime(TAST_START_TIME.plusSeconds(5))
+            .endTime(TAST_END_TIME.minusSeconds(5))
+            .status(TaskStatus.NOT_ASSIGNED)
+            .build();
+        List<Task> taskList = new LinkedList<>();
+        taskList.add(task);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        List<Employee> employees = new LinkedList<>();
+        employees.add(animal_caretaker);
+        Mockito.when(employeeRepository.getEmployeesByEnclosureID(Mockito.any(Long.class))).thenReturn(employees);
+        assertThrows(NotFreeException.class, () -> employeeService.findEmployeeForEnclosureTask(enclosureTask_not_assigned, EmployeeType.ANIMAL_CARE));
+    }
+
+    @Test
+    public void employeeForEnclosureTaskPriority(){
+        Task task = Task.builder()
+            .id(1L)
+            .title(TASK_TITLE)
+            .description(TASK_DESCRIPTION)
+            .startTime(TAST_START_TIME.plusSeconds(5).plusYears(2))
+            .endTime(TAST_END_TIME.minusSeconds(5).plusYears(2))
+            .status(TaskStatus.NOT_ASSIGNED)
+            .build();
+        List<Task> taskList = new LinkedList<>();
+        taskList.add(task);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        List<Employee> employees = new LinkedList<>();
+        employees.add(animal_caretaker);
+        Mockito.when(employeeRepository.getEmployeesByEnclosureID(Mockito.any(Long.class))).thenReturn(employees);
+        enclosureTask_not_assigned.getTask().setPriority(true);
+        assertDoesNotThrow( () -> employeeService.findEmployeeForEnclosureTask(enclosureTask_not_assigned, EmployeeType.ANIMAL_CARE));
+        enclosureTask_not_assigned.getTask().setPriority(false);
+    }
+
+    @Test
+    public void employeeForEnclosureTaskPriorityNonFittingTask(){
+        Task task = Task.builder()
+            .id(1L)
+            .title(TASK_TITLE)
+            .description(TASK_DESCRIPTION)
+            .startTime(TAST_START_TIME.plusSeconds(5).plusYears(2))
+            .endTime(TAST_END_TIME.minusSeconds(5).plusYears(2))
+            .status(TaskStatus.NOT_ASSIGNED)
+            .build();
+        List<Task> taskList = new LinkedList<>();
+        taskList.add(task);
+        Mockito.when(taskRepository.findAllByAssignedEmployeeOrderByStartTime(Mockito.any(Employee.class))).thenReturn(taskList);
+        List<Employee> employees = new LinkedList<>();
+        employees.add(animal_caretaker);
+        Mockito.when(employeeRepository.getEmployeesByEnclosureID(Mockito.any(Long.class))).thenReturn(employees);
+        enclosureTask_not_assigned.getTask().setPriority(true);
+        LocalDateTime startTimeSaved = enclosureTask_not_assigned.getTask().getStartTime();
+        LocalDateTime endTimeSave = enclosureTask_not_assigned.getTask().getEndTime();
+        enclosureTask_not_assigned.getTask().setStartTime(LocalDateTime.of(2020, 9, 25, 0, 10));
+        enclosureTask_not_assigned.getTask().setEndTime(LocalDateTime.of(2020, 9, 25, 23, 10));
+        assertThrows(NotFreeException.class, () -> employeeService.findEmployeeForEnclosureTask(enclosureTask_not_assigned, EmployeeType.ANIMAL_CARE));
+        enclosureTask_not_assigned.getTask().setPriority(false);
+        animalTask_not_assigned.getTask().setStartTime(startTimeSaved);
+        animalTask_not_assigned.getTask().setEndTime(endTimeSave);
     }
 
 }
