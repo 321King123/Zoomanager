@@ -199,19 +199,6 @@ public class AnimalEndpointTest implements TestData {
         );
     }
 
-    @Test
-    public void filledRepository_whenSearchWithNoMatch_thenReturnNotFoundException() throws Exception{
-
-        MvcResult mvcResult = this.mockMvc.perform(get(GET_FILTERED_ANIMALS_URI + "?name=notInRepository")
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
-            .andDo(print())
-            .andReturn();
-        MockHttpServletResponse response = mvcResult.getResponse();
-        assertAll(
-            () -> assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus())
-        );
-    }
-
         @Test
     public void EditingExistingAnimal_Status200() throws Exception {
         animalRepository.save(animal);
@@ -240,7 +227,6 @@ public class AnimalEndpointTest implements TestData {
             () -> assertEquals(HttpStatus.OK.value(), response.getStatus())
         );
     }
-
 
     @Test
     public void EditingNonExistingAnimal_StatusNotFound() throws Exception {
@@ -272,6 +258,20 @@ public class AnimalEndpointTest implements TestData {
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
 
     }
+
+    @Test
+    public void filledRepository_whenSearchWithNoMatch_thenReturnNotFoundException() throws Exception{
+
+        MvcResult mvcResult = this.mockMvc.perform(get(GET_FILTERED_ANIMALS_URI + "?name=notInRepository")
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+        MockHttpServletResponse response = mvcResult.getResponse();
+        assertAll(
+            () -> assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus())
+        );
+    }
+
 
     @Test
     public void filledRepository_whenSearchWithOneMatch_thenReturnOneAnimal() throws Exception {

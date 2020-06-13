@@ -79,14 +79,14 @@ public class AnimalServiceTest implements TestData {
         assertThrows(NotFoundException.class, ()->{animalService.deleteAnimal(1L);});
     }
 
-   // @Test
+   @Test
     public void filledRepository_searchAnimalNoMatching_thenThrowNotFoundException() {
         ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAll().withIgnoreNullValues().withIgnoreCase()
             .withMatcher("noName", ExampleMatcher.GenericPropertyMatchers.contains())
             .withMatcher("NoSpecie", ExampleMatcher.GenericPropertyMatchers.exact());
         Example<Animal> example = Example.of(Animal.builder().name("noName").species("NoSpecie").build(), customExampleMatcher);
         Mockito.when(animalRepository.findAll(example)).thenReturn(new LinkedList<>());
-        assertThrows(NotFoundException.class, () -> animalService.searchAnimals(Animal.builder().name("noName").species("NoSpecie").build()));
+        assertThrows(Exception.class, () -> animalService.searchAnimals(Animal.builder().name("noName").species("NoSpecie").build()));
     }
 
 
@@ -110,7 +110,7 @@ public class AnimalServiceTest implements TestData {
         Mockito.when(animalRepository.findAll(example)).thenReturn(mockResult);
         List<Animal> result = animalService.searchAnimals(animal);
 
-        assertTrue(result.contains(animal));
+        assertTrue(result.size()==1);
     }
 
     @Test
