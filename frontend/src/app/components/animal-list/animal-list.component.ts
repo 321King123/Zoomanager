@@ -45,6 +45,8 @@ export class AnimalListComponent implements OnInit {
   visitedEmployeeUsername: String;
   visitedEnclosureId: String;
   currentRoute: String;
+  isError: boolean;
+  alertMessage: String;
 
   ngOnInit(): void {
     this.getAnimals();
@@ -115,7 +117,7 @@ export class AnimalListComponent implements OnInit {
   }
 
   getFilteredAnimals() {
-
+    this.isError = false;
     this.currentRoute = this.route.url;
     this.visitedEmployeeUsername = this.currentRoute.substring(this.currentRoute.lastIndexOf('/') + 1);
     if (this.visitedEmployeeUsername === 'animal') {
@@ -131,7 +133,8 @@ export class AnimalListComponent implements OnInit {
       },
       error => {
         DEBUG_LOG('Failed to load all animals');
-        this.alertService.alertFromError(error, {}, 'getFilteredAnimals');
+        this.isError = true;
+        this.alertMessage = error.error;
       }
     );
   } else {
@@ -141,7 +144,8 @@ export class AnimalListComponent implements OnInit {
         },
         error => {
           DEBUG_LOG('Failed to load all animals');
-          this.alertService.alertFromError(error, {}, 'getFilteredAnimals');
+          this.isError = true;
+          this.alertMessage = error.error;
         }
       );
     }
