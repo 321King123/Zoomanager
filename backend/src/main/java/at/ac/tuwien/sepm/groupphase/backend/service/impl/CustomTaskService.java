@@ -217,6 +217,16 @@ public class CustomTaskService implements TaskService {
         }
     }
 
+    private void deleteRepeatableTask(RepeatableTask repeatableTask) {
+        Optional<RepeatableTask> previousTask = repeatableTaskRepository.findByFollowTask(repeatableTask.getTask());
+        if(previousTask.isPresent()) {
+            RepeatableTask previousTask1 = previousTask.get();
+            previousTask1.setFollowTask(repeatableTask.getFollowTask());
+            repeatableTaskRepository.save(previousTask1);
+        }
+        repeatableTaskRepository.delete(repeatableTask);
+    }
+
     @Override
     public List<AnimalTask> getAllAnimalTasksOfEmployee(String employeeUsername) {
         LOGGER.debug("Get All Animal Tasks belonging to employee with username: {}", employeeUsername);
@@ -367,17 +377,7 @@ public class CustomTaskService implements TaskService {
 
         validateStartAndEndTime(task);
 
-        LocalDateTime newStartTime = task.getStartTime().plus(separationCount, separation);
-        LocalDateTime newEndTime = task.getEndTime().plus(separationCount, separation);
-
-        Task newTask = Task.builder().title(task.getTitle())
-            .description(task.getDescription())
-            .startTime(newStartTime)
-            .endTime(newEndTime)
-            .assignedEmployee(task.getAssignedEmployee())
-            .status(task.getStatus())
-            .priority(task.isPriority())
-            .build();
+        Task newTask = addTimeToTask(task, separation, separationCount);
 
         List<AnimalTask> animalTasks = new LinkedList<>();
 
@@ -405,17 +405,7 @@ public class CustomTaskService implements TaskService {
 
         validateStartAndEndTime(task);
 
-        LocalDateTime newStartTime = task.getStartTime().plus(separationCount, separation);
-        LocalDateTime newEndTime = task.getEndTime().plus(separationCount, separation);
-
-        Task newTask = Task.builder().title(task.getTitle())
-            .description(task.getDescription())
-            .startTime(newStartTime)
-            .endTime(newEndTime)
-            .assignedEmployee(task.getAssignedEmployee())
-            .status(task.getStatus())
-            .priority(task.isPriority())
-            .build();
+        Task newTask = addTimeToTask(task, separation, separationCount);
 
         List<EnclosureTask> enclosureTasks = new LinkedList<>();
 
@@ -435,14 +425,19 @@ public class CustomTaskService implements TaskService {
         return enclosureTasks;
     }
 
-    private void deleteRepeatableTask(RepeatableTask repeatableTask) {
-        Optional<RepeatableTask> previousTask = repeatableTaskRepository.findByFollowTask(repeatableTask.getTask());
-        if(previousTask.isPresent()) {
-            RepeatableTask previousTask1 = previousTask.get();
-            previousTask1.setFollowTask(repeatableTask.getFollowTask());
-            repeatableTaskRepository.save(previousTask1);
-        }
-        repeatableTaskRepository.delete(repeatableTask);
+    //doesn't change the original Task
+    private Task addTimeToTask(Task task, ChronoUnit separation, int separationCount) {
+        LocalDateTime newStartTime = task.getStartTime().plus(separationCount, separation);
+        LocalDateTime newEndTime = task.getEndTime().plus(separationCount, separation);
+
+        return Task.builder().title(task.getTitle())
+            .description(task.getDescription())
+            .startTime(newStartTime)
+            .endTime(newEndTime)
+            .assignedEmployee(task.getAssignedEmployee())
+            .status(task.getStatus())
+            .priority(task.isPriority())
+            .build();
     }
 
     @Override

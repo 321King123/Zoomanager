@@ -254,7 +254,7 @@ public class TaskEndpoint {
     @PostMapping(value = "auto/enclosure/caretaker/repeat/{id}")
     @ApiOperation(value = "Automatically assign Enclosure Tasks to Animal Caretaker", authorizations = {@Authorization(value = "apiKey")})
     public void autoAssignEnclosureTaskCaretakerRepeat(@PathVariable Long id, Authentication authentication) {
-        LOGGER.info("POST /api/v1/tasks/auto/enclosure/repeat/{}", id);
+        LOGGER.info("POST /api/v1/tasks/auto/enclosure/caretaker/repeat/{}", id);
 
         //Only Admin and Employees that are assigned to the enclosure can create it
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
