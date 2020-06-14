@@ -1,0 +1,92 @@
+package at.ac.tuwien.sepm.groupphase.backend.endpoint;
+
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.TaskCommentDto;
+import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.TaskCommentMapper;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
+import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
+import at.ac.tuwien.sepm.groupphase.backend.entity.TaskComment;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
+import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
+import at.ac.tuwien.sepm.groupphase.backend.service.TaskCommentService;
+import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
+import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.web.bind.annotation.*;
+
+import java.lang.invoke.MethodHandles;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
+@RestController
+@RequestMapping(value = "/api/v1/comments")
+public class TaskCommentEndpoint {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private final TaskCommentMapper taskCommentMapper;
+    private final TaskCommentService taskCommentService;
+    private final EmployeeService employeeService;
+    private final TaskService taskService;
+
+    @Autowired
+    public TaskCommentEndpoint(TaskCommentMapper taskCommentMapper, TaskCommentService taskCommentService,
+                               EmployeeService employeeService, TaskService taskService) {
+        this.taskCommentMapper = taskCommentMapper;
+        this.taskCommentService = taskCommentService;
+        this.employeeService = employeeService;
+        this.taskService = taskService;
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/{taskId}")
+    @ApiOperation(value = "Get list of comments belonging to a task", authorizations = {@Authorization(value = "apiKey")})
+    public List<TaskCommentDto> getCommentsOfTask(@PathVariable Long taskId, Authentication authentication) {
+        LOGGER.info("GET /api/v1/comments/ {}", taskId);
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String username = (String) authentication.getPrincipal();
+        if(!isAdmin && !isAuthorized(username, taskId)) {
+            throw new NotAuthorisedException("You are not allowed to see this animals information.");
+        }
+        List<TaskComment> taskComments = taskCommentService.findAllByTaskId(taskId);
+        List<TaskCommentDto> taskCommentDtos = new LinkedList<>();
+        for(TaskComment t : taskComments) {
+            taskCommentDtos.add(taskCommentMapper.taskCommentToTaskCommentDto(t));
+        }
+        return taskCommentDtos;
+    }
+
+    private boolean isAuthorized(String username, Long taskId) {
+        Employee employee = employeeService.findByUsername(username);
+        if(employee == null) {
+            throw new NotFoundException("No Employee with the Username exists.");
+        }
+        Task task = taskService.getTaskById(taskId);
+        boolean isAnimalTask = taskService.isAnimalTask(taskId);
+        if(isAnimalTask) {
+            if(employee.getType() == EmployeeType.DOCTOR) {
+                return true;
+            } else if(employee.getType() == EmployeeType.ANIMAL_CARE) {
+                return employeeService.canBeAssignedToTask(employee, task);
+            }
+        } else {
+            if(employee.getType() == EmployeeType.JANITOR) {
+                return true;
+            } else if(employee.getType() == EmployeeType.ANIMAL_CARE) {
+                return employeeService.canBeAssignedToTask(employee, task);
+            }
+        }
+        return false;
+    }
+}

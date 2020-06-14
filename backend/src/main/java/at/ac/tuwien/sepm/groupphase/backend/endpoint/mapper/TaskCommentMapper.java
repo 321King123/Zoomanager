@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaskCommentMapper {
 
-    TaskComment taskCommentDtoToTaskComment(TaskCommentDto taskCommentDto) {
+    public TaskComment taskCommentDtoToTaskComment(TaskCommentDto taskCommentDto) {
         return TaskComment.builder()
             .id(taskCommentDto.getId())
             .comment(taskCommentDto.getComment())
@@ -19,7 +19,7 @@ public class TaskCommentMapper {
             .build();
     }
 
-    TaskCommentDto taskCommentToTaskCommentDto(TaskComment taskComment) {
+    public TaskCommentDto taskCommentToTaskCommentDto(TaskComment taskComment) {
         return TaskCommentDto.builder()
             .id(taskComment.getId())
             .comment(taskComment.getComment())
