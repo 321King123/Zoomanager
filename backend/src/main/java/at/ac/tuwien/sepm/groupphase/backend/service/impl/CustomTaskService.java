@@ -315,6 +315,9 @@ public class CustomTaskService implements TaskService {
         //checking if such animal-task exists
         if(animalTask==null) throw new NotFoundException("Non existing animal task.");
         AnimalTask exists = getAnimalTaskById(animalTask.getId());
+
+        validateStartAndEndTime(animalTask.getTask());
+
         //checking if employee can be assigned to task
         if(animalTask.getTask().getAssignedEmployee()!=null){
            if(!employeeService.canBeAssignedToTask(animalTask.getTask().getAssignedEmployee(),animalTask.getTask())) {
@@ -339,6 +342,8 @@ public class CustomTaskService implements TaskService {
         //checking if such enclosure task exists
         if(enclosureTask==null) throw new NotFoundException("Non existing enclosure task.");
         EnclosureTask existsEnclosureTask = getEnclosureTaskById(enclosureTask.getId());
+
+        validateStartAndEndTime(enclosureTask.getTask());
         //checking if employee can be assigned to task
         if(enclosureTask.getTask().getAssignedEmployee()!=null){
             if(!employeeService.canBeAssignedToTask(enclosureTask.getTask().getAssignedEmployee(),enclosureTask.getTask())) {
