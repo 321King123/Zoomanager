@@ -23,6 +23,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -57,14 +58,47 @@ public class TaskCommentEndpoint {
         boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
         String username = (String) authentication.getPrincipal();
         if(!isAdmin && !isAuthorized(username, taskId)) {
-            throw new NotAuthorisedException("You are not allowed to see this animals information.");
+            throw new NotAuthorisedException("You are not allowed to see this tasks comments.");
         }
         List<TaskComment> taskComments = taskCommentService.findAllByTaskId(taskId);
         List<TaskCommentDto> taskCommentDtos = new LinkedList<>();
-        for(TaskComment t : taskComments) {
+        for (TaskComment t : taskComments) {
             taskCommentDtos.add(taskCommentMapper.taskCommentToTaskCommentDto(t));
         }
         return taskCommentDtos;
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping
+    @ApiOperation(value = "Create a comment of a task", authorizations = {@Authorization(value = "apiKey")})
+    public TaskCommentDto createCommentOfTask(@Valid @RequestBody TaskCommentDto taskCommentDto, Authentication authentication) {
+        LOGGER.info("POST /api/v1/comments");
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String username = (String) authentication.getPrincipal();
+        if(!isAdmin && !isAuthorized(username, taskCommentDto.getTaskId())) {
+            throw new NotAuthorisedException("You are not allowed to create a comment for the given task.");
+        }
+        return taskCommentMapper.taskCommentToTaskCommentDto(taskCommentService.createComment(taskCommentMapper.taskCommentDtoToTaskComment(taskCommentDto)));
+    }
+
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping(value = "/{taskCommentId}")
+    @ApiOperation(value = "Delete a comment of a task", authorizations = {@Authorization(value = "apiKey")})
+    public void createCommentOfTask(@PathVariable Long taskCommentId, Authentication authentication) {
+        LOGGER.info("DELETE /api/v1/comments/ {}", taskCommentId);
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String username = (String) authentication.getPrincipal();
+
+        TaskComment taskComment = taskCommentService.findById(taskCommentId);
+
+        if(!isAdmin && !isAuthorized(username, taskComment.getTask().getId())) {
+            throw new NotAuthorisedException("You are not allowed to delete this comment.");
+        }
+        taskCommentService.delete(taskCommentId);
     }
 
     private boolean isAuthorized(String username, Long taskId) {
