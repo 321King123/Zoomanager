@@ -22,8 +22,8 @@
       </div>
     </div>
   </div>
-  <div *ngIf="employee!=null && employee.type=='ANIMAL_CARE'" class="col-12 my-2">
-    <div
+  <div *ngIf="employee!=null" class="col-12 my-2">
+    <div *ngIf="employee!=null && employee.type=='ANIMAL_CARE'"
       class="row d-flex justify-content-start mx-0 ">
       <app-task-creation (reloadTasks)="loadTasksOfEmployee()" [currentEmployee]="employee"
                          [animalsOfEmployee]="assignedAnimals"
