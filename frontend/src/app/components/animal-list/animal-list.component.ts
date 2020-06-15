@@ -152,6 +152,7 @@ export class AnimalListComponent implements OnInit {
   }
   deleteAnimalFn(animal: any) {
     this.deleteAnimal.emit(animal);
+    this.toggleClickPropagation();
   }
 
   delAnimal(animal: any) {
