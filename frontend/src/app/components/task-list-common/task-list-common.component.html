@@ -91,7 +91,7 @@
             (toggleClickPropagationEvent)="toggleClickPropagation()"
             (reloadTasks)="reloadTasks.emit()" *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'"
             [animalsOfEmployee]="animalsOfEmployee" [enclosuresOfEmployee]="enclosuresOfEmployee"
-            [task]="task" [index]="i"></app-task-info-update>
+            [task]="task" [index]="i" [currentEmployee]="currentUser"></app-task-info-update>
 
 <!--          <div class="mx-2">-->
 <!--            <button *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'" (click)="deleteTask(task.id)"-->

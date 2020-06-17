@@ -108,7 +108,7 @@ export class TaskListCommonComponent implements OnInit {
   changeDeleteState() {
     this.deleteFollowing = !this.deleteFollowing;
   }
-  
+
   dl(msg: any) {
     if (!this.stopClickPropagation) {
       DEBUG_LOG(msg);

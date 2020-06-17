@@ -25,6 +25,7 @@ export class TaskInfoUpdateComponent implements OnInit {
   @Input() animalsOfEmployee;
   @Input() enclosuresOfEmployee;
   @Output() reloadTasks = new EventEmitter();
+  @Input() currentEmployee;
 
   assignee: Employee;
   animal: Animal;
@@ -265,7 +266,7 @@ export class TaskInfoUpdateComponent implements OnInit {
   changeRepeat() {
     this.repeatMode = !this.repeatMode;
   }
-  
+
   toggleModal() {
     //   this.stopClickPropagationEvent.emit();
     DEBUG_LOG('Toggle Modal');
