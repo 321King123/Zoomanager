@@ -137,7 +137,7 @@ public class AnimalEndpoint {
 
         Animal searchAnimal;
         if(enclosureId != null){
-        //Enclosure enclosure = enclosureService.findById(enclosureId);
+
         searchAnimal = Animal.builder().enclosure(enclosureService.findById(enclosureId)).description(description).name(name).species(species).build();
         }
         else{
@@ -150,15 +150,14 @@ public class AnimalEndpoint {
 
         if (isAdmin) {
 
-            if(employeeUsername == null){
+            if(employeeUsername == null){ //search on Animal main page or animals of enclosure
              animals = animalService.searchAnimals(searchAnimal);}
-            else{
+            else{ //search animal of one employee
                 animals = animalService.searchAnimalsOfEmployee(searchAnimal,employeeUsername);
             }
 
         }else{ //employee
             String username = (String) authentication.getPrincipal();
-            //Employee employee = employeeService.findByUsername(username);
             animals = animalService.searchAnimalsOfEmployee(searchAnimal,username);
         }
 
@@ -168,24 +167,6 @@ public class AnimalEndpoint {
         }
         return animalDtos;
     }
-
-    /*
-         @Secured("ROLE_USER")
-    @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public AnimalDto getAnimalById(@PathVariable("id") Long id, Authentication authentication) {
-        LOGGER.info("GET /api/v1/animal/" + id);
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        String username = (String) authentication.getPrincipal();
-        if (!isAdmin) {
-            if (!employeeService.isAssignedToAnimal(username, id)) {
-                throw new NotAuthorisedException("You are not allowed to see this animals information.");
-            }
-        }
-        return animalMapper.animalToAnimalDto(animalService.findAnimalById(id));
-    }
-    * */
 
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)

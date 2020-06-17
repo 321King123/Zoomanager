@@ -150,6 +150,8 @@ export class AnimalListComponent implements OnInit {
       );
     }
   }
+
+
   deleteAnimalFn(animal: any) {
     this.deleteAnimal.emit(animal);
   }
