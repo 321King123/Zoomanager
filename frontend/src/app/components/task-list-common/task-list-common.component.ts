@@ -67,7 +67,7 @@ export class TaskListCommonComponent implements OnInit {
   }
 
   deleteTask(taskId) {
-    if(this.deleteFollowing) {
+    if (this.deleteFollowing) {
       this.taskService.deleteTaskRepeat(taskId).subscribe(
         () => {
           this.reloadTasks.emit();
@@ -86,6 +86,7 @@ export class TaskListCommonComponent implements OnInit {
         }
       );
     }
+    this.toggleClickPropagation();
   }
 
   getCurrentUser() {
@@ -108,7 +109,7 @@ export class TaskListCommonComponent implements OnInit {
   changeDeleteState() {
     this.deleteFollowing = !this.deleteFollowing;
   }
-  
+
   dl(msg: any) {
     if (!this.stopClickPropagation) {
       DEBUG_LOG(msg);
