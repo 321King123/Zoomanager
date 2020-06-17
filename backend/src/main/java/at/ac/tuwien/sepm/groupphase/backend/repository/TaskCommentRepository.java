@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface CommentRepository extends JpaRepository<TaskComment, Long> {
+public interface TaskCommentRepository extends JpaRepository<TaskComment, Long> {
 
     List<TaskComment> findAllByTask(Task task);
 }
