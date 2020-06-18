@@ -361,6 +361,18 @@ public class CustomTaskService implements TaskService {
     }
 
     @Override
+    public List<EnclosureTask> getAllEnclosureEvents() {
+        LOGGER.debug("Get All Enclosure Events");
+        return enclosureTaskRepository.findAllEnclosureEvents();
+    }
+
+    @Override
+    public List<AnimalTask> getAllAnimalEvents() {
+        LOGGER.debug("Get All Animal Events");
+        return animalTaskRepository.findAllAnimalEvents();
+    }
+
+    @Override
     public void updateFullAnimalTaskInformation(AnimalTask animalTask) {
         LOGGER.debug("Update full information of an animal task");
         //checking if such animal-task exists

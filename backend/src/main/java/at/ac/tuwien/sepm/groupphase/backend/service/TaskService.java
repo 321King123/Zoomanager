@@ -56,6 +56,12 @@ public interface TaskService {
     List<AnimalTask> getAllEventsOfAnimal(Long animalId);
 
     /**
+     * Get all animal events
+     * @return list of all event animalTasks
+     */
+    List<AnimalTask> getAllAnimalEvents();
+
+    /**
      * Delete a task
      * @param taskId of the Task that will be deleted
      */
@@ -101,6 +107,12 @@ public interface TaskService {
      * @return list of event enclosureTasks
      */
     List<EnclosureTask> getAllEventsOfEnclosure(Long enclosureId);
+
+    /**
+     * Get all enclsure events
+     * @return list of all event enclosureTasks
+     */
+    List<EnclosureTask> getAllEnclosureEvents();
 
 
     /**

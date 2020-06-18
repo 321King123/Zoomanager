@@ -34,6 +34,15 @@ public interface EnclosureTaskRepository extends JpaRepository<EnclosureTask, Lo
         "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE et.subject.id=:enclosureId AND t.event = true ORDER BY t.startTime")
     List<EnclosureTask> findAllEnclosureEventsBySubject_Id(@Param("enclosureId")long enclosureIdLong);
 
+    /**
+     *Finds all enclosure task Events
+     *
+     * @return All the enclosure events currently in the Database
+     */
+    @Query("SELECT new EnclosureTask(et.id, t, et.subject) " +
+        "FROM EnclosureTask et JOIN Task t ON et.id=t.id WHERE t.event = true ORDER BY t.startTime")
+    List<EnclosureTask> findAllEnclosureEvents();
+
 
     @Query("SELECT new at.ac.tuwien.sepm.groupphase.backend.entity" +
         ".Enclosure(et.subject.id, et.subject.name, et.subject.description, et.subject.publicInfo, et.subject.picture) " +

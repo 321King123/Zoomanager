@@ -518,8 +518,9 @@ public class TaskEndpoint {
     @ApiOperation(value = "Get list of all events", authorizations = {@Authorization(value = "apiKey")})
     public List<CombinedTaskDto> getAllEvents(Authentication authentication){
         LOGGER.info("GET /api/v1/tasks/events");
-//        List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllEventsOfEnclosure(enclosureId));
-//        return combinedTaskMapper.enclosureTaskListToCombinedTaskDtoList(enclosureTasks);
+        List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllEnclosureEvents());
+        List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllAnimalEvents());
+        return combinedTaskMapper.sortedEnclosureTaskListAndAnimalTaskListToSortedCombinedTaskDtoList(enclosureTasks, animalTasks);
     }
 
 
