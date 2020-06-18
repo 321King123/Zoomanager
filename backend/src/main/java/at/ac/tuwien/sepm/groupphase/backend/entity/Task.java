@@ -51,5 +51,5 @@ public class Task {
 
     @Lob
     @Column
-    private byte[] picture;
+    private byte[] eventPicture;
 }

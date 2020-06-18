@@ -46,7 +46,7 @@ public class CombinedTaskMapper {
             .animalTask(true)
             .priority(animalTask.getTask().isPriority())
             .event(animalTask.getTask().isEvent())
-            .picture(pictureByteToString(animalTask.getTask().getPicture()))
+            .picture(pictureByteToString(animalTask.getTask().getEventPicture()))
             .publicInfo(animalTask.getTask().getPublicInfo())
             .build();
     }
@@ -75,7 +75,7 @@ public class CombinedTaskMapper {
             .animalTask(false)
             .priority(enclosureTask.getTask().isPriority())
             .event(enclosureTask.getTask().isEvent())
-            .picture(pictureByteToString(enclosureTask.getTask().getPicture()))
+            .picture(pictureByteToString(enclosureTask.getTask().getEventPicture()))
             .publicInfo(enclosureTask.getTask().getPublicInfo())
             .build();
     }
@@ -198,7 +198,7 @@ public class CombinedTaskMapper {
             .status(combinedTaskDto.getStatus())
             .title(combinedTaskDto.getTitle())
             .event(combinedTaskDto.isEvent())
-            .picture(pictureStringToByte(combinedTaskDto.getPicture()))
+            .eventPicture(pictureStringToByte(combinedTaskDto.getPicture()))
             .publicInfo(combinedTaskDto.getPublicInfo())
             .build();
     }

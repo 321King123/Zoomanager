@@ -57,6 +57,11 @@ export class TaskCreationComponent implements OnInit {
   @Output() reloadTasks = new EventEmitter();
   submittedTask = false;
 
+  // Event
+  private uploadedEventPicture: string;
+
+  private fileType: string;
+
   constructor(private taskService: TaskService, private animalService: AnimalService,
               private employeeService: EmployeeService, private formBuilder: FormBuilder,
               private alertService: AlertService) {
@@ -77,7 +82,10 @@ export class TaskCreationComponent implements OnInit {
       duration: [''],
       amount: ['1'],
       separation: ['1'],
-      separationAmount: ['1']
+      separationAmount: ['1'],
+      event: [false],
+      publicInfo: [''],
+      eventPicture: ['']
     });
     this.clearForm();
   }
@@ -202,6 +210,8 @@ export class TaskCreationComponent implements OnInit {
       endTimeParsed = this.parseDate(this.taskCreationForm.controls.endTime.value);
     }
 
+    const isEvent: boolean = this.taskCreationForm.controls.event.value;
+
     this.task = new AnimalTask(
       null,
       this.taskCreationForm.controls.title.value,
@@ -212,7 +222,10 @@ export class TaskCreationComponent implements OnInit {
       null,
       this.taskCreationForm.controls.subjectId.value,
       null,
-      this.taskCreationForm.controls.priority.value
+      this.taskCreationForm.controls.priority.value,
+      isEvent,
+      isEvent ? this.taskCreationForm.controls.publicInfo.value : null,
+      isEvent ? this.uploadedEventPicture : null
     );
     if (this.autoAssignSubmission) {
       this.task.assignedEmployeeUsername = null;
@@ -236,6 +249,8 @@ export class TaskCreationComponent implements OnInit {
       endTimeParsed = this.parseDate(this.taskCreationForm.controls.endTime.value);
     }
 
+    const isEvent: boolean = this.taskCreationForm.controls.event.value;
+
     this.enclosureTask = new EnclosureTask(
       null,
       this.taskCreationForm.controls.title.value,
@@ -246,7 +261,10 @@ export class TaskCreationComponent implements OnInit {
       null,
       this.taskCreationForm.controls.subjectId.value,
       null,
-      this.taskCreationForm.controls.priority.value
+      this.taskCreationForm.controls.priority.value,
+      isEvent,
+      isEvent ? this.taskCreationForm.controls.publicInfo.value : null,
+      isEvent ? this.uploadedEventPicture : null
     );
     if (this.enclosureTask.assignedEmployeeUsername != null) {
       this.enclosureTask.status = 'ASSIGNED';
@@ -413,7 +431,12 @@ export class TaskCreationComponent implements OnInit {
       this.taskCreationForm.controls.duration.setValidators([Validators.required]);
       this.taskCreationForm.controls.endTime.updateValueAndValidity();
       this.taskCreationForm.controls.startTime.updateValueAndValidity();
-      this.taskCreationForm.controls.durion.updateValueAndValidity();
+      // this.taskCreationForm.controls.durion.updateValueAndValidity();
+
+      this.taskCreationForm.controls.event.reset(false);
+      this.taskCreationForm.controls.publicInfo.reset('');
+      this.taskCreationForm.controls.eventPicture.reset('');
+      this.uploadedEventPicture = '';
 
     }
   }
@@ -645,5 +668,38 @@ export class TaskCreationComponent implements OnInit {
         this.alertService.alertFromError(error, {componentId: this.componentId}, 'TaskCreation: autoAssignEnclosureTaskToJanitorRepeatable()');
       }
     );
+  }
+
+  public OnImageFileSelected(event) {
+    const files = event.target.files;
+    const file = files[0];
+    const maxSize = 259000000;
+    const acceptedImageTypes = ['image/jpeg', 'image/png'];
+
+    if (files && file) {
+      if (file.size > maxSize) {
+        this.alertService.warn('File is to large. Max size is: ' + maxSize / 1000 + ' MB.',
+          {}, 'Enclosure component: OnImageFileSelected');
+      } else {
+        if (!acceptedImageTypes.includes(file.type)) {
+          this.alertService.warn('File has to either be jpeg or png.' + maxSize / 1000 + ' MB.',
+            {}, 'Enclosure component: OnImageFileSelected');
+        } else {
+          const reader = new FileReader();
+
+          reader.onload = this._handleReaderLoaded.bind(this);
+          this.fileType = 'data:' + file.type.toString() + ';base64,';
+          reader.readAsBinaryString(file);
+        }
+      }
+    }
+  }
+
+  // From: https://stackoverflow.com/questions/42482951/converting-an-image-to-base64-in-angular-2
+  // Converts the resulting binary String of the reader to base 64
+  _handleReaderLoaded(readerEvt) {
+    const binaryString = readerEvt.target.result;
+    this.uploadedEventPicture = this.fileType + btoa(binaryString);
+    // this.taskCreationForm.controls.eventPicture.setValue(this.uploadedEventPicture);
   }
 }

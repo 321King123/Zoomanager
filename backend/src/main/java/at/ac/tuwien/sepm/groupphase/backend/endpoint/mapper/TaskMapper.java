@@ -17,6 +17,7 @@ public interface TaskMapper {
     @Mapping(source = "event", target = "event")
     TaskDto taskToTaskDto(Task task);
 
+    @Mapping(source = "event", target = "event")
     Task repeatableTaskDtoToTask(RepeatableTaskDto repeatableTaskDto);
 
     default byte[] pictureStringToByte(String pictueString) {

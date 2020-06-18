@@ -53,6 +53,6 @@ public class TaskDto {
 
     @Pattern(regexp = "^data:image/(jpeg|png);base64,([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$",
         message = "picture needs to be a valid jpg or png image")
-    private String picture;
+    private String eventPicture;
 
 }
