@@ -426,6 +426,27 @@ public class TaskEndpoint {
     }
 
     @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "events/{eventId}")
+    @ApiOperation(value = "Get event byId", authorizations = {@Authorization(value = "apiKey")})
+    public CombinedTaskDto getEventbyId(@PathVariable Long eventId, Authentication authentication){
+        LOGGER.info("GET /api/v1/events/ {}", eventId);
+        try{
+            AnimalTask animalTask = taskService.getAnimalEventById(eventId);
+            if(animalTask != null)
+                return combinedTaskMapper.animalTaskToCombinedTaskDto(animalTask);
+
+
+        } catch (NotFoundException e) {
+            EnclosureTask enclosureTask = taskService.getEnclosureEventById(eventId);
+            if(enclosureTask != null)
+                return combinedTaskMapper.enclosureTaskToCombinedTaskDto(enclosureTask);
+
+            throw new NotFoundException("No Event with given Id was found.");
+        }
+        throw new NotFoundException("No Event with given Id was found.");
+    }
+
+    @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(value = "/{taskId}")
     @ApiOperation(value = "Assign Employee to Task", authorizations = {@Authorization(value = "apiKey")})
     public void deleteTask(@PathVariable Long taskId, Authentication authentication) {
