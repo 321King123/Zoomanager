@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,6 +56,8 @@ public class CustomTaskCommentService implements TaskCommentService {
     @Override
     public TaskComment createComment(TaskComment taskComment) {
         LOGGER.debug("create new TaskComment: {}", taskComment);
+
+        taskComment.setTimestamp(LocalDateTime.now());
         return taskCommentRepository.save(taskComment);
     }
 

@@ -5,8 +5,10 @@ import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.TaskCommentMapper;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
 import at.ac.tuwien.sepm.groupphase.backend.entity.Task;
 import at.ac.tuwien.sepm.groupphase.backend.entity.TaskComment;
+import at.ac.tuwien.sepm.groupphase.backend.entity.UserLogin;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepm.groupphase.backend.repository.UserLoginRepository;
 import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskCommentService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
@@ -38,14 +40,16 @@ public class TaskCommentEndpoint {
     private final TaskCommentService taskCommentService;
     private final EmployeeService employeeService;
     private final TaskService taskService;
+    private final UserLoginRepository userLoginRepository;
 
     @Autowired
     public TaskCommentEndpoint(TaskCommentMapper taskCommentMapper, TaskCommentService taskCommentService,
-                               EmployeeService employeeService, TaskService taskService) {
+                               EmployeeService employeeService, TaskService taskService, UserLoginRepository userLoginRepository) {
         this.taskCommentMapper = taskCommentMapper;
         this.taskCommentService = taskCommentService;
         this.employeeService = employeeService;
         this.taskService = taskService;
+        this.userLoginRepository = userLoginRepository;
     }
 
     @Secured("ROLE_USER")
@@ -80,14 +84,19 @@ public class TaskCommentEndpoint {
         if(!isAdmin && !isAuthorized(username, taskCommentDto.getTaskId())) {
             throw new NotAuthorisedException("You are not allowed to create a comment for the given task.");
         }
-        return taskCommentMapper.taskCommentToTaskCommentDto(taskCommentService.createComment(taskCommentMapper.taskCommentDtoToTaskComment(taskCommentDto)));
+        TaskComment taskComment = taskCommentMapper.taskCommentDtoToTaskComment(taskCommentDto);
+        UserLogin creator = userLoginRepository.findUserByUsername(username);
+        Task task = taskService.getTaskById(taskCommentDto.getTaskId());
+        taskComment.setCreator(creator);
+        taskComment.setTask(task);
+        return taskCommentMapper.taskCommentToTaskCommentDto(taskCommentService.createComment(taskComment));
     }
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(value = "/{taskCommentId}")
     @ApiOperation(value = "Delete a comment of a task", authorizations = {@Authorization(value = "apiKey")})
-    public void createCommentOfTask(@PathVariable Long taskCommentId, Authentication authentication) {
+    public void deleteCommentOfTask(@PathVariable Long taskCommentId, Authentication authentication) {
         LOGGER.info("DELETE /api/v1/comments/ {}", taskCommentId);
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         boolean isAdmin = authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));

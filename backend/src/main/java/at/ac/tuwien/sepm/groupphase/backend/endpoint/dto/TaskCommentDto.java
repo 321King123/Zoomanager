@@ -21,8 +21,6 @@ public class TaskCommentDto {
     @NotBlank(message = "Comment must not be empty")
     private String comment;
 
-    @NotNull(message = "Comment must belong to a user")
-    @NotBlank(message = "Comment must belong to a user")
     private String creatorUsername;
 
     @NotNull(message = "Comment must belong to a task")
