@@ -2,6 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.entity;
 
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import lombok.*;
+import org.mapstruct.Mapper;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -40,4 +41,15 @@ public class Task {
 
     @Column(nullable = false)
     private boolean priority;
+
+    @Column(nullable = false)
+    private boolean event;
+
+    @Lob
+    @Column
+    private String publicInfo;
+
+    @Lob
+    @Column
+    private byte[] picture;
 }

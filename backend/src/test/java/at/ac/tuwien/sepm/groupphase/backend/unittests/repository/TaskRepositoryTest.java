@@ -19,6 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -96,6 +97,38 @@ public class TaskRepositoryTest implements TestData {
         .assignedEmployee(anmial_caretaker)
         .build();
 
+    private Task event_not_assigned = Task.builder()
+        .title(TASK_TITLE)
+        .description(TASK_DESCRIPTION)
+        .startTime(TAST_START_TIME)
+        .endTime(TAST_END_TIME)
+        .status(TaskStatus.NOT_ASSIGNED)
+        .event(true)
+        .build();
+
+    private Task event_assigned = Task.builder()
+        .id(null)
+        .title(TASK_TITLE)
+        .description(TASK_DESCRIPTION)
+        .startTime(TAST_START_TIME)
+        .endTime(TAST_END_TIME)
+        .status(TaskStatus.ASSIGNED)
+        .assignedEmployee(anmial_caretaker)
+        .event(true)
+        .build();
+
+    private Task event_assigned2 = Task.builder()
+        .id(null)
+        .title(TASK_TITLE)
+        .description(TASK_DESCRIPTION)
+        .startTime(TAST_START_TIME)
+        .endTime(TAST_END_TIME)
+        .status(TaskStatus.ASSIGNED)
+        .assignedEmployee(anmial_caretaker)
+        .event(true)
+        .build();
+
+
     @BeforeEach
     public void beforeEach() {
         taskRepository.deleteAll();
@@ -108,6 +141,13 @@ public class TaskRepositoryTest implements TestData {
         taskRepository.save(task_not_assigned);
         Task searchTask = taskRepository.findAll().get(0);
         assertNotNull(taskRepository.findById(searchTask.getId()));
+    }
+
+    @Test
+    public void givenNothing_whenSaveEvent_thenFindEventById() {
+        taskRepository.save(event_not_assigned);
+        Task searchTask = taskRepository.findAll().get(0);
+        assertNotNull(taskRepository.findEventById(searchTask.getId()));
     }
 
     @Test
@@ -126,6 +166,23 @@ public class TaskRepositoryTest implements TestData {
 
         List<Task> searchTask = taskRepository.findAllByAssignedEmployeeOrderByStartTime(caretaker);
         assertEquals(searchTask.size(), 3);
+    }
+
+    @Test
+    public void givenNothing_searchingForEventsOfEmployee_thenFindAllTasks() {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        Employee caretaker = employeeRepository.findAll().get(0);
+
+        task_assigned.setAssignedEmployee(caretaker);
+        task_assigned2.setAssignedEmployee(caretaker);
+        task_assigned3.setAssignedEmployee(caretaker);
+
+        taskRepository.save(event_assigned);  //all 2 get  saved as one row if same object for some reason
+        taskRepository.save(event_assigned2);
+
+        List<Task> searchTask = taskRepository.findAllEventsByAssignedEmployeeOrderByStartTime(caretaker);
+        assertEquals(searchTask.size(), 2);
     }
 
 /*    @Test
