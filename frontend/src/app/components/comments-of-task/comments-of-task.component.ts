@@ -63,7 +63,7 @@ export class CommentsOfTaskComponent implements OnInit {
   deleteComment(commentId) {
     this.taskCommentService.deleteComment(commentId).subscribe(
       (res: any) => {
-
+        this.loadCommentsOfTask();
       },
       error => {
         this.alertService.alertFromError(error, {componentId: this.componentId}, 'CommentsOfTask: deleteComment()');
