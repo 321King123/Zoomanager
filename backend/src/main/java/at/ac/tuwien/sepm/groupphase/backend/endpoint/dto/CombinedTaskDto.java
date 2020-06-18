@@ -7,6 +7,7 @@ import lombok.*;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 
 @Getter
@@ -59,4 +60,13 @@ public class CombinedTaskDto {
 
     @NotNull(message = "You have to specify the priority", groups = {ValidRepeatUpdate.class})
     private boolean priority;
+
+    @NotNull(message = "You have to specify the if this Task is an Event", groups = {ValidRepeatUpdate.class})
+    private boolean event;
+
+    private String publicInfo;
+
+    @Pattern(regexp = "^data:image/(jpeg|png);base64,([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$",
+        message = "picture needs to be a valid jpg or png image")
+    private String picture;
 }
