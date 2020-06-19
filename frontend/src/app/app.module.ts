@@ -32,6 +32,8 @@ import { EmployeePasswordChangeComponent } from './components/employee-password-
 import { AnimalUpdateViewComponent } from './components/animal-update-view/animal-update-view.component';
 import { DeleteWarningComponent } from './components/delete-warning/delete-warning.component';
 import { StopClickPropagationDirective } from './directives/stop-click-propagation.directive';
+import {FullCalendarModule} from '@fullcalendar/angular';
+import { CalenderComponent } from './components/calender/calender.component';
 
 @NgModule({
   declarations: [
@@ -61,6 +63,7 @@ import { StopClickPropagationDirective } from './directives/stop-click-propagati
     StopClickPropagationDirective,
     EmployeeEditViewComponent,
     EmployeePasswordChangeComponent,
+    CalenderComponent,
   ],
   imports: [
     BrowserModule,
@@ -68,7 +71,8 @@ import { StopClickPropagationDirective } from './directives/stop-click-propagati
     ReactiveFormsModule,
     HttpClientModule,
     NgbModule,
-    FormsModule
+    FormsModule,
+    FullCalendarModule
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]
