@@ -10,6 +10,7 @@ import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
+import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -394,6 +396,51 @@ public class TaskEndpoint {
             }
 
         }
+    }
+
+
+    /**
+     * Search function for tasks
+     * Titel and Description have substring searach
+     * Tasks entirely between specified Start and Endtime
+     * username has to be exact match
+     *
+     * @param employeeDto contains the employee you want to assign
+     * @param taskId contains the taskId for the task you want to assign
+     */
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/all")
+    @ApiOperation(value = "Get list of animal tasks belonging to an animal", authorizations = {@Authorization(value = "apiKey")})
+    public List<CombinedTaskDto> getAllTasksFiltered(@RequestParam(value = "employeeType", required = false) EmployeeType employeeType,
+                                                     @RequestParam(value = "title", required = false) String title,
+                                                     @RequestParam(value = "description", required = false) String description,
+                                                     @RequestParam(value = "starttime", required = false) LocalDateTime starttime,
+                                                     @RequestParam(value = "endtime", required = false) LocalDateTime endtime,
+                                                     @RequestParam(value = "username", required = false) String username,
+                                                     @RequestParam(value = "taskStatus", required = false) TaskStatus taskStatus,
+                                                     @RequestParam(value = "priority", required = false) boolean priority){
+        LOGGER.info("GET /api/v1/tasks/all?employeeType={}&title={}&description={}&starttime={}&endtime={}&username={}&taskStatus={}&priority={}",
+            employeeType, title, description, starttime, endtime, username, taskStatus, priority);
+
+        Employee searchedEmployee;
+        if(username == null){
+            searchedEmployee = Employee.builder().build();
+        }else{
+            searchedEmployee = employeeService.findByUsername(username);
+        }
+
+        if(username != null && searchedEmployee == null){
+            throw new NotFoundException("Employee with specified username not found");
+        }
+
+        Task searchTask = Task.builder().title(title).description(description).startTime(starttime).endTime(endtime)
+            .assignedEmployee(searchedEmployee).status(taskStatus).priority(priority).build();
+
+        List<AnimalTask> animalTasks = taskService.searchAnimalTasks(employeeType, searchTask);
+        List<EnclosureTask> enclosureTasks = new LinkedList<>();//taskService.searchEnclosureTasks(employeeType, searchTask);
+
+        return combinedTaskMapper.sortedEnclosureTaskListAndAnimalTaskListToSortedCombinedTaskDtoList(enclosureTasks, animalTasks);
     }
 
     @Secured("ROLE_USER")
