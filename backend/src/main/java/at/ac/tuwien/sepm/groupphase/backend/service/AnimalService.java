@@ -60,7 +60,7 @@ public interface AnimalService {
     List<Animal> findAnimalsByEnclosure(long enclosureId);
 
     /**
-     * Method for filtered list of all current employees search fields can be combined.
+     * Method for filtered list of all current animals or all animals of one enclosure, search fields can be combined.
      * If a field is null it is not taken into consideration
      *
      * @param animal with saved properties for search
@@ -68,7 +68,14 @@ public interface AnimalService {
      */
     List<Animal> searchAnimals(Animal animal);
 
-
+    /**
+     * Method for filtered list of all animals of one employee, search fields can be combined.
+     * If a field is null it is not taken into consideration
+     *
+     * @param animal with saved properties for search
+     * @param username of employee
+     * @return animals that fulfill the criterums.
+     */
     List<Animal> searchAnimalsOfEmployee(Animal animal, String username);
 
 
