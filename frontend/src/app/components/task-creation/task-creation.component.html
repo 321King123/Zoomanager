@@ -18,6 +18,7 @@
           <div class="col"><h5>Task</h5></div>
           <div class="col"><h5>Priority</h5></div>
         </div>
+
         <div class="row px-3 justify-content-around">
           <div class="col btn-group btn-group-toggle" data-toggle="buttons">
             <button (click)="setToAnimalTask()" type="radio" class="btn btn-secondary">Animal</button>
@@ -28,6 +29,7 @@
             <button (click)="setToPriorityTask()" type="radio" class="btn btn-secondary">High</button>
           </div>
         </div>
+
         <div class="row p-3 justify-content-center">
           <div class="col btn-group btn-group-toggle" data-toggle="buttons">
             <button (click)="changeRepeatable()" type="radio" class="col btn btn-outline-info">Repeatable</button>
@@ -220,7 +222,7 @@
                 <div class="form-group col-6" *ngIf="isRepeatable">
                   <label for="inputSeparation">Separation</label>
                   <select name="separation" formControlName="separation" class="form-control" id="inputSeparation"
-                         aria-describedby="AmountHelp">
+                          aria-describedby="AmountHelp">
                     <option *ngFor="let timeUnit of timeUnitValues" [ngValue]="timeUnits[timeUnit]" [defaultSelected]="true">{{timeUnit}}
                     </option>
                   </select>
@@ -242,6 +244,7 @@
             <button (click)="selectJanitor()" *ngIf="isEnclosureTask" type="radio" class="btn btn-primary">Janitor</button>
           </div>
         </div>
+
       </div>
       <div class="modal-footer">
         <button type="button" (click)="switchSelectEmployeeTypeMode()" class="btn btn-info col">Select Employee Type</button>

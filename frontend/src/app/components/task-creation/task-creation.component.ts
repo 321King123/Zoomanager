@@ -280,6 +280,8 @@ export class TaskCreationComponent implements OnInit {
     startTimeParsed = this.parseDate(this.taskCreationForm.controls.startTime.value);
     endTimeParsed = this.parseDate(this.taskCreationForm.controls.endTime.value);
 
+    const isEvent: boolean = this.taskCreationForm.controls.event.value;
+
     this.repeatableTask = new RepeatableTask(
       null,
       this.taskCreationForm.controls.title.value,
@@ -294,7 +296,10 @@ export class TaskCreationComponent implements OnInit {
       false,
       this.taskCreationForm.controls.amount.value,
       this.taskCreationForm.controls.separation.value,
-      this.taskCreationForm.controls.separationAmount.value
+      this.taskCreationForm.controls.separationAmount.value,
+      isEvent,
+      isEvent ? this.taskCreationForm.controls.publicInfo.value : null,
+      isEvent ? this.uploadedEventPicture : null
     );
     if (this.autoAssignSubmission) {
       this.repeatableTask.assignedEmployeeUsername = null;

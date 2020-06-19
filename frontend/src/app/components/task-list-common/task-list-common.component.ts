@@ -1,4 +1,4 @@
-import {Component, OnInit, Output, EventEmitter, Input, ViewChildren, QueryList} from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, Input, ViewChildren, QueryList, OnChanges, SimpleChanges} from '@angular/core';
 import {AuthService} from '../../services/auth.service';
 import {TaskService} from '../../services/task.service';
 import {AnimalService} from '../../services/animal.service';
@@ -19,14 +19,15 @@ import {EventInfoViewComponent} from '../event-info-view/event-info-view.compone
   templateUrl: './task-list-common.component.html',
   styleUrls: ['./task-list-common.component.css']
 })
-export class TaskListCommonComponent implements OnInit {
+export class TaskListCommonComponent implements OnInit, OnChanges {
   componentId = 'task-list-common';
 
   @Input() animalsOfEmployee;
   @Input() enclosuresOfEmployee;
 
   @Input() tasks: Task[];
-  @Input() isEventList: boolean = true;
+
+  @Input() isEventList: boolean = false;
 
   @Input() doctors: Employee[];
   @Input() janitors: Employee[];
@@ -58,6 +59,14 @@ export class TaskListCommonComponent implements OnInit {
 
   ngOnInit(): void {
     this.getCurrentUser();
+
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (this.isEventList) {
+      this.filterTaskListToEventList(changes.tasks.currentValue);
+    }
+
   }
 
   markTaskAsDone(taskId) {
@@ -138,6 +147,12 @@ export class TaskListCommonComponent implements OnInit {
           .find((el) => (el.stringId === stringId)
           ).toggleModal();
       }
+    }
+  }
+
+  filterTaskListToEventList(taskList: Task[]) {
+    if (this.isEventList) {
+      this.tasks = taskList.filter(task => (task.event === true));
     }
   }
 }

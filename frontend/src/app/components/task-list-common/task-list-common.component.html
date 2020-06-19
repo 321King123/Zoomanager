@@ -19,7 +19,6 @@
     </tr>
     </thead>
     <tbody *ngIf="tasks!=null">
-
     <ng-container *ngFor="let task of tasks; index as i;">
       <tr class="row animal-list-item" [class.alert-warning]="task.priority"
           (click)="toggleTaskInfoModal(task.id+task.title)">

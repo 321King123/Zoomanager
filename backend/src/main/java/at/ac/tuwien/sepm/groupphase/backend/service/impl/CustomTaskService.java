@@ -505,6 +505,9 @@ public class CustomTaskService implements TaskService {
             .assignedEmployee(task.getAssignedEmployee())
             .status(task.getStatus())
             .priority(task.isPriority())
+            .event(task.isEvent())
+            .publicInfo(task.getPublicInfo())
+            .eventPicture(task.getEventPicture())
             .build();
     }
 

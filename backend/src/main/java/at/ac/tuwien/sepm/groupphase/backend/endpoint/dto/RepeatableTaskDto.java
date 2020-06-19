@@ -44,7 +44,14 @@ public class RepeatableTaskDto {
     @NotNull
     private boolean priority;
 
+    @Positive
+    private int amount;
 
+    @NotNull
+    private ChronoUnit separation;
+
+    @Positive
+    private int separationAmount;
 
     @NotNull
     private boolean event;
@@ -54,16 +61,5 @@ public class RepeatableTaskDto {
     @Pattern(regexp = "^data:image/(jpeg|png);base64,([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$",
         message = "Event Picture needs to be a valid jpg or png image")
     private String eventPicture;
-
-
-
-    @Positive
-    private int amount;
-
-    @NotNull
-    private ChronoUnit separation;
-
-    @Positive
-    private int separationAmount;
 
 }
