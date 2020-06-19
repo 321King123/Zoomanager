@@ -89,7 +89,7 @@
           <app-task-info-update
             [stringId]="task.id+task.title"
             (toggleClickPropagationEvent)="toggleClickPropagation()"
-            (reloadTasks)="reloadTasks.emit()" *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'"
+            (reloadTasks)="reloadTasks.emit()" [editModeAlloved]="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'"
             [animalsOfEmployee]="animalsOfEmployee" [enclosuresOfEmployee]="enclosuresOfEmployee"
             [task]="task" [index]="i" [currentEmployee]="currentUser"></app-task-info-update>
 

@@ -27,6 +27,8 @@ export class TaskInfoUpdateComponent implements OnInit {
   @Output() reloadTasks = new EventEmitter();
   @Input() currentEmployee;
 
+  @Input() editModeAlloved;
+
   assignee: Employee;
   animal: Animal;
   enclosure: Enclosure;
@@ -87,7 +89,7 @@ export class TaskInfoUpdateComponent implements OnInit {
   }
 
   getSubject() {
-    if (this.task.animalTask === true) {
+    if (this.editModeAlloved && this.task.animalTask === true) {
       this.animalService.getAnimalById(this.task.subjectId).subscribe(
         animal => {
           this.animal = animal;
@@ -96,7 +98,7 @@ export class TaskInfoUpdateComponent implements OnInit {
           this.alertService.alertFromError(error, {componentId: this.componentId}, 'TaskInfoUpdate: getSubject()');
         }
       );
-    } else if (this.task.animalTask === false) {
+    } else if (this.editModeAlloved && this.task.animalTask === false) {
       this.enclosureService.getById(this.task.subjectId).subscribe(
         enclosure => {
           this.enclosure = enclosure;
