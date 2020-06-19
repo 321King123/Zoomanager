@@ -12,6 +12,7 @@ import {DeleteWarningComponent} from '../delete-warning/delete-warning.component
 import {Utilities} from '../../global/globals';
 import DEBUG_LOG = Utilities.DEBUG_LOG;
 import {TaskInfoUpdateComponent} from '../task-info-update/task-info-update.component';
+import {EventInfoViewComponent} from '../event-info-view/event-info-view.component';
 
 @Component({
   selector: 'app-task-list-common',
@@ -25,6 +26,7 @@ export class TaskListCommonComponent implements OnInit {
   @Input() enclosuresOfEmployee;
 
   @Input() tasks: Task[];
+  @Input() isEventList: boolean = true;
 
   @Input() doctors: Employee[];
   @Input() janitors: Employee[];
@@ -41,6 +43,9 @@ export class TaskListCommonComponent implements OnInit {
 
   @ViewChildren(TaskInfoUpdateComponent)
   taskInfoUpdateComponents: QueryList<TaskInfoUpdateComponent>;
+
+  @ViewChildren(EventInfoViewComponent)
+  eventInfoViewComponents: QueryList<EventInfoViewComponent>;
 
   stopClickPropagation: boolean = false;
 
@@ -124,10 +129,15 @@ export class TaskListCommonComponent implements OnInit {
 
   toggleTaskInfoModal(stringId: string) {
     if (!this.stopClickPropagation) {
-      this.taskInfoUpdateComponents
-        .find((el) => (el.stringId === stringId)
-        ).toggleModal();
+      if (!this.isEventList) {
+        this.taskInfoUpdateComponents
+          .find((el) => (el.stringId === stringId)
+          ).toggleModal();
+      } else {
+        this.eventInfoViewComponents
+          .find((el) => (el.stringId === stringId)
+          ).toggleModal();
+      }
     }
-
   }
 }

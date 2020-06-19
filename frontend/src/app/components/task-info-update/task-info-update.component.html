@@ -31,6 +31,8 @@
             <p>
               <b>End:</b> {{task.endTime}}
             </p></div>
+
+          <!--   Subject Info-->
           <div class="col-6" *ngIf="editModeAlloved && task.animalTask == true"><h4>Animal</h4>
             <p *ngIf="animal!=null">
               Name: {{animal.name}} <br>
@@ -43,10 +45,33 @@
               Description: {{enclosure.description}}<br>
               Public: {{enclosure.publicInfo}}
             </p></div>
+
+          <!--   Assignee-->
           <div class="col-6"><h4>Assignee</h4>
             <p>
               Username: {{task.assignedEmployeeUsername}} <br>
             </p></div>
+
+          <!--   Event Info-->
+          <div *ngIf="task.event" class="col-12">
+            <h4>Event Info</h4>
+
+            <div class="card">
+              <img *ngIf="task.eventPicture != null" src={{task.eventPicture}} alt="" id="img"
+                   class="card-img-top">
+              <div *ngIf="task.publicInfo!=null" class="card-body">
+                {{task.publicInfo}}
+              </div>
+              <div *ngIf="(task.publicInfo == null || task.publicInfo =='')"
+                   class="card-body text-muted">
+                Has no public info.
+              </div>
+            </div>
+
+
+            <br>
+          </div>
+
         </div>
         <div *ngIf="editMode" class="p-1">
           <form>

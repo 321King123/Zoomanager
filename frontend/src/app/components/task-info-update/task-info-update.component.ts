@@ -197,7 +197,7 @@ export class TaskInfoUpdateComponent implements OnInit {
     this.clearValidationErrors();
     this.validateEditedTask();
     if (this.validEditTask) {
-      if(this.repeatMode) {
+      if (this.repeatMode) {
         this.taskService.updateTaskInformationRepeat(this.editTask).subscribe(
           (res: any) => {
             this.task = this.editTask;

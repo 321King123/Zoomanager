@@ -86,12 +86,17 @@
           </ng-container>
 <!--  DONE Button end         -->
 
-          <app-task-info-update
-            [stringId]="task.id+task.title"
-            (toggleClickPropagationEvent)="toggleClickPropagation()"
-            (reloadTasks)="reloadTasks.emit()" [editModeAlloved]="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'"
-            [animalsOfEmployee]="animalsOfEmployee" [enclosuresOfEmployee]="enclosuresOfEmployee"
-            [task]="task" [index]="i"></app-task-info-update>
+          <app-task-info-update *ngIf="!isEventList"
+                                [stringId]="task.id+task.title"
+                                (toggleClickPropagationEvent)="toggleClickPropagation()"
+                                (reloadTasks)="reloadTasks.emit()" [editModeAlloved]="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'"
+                                [animalsOfEmployee]="animalsOfEmployee" [enclosuresOfEmployee]="enclosuresOfEmployee"
+                                [task]="task" [index]="i"></app-task-info-update>
+          <app-event-info-view *ngIf="isEventList"
+                               [stringId]="task.id+task.title"
+                               (toggleClickPropagationEvent)="toggleClickPropagation()"
+                               (reloadTasks)="reloadTasks.emit()"
+                               [task]="task" [index]="i"></app-event-info-view>
 
 <!--          <div class="mx-2">-->
 <!--            <button *ngIf="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'" (click)="deleteTask(task.id)"-->
