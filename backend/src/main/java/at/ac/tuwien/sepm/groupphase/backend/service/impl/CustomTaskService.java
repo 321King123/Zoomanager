@@ -528,4 +528,14 @@ public class CustomTaskService implements TaskService {
             automaticallyAssignEnclosureTaskRepeat(repeatableTask.get().getFollowTask().getId(), employeeType);
         }
     }
+
+    @Override
+    public boolean isAnimalTask(Long taskId) {
+        Optional<Task> task = taskRepository.findById(taskId);
+        if(task.isEmpty()) {
+            throw new NotFoundException("No Task with the given Id exists.");
+        }
+        Optional<AnimalTask> animalTask = animalTaskRepository.findById(taskId);
+        return animalTask.isPresent();
+    }
 }

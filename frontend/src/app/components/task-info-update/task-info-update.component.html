@@ -1,10 +1,12 @@
 <!-- Button trigger modal -->
-<button #modalToggleBtn type="button" class="btn btn-sm mr-2 btn-outline-info" data-toggle="modal" [attr.data-target]="'#info'+index">
+<button #modalToggleBtn type="button" class="btn btn-sm mr-2 btn-outline-info" data-toggle="modal"
+        [attr.data-target]="'#info'+index">
   Info
 </button>
 
 <!-- Modal -->
-<div appStopClickPropagation class="modal fade" id="info{{index}}" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+<div appStopClickPropagation class="modal fade" id="info{{index}}" data-backdrop="static" data-keyboard="false"
+     tabindex="-1" role="dialog"
      aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -13,7 +15,7 @@
                                                                                   *ngIf="task.status=='DONE'">Done</span>
           <span class="badge p-1 mx-2 badge-error" *ngIf="task.status=='NOT_ASSIGNED'">Not assigned</span>
           <span class="badge p-1 mx-2 badge-dark" *ngIf="task.status=='ASSIGNED'">Assigned</span></h3>
-        <button (click)="reloadTasks.emit(); toggleModal()" type="button" class="close"  aria-label="Close">
+        <button (click)="reloadTasks.emit(); toggleModal()" type="button" class="close" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
@@ -86,7 +88,8 @@
               <div class="form-group col-6">
                 <label for="inputEndTime">End-Time</label>
                 <input [(ngModel)]="editTask.endTime" type="text" name="endTime" class="form-control"
-                       id="inputEndTime" aria-describedby="endTimeHelp" placeholder="Enter Start Time" [disabled]="repeatMode">
+                       id="inputEndTime" aria-describedby="endTimeHelp" placeholder="Enter Start Time"
+                       [disabled]="repeatMode">
                 <div *ngIf="!validEditTask && taskValidationError.endTime" class="error">
                   <small class="form-text text-warning">
                     End-Time cannot be empty
@@ -178,6 +181,11 @@
               </div>
             </div>
           </form>
+        </div>
+        <div class="row">
+          <div class="col">
+             <app-comments-of-task [currentTask]="task"></app-comments-of-task>
+          </div>
         </div>
       </div>
       <div class="modal-footer">

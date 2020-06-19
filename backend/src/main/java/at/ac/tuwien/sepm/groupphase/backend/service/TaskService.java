@@ -176,4 +176,13 @@ public interface TaskService {
      * @param employeeType type of employee this task is for
      */
     void automaticallyAssignEnclosureTaskRepeat(Long enclosureTaskId, EmployeeType employeeType);
+
+    /**
+     * Checks whether a task with the given id is an animalTask
+     *
+     * @param taskId of the task to be checked
+     * @return true if an animalTask with the given id exists (if not it should be an enclosure task)
+     * @throws at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException if no Task with the Id exists
+     */
+    boolean isAnimalTask(Long taskId);
 }

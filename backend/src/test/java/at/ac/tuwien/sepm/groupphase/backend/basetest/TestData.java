@@ -27,6 +27,7 @@ public interface TestData {
     String EMPLOYEE_BASE_URI = BASE_URI + "/employee";
     String TASK_BASE_URI = BASE_URI + "/tasks";
     String ENCLOSURE_BASE_URI = BASE_URI + "/enclosure";
+    String TASKCOMMENT_BASE_URI = BASE_URI + "/comments";
 
     String USERNAME_ANIMAL_CARE_EMPLOYEE = "AnimalCarer";
     String NAME_ANIMAL_CARE_EMPLOYEE = "AnimalCarerName";
@@ -89,4 +90,5 @@ public interface TestData {
     byte[] PICTURE_LION_ENCLOSURE = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD=".getBytes();
     String PICTURE_LION_ENCLOSURE_STRING = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD=";
 
+    String COMMENT = "Example Comment";
 }
