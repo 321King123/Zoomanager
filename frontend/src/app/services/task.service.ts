@@ -8,6 +8,7 @@ import {Employee} from '../dtos/employee';
 import {Task} from '../dtos/task';
 import DEBUG_LOG = Utilities.DEBUG_LOG;
 import {RepeatableTask} from '../dtos/RepeatableTask';
+import {Comment} from '../dtos/comment';
 
 @Injectable({
   providedIn: 'root'

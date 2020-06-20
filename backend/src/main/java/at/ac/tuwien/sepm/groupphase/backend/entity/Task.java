@@ -6,6 +6,7 @@ import org.mapstruct.Mapper;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -52,4 +53,7 @@ public class Task {
     @Lob
     @Column
     private byte[] eventPicture;
+
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<TaskComment> taskComments;
 }

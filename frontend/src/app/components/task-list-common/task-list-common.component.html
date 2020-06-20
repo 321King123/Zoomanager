@@ -90,7 +90,7 @@
                                 (toggleClickPropagationEvent)="toggleClickPropagation()"
                                 (reloadTasks)="reloadTasks.emit()" [editModeAlloved]="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'"
                                 [animalsOfEmployee]="animalsOfEmployee" [enclosuresOfEmployee]="enclosuresOfEmployee"
-                                [task]="task" [index]="i"></app-task-info-update>
+            [task]="task" [index]="i" [currentEmployee]="currentUser"></app-task-info-update>
           <app-event-info-view *ngIf="isEventList"
                                [stringId]="task.id+task.title"
                                (toggleClickPropagationEvent)="toggleClickPropagation()"

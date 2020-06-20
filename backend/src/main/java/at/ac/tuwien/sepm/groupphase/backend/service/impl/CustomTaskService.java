@@ -598,6 +598,16 @@ public class CustomTaskService implements TaskService {
         }
     }
 
+    @Override
+    public boolean isAnimalTask(Long taskId) {
+        Optional<Task> task = taskRepository.findById(taskId);
+        if(task.isEmpty()) {
+            throw new NotFoundException("No Task with the given Id exists.");
+        }
+        Optional<AnimalTask> animalTask = animalTaskRepository.findById(taskId);
+        return animalTask.isPresent();
+    }
+
     private void validateEventTask(Task task)
     {
         if(task.isPriority() && task.isEvent())

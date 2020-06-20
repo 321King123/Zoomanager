@@ -25,6 +25,7 @@ export class TaskInfoUpdateComponent implements OnInit {
   @Input() animalsOfEmployee;
   @Input() enclosuresOfEmployee;
   @Output() reloadTasks = new EventEmitter();
+  @Input() currentEmployee;
 
   @Input() editModeAlloved;
 
