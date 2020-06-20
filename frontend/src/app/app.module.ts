@@ -33,6 +33,8 @@ import { EmployeePasswordChangeComponent } from './components/employee-password-
 import { AnimalUpdateViewComponent } from './components/animal-update-view/animal-update-view.component';
 import { DeleteWarningComponent } from './components/delete-warning/delete-warning.component';
 import { StopClickPropagationDirective } from './directives/stop-click-propagation.directive';
+import { CommentsOfTaskComponent } from './components/comments-of-task/comments-of-task.component';
+import { EventInfoViewComponent } from './components/event-info-view/event-info-view.component';
 
 
 @NgModule({
@@ -64,6 +66,8 @@ import { StopClickPropagationDirective } from './directives/stop-click-propagati
     StopClickPropagationDirective,
     EmployeeEditViewComponent,
     EmployeePasswordChangeComponent,
+    CommentsOfTaskComponent,
+    EventInfoViewComponent,
   ],
   imports: [
     BrowserModule,

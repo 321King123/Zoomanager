@@ -14,6 +14,9 @@ export class RepeatableTask {
               public priority: boolean = false,
               public amount: number,
               public separation: TimeUnits,
-              public separationAmount: number) {
+              public separationAmount: number,
+              public event: boolean = false,
+              public publicInfo: string = null,
+              public eventPicture: string = null) {
   }
 }

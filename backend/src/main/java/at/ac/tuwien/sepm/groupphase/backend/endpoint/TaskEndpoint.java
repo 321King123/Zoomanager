@@ -414,6 +414,38 @@ public class TaskEndpoint {
         return combinedTaskMapper.animalTaskListToCombinedTaskDtoList(animalTasks);
     }
 
+
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "events/animal/{animalId}")
+    @ApiOperation(value = "Get list of event animal tasks belonging to an animal", authorizations = {@Authorization(value = "apiKey")})
+    public List<CombinedTaskDto> getAllAnimalEventsBelongingToAnimal(@PathVariable Long animalId, Authentication authentication){
+        LOGGER.info("GET /api/v1/events/animal/ {}", animalId);
+        List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllEventsOfAnimal(animalId));
+        return combinedTaskMapper.animalTaskListToCombinedTaskDtoList(animalTasks);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "events/{eventId}")
+    @ApiOperation(value = "Get event byId", authorizations = {@Authorization(value = "apiKey")})
+    public CombinedTaskDto getEventbyId(@PathVariable Long eventId, Authentication authentication){
+        LOGGER.info("GET /api/v1/events/ {}", eventId);
+        try{
+            AnimalTask animalTask = taskService.getAnimalEventById(eventId);
+            if(animalTask != null)
+                return combinedTaskMapper.animalTaskToCombinedTaskDto(animalTask);
+
+
+        } catch (NotFoundException e) {
+            EnclosureTask enclosureTask = taskService.getEnclosureEventById(eventId);
+            if(enclosureTask != null)
+                return combinedTaskMapper.enclosureTaskToCombinedTaskDto(enclosureTask);
+
+            throw new NotFoundException("No Event with given Id was found.");
+        }
+        throw new NotFoundException("No Event with given Id was found.");
+    }
+
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(value = "/{taskId}")
     @ApiOperation(value = "Assign Employee to Task", authorizations = {@Authorization(value = "apiKey")})
@@ -492,6 +524,26 @@ public class TaskEndpoint {
         List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllTasksOfEnclosure(enclosureId));
         return combinedTaskMapper.enclosureTaskListToCombinedTaskDtoList(enclosureTasks);
     }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "events/enclosure/{enclosureId}")
+    @ApiOperation(value = "Get list of event enclosure tasks belonging to an enclosure", authorizations = {@Authorization(value = "apiKey")})
+    public List<CombinedTaskDto> getAllEnclosureEventsBelongingToEnclosure(@PathVariable Long enclosureId, Authentication authentication){
+        LOGGER.info("GET /api/v1/tasks/events/enclosure/ {}", enclosureId);
+        List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllEventsOfEnclosure(enclosureId));
+        return combinedTaskMapper.enclosureTaskListToCombinedTaskDtoList(enclosureTasks);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "events")
+    @ApiOperation(value = "Get list of all events", authorizations = {@Authorization(value = "apiKey")})
+    public List<CombinedTaskDto> getAllEvents(Authentication authentication){
+        LOGGER.info("GET /api/v1/tasks/events");
+        List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllEnclosureEvents());
+        List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllAnimalEvents());
+        return combinedTaskMapper.sortedEnclosureTaskListAndAnimalTaskListToSortedCombinedTaskDtoList(enclosureTasks, animalTasks);
+    }
+
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)

@@ -2,9 +2,11 @@ package at.ac.tuwien.sepm.groupphase.backend.entity;
 
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import lombok.*;
+import org.mapstruct.Mapper;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -40,4 +42,18 @@ public class Task {
 
     @Column(nullable = false)
     private boolean priority;
+
+    @Column(nullable = false)
+    private boolean event;
+
+    @Lob
+    @Column
+    private String publicInfo;
+
+    @Lob
+    @Column
+    private byte[] eventPicture;
+
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<TaskComment> taskComments;
 }
