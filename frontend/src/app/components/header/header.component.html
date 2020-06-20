@@ -11,7 +11,7 @@
         <a class="nav-link" *ngIf="!isAdmin() && authService.isLoggedIn()" routerLink="/personal-info" routerLinkActive="active">Info</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" *ngIf="!isAdmin()" routerLink="/calendar" routerLinkActive="active">Calendar</a>
+        <a class="nav-link" *ngIf="!isAdmin() && authService.isLoggedIn()" routerLink="/calendar" routerLinkActive="active">Calendar</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" *ngIf="isAdmin() && authService.isLoggedIn()" routerLink="/employee" routerLinkActive="active">Employees</a>

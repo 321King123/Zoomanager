@@ -33,9 +33,9 @@ const routes: Routes = [
   {path: 'enclosure-edit-view/:enclosureId', canActivate: [AuthGuard], component: EnclosureEditViewComponent},
   {path: 'animal-view/:animalId', canActivate: [AuthGuard], component: AnimalViewComponent},
   {path: 'employee-password-change/:username', canActivate: [AuthGuard], component: EmployeePasswordChangeComponent},
-  {path: 'calendar', canActivate: [AuthGuard], component: CalenderComponent}
+  {path: 'calendar', canActivate: [AuthGuard], component: CalenderComponent},
   {path: 'employee-password-change/:username', canActivate: [AuthGuard], component: EmployeePasswordChangeComponent},
-  {path: 'admin', canActivate: [AuthGuard], component: AdminCreatePageComponent}
+  {path: 'admin', canActivate: [AuthGuard], component: AdminCreatePageComponent},
 ];
 
 @NgModule({
