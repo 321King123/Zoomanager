@@ -61,7 +61,7 @@ export class HomeEditComponent implements OnInit {
       address: [this.zooInformation.address],
       publicInformation: [this.zooInformation.publicInfo],
       workTimeStart: [this.zooInformation.workTimeStart],
-      workTimeEnd: [this.zooInformation.workTimeStart],
+      workTimeEnd: [this.zooInformation.workTimeEnd],
       picture: ['']
     });
     this.uploadedPicture = this.zooInformation.picture;
