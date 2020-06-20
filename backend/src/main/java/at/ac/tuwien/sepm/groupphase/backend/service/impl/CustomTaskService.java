@@ -561,6 +561,9 @@ public class CustomTaskService implements TaskService {
         savedTask.setPriority(task.isPriority());
         savedTask.setTitle(task.getTitle());
         savedTask.setDescription(task.getDescription());
+        savedTask.setEvent(task.isEvent());
+        savedTask.setPublicInfo(task.getPublicInfo());
+        savedTask.setEventPicture(task.getEventPicture());
 
         savedEnclosureTask.setSubject(enclosureTask.getSubject());
 
