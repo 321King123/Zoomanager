@@ -21,13 +21,13 @@
 
         <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
           <label>Starts After</label>
-          <input type="datetime-local" [(ngModel)]="filterTask.startTime" name="startTime" formControlName="startTime" class="form-control"
+          <input type="datetime-local" [(ngModel)]="filterTask.startTime" name="startTime" class="form-control"
                  id="inputStartTime" placeholder="Enter Start-Time">
         </div>
 
         <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
           <label>Ends Before</label>
-          <input type="datetime-local" [(ngModel)]="filterTask.endTime" name="endTime" formControlName="endTime" class="form-control"
+          <input type="datetime-local" [(ngModel)]="filterTask.endTime" name="endTime" class="form-control"
                  id="inputEndTime" placeholder="Enter End-Time">
         </div>
 
@@ -45,9 +45,9 @@
         <div class="form-group col-sm-6 col-md-4 col-lg-3 col-xs-12">
           <label>Status</label>
           <select class="form-control" [(ngModel)]="filterTask.status" name="statusType">
-            <option *ngFor="let status of statusValues" [ngValue]="status">
-              {{status}}
-            </option>
+            <option [ngValue]="'ASSIGNED'">ASSIGNED</option>
+            <option [ngValue]="'NOT_ASSIGNED'">NOT_ASSIGNED</option>
+            <option [ngValue]="'DONE'">DONE</option>
             <option [ngValue]="null">All</option>
           </select>
         </div>
@@ -63,15 +63,6 @@
         </div>
 
         <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
-          <label>Priority</label>
-          <select class="form-control" [(ngModel)]="filterTask.priority" name="priorityType">
-            <option [ngValue]="true">Priority</option>
-            <option [ngValue]="false">Non Priority</option>
-            <option [ngValue]="null">All</option>
-          </select>
-        </div>
-
-        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xs-12">
           <label>Description</label>
           <input type="text" [(ngModel)]="filterTask.description" name="description" class="form-control" id="inputDescription"
                  placeholder="Enter description">
@@ -79,13 +70,13 @@
 
       </div>
       <div class="row">
-        <div class="form-group pr-1 col-md-8 col-sm-6 col-lg-9 col-xl-9 col-6">
+        <div class="pr-1 col-md-8 col-sm-6 col-lg-9 col-xl-9 col-6">
         </div>
-        <div class="form-group pr-1 col-md-4 col-sm-6 col-lg-3 col-xl-3 col-6">
+        <div class="pr-1 col-md-4 col-sm-6 col-lg-3 col-xl-3 col-6">
           <div class="row">
-            <div class="form-group pr-1 col-md-2 col-sm-3 col-lg-2 col-xl-3 col-1">
+            <div class="pr-1 col-md-2 col-sm-3 col-lg-2 col-xl-3 col-1">
             </div>
-            <div class="form-group pr-1 col-md-10 col-sm-9 col-lg-10 col-xl-9 col-10">
+            <div class="pr-1 col-md-10 col-sm-9 col-lg-10 col-xl-9 col-10">
               <button type="button" (click)="loadFilteredTasks()" class="btn btn-success my-1 float-right">Search</button>
               <button type="button" (click)="toggleFilter()" class="btn btn-success my-1 float-left">Close Filter</button>
             </div>

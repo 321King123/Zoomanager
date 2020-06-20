@@ -3,6 +3,7 @@ package at.ac.tuwien.sepm.groupphase.backend.endpoint;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.*;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.*;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
+import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
@@ -409,16 +410,28 @@ public class TaskEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/search")
     @ApiOperation(value = "Get filtered list of all tasks", authorizations = {@Authorization(value = "apiKey")})
-    public List<CombinedTaskDto> getAllTasksFiltered(@RequestParam(value = "employeeType", required = false) EmployeeType employeeType,
+    public List<CombinedTaskDto> getAllTasksFiltered(@RequestParam(value = "employeeType", required = false) String employeeTypeString,
                                                      @RequestParam(value = "title", required = false) String title,
                                                      @RequestParam(value = "description", required = false) String description,
                                                      @RequestParam(value = "starttime", required = false) LocalDateTime starttime,
                                                      @RequestParam(value = "endtime", required = false) LocalDateTime endtime,
                                                      @RequestParam(value = "username", required = false) String username,
-                                                     @RequestParam(value = "taskStatus", required = false) TaskStatus taskStatus,
-                                                     @RequestParam(value = "priority", required = false) boolean priority){
-        LOGGER.info("GET /api/v1/tasks/search?employeeType={}&title={}&description={}&starttime={}&endtime={}&username={}&taskStatus={}&priority={}",
-            employeeType, title, description, starttime, endtime, username, taskStatus, priority);
+                                                     @RequestParam(value = "taskStatus", required = false) String taskStatusString){
+        LOGGER.info("GET /api/v1/tasks/search?employeeType={}&title={}&description={}&starttime={}&endtime={}&username={}&taskStatus={}",
+            employeeTypeString, title, description, starttime, endtime, username, taskStatusString);
+
+        TaskStatus taskStatus = null;
+        EmployeeType employeeType = null;
+        try {
+            if(taskStatusString != null) {
+                taskStatus = TaskStatus.valueOf(taskStatusString);
+            }
+            if(employeeTypeString != null) {
+                employeeType = EmployeeType.valueOf(employeeTypeString);
+            }
+        }catch(Exception e){
+            throw new IncorrectTypeException("The given enums are not supported");
+        }
 
         Employee searchedEmployee;
         if(username == null){
@@ -432,10 +445,10 @@ public class TaskEndpoint {
         }
 
         Task searchTask = Task.builder().title(title).description(description).startTime(starttime).endTime(endtime)
-            .assignedEmployee(searchedEmployee).status(taskStatus).priority(priority).build();
+            .assignedEmployee(searchedEmployee).status(taskStatus).build();
 
         List<AnimalTask> animalTasks = taskService.searchAnimalTasks(employeeType, searchTask);
-        List<EnclosureTask> enclosureTasks = new LinkedList<>();//taskService.searchEnclosureTasks(employeeType, searchTask);
+        List<EnclosureTask> enclosureTasks = taskService.searchEnclosureTasks(employeeType, searchTask);
 
         return combinedTaskMapper.sortedEnclosureTaskListAndAnimalTaskListToSortedCombinedTaskDtoList(enclosureTasks, animalTasks);
     }

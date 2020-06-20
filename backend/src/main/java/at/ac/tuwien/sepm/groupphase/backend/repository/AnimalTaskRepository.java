@@ -27,18 +27,26 @@ public interface AnimalTaskRepository extends JpaRepository<AnimalTask, Long> {
 
     @Query("SELECT animaltask " +
         "FROM AnimalTask animaltask " +
-        "WHERE (:#{#filterTask.title} IS NULL OR " +
-        "UPPER(animaltask.task.title) LIKE CONCAT('%', UPPER(:#{#filterTask.title}), '%')) " +
+        "WHERE animaltask.id IN " +
+        "(SELECT a.id FROM AnimalTask a WHERE (:#{#filterTask.title} IS NULL OR " +
+        "UPPER(a.task.title) LIKE CONCAT('%', UPPER(:#{#filterTask.title}), '%')) " +
         "AND (:#{#filterTask.description} IS NULL OR " +
-        "UPPER(animaltask.task.description) LIKE CONCAT('%', UPPER(:#{#filterTask.description}), '%')) " +
-        "AND ((:#{#filterTask.assignedEmployee.username} IS NULL) OR " +
-        "animaltask.task.assignedEmployee.username LIKE :#{#filterTask.assignedEmployee.username}) " +
-        "AND ((:#{#employeeType} IS NULL) OR " +
-        "(animaltask.task.assignedEmployee.type = :#{#employeeType})) " +
+        "UPPER(a.task.description) LIKE CONCAT('%', UPPER(:#{#filterTask.description}), '%')) " +
+        "AND (:#{#filterTask.assignedEmployee.username} IS NULL) " +
+        "AND (:#{#employeeType} IS NULL) " +
         "AND ((:#{#filterTask.status} IS NULL) OR " +
-        "(animaltask.task.status = :#{#filterTask.status})) " +
-        "AND ((:#{#filterTask.priority} IS NULL) OR " +
-        "(animaltask.task.priority = :#{#filterTask.priority})) " +
+        "(a.task.status = :#{#filterTask.status}))) " +
+        "OR animaltask.id IN " +
+        "(SELECT a.id FROM AnimalTask a WHERE (:#{#filterTask.title} IS NULL OR " +
+        "UPPER(a.task.title) LIKE CONCAT('%', UPPER(:#{#filterTask.title}), '%')) " +
+        "AND (:#{#filterTask.description} IS NULL OR " +
+        "UPPER(a.task.description) LIKE CONCAT('%', UPPER(:#{#filterTask.description}), '%')) " +
+        "AND (((:#{#filterTask.assignedEmployee.username} IS NULL) OR " +
+        "(a.task.assignedEmployee.username LIKE :#{#filterTask.assignedEmployee.username})) " +
+        "AND ((:#{#employeeType} IS NULL) OR " +
+        "(a.task.assignedEmployee.type = :#{#employeeType}))) " +
+        "AND ((:#{#filterTask.status} IS NULL) OR " +
+        "(a.task.status = :#{#filterTask.status})))" +
         "ORDER BY animaltask.task.startTime")
     List<AnimalTask> findFilteredTasks(@Param("employeeType") EmployeeType employeeType, @Param("filterTask") Task filterTask);
 

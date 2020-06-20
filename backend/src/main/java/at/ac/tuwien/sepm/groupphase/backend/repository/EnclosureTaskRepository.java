@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,18 +105,26 @@ public interface EnclosureTaskRepository extends JpaRepository<EnclosureTask, Lo
 
     @Query("SELECT enclosureTask " +
         "FROM EnclosureTask enclosureTask " +
-        "WHERE (:#{#filterTask.title} IS NULL OR " +
-        "UPPER(enclosureTask.task.title) LIKE CONCAT('%', UPPER(:#{#filterTask.title}), '%')) " +
+        "WHERE enclosureTask.id IN " +
+        "(SELECT e.id FROM EnclosureTask e WHERE (:#{#filterTask.title} IS NULL OR " +
+        "UPPER(e.task.title) LIKE CONCAT('%', UPPER(:#{#filterTask.title}), '%')) " +
         "AND (:#{#filterTask.description} IS NULL OR " +
-        "UPPER(enclosureTask.task.description) LIKE CONCAT('%', UPPER(:#{#filterTask.description}), '%')) " +
-        "AND ((:#{#filterTask.assignedEmployee.username} IS NULL) OR " +
-        "enclosureTask.task.assignedEmployee.username LIKE :#{#filterTask.assignedEmployee.username}) " +
-        "AND ((:#{#employeeType} IS NULL) OR " +
-        "(enclosureTask.task.assignedEmployee.type = :#{#employeeType})) " +
+        "UPPER(e.task.description) LIKE CONCAT('%', UPPER(:#{#filterTask.description}), '%')) " +
+        "AND (:#{#filterTask.assignedEmployee.username} IS NULL) " +
+        "AND (:#{#employeeType} IS NULL) " +
         "AND ((:#{#filterTask.status} IS NULL) OR " +
-        "(enclosureTask.task.status = :#{#filterTask.status})) " +
-        "AND ((:#{#filterTask.priority} IS NULL) OR " +
-        "(enclosureTask.task.priority = :#{#filterTask.priority})) " +
+        "(e.task.status = :#{#filterTask.status}))) " +
+        "OR enclosureTask.id IN " +
+        "(SELECT e.id FROM EnclosureTask e WHERE (:#{#filterTask.title} IS NULL OR " +
+        "UPPER(e.task.title) LIKE CONCAT('%', UPPER(:#{#filterTask.title}), '%')) " +
+        "AND (:#{#filterTask.description} IS NULL OR " +
+        "UPPER(e.task.description) LIKE CONCAT('%', UPPER(:#{#filterTask.description}), '%')) " +
+        "AND (((:#{#filterTask.assignedEmployee.username} IS NULL) OR " +
+        "(e.task.assignedEmployee.username LIKE :#{#filterTask.assignedEmployee.username})) " +
+        "AND ((:#{#employeeType} IS NULL) OR " +
+        "(e.task.assignedEmployee.type = :#{#employeeType}))) " +
+        "AND ((:#{#filterTask.status} IS NULL) OR " +
+        "(e.task.status = :#{#filterTask.status})))" +
         "ORDER BY enclosureTask.task.startTime")
     List<EnclosureTask> findFilteredTasks(@Param("employeeType") EmployeeType employeeType, @Param("filterTask") Task filterTask);
 

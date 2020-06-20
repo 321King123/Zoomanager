@@ -139,6 +139,7 @@ export class TaskService {
 
   searchTasks(employeetype: type, task: Task): Observable<Task[]> {
     DEBUG_LOG('Getting filtered list of tasks');
+    DEBUG_LOG('Getting filtered list of tasks with status: ' + task.status);
     let query = '/search?';
     if (task.assignedEmployeeUsername != null && task.assignedEmployeeUsername !== '') {
       query = query + 'username=' + task.assignedEmployeeUsername + '&';
@@ -156,13 +157,10 @@ export class TaskService {
       query = query + 'endtime=' + task.endTime + '&';
     }
     if (task.status != null) {
-      query = query + 'status=' + task.status + '&';
-    }
-    if (task.priority != null) {
-      query = query + 'priority=' + task.priority + '&';
+      query = query + 'taskStatus=' + task.status + '&';
     }
     if (employeetype != null) {
-      query = query + 'type=' + employeetype + '&';
+      query = query + 'employeeType=' + employeetype + '&';
     }
     query = query.substring(0, query.length - 1);
     return this.httpClient.get<Task[]>(this.taskBaseUri + query);
