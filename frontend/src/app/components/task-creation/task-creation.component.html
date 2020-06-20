@@ -18,6 +18,7 @@
           <div class="col"><h5>Task</h5></div>
           <div class="col"><h5>Priority</h5></div>
         </div>
+
         <div class="row px-3 justify-content-around">
           <div class="col btn-group btn-group-toggle" data-toggle="buttons">
             <button (click)="setToAnimalTask()" type="radio" class="btn btn-secondary">Animal</button>
@@ -25,9 +26,10 @@
           </div>
           <div class="col btn-group btn-group-toggle" data-toggle="buttons">
             <button (click)="setToNonPriorityTask()" type="radio" class="btn btn-secondary">Normal</button>
-            <button (click)="setToPriorityTask()" type="radio" class="btn btn-secondary">Hight</button>
+            <button (click)="setToPriorityTask()" type="radio" class="btn btn-secondary">High</button>
           </div>
         </div>
+
         <div class="row p-3 justify-content-center">
           <div class="col btn-group btn-group-toggle" data-toggle="buttons">
             <button (click)="changeRepeatable()" type="radio" class="col btn btn-outline-info">Repeatable</button>
@@ -70,6 +72,8 @@
                     </div>
                   </div>
                 </ng-container>
+
+                <!--                Time Selection-->
                 <ng-container *ngIf="normalPriority">
                   <div class="form-group col-6">
                     <label for="inputStartTime">Start-Time</label>
@@ -94,6 +98,7 @@
                     </div>
                   </div>
                 </ng-container>
+
                 <!--                Subject Selection-->
                 <div *ngIf="isAnimalTask == true" class="form-group col-6 select-animal">
                   <label for="animalId">Select Animal</label>
@@ -163,6 +168,52 @@
                     </div>
                   </div>
                 </ng-container>
+
+                <!--                Event Selection-->
+                <ng-container *ngIf="normalPriority">
+                  <div class="form-group col-12 btn-group btn-group-toggle">
+                    <label [class.btn-outline-primary]="taskCreationForm.controls.event.value !== true"
+                           [class.btn-primary]="taskCreationForm.controls.event.value === true"
+                           ngbButtonLabel>
+                      <input type="checkbox" ngbButton formControlName="event"> Make Public Event
+                    </label>
+                  </div>
+
+                  <ng-container *ngIf="taskCreationForm.controls.event.value === true">
+
+                    <!--   Event Public Info-->
+                    <div class="form-group col-12">
+                      <label for="inputPublicInfo">Public Event Information</label>
+                      <textarea type="text" name="publicInformation" formControlName="publicInfo" class="form-control"
+                                id="inputPublicInfo"
+                                aria-describedby="publicInformationHelp" placeholder="Enter Public Event Information"></textarea>
+                      <div *ngIf="submittedTask && taskCreationForm.controls.publicInfo.errors" class="error">
+                        <small class="form-text text-warning" *ngIf="taskCreationForm.controls.publicInfo.errors.required">Public
+                          Information is not valid!
+                        </small>
+                      </div>
+                    </div>
+
+                    <!--   Event Picture-->
+                    <div *ngIf="uploadedEventPicture" class="col-12">
+                      <label>Event Image</label>
+                      <img ngbButtonLabel (click)="imgUpload.click()"
+                           src={{uploadedEventPicture}} alt="" id="img"
+                           class="img-thumbnail w-70">
+                      <br>
+                    </div>
+                    <div class="form-group col-12 btn-group">
+                      <label type="button" id="imgUploadBtn" class="btn btn-success" (click)="imgUpload.click()">Upload Image
+                      </label>
+                      <input style="display: none" type="file" name="picture" accept=".png, .jpg, .jpeg"
+                             (change)="OnImageFileSelected($event);" formControlName="eventPicture"
+                             id="newInputPicture" aria-describedby="pictureHelp" #imgUpload/>
+                    </div>
+
+
+                  </ng-container>
+                </ng-container>
+
                 <div class="form-group col-12" *ngIf="isRepeatable">
                   <label for="inputAmount">Amount</label>
                   <input type="number" name="amount" formControlName="amount" class="form-control" id="inputAmount"
@@ -171,7 +222,7 @@
                 <div class="form-group col-6" *ngIf="isRepeatable">
                   <label for="inputSeparation">Separation</label>
                   <select name="separation" formControlName="separation" class="form-control" id="inputSeparation"
-                         aria-describedby="AmountHelp">
+                          aria-describedby="AmountHelp">
                     <option *ngFor="let timeUnit of timeUnitValues" [ngValue]="timeUnits[timeUnit]" [defaultSelected]="true">{{timeUnit}}
                     </option>
                   </select>
@@ -193,6 +244,7 @@
             <button (click)="selectJanitor()" *ngIf="isEnclosureTask" type="radio" class="btn btn-primary">Janitor</button>
           </div>
         </div>
+
       </div>
       <div class="modal-footer">
         <button type="button" (click)="switchSelectEmployeeTypeMode()" class="btn btn-info col">Select Employee Type</button>

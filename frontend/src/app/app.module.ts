@@ -8,6 +8,7 @@ import {AppComponent} from './app.component';
 import {HeaderComponent} from './components/header/header.component';
 import {FooterComponent} from './components/footer/footer.component';
 import {HomeComponent} from './components/home/home.component';
+import {HomeEditComponent} from './components/home-edit/home-edit.component';
 import {LoginComponent} from './components/login/login.component';
 import {MessageComponent} from './components/message/message.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
@@ -32,8 +33,14 @@ import { EmployeePasswordChangeComponent } from './components/employee-password-
 import { AnimalUpdateViewComponent } from './components/animal-update-view/animal-update-view.component';
 import { DeleteWarningComponent } from './components/delete-warning/delete-warning.component';
 import { StopClickPropagationDirective } from './directives/stop-click-propagation.directive';
+<<<<<<< frontend/src/app/app.module.ts
 import {FullCalendarModule} from '@fullcalendar/angular';
 import { CalenderComponent } from './components/calender/calender.component';
+=======
+import { CommentsOfTaskComponent } from './components/comments-of-task/comments-of-task.component';
+import { EventInfoViewComponent } from './components/event-info-view/event-info-view.component';
+
+>>>>>>> frontend/src/app/app.module.ts
 
 @NgModule({
   declarations: [
@@ -41,6 +48,7 @@ import { CalenderComponent } from './components/calender/calender.component';
     HeaderComponent,
     FooterComponent,
     HomeComponent,
+    HomeEditComponent,
     LoginComponent,
     MessageComponent,
     EmployeeComponent,
@@ -64,6 +72,8 @@ import { CalenderComponent } from './components/calender/calender.component';
     EmployeeEditViewComponent,
     EmployeePasswordChangeComponent,
     CalenderComponent,
+    CommentsOfTaskComponent,
+    EventInfoViewComponent,
   ],
   imports: [
     BrowserModule,

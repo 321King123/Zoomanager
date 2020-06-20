@@ -4,10 +4,7 @@ import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
-import javax.validation.constraints.FutureOrPresent;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -55,4 +52,14 @@ public class RepeatableTaskDto {
 
     @Positive
     private int separationAmount;
+
+    @NotNull
+    private boolean event;
+
+    private String publicInfo;
+
+    @Pattern(regexp = "^data:image/(jpeg|png);base64,([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$",
+        message = "Event Picture needs to be a valid jpg or png image")
+    private String eventPicture;
+
 }

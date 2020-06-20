@@ -1,6 +1,7 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './components/home/home.component';
+import {HomeEditComponent} from './components/home-edit/home-edit.component';
 import {LoginComponent} from './components/login/login.component';
 import {AuthGuard} from './guards/auth.guard';
 import {MessageComponent} from './components/message/message.component';
@@ -18,6 +19,7 @@ import {CalenderComponent} from './components/calender/calender.component';
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
+  {path: 'edit', component: HomeEditComponent},
   {path: 'login', component: LoginComponent},
   {path: 'message', canActivate: [AuthGuard], component: MessageComponent},
   {path: 'employee', canActivate: [AuthGuard], component: EmployeeComponent},
