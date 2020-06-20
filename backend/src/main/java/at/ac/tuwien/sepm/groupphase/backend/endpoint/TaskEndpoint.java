@@ -17,6 +17,7 @@ import io.swagger.annotations.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
@@ -413,8 +414,8 @@ public class TaskEndpoint {
     public List<CombinedTaskDto> getAllTasksFiltered(@RequestParam(value = "employeeType", required = false) String employeeTypeString,
                                                      @RequestParam(value = "title", required = false) String title,
                                                      @RequestParam(value = "description", required = false) String description,
-                                                     @RequestParam(value = "starttime", required = false) LocalDateTime starttime,
-                                                     @RequestParam(value = "endtime", required = false) LocalDateTime endtime,
+                                                     @RequestParam(value = "starttime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime starttime,
+                                                     @RequestParam(value = "endtime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endtime,
                                                      @RequestParam(value = "username", required = false) String username,
                                                      @RequestParam(value = "taskStatus", required = false) String taskStatusString){
         LOGGER.info("GET /api/v1/tasks/search?employeeType={}&title={}&description={}&starttime={}&endtime={}&username={}&taskStatus={}",

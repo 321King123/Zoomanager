@@ -59,6 +59,8 @@ export class TaskOverviewComponent implements OnInit {
   }
 
   loadFilteredTasks() {
+    this.filterTask.startTime = this.parseDate(this.filterTask.startTime);
+    this.filterTask.endTime = this.parseDate(this.filterTask.endTime);
     this.taskService.searchTasks(this.employeeType, this.filterTask).subscribe(
       (tasks) => {
         this.tasks = tasks;
@@ -69,6 +71,8 @@ export class TaskOverviewComponent implements OnInit {
       }
     );
 
+    this.filterTask.startTime = null;
+    this.filterTask.endTime = null;
   }
 
   getAnimals() {
@@ -99,6 +103,25 @@ export class TaskOverviewComponent implements OnInit {
         this.alertService.alertFromError(error, {}, 'Task Overview component: getAllEnclosures()');
       }
     );
+  }
+
+  parseDate(dateUnparsed) {
+    if (dateUnparsed === null) {
+      return null;
+    }
+    const parsed = new Date(dateUnparsed);
+    const ten = function (x) {
+      return x < 10 ? '0' + x : x;
+    };
+    const year = parsed.getFullYear();
+    const month = parsed.getMonth() + 1;
+    const day = parsed.getDate();
+    const monthZero = (month < 10) ? '0' : '';
+    const dayZero = (day < 10) ? '0' : '';
+    const date = year + '-' + monthZero + month + '-' + dayZero + day;
+    const time = ten(parsed.getHours()) + ':' + ten(parsed.getMinutes()) + ':' + ten(parsed.getSeconds());
+
+    return date + ' ' + time;
   }
 
   /**
