@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Globals, Utilities} from '../global/globals';
+import {Globals, type, Utilities} from '../global/globals';
 import {AnimalTask} from '../dtos/animalTask';
 import {Observable} from 'rxjs';
 import {EnclosureTask} from '../dtos/enclosureTask';
@@ -134,5 +134,37 @@ export class TaskService {
   updateTaskInformationRepeat(task: Task): Observable<any> {
     DEBUG_LOG('Update task information and following tasks ' + JSON.stringify(task));
     return this.httpClient.put(this.taskBaseUri + '/update/repeat', task);
+  }
+
+
+  searchTasks(employeetype: type, task: Task): Observable<Task[]> {
+    DEBUG_LOG('Getting filtered list of tasks');
+    let query = '/search?';
+    if (task.assignedEmployeeUsername != null && task.assignedEmployeeUsername !== '') {
+      query = query + 'username=' + task.assignedEmployeeUsername + '&';
+    }
+    if (task.title != null && task.title !== '') {
+      query = query + 'title=' + task.title + '&';
+    }
+    if (task.description != null && task.description !== '') {
+      query = query + 'description=' + task.description + '&';
+    }
+    if (task.startTime != null && task.startTime !== '') {
+      query = query + 'starttime=' + task.startTime + '&';
+    }
+    if (task.endTime != null && task.endTime !== '') {
+      query = query + 'endtime=' + task.endTime + '&';
+    }
+    if (task.status != null) {
+      query = query + 'status=' + task.status + '&';
+    }
+    if (task.priority != null) {
+      query = query + 'priority=' + task.priority + '&';
+    }
+    if (employeetype != null) {
+      query = query + 'type=' + employeetype + '&';
+    }
+    query = query.substring(0, query.length - 1);
+    return this.httpClient.get<Task[]>(this.taskBaseUri + query);
   }
 }

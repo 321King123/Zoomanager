@@ -401,17 +401,14 @@ public class TaskEndpoint {
 
     /**
      * Search function for tasks
-     * Titel and Description have substring searach
+     * Title and Description have substring searach
      * Tasks entirely between specified Start and Endtime
-     * username has to be exact match
-     *
-     * @param employeeDto contains the employee you want to assign
-     * @param taskId contains the taskId for the task you want to assign
+     * username, employeeType, priority, taskStatus either exact or null for all
      */
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/all")
-    @ApiOperation(value = "Get list of animal tasks belonging to an animal", authorizations = {@Authorization(value = "apiKey")})
+    @GetMapping(value = "/search")
+    @ApiOperation(value = "Get filtered list of all tasks", authorizations = {@Authorization(value = "apiKey")})
     public List<CombinedTaskDto> getAllTasksFiltered(@RequestParam(value = "employeeType", required = false) EmployeeType employeeType,
                                                      @RequestParam(value = "title", required = false) String title,
                                                      @RequestParam(value = "description", required = false) String description,
@@ -420,7 +417,7 @@ public class TaskEndpoint {
                                                      @RequestParam(value = "username", required = false) String username,
                                                      @RequestParam(value = "taskStatus", required = false) TaskStatus taskStatus,
                                                      @RequestParam(value = "priority", required = false) boolean priority){
-        LOGGER.info("GET /api/v1/tasks/all?employeeType={}&title={}&description={}&starttime={}&endtime={}&username={}&taskStatus={}&priority={}",
+        LOGGER.info("GET /api/v1/tasks/search?employeeType={}&title={}&description={}&starttime={}&endtime={}&username={}&taskStatus={}&priority={}",
             employeeType, title, description, starttime, endtime, username, taskStatus, priority);
 
         Employee searchedEmployee;

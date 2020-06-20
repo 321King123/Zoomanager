@@ -32,6 +32,7 @@ import { EmployeePasswordChangeComponent } from './components/employee-password-
 import { AnimalUpdateViewComponent } from './components/animal-update-view/animal-update-view.component';
 import { DeleteWarningComponent } from './components/delete-warning/delete-warning.component';
 import { StopClickPropagationDirective } from './directives/stop-click-propagation.directive';
+import { TaskOverviewComponent } from './components/task-overview/task-overview.component';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { StopClickPropagationDirective } from './directives/stop-click-propagati
     StopClickPropagationDirective,
     EmployeeEditViewComponent,
     EmployeePasswordChangeComponent,
+    TaskOverviewComponent,
   ],
   imports: [
     BrowserModule,
