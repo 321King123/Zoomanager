@@ -87,6 +87,11 @@ export class TaskService {
     return this.httpClient.get<Task[]>(this.taskBaseUri + '/employee/' + username);
   }
 
+  getAllEvents(): Observable<Task[]> {
+    DEBUG_LOG('Get all events');
+    return this.httpClient.get<Task[]>(this.taskBaseUri + '/events');
+  }
+
   autoAssignAnimalTaskToDoctor(taskId) {
     DEBUG_LOG('Auto-assign animal task to a doctor ' + taskId);
     return this.httpClient.post(this.taskBaseUri + '/auto/animal/doctor/' + taskId, {});

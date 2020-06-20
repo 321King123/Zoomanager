@@ -33,6 +33,8 @@
             <p>
               <b>End:</b> {{task.endTime}}
             </p></div>
+
+          <!--   Subject Info-->
           <div class="col-6" *ngIf="editModeAlloved && task.animalTask == true"><h4>Animal</h4>
             <p *ngIf="animal!=null">
               Name: {{animal.name}} <br>
@@ -45,11 +47,37 @@
               Description: {{enclosure.description}}<br>
               Public: {{enclosure.publicInfo}}
             </p></div>
+
+          <!--   Assignee-->
           <div class="col-6"><h4>Assignee</h4>
             <p>
               Username: {{task.assignedEmployeeUsername}} <br>
             </p></div>
+
+          <!--   Event Info-->
+          <div *ngIf="task.event" class="col-12">
+            <h4>Event Info</h4>
+
+            <div class="card">
+              <img *ngIf="task.eventPicture != null" src={{task.eventPicture}} alt="" id="img"
+                   class="card-img-top">
+              <div *ngIf="task.publicInfo!=null" class="card-body">
+                {{task.publicInfo}}
+              </div>
+              <div *ngIf="(task.publicInfo == null || task.publicInfo =='')"
+                   class="card-body text-muted">
+                Has no public info.
+              </div>
+            </div>
+
+
+            <br>
+          </div>
+
         </div>
+
+        <!--   Edit Mode-->
+
         <div *ngIf="editMode" class="p-1">
           <form>
             <div class="row">
@@ -74,6 +102,8 @@
                   </small>
                 </div>
               </div>
+
+              <!--   Time -->
               <div class="form-group col-6">
                 <label for="inputStartTime">Start-Time</label>
                 <input [(ngModel)]="editTask.startTime" type="text" name="startTime" class="form-control"
@@ -159,7 +189,7 @@
 
               <div class="form-group col-6 select-Enclosure">
                 <label for="priority">Change Priority</label>
-                <select [(ngModel)]="editTask.priority" name="animalId"
+                <select (change)="onPriorityChange(editTask.priority)" [(ngModel)]="editTask.priority" name="animalId"
                         class="form-control" id="priority"
                         aria-describedby="animalIdHelp">
                   <option disabled [ngValue]="null">Select Priority</option>
@@ -179,6 +209,62 @@
                   <option [ngValue]="'DONE'">Done</option>
                 </select>
               </div>
+
+              <!--   Event Info-->
+              <ng-container *ngIf="editTask.priority === false">
+<!--                <btn (click)="toggleEvent()" [class.btn-outline-primary]="editTask.event !== true"-->
+<!--                     [class.btn-primary]="editTask.event === true">-->
+<!--                  Public Event-->
+<!--                </btn>-->
+                <div class="form-group col-12 btn-group">
+                  <label (click)="toggleEvent()" [class.btn-outline-primary]="editTask.event !== true"
+                         [class.btn-primary]="editTask.event === true"
+                         ngbButtonLabel> Public Event
+                  </label>
+                </div>
+
+                <div *ngIf="editTask.event" class="col-12">
+                  <h4>Event Info</h4>
+
+                  <div class="card">
+                    <!--   Event Picture-->
+                    <div *ngIf="editTask.eventPicture">
+                      <img ngbButtonLabel (click)="imgUpload.click()"
+                           src={{editTask.eventPicture}} alt="" id="imgEdit"
+                           class="card-img-top">
+                      <br>
+                    </div>
+
+                    <!--   Event Public Info-->
+                    <div class="form-group col-12">
+                      <label for="inputPublicInfo">Public Event Information</label>
+                      <textarea [(ngModel)]="editTask.publicInfo" type="text" name="publicInformation" class="form-control"
+                                id="inputPublicInfo"
+                                aria-describedby="publicInformationHelp" placeholder="Currently has no public info."></textarea>
+                    </div>
+
+                    <!--   Event Picture Button-->
+                    <div class="form-group col-12 btn-group">
+                      <label type="button" id="imgUploadBtn" class="btn btn-success" (click)="imgUpload.click()">Upload Image
+                      </label>
+                      <input style="display: none" type="file" name="picture" accept=".png, .jpg, .jpeg"
+                             (change)="OnImageFileSelected($event);"
+                             id="newInputPicture" aria-describedby="pictureHelp" #imgUpload/>
+                      <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">
+                        <label type="button" class="btn btn-success dropdown-toggle-split" ngbDropdownToggle
+                                appStopClickPropagation>
+
+                        </label>
+                        <div class="dropdown-menu" ngbDropdownMenu>
+                          <button ngbDropdownItem (click)="removeImage()" appStopClickPropagation>Remove Image</button>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </ng-container>
+
             </div>
           </form>
         </div>

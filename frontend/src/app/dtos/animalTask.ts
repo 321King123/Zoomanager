@@ -8,6 +8,9 @@ export class AnimalTask {
               public status: string,
               public animalId: string,
               public animalName: string,
-              public priority: boolean = false) {
+              public priority: boolean = false,
+              public event: boolean = false,
+              public publicInfo: string = null,
+              public eventPicture: string = null) {
   }
 }

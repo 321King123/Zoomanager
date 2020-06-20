@@ -18,6 +18,7 @@ import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 
 import java.time.temporal.ChronoUnit;
+import java.util.InputMismatchException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +58,8 @@ public class CustomTaskService implements TaskService {
 
         validateStartAndEndTime(task);
 
+        validateEventTask(task);
+
         if(employee == null) {
             task.setStatus(TaskStatus.NOT_ASSIGNED);
         }else if(employee.getType() == EmployeeType.JANITOR){
@@ -67,7 +70,6 @@ public class CustomTaskService implements TaskService {
             }
             task.setStatus(TaskStatus.ASSIGNED);
         }
-
 
         if(task.getStatus() == TaskStatus.ASSIGNED && !employeeService.employeeIsFreeBetweenStartingAndEndtime(employee, task)){
             throw new NotFreeException("Employee already works on a task in the given time");
@@ -140,6 +142,7 @@ public class CustomTaskService implements TaskService {
             throw new NotFoundException("Could not find enclosure with given Id");
 
         validateStartAndEndTime(task);
+        validateEventTask(task);
 
         if(employee == null) {
             task.setStatus(TaskStatus.NOT_ASSIGNED);
@@ -156,6 +159,7 @@ public class CustomTaskService implements TaskService {
         if(task.getStatus() == TaskStatus.ASSIGNED && !employeeService.employeeIsFreeBetweenStartingAndEndtime(employee, task)){
             throw new NotFreeException("The employee does not work at the given time!");
         }
+
 
         Task createdTask = taskRepository.save(task);
 
@@ -189,6 +193,12 @@ public class CustomTaskService implements TaskService {
     public List<AnimalTask> getAllTasksOfAnimal(Long animalId){
         LOGGER.debug("Get All Tasks belonging to Animal with id: {}", animalId);
         return animalTaskRepository.findAllAnimalTasksBySubject_Id(animalId);
+    }
+
+    @Override
+    public List<AnimalTask> getAllEventsOfAnimal(Long animalId) {
+        LOGGER.debug("Get All Events belonging to Animal with id: {}", animalId);
+        return animalTaskRepository.findAllAnimalEventsBySubject_Id(animalId);
     }
 
     @Override
@@ -271,6 +281,19 @@ public class CustomTaskService implements TaskService {
         return foundTask;
     }
 
+    @Override
+    public Task getEventById(Long taskId) {
+        LOGGER.debug("Find event with id {}", taskId);
+        Optional<Task> task = taskRepository.findEventById(taskId);
+        Task foundTask;
+        if(task.isPresent()){
+            foundTask = task.get();
+        }else{
+            throw new NotFoundException("Could not find Event with given Id");
+        }
+        return foundTask;
+    }
+
     public AnimalTask getAnimalTaskById(Long animalTaskId){
         LOGGER.debug("Find animal task with id {}", animalTaskId);
         Optional<AnimalTask> animalTask = animalTaskRepository.findById(animalTaskId);
@@ -296,6 +319,28 @@ public class CustomTaskService implements TaskService {
     }
 
     @Override
+    public AnimalTask getAnimalEventById(Long animalTaskId){
+        LOGGER.debug("Find animal Event with id {}", animalTaskId);
+        Optional<AnimalTask> animalTask = animalTaskRepository.findAnimalEventById(animalTaskId);
+        if(animalTask.isPresent()){
+            return animalTask.get();
+        }else{
+            throw new NotFoundException("Could not find Animal Event with given Id");
+        }
+    }
+
+    @Override
+    public EnclosureTask getEnclosureEventById(Long animalTaskId){
+        LOGGER.debug("Find enclosure event with id {}", animalTaskId);
+        Optional<EnclosureTask> enclosureTask = enclosureTaskRepository.findEnclosureEventById(animalTaskId);
+        if(enclosureTask.isPresent()){
+            return enclosureTask.get();
+        }else{
+            throw new NotFoundException("Could not find Task with given Id");
+        }
+    }
+
+    @Override
     public List<EnclosureTask> getAllEnclosureTasksOfEmployee(String employeeUsername) {
         LOGGER.debug("Get All Enclosure Tasks belonging to employee with username: {}", employeeUsername);
         validateEmployeeExists(employeeUsername);
@@ -307,6 +352,24 @@ public class CustomTaskService implements TaskService {
     public List<EnclosureTask> getAllTasksOfEnclosure(Long enclosureId) {
         LOGGER.debug("Get All Tasks belonging to Enclosure with id: {}", enclosureId);
         return enclosureTaskRepository.findAllEnclosureTasksBySubject_Id(enclosureId);
+    }
+
+    @Override
+    public List<EnclosureTask> getAllEventsOfEnclosure(Long enclosureId) {
+        LOGGER.debug("Get All Events belonging to Enclosure with id: {}", enclosureId);
+        return enclosureTaskRepository.findAllEnclosureEventsBySubject_Id(enclosureId);
+    }
+
+    @Override
+    public List<EnclosureTask> getAllEnclosureEvents() {
+        LOGGER.debug("Get All Enclosure Events");
+        return enclosureTaskRepository.findAllEnclosureEvents();
+    }
+
+    @Override
+    public List<AnimalTask> getAllAnimalEvents() {
+        LOGGER.debug("Get All Animal Events");
+        return animalTaskRepository.findAllAnimalEvents();
     }
 
     @Override
@@ -442,6 +505,9 @@ public class CustomTaskService implements TaskService {
             .assignedEmployee(task.getAssignedEmployee())
             .status(task.getStatus())
             .priority(task.isPriority())
+            .event(task.isEvent())
+            .publicInfo(task.getPublicInfo())
+            .eventPicture(task.getEventPicture())
             .build();
     }
 
@@ -495,6 +561,9 @@ public class CustomTaskService implements TaskService {
         savedTask.setPriority(task.isPriority());
         savedTask.setTitle(task.getTitle());
         savedTask.setDescription(task.getDescription());
+        savedTask.setEvent(task.isEvent());
+        savedTask.setPublicInfo(task.getPublicInfo());
+        savedTask.setEventPicture(task.getEventPicture());
 
         savedEnclosureTask.setSubject(enclosureTask.getSubject());
 
@@ -537,5 +606,11 @@ public class CustomTaskService implements TaskService {
         }
         Optional<AnimalTask> animalTask = animalTaskRepository.findById(taskId);
         return animalTask.isPresent();
+    }
+
+    private void validateEventTask(Task task)
+    {
+        if(task.isPriority() && task.isEvent())
+            throw new ValidationException("A priority Task can not be an Event.");
     }
 }

@@ -33,6 +33,7 @@ import { AnimalUpdateViewComponent } from './components/animal-update-view/anima
 import { DeleteWarningComponent } from './components/delete-warning/delete-warning.component';
 import { StopClickPropagationDirective } from './directives/stop-click-propagation.directive';
 import { CommentsOfTaskComponent } from './components/comments-of-task/comments-of-task.component';
+import { EventInfoViewComponent } from './components/event-info-view/event-info-view.component';
 
 @NgModule({
   declarations: [
@@ -63,6 +64,7 @@ import { CommentsOfTaskComponent } from './components/comments-of-task/comments-
     EmployeeEditViewComponent,
     EmployeePasswordChangeComponent,
     CommentsOfTaskComponent,
+    EventInfoViewComponent,
   ],
   imports: [
     BrowserModule,

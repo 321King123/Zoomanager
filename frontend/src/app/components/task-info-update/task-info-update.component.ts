@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {Task} from '../../dtos/task';
 import {Employee} from '../../dtos/employee';
 import {Animal} from '../../dtos/animal';
@@ -35,6 +35,9 @@ export class TaskInfoUpdateComponent implements OnInit {
 
   componentId = 'TaskInfoUpdate';
 
+  private fileType: string;
+
+
   editMode: boolean;
   infoMode: boolean;
   repeatMode = false;
@@ -55,6 +58,8 @@ export class TaskInfoUpdateComponent implements OnInit {
     subjectId: false,
     priority: false
   };
+
+  eventSave: {event: boolean, publicInfo: string, eventPicture: string} = {event: false, publicInfo: null, eventPicture: null};
 
   @Output() toggleClickPropagationEvent = new EventEmitter();
 
@@ -117,6 +122,7 @@ export class TaskInfoUpdateComponent implements OnInit {
 
   toEditMode() {
     this.editTask = this.task;
+    DEBUG_LOG(this.editTask);
     if (this.task.animalTask) {
       DEBUG_LOG('Animal task info.');
       this.getEmployeesOfAnimal();
@@ -198,7 +204,7 @@ export class TaskInfoUpdateComponent implements OnInit {
     this.clearValidationErrors();
     this.validateEditedTask();
     if (this.validEditTask) {
-      if(this.repeatMode) {
+      if (this.repeatMode) {
         this.taskService.updateTaskInformationRepeat(this.editTask).subscribe(
           (res: any) => {
             this.task = this.editTask;
@@ -301,4 +307,74 @@ export class TaskInfoUpdateComponent implements OnInit {
       modalToggleElement.click();
     }
   }
+
+  onPriorityChange(priority: boolean) {
+    if (priority) {
+      this.eventSave.event = this.editTask.event;
+      this.eventSave.publicInfo = this.editTask.publicInfo;
+      this.eventSave.eventPicture = this.editTask.eventPicture;
+
+      this.editTask.event = false;
+      this.editTask.publicInfo = null;
+      this.editTask.eventPicture = null;
+    } else {
+      this.editTask.event  = this.eventSave.event;
+      this.editTask.publicInfo = this.eventSave.publicInfo;
+      this.editTask.eventPicture = this.eventSave.eventPicture;
+    }
+  }
+
+  toggleEvent() {
+    if (this.editTask.event === true) {
+      this.eventSave.event = true;
+      this.eventSave.publicInfo = this.editTask.publicInfo;
+      this.eventSave.eventPicture = this.editTask.eventPicture;
+
+      this.editTask.event = false;
+      this.editTask.publicInfo = null;
+      this.editTask.eventPicture = null;
+    } else {
+      this.editTask.event  = true;
+      this.editTask.publicInfo = this.eventSave.publicInfo;
+      this.editTask.eventPicture = this.eventSave.eventPicture;
+    }
+  }
+
+  removeImage() {
+    this.editTask.eventPicture = null;
+  }
+
+  public OnImageFileSelected(event) {
+    const files = event.target.files;
+    const file = files[0];
+    const maxSize = 259000000;
+    const acceptedImageTypes = ['image/jpeg', 'image/png'];
+
+    if (files && file) {
+      if (file.size > maxSize) {
+        this.alertService.warn('File is to large. Max size is: ' + maxSize / 1000 + ' MB.',
+          {}, 'Enclosure component: OnImageFileSelected');
+      } else {
+        if (!acceptedImageTypes.includes(file.type)) {
+          this.alertService.warn('File has to either be jpeg or png.' + maxSize / 1000 + ' MB.',
+            {}, 'Enclosure component: OnImageFileSelected');
+        } else {
+          const reader = new FileReader();
+
+          reader.onload = this._handleReaderLoaded.bind(this);
+          this.fileType = 'data:' + file.type.toString() + ';base64,';
+          reader.readAsBinaryString(file);
+        }
+      }
+    }
+  }
+
+  // From: https://stackoverflow.com/questions/42482951/converting-an-image-to-base64-in-angular-2
+  // Converts the resulting binary String of the reader to base 64
+  _handleReaderLoaded(readerEvt) {
+    const binaryString = readerEvt.target.result;
+    this.editTask.eventPicture = this.fileType + btoa(binaryString);
+    // this.taskCreationForm.controls.eventPicture.setValue(this.uploadedEventPicture);
+  }
+
 }
