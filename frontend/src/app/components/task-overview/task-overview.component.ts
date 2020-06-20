@@ -7,6 +7,10 @@ import DEBUG_LOG = Utilities.DEBUG_LOG;
 import {AlertService} from '../../services/alert.service';
 import {EmployeeService} from '../../services/employee.service';
 import {Employee} from '../../dtos/employee';
+import {Animal} from '../../dtos/animal';
+import {Enclosure} from '../../dtos/enclosure';
+import {AnimalService} from '../../services/animal.service';
+import {EnclosureService} from '../../services/enclosure.service';
 
 @Component({
   selector: 'app-task-overview',
@@ -18,6 +22,8 @@ export class TaskOverviewComponent implements OnInit {
   tasks: Task[];
   filterTask: Task;
   employeeList: Employee[];
+  allAnimals: Animal[];
+  allEnclosures: Enclosure[];
   employeeType: type;
   openFilter: boolean;
   employeeTypes = type;
@@ -26,7 +32,8 @@ export class TaskOverviewComponent implements OnInit {
   userType;
 
   constructor(private authService: AuthService, private taskService: TaskService,
-              private employeeService: EmployeeService, private alertService: AlertService) {
+              private employeeService: EmployeeService, private animalService: AnimalService,
+              private enclosureService: EnclosureService, private alertService: AlertService) {
     this.typeValues = Object.keys(type);
   }
 
@@ -39,6 +46,7 @@ export class TaskOverviewComponent implements OnInit {
       this.userType = 'ADMIN';
       this.getAllEmployees();
       this.loadFilteredTasks();
+      this.getAnimals();
     }
   }
 
@@ -56,12 +64,41 @@ export class TaskOverviewComponent implements OnInit {
       },
       error => {
         DEBUG_LOG('Error loading tasks!');
-        this.alertService.alertFromError(error,  {}, 'loadTasksOfEmployee->loadTaskOfEmployee');
+        this.alertService.alertFromError(error,  {}, 'Task Overview component: loadFilteredTasks()');
       }
     );
 
   }
 
+  getAnimals() {
+    this.animalService.getAnimals().subscribe(
+      animals => {
+        this.allAnimals = animals;
+      },
+      error => {
+        if (error.status === 404) {
+          this.allAnimals.length = 0;
+        }
+        DEBUG_LOG('Failed to load all animals');
+        this.alertService.alertFromError(error, {}, 'Task Overview component: getAnimals()');
+      }
+    );
+  }
+
+  getAllEnclosures() {
+    this.enclosureService.getAllEnclosures().subscribe(
+      enclosures => {
+        this.allEnclosures = enclosures;
+      },
+      error => {
+        if (error.status === 404) {
+          this.allEnclosures.length = 0;
+        }
+        DEBUG_LOG('Failed to load all enclosures');
+        this.alertService.alertFromError(error, {}, 'Task Overview component: getAllEnclosures()');
+      }
+    );
+  }
 
   /**
    * Get All current employees

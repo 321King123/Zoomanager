@@ -1,6 +1,8 @@
 <div *ngIf="isAdmin()">
   <div *ngIf="!openFilter">
     <br>
+    <app-task-creation [animalsOfEmployee]="allAnimals"
+                       [enclosuresOfEmployee]="allEnclosures" (reloadTasks)="loadFilteredTasks()"></app-task-creation>
     <button type="button" (click)="toggleFilter()" class="btn btn-success my-1 float-right">Filter List</button>
   </div>
   <div *ngIf="openFilter">
