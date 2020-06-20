@@ -46,7 +46,9 @@ export class EnclosureViewComponent implements OnInit {
 
   ngOnInit(): void {
     const enclsureToViewId = Number(this.route.snapshot.paramMap.get('enclosureId'));
-    this.loadAnimals();
+    if (this.isAdmin()) {
+      this.loadAnimals();
+    }
     this.loadEnclosureToView(enclsureToViewId);
     this.editing = false;
   }
@@ -87,7 +89,9 @@ export class EnclosureViewComponent implements OnInit {
         if (this.enclosureToView == null) {
           this.alertService.error('Enclosure with such id does not exist.', {}, 'loadEnclosureToView()');
         }
-        this.showAssignedAnimalsEnclosure();
+        if (this.isAdmin()) {
+          this.showAssignedAnimalsEnclosure();
+        }
         this.loadEnclosureTasks();
         this.loadEmployees();
       },
@@ -249,6 +253,6 @@ export class EnclosureViewComponent implements OnInit {
   }
 
   editEnclosure() {
-    this.router.navigate(['/enclosure-edit-view/' + this.enclosureToView.id ]);
+    this.router.navigate(['/enclosure-edit-view/' + this.enclosureToView.id]);
   }
 }
