@@ -15,6 +15,7 @@ import {EnclosureEditViewComponent} from './components/enclosure-edit-view/enclo
 import {AnimalUpdateViewComponent} from './components/animal-update-view/animal-update-view.component';
 import {EmployeeEditViewComponent} from './components/employee-edit-view/employee-edit-view.component';
 import {EmployeePasswordChangeComponent} from './components/employee-password-change/employee-password-change.component';
+import {AdminCreatePageComponent} from './components/admin-create-page/admin-create-page.component';
 import {CalenderComponent} from './components/calender/calender.component';
 
 const routes: Routes = [
@@ -33,6 +34,8 @@ const routes: Routes = [
   {path: 'animal-view/:animalId', canActivate: [AuthGuard], component: AnimalViewComponent},
   {path: 'employee-password-change/:username', canActivate: [AuthGuard], component: EmployeePasswordChangeComponent},
   {path: 'calendar', canActivate: [AuthGuard], component: CalenderComponent}
+  {path: 'employee-password-change/:username', canActivate: [AuthGuard], component: EmployeePasswordChangeComponent},
+  {path: 'admin', canActivate: [AuthGuard], component: AdminCreatePageComponent}
 ];
 
 @NgModule({

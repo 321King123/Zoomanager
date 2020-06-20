@@ -37,6 +37,7 @@ import {FullCalendarModule} from '@fullcalendar/angular';
 import { CalenderComponent } from './components/calender/calender.component';
 import { CommentsOfTaskComponent } from './components/comments-of-task/comments-of-task.component';
 import { EventInfoViewComponent } from './components/event-info-view/event-info-view.component';
+import { AdminCreatePageComponent } from './components/admin-create-page/admin-create-page.component';
 
 @NgModule({
   declarations: [
@@ -70,6 +71,7 @@ import { EventInfoViewComponent } from './components/event-info-view/event-info-
     CalenderComponent,
     CommentsOfTaskComponent,
     EventInfoViewComponent,
+    AdminCreatePageComponent,
   ],
   imports: [
     BrowserModule,
