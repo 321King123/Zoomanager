@@ -1,6 +1,7 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './components/home/home.component';
+import {HomeEditComponent} from './components/home-edit/home-edit.component';
 import {LoginComponent} from './components/login/login.component';
 import {AuthGuard} from './guards/auth.guard';
 import {MessageComponent} from './components/message/message.component';
@@ -17,6 +18,7 @@ import {EmployeePasswordChangeComponent} from './components/employee-password-ch
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
+  {path: 'edit', component: HomeEditComponent},
   {path: 'login', component: LoginComponent},
   {path: 'message', canActivate: [AuthGuard], component: MessageComponent},
   {path: 'employee', canActivate: [AuthGuard], component: EmployeeComponent},
@@ -29,6 +31,7 @@ const routes: Routes = [
   {path: 'enclosure-edit-view/:enclosureId', canActivate: [AuthGuard], component: EnclosureEditViewComponent},
   {path: 'animal-view/:animalId', canActivate: [AuthGuard], component: AnimalViewComponent},
   {path: 'employee-password-change/:username', canActivate: [AuthGuard], component: EmployeePasswordChangeComponent}
+
 ];
 
 @NgModule({

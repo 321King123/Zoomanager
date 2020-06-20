@@ -1,5 +1,6 @@
 <br>
 <form *ngIf="isAdmin() && editing" class="form" [formGroup]="enclosureEditInfo" (ngSubmit)="saveChanges()">
+
   <div class="form-group col-12">
     <label for="inputName">Change Name</label>
     <input type="text" name="name" formControlName="name" class="form-control" id="inputName"

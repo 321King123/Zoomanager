@@ -35,7 +35,7 @@ public class ZooInfoMapper {
             .id(zooInfo.getId())
             .address(zooInfo.getAddress())
             .name(zooInfo.getName())
-            .picture(zooInfo.getPicture() == null ? null : zooInfo.getPicture().toString())
+            .picture(zooInfo.getPicture() == null ? null : new String(zooInfo.getPicture()))
             .publicInfo(zooInfo.getPublicInfo())
             .workTimeStart(zooInfo.getWorkTimeStart())
             .workTimeEnd(zooInfo.getWorkTimeEnd())
