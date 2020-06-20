@@ -47,6 +47,7 @@ export class TaskOverviewComponent implements OnInit {
       this.getAllEmployees();
       this.loadFilteredTasks();
       this.getAnimals();
+      this.getAllEnclosures();
     }
   }
 
