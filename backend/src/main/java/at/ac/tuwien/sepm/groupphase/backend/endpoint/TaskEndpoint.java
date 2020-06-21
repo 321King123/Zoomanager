@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -450,6 +451,32 @@ public class TaskEndpoint {
 
         List<AnimalTask> animalTasks = taskService.searchAnimalTasks(employeeType, searchTask);
         List<EnclosureTask> enclosureTasks = taskService.searchEnclosureTasks(employeeType, searchTask);
+
+        return combinedTaskMapper.sortedEnclosureTaskListAndAnimalTaskListToSortedCombinedTaskDtoList(enclosureTasks, animalTasks);
+    }
+
+    /**
+     * Search function for tasks
+     * Title and Description have substring searach
+     * Tasks entirely between specified Start and Endtime
+     * username, employeeType, priority, taskStatus either exact or null for all
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/events/search")
+    @ApiOperation(value = "Get filtered list of all events", authorizations = {@Authorization(value = "apiKey")})
+    public List<CombinedTaskDto> getAllEventsFiltered(@RequestParam(value = "title", required = false) String title,
+                                                     @RequestParam(value = "description", required = false) String description,
+                                                     @RequestParam(value = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
+        LOGGER.info("GET /api/v1/tasks/search?&title={}&description={}&date={}", title, description, date);
+
+
+        Task searchTask = Task.builder().title(title).description(description)
+            .startTime(date==null?null:date.atTime(0, 0))
+            .endTime(date==null?null:date.atTime(23, 59, 59))
+            .build();
+
+        List<AnimalTask> animalTasks = taskService.searchAnimalEvents(searchTask);
+        List<EnclosureTask> enclosureTasks = taskService.searchEnclosureEvents(searchTask);
 
         return combinedTaskMapper.sortedEnclosureTaskListAndAnimalTaskListToSortedCombinedTaskDtoList(enclosureTasks, animalTasks);
     }

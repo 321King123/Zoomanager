@@ -234,7 +234,7 @@ public interface TaskService {
      * @param employeeType type of employee searched (exact match required or null for all types)
      */
     List<EnclosureTask> searchEnclosureTasks(EmployeeType employeeType, Task filterTask);
-    
+
     /**
      * Checks whether a task with the given id is an animalTask
      *
@@ -243,6 +243,26 @@ public interface TaskService {
      * @throws at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException if no Task with the Id exists
      */
     boolean isAnimalTask(Long taskId);
-    
+
+
+    /**
+     * Search for a filtered list of all current Enclosure Events
+     * Title and Description search for Substring
+     * Only tasks with start and endtime between specified start and endtime
+     * are returned if starttime = null then all tasks up to endtime
+     * if endtime = null then all tasks from starttime
+     * @param filterTask contains the fields for filtering
+     */
+    List<EnclosureTask> searchEnclosureEvents(Task filterTask);
+
+    /**
+     * Search for a filtered list of all current Animal Events
+     * Title and Description search for Substring
+     * Only tasks with start and endtime between specified start and endtime
+     * are returned if starttime = null then all tasks up to endtime
+     * if endtime = null then all tasks from starttime
+     * @param filterTask contains the fields for filtering
+     */
+    List<AnimalTask> searchAnimalEvents(Task filterTask);
 
 }
