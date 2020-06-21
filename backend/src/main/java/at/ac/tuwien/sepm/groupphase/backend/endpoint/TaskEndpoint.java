@@ -456,10 +456,9 @@ public class TaskEndpoint {
     }
 
     /**
-     * Search function for tasks
+     * Search function for events
      * Title and Description have substring searach
-     * Tasks entirely between specified Start and Endtime
-     * username, employeeType, priority, taskStatus either exact or null for all
+     * Tasks on speciefied date
      */
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/events/search")
