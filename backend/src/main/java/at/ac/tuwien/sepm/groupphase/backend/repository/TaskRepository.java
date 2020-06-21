@@ -32,5 +32,29 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
      */
     List<Task> findAllByAssignedEmployeeOrderByStartTime(Employee employee);
 
+    /**
+     * Finds all Events
+     *
+     * @return all Events currently in the Database
+     */
+    @Query("SELECT t FROM Task t WHERE t.event = true ")
+    List<Task> findAllEvents();
 
+    /**
+     * Finds Event by id
+     *
+     * @param id identifies the event
+     * @return event with corresponding id
+     */
+    @Query("SELECT t FROM Task t WHERE t.event = true AND t.id =:id")
+    Optional<Task> findEventById(@Param("id")long id);
+
+    /**
+     * Finds all Events from a specific employee
+     *
+     * @param employee of which to find the assigned tasks
+     * @return all Events assigned to the employee ordered by start time
+     */
+    @Query("SELECT t FROM Task t WHERE t.event = true AND t.assignedEmployee =:assignedEmployee")
+    List<Task> findAllEventsByAssignedEmployeeOrderByStartTime(@Param("assignedEmployee")Employee employee);
 }

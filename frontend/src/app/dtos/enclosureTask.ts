@@ -8,7 +8,10 @@ export class EnclosureTask {
               public status: string,
               public enclosureId: string,
               public enclosureName: string,
-              public priority: boolean = false
+              public priority: boolean = false,
+              public event: boolean = false,
+              public publicInfo: string = null,
+              public eventPicture: string = null
   ) {
   }
 }

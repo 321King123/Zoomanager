@@ -49,6 +49,19 @@ public interface TaskService {
     List<AnimalTask> getAllTasksOfAnimal(Long animalId);
 
     /**
+     * Get all events belonging to one animal
+     * @param animalId is the id of the animal
+     * @return list of event animalTasks
+     */
+    List<AnimalTask> getAllEventsOfAnimal(Long animalId);
+
+    /**
+     * Get all animal events
+     * @return list of all event animalTasks
+     */
+    List<AnimalTask> getAllAnimalEvents();
+
+    /**
      * Delete a task
      * @param taskId of the Task that will be deleted
      */
@@ -89,6 +102,20 @@ public interface TaskService {
     List<EnclosureTask> getAllTasksOfEnclosure(Long enclosureId);
 
     /**
+     * Get all events belonging to one enclosure
+     * @param enclosureId is the id of the enclosure
+     * @return list of event enclosureTasks
+     */
+    List<EnclosureTask> getAllEventsOfEnclosure(Long enclosureId);
+
+    /**
+     * Get all enclsure events
+     * @return list of all event enclosureTasks
+     */
+    List<EnclosureTask> getAllEnclosureEvents();
+
+
+    /**
      * Assign a currently unassigned AnimalTask to an Employee,
      * If its a priority tasks soonest possible time is found,
      * otherwise it will be assigned to the least busy worker
@@ -108,6 +135,8 @@ public interface TaskService {
 
     Task getTaskById(Long taskId);
 
+    Task getEventById(Long taskId);
+
     void updateFullAnimalTaskInformation(AnimalTask animalTask);
 
     void updateFullEnclosureTaskInformation(EnclosureTask enclosureTask);
@@ -115,6 +144,10 @@ public interface TaskService {
     EnclosureTask getEnclosureTaskById(Long enclosureTaskId);
 
     AnimalTask getAnimalTaskById(Long animalTaskId);
+
+    AnimalTask getAnimalEventById(Long animalTaskId);
+
+    EnclosureTask getEnclosureEventById(Long animalTaskId);
 
     /**
      * Creates a set amount of tasks
@@ -178,6 +211,7 @@ public interface TaskService {
     void automaticallyAssignEnclosureTaskRepeat(Long enclosureTaskId, EmployeeType employeeType);
 
     /**
+     * backend/src/main/java/at/ac/tuwien/sepm/groupphase/backend/service/TaskService.java
      * Search for a filtered list of all current Tasks
      * Title and Description search for Substring
      * Employee Username null = every employee Otherwise exact match
@@ -200,4 +234,15 @@ public interface TaskService {
      * @param employeeType type of employee searched (exact match required or null for all types)
      */
     List<EnclosureTask> searchEnclosureTasks(EmployeeType employeeType, Task filterTask);
+    
+    /**
+     * Checks whether a task with the given id is an animalTask
+     *
+     * @param taskId of the task to be checked
+     * @return true if an animalTask with the given id exists (if not it should be an enclosure task)
+     * @throws at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException if no Task with the Id exists
+     */
+    boolean isAnimalTask(Long taskId);
+    
+
 }

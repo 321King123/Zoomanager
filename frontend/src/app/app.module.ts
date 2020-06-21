@@ -8,6 +8,7 @@ import {AppComponent} from './app.component';
 import {HeaderComponent} from './components/header/header.component';
 import {FooterComponent} from './components/footer/footer.component';
 import {HomeComponent} from './components/home/home.component';
+import {HomeEditComponent} from './components/home-edit/home-edit.component';
 import {LoginComponent} from './components/login/login.component';
 import {MessageComponent} from './components/message/message.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
@@ -33,6 +34,11 @@ import { AnimalUpdateViewComponent } from './components/animal-update-view/anima
 import { DeleteWarningComponent } from './components/delete-warning/delete-warning.component';
 import { StopClickPropagationDirective } from './directives/stop-click-propagation.directive';
 import { TaskOverviewComponent } from './components/task-overview/task-overview.component';
+import {FullCalendarModule} from '@fullcalendar/angular';
+import { CalenderComponent } from './components/calender/calender.component';
+import { CommentsOfTaskComponent } from './components/comments-of-task/comments-of-task.component';
+import { EventInfoViewComponent } from './components/event-info-view/event-info-view.component';
+import { AdminCreatePageComponent } from './components/admin-create-page/admin-create-page.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +46,7 @@ import { TaskOverviewComponent } from './components/task-overview/task-overview.
     HeaderComponent,
     FooterComponent,
     HomeComponent,
+    HomeEditComponent,
     LoginComponent,
     MessageComponent,
     EmployeeComponent,
@@ -63,6 +70,10 @@ import { TaskOverviewComponent } from './components/task-overview/task-overview.
     EmployeeEditViewComponent,
     EmployeePasswordChangeComponent,
     TaskOverviewComponent,
+    CalenderComponent,
+    CommentsOfTaskComponent,
+    EventInfoViewComponent,
+    AdminCreatePageComponent
   ],
   imports: [
     BrowserModule,
@@ -70,7 +81,8 @@ import { TaskOverviewComponent } from './components/task-overview/task-overview.
     ReactiveFormsModule,
     HttpClientModule,
     NgbModule,
-    FormsModule
+    FormsModule,
+    FullCalendarModule
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]

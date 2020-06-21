@@ -8,6 +8,7 @@ import {Employee} from '../dtos/employee';
 import {Task} from '../dtos/task';
 import DEBUG_LOG = Utilities.DEBUG_LOG;
 import {RepeatableTask} from '../dtos/RepeatableTask';
+import {Comment} from '../dtos/comment';
 
 @Injectable({
   providedIn: 'root'
@@ -84,6 +85,11 @@ export class TaskService {
   getTasksOfEmployee(username): Observable<Task[]> {
     DEBUG_LOG('Get all tasks of employee ' + username);
     return this.httpClient.get<Task[]>(this.taskBaseUri + '/employee/' + username);
+  }
+
+  getAllEvents(): Observable<Task[]> {
+    DEBUG_LOG('Get all events');
+    return this.httpClient.get<Task[]>(this.taskBaseUri + '/events');
   }
 
   autoAssignAnimalTaskToDoctor(taskId) {

@@ -1,11 +1,79 @@
 <div class="jumbotron mt-5">
-  <h1 class="display-4">Welcome to the Zoo Manager!</h1>
+  <h1 class="display-4">Welcome to our Zoo!</h1>
   <hr class="my-4">
   <a *ngIf="!authService.isLoggedIn()" class="btn btn-primary btn-lg" routerLink="/login" role="button">Login</a>
-  <div *ngIf="authService.isLoggedIn()">
-    <p>Check out the latest message from the Zoo Manager.</p>
-    <p class="lead">
-      <a class="btn btn-primary btn-lg" routerLink="/message" role="button">Message</a>
-    </p>
+  <div *ngIf="authService.isLoggedIn() && ready">
+
+    <br>
+
+    <div class="row no-gutters">
+      <div class="col">
+        <div class="card-block px-2">
+          <h2 *ngIf="zooInformation.name!=null" class="info-title">
+            Name of the Zoo: {{zooInformation.name}}
+          </h2>
+          <h2 *ngIf="zooInformation.name == null" class="info-title">
+            Name of the Zoo: Name not available
+          </h2>
+        </div>
+      </div>
+      <div class="col-2">
+        <img *ngIf="zooInformation.picture != null" src="{{zooInformation.picture}}" class="img-fluid"
+             alt="Picture of the Zoo">
+      </div>
+    </div>
+
+    <br>
+
+    <div>
+      <h4 class="info-title">
+        Address
+      </h4>
+      <div class="card">
+        <div *ngIf="zooInformation.address!=null" class="card-body">
+          {{zooInformation.address}}
+        </div>
+        <div *ngIf="zooInformation.address==null" class="card-body">
+          No address provided
+        </div>
+      </div>
+    </div>
+
+    <br>
+
+    <div>
+      <h4 class="info-title">
+        Public Information
+      </h4>
+      <div class="card">
+        <div *ngIf="zooInformation.publicInfo!=null" class="card-body">
+          {{zooInformation.publicInfo}}
+        </div>
+
+
+        <div *ngIf="zooInformation.publicInfo==null" class="card-body text-muted">
+          Has no public Information.
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <div>
+      <h4 class="info-title">
+        Working hours
+      </h4>
+      <div class="card">
+        <div *ngIf="zooInformation.workTimeStart!=null && zooInformation.workTimeEnd!= null" class="card-body">
+          {{zooInformation.workTimeStart}} - {{zooInformation.workTimeEnd}}
+        </div>
+        <div *ngIf="zooInformation.workTimeStart==null || zooInformation.workTimeEnd== null" class="card-body text-muted">
+          Currently not visible
+        </div>
+      </div>
+    </div>
+
+    <br>
+    <button type="button"  *ngIf="isAdmin()" (click)="editZooInformation()" class="btn btn-success m-1 ">Edit</button>
   </div>
 </div>
+

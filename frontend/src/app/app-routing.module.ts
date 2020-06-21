@@ -1,6 +1,7 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './components/home/home.component';
+import {HomeEditComponent} from './components/home-edit/home-edit.component';
 import {LoginComponent} from './components/login/login.component';
 import {AuthGuard} from './guards/auth.guard';
 import {MessageComponent} from './components/message/message.component';
@@ -15,9 +16,12 @@ import {EnclosureEditViewComponent} from './components/enclosure-edit-view/enclo
 import {AnimalUpdateViewComponent} from './components/animal-update-view/animal-update-view.component';
 import {EmployeeEditViewComponent} from './components/employee-edit-view/employee-edit-view.component';
 import {EmployeePasswordChangeComponent} from './components/employee-password-change/employee-password-change.component';
+import {AdminCreatePageComponent} from './components/admin-create-page/admin-create-page.component';
+import {CalenderComponent} from './components/calender/calender.component';
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
+  {path: 'edit', component: HomeEditComponent},
   {path: 'login', component: LoginComponent},
   {path: 'message', canActivate: [AuthGuard], component: MessageComponent},
   {path: 'tasks', canActivate: [AuthGuard], component: TaskOverviewComponent},
@@ -30,7 +34,10 @@ const routes: Routes = [
   {path: 'enclosure-view/:enclosureId', canActivate: [AuthGuard], component: EnclosureViewComponent},
   {path: 'enclosure-edit-view/:enclosureId', canActivate: [AuthGuard], component: EnclosureEditViewComponent},
   {path: 'animal-view/:animalId', canActivate: [AuthGuard], component: AnimalViewComponent},
-  {path: 'employee-password-change/:username', canActivate: [AuthGuard], component: EmployeePasswordChangeComponent}
+  {path: 'employee-password-change/:username', canActivate: [AuthGuard], component: EmployeePasswordChangeComponent},
+  {path: 'calendar', canActivate: [AuthGuard], component: CalenderComponent},
+  {path: 'employee-password-change/:username', canActivate: [AuthGuard], component: EmployeePasswordChangeComponent},
+  {path: 'admin', canActivate: [AuthGuard], component: AdminCreatePageComponent},
 ];
 
 @NgModule({

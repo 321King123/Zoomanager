@@ -40,6 +40,8 @@ security:
       - /swagger-ui.html
       # H2
       - /h2-console/**
+      # Public Info
+      - /api/v1/tasks/events/**
   jwt:
     # Use http://www.allkeysgenerator.com/ to generate secrets
     secret: ?E(H+MbQeThWmZq4t7w!z%C*F-J@NcRfUjXn2r5u8x/A?D(G+KbPdSgVkYp3s6v9

@@ -37,6 +37,7 @@ export class EmployeeViewComponent implements OnInit {
 
   taskListMode: boolean;
   animalListMode: boolean;
+  enclosureListMode: boolean;
 
   btnIsEdit: boolean = true;
   btnIsDelete: boolean = false;
@@ -76,11 +77,11 @@ export class EmployeeViewComponent implements OnInit {
         this.showAssignedAnimalsEmployee();
         this.loadTasksOfEmployee();
         this.currentUserType = this.getCurrentUserType();
-        this.toAnimalMode();
+        this.toTaskMode();
         this.getEnclosuresOfEmployee();
       },
       error => {
-        this.alertService.alertFromError(error,  {}, 'loadPersonInfo');
+        this.alertService.alertFromError(error, {}, 'loadPersonInfo');
       }
     );
   }
@@ -104,7 +105,7 @@ export class EmployeeViewComponent implements OnInit {
         }
       },
       error => {
-        this.alertService.alertFromError(error,  {}, 'loadSpecificEmployee');
+        this.alertService.alertFromError(error, {}, 'loadSpecificEmployee');
       }
     );
   }
@@ -118,7 +119,7 @@ export class EmployeeViewComponent implements OnInit {
           this.enclosuresFound = true;
         },
         error => {
-          this.alertService.alertFromError(error,  {}, 'getEnclosureOfEmployee');
+          this.alertService.alertFromError(error, {}, 'getEnclosureOfEmployee');
         }
       );
     }
@@ -131,7 +132,7 @@ export class EmployeeViewComponent implements OnInit {
       },
       error => {
         DEBUG_LOG('Error loading tasks!');
-        this.alertService.alertFromError(error,  {}, 'loadTasksOfEmployee->loadTaskOfEmployee');
+        this.alertService.alertFromError(error, {}, 'loadTasksOfEmployee->loadTaskOfEmployee');
       }
     );
 
@@ -185,7 +186,7 @@ export class EmployeeViewComponent implements OnInit {
         },
         error => {
           DEBUG_LOG('Failed to load animals');
-          this.alertService.alertFromError(error,  {keepAfterRouteChange: true},
+          this.alertService.alertFromError(error, {keepAfterRouteChange: true},
             'getAllAnimals');
         }
       );
@@ -243,14 +244,22 @@ export class EmployeeViewComponent implements OnInit {
     }
   }
 
+  toEnclosureMode() {
+    this.animalListMode = false;
+    this.taskListMode = false;
+    this.enclosureListMode = true;
+  }
+
   toTaskMode() {
     this.animalListMode = false;
     this.taskListMode = true;
+    this.enclosureListMode = false;
   }
 
   toAnimalMode() {
     this.animalListMode = true;
     this.taskListMode = false;
+    this.enclosureListMode = false;
   }
 
   toDeleteButton() {
@@ -266,6 +275,7 @@ export class EmployeeViewComponent implements OnInit {
     this.btnIsEdit = true;
     this.btnIsDelete = false;
   }
+
   toChangePassword() {
     this.router.navigate(['employee-password-change/' + this.employee.username]);
   }

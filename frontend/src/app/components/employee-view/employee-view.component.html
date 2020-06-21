@@ -8,7 +8,7 @@
   </div>
 </div>
 
-<div class="row justify-content-around">
+<div class="row justify-content-around" *ngIf="employee != undefined">
   <div class="col-12">
     <div *ngIf="employee!=null" class="info" style="width: 30rem;">
       <div class="info-body">
@@ -23,19 +23,21 @@
     </div>
   </div>
   <div *ngIf="employee!=null" class="col-12 my-2">
-    <div *ngIf="employee!=null && employee.type=='ANIMAL_CARE'"
-      class="row d-flex justify-content-start mx-0 ">
-      <app-task-creation (reloadTasks)="loadTasksOfEmployee()" [currentEmployee]="employee"
-                         [animalsOfEmployee]="assignedAnimals"
-                         [enclosuresOfEmployee]="enclosuresOfEmployee"></app-task-creation>
+    <div class="row d-flex justify-content-between mx-0 ">
+      <ng-container  *ngIf="employee!=null && employee.type=='ANIMAL_CARE'">
+        <app-task-creation (reloadTasks)="loadTasksOfEmployee()" [currentEmployee]="employee"
+                           [animalsOfEmployee]="assignedAnimals"
+                           [enclosuresOfEmployee]="enclosuresOfEmployee"></app-task-creation>
+      </ng-container>
+
+      <button *ngIf="!isAdmin()" type="button" (click)="toChangePassword()" class="btn btn-success">Change Password
+      </button>
     </div>
-    <button *ngIf="!isAdmin()" type="button" (click)="toChangePassword()" class="btn btn-success m-1 ">Change Password
-    </button>
   </div>
 </div>
 
 
-<app-delete-warning *ngIf="isAdmin()"
+<app-delete-warning *ngIf="isAdmin() && employee != undefined"
                     (deleteSubject)="deleteEmployee()"
                     (editSubject)="editEmployee()"
                     [deletionSubjectType]="'Employee'"
@@ -48,51 +50,67 @@
 <div class="row">
   <div class="col">
     <div class="btn-group" role="group" aria-label="Basic example">
+      <button (click)="toTaskMode()" type="button" class="btn btn-dark">Assigned Tasks</button>
       <button (click)="toAnimalMode()" *ngIf="this.employee!=null && this.employee.type=='ANIMAL_CARE'" type="button"
               class="btn btn-dark">Assigned Animals
       </button>
-      <button (click)="toTaskMode()" type="button" class="btn btn-dark">Assigned Tasks</button>
+      <button (click)="toEnclosureMode()" *ngIf="this.employee!=null && this.employee.type=='ANIMAL_CARE'" type="button"
+              class="btn btn-dark">Assigned Enclosures
+      </button>
     </div>
   </div>
 </div>
 
-<ng-container *ngIf=" employee!=null && employee.type=='ANIMAL_CARE' && animalListMode">
-  <div class="row">
-    <div class="col-lg-12" *ngIf=" isAdmin() && assignedAnimals != null && assignedAnimals.length != 0">
-      <app-animal-list (unassignAnimal)="removeAssignedAnimal($event)" [employeePage]="true" [animals]="assignedAnimals"></app-animal-list>
-    </div>
-    <div class="col-lg-12" *ngIf=" !isAdmin() && assignedAnimals != null && assignedAnimals.length != 0">
-      <app-animal-list [employeePage]="true" [animals]="assignedAnimals"></app-animal-list>
-    </div>
+<ng-container *ngIf="employee != undefined">
+  <ng-container *ngIf=" employee!=null && employee.type=='ANIMAL_CARE' && animalListMode">
+    <div class="row">
+      <div class="col-lg-12" *ngIf=" isAdmin() && assignedAnimals != null && assignedAnimals.length != 0">
+        <app-animal-list (unassignAnimal)="removeAssignedAnimal($event)" [employeePage]="true"
+                         [animals]="assignedAnimals"></app-animal-list>
+      </div>
+      <div class="col-lg-12" *ngIf=" !isAdmin() && assignedAnimals != null && assignedAnimals.length != 0">
+        <app-animal-list [employeePage]="true" [animals]="assignedAnimals"></app-animal-list>
+      </div>
 
-  </div>
-  <ng-container *ngIf="isAdmin()">
-    <div class="row my-3">
+    </div>
+    <ng-container *ngIf="isAdmin()">
+      <div class="row my-3">
+        <div class="col-lg-12">
+          <h5>Assign new Animals:</h5>
+        </div>
+      </div>
+      <div class="row mb-5">
+        <div class="col-lg-6">
+          <div class="form-group">
+            <select class="animal-select form-control" [(ngModel)]="selectedAnimal" name="selectedAnimal">
+              <option disabled [ngValue]="null">Select animal to assign</option>
+              <option *ngFor="let animal of animalList" [ngValue]="animal">{{animal.name}}; {{animal.species}}</option>
+            </select>
+          </div>
+
+          <button type="button" (click)="assignAnimal()" class="btn btn-success m-1 ">Assign</button>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <ng-container *ngIf="employee!=null && taskListMode">
+    <div class="row mb-4">
       <div class="col-lg-12">
-        <h5>Assign new Animals:</h5>
+        <app-task-list-common [enclosuresOfEmployee]="enclosuresOfEmployee" [animalsOfEmployee]="assignedAnimals"
+                              [currentUserType]="currentUserType" (reloadTasks)="loadTasksOfEmployee()"
+                              [tasks]="tasks"></app-task-list-common>
       </div>
     </div>
-    <div class="row mb-5">
-      <div class="col-lg-6">
-        <div class="form-group">
-          <select class="animal-select form-control" [(ngModel)]="selectedAnimal" name="selectedAnimal">
-            <option disabled [ngValue]="null">Select animal to assign</option>
-            <option *ngFor="let animal of animalList" [ngValue]="animal">{{animal.name}}; {{animal.species}}</option>
-          </select>
-        </div>
+  </ng-container>
 
-        <button type="button" (click)="assignAnimal()" class="btn btn-success m-1 ">Assign</button>
+  <ng-container *ngIf="enclosureListMode && employee!=null">
+    <div class="row mb-4">
+      <div class="col-lg-12">
+        <app-enclosure-list [enclosures]="enclosuresOfEmployee"></app-enclosure-list>
       </div>
     </div>
   </ng-container>
 </ng-container>
 
-<ng-container *ngIf="employee!=null && taskListMode">
-  <div class="row mb-4">
-    <div class="col-lg-12">
-      <app-task-list-common [enclosuresOfEmployee]="enclosuresOfEmployee" [animalsOfEmployee]="assignedAnimals"
-                            [currentUserType]="currentUserType" (reloadTasks)="loadTasksOfEmployee()"
-                            [tasks]="tasks"></app-task-list-common>
-    </div>
-  </div>
-</ng-container>
+

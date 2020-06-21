@@ -15,13 +15,24 @@ public class UserMapper {
     ApplicationUser userToApplicationUser(User user);
 
  */
-public UserLoginDto userLoginDto(UserLogin userLogin) {
-    if(userLogin == null) {
-        return null;
+    public UserLoginDto userLoginDto(UserLogin userLogin) {
+        if(userLogin == null) {
+            return null;
+        }
+        return UserLoginDto.builder()
+            .username(userLogin.getUsername())
+            .password(userLogin.getPassword())
+            .build();
     }
-    return UserLoginDto.builder()
-        .username(userLogin.getUsername())
-        .password(userLogin.getPassword())
-        .build(); //bilo je i .password - greska??
+
+    public UserLogin userDtoToUserLogin(UserLoginDto userLoginDto){
+        if(userLoginDto == null) {
+            return null;
+        }
+        return UserLogin.builder()
+            .username(userLoginDto.getUsername())
+            .password(userLoginDto.getPassword())
+            .build();
+    }
 }
-}
+
