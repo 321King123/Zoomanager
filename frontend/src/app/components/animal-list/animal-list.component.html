@@ -59,10 +59,10 @@
     <tbody *ngIf="animals">
 
     <ng-container *ngFor="let animal of animals">
-      <tr (click)= "showInfo(animal)" class="d-flex animal-list-item">
-          <td class="col">{{animal.name}}</td>
-          <td class="col">{{animal.species}}</td>
-          <td class="col">{{animal.description}}</td>
+      <tr class="d-flex animal-list-item">
+          <td (click)= "showInfo(animal)" class="col">{{animal.name}}</td>
+          <td (click)= "showInfo(animal)" class="col">{{animal.species}}</td>
+          <td (click)= "showInfo(animal)" class="col">{{animal.description}}</td>
           <td class="col" *ngIf="animalPage">
             <app-delete-warning
               *ngIf="enableDelete&&animalPage"
