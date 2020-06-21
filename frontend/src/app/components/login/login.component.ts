@@ -44,10 +44,10 @@ export class LoginComponent implements OnInit {
    * @param authRequest authentication data from the user login form
    */
   authenticateUser(authRequest: AuthRequest) {
-    console.log('Try to authenticate user: ' + authRequest.username);
+    DEBUG_LOG('Try to authenticate user: ' + authRequest.username);
     this.authService.loginUser(authRequest).subscribe(
       (res: any) => {
-        console.log('Successfully logged in user: ' + authRequest.username);
+        DEBUG_LOG('Successfully logged in user: ' + authRequest.username);
         if (this.authService.getUserRole() === 'ADMIN') {
           this.router.navigate(['/employee']);
         } else {
@@ -55,8 +55,8 @@ export class LoginComponent implements OnInit {
         }
       },
       error => {
-        console.log('Could not log in due to:');
-        console.log(error);
+        DEBUG_LOG('Could not log in due to:');
+        DEBUG_LOG(error);
         this.error = true;
         if (typeof error.error === 'object') {
           this.errorMessage = error.error.error;

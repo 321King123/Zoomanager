@@ -71,7 +71,7 @@ export class TaskListComponent implements OnInit {
   }
 
   private defaultServiceErrorHandling(error: any) {
-    console.log(error);
+    DEBUG_LOG(error);
     this.error = true;
     if (typeof error.error === 'object') {
       this.errorMessage = error.error.error;

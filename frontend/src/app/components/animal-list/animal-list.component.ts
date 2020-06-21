@@ -62,7 +62,7 @@ export class AnimalListComponent implements OnInit {
         if (error.status === 404) {
           this.animals.length = 0;
         }
-        console.log('Failed to load all animals');
+        DEBUG_LOG('Failed to load all animals');
         this.defaultServiceErrorHandling(error);
       }
     );
@@ -77,7 +77,7 @@ export class AnimalListComponent implements OnInit {
         if (error.status === 404) {
           this.allEnclosures.length = 0;
         }
-        console.log('Failed to load all enclosures');
+        DEBUG_LOG('Failed to load all enclosures');
         this.defaultServiceErrorHandling(error);
       }
     );
@@ -85,7 +85,7 @@ export class AnimalListComponent implements OnInit {
 
 
   private defaultServiceErrorHandling(error: any) {
-    console.log(error);
+    DEBUG_LOG(error);
     this.error = true;
     if (typeof error.error === 'object') {
       this.errorMessage = error.error.error;
@@ -111,7 +111,7 @@ export class AnimalListComponent implements OnInit {
 
   showInfo(a: Animal) {
     if (!this.stopClickPropagation) {
-      console.log('got here');
+      DEBUG_LOG('got here');
       this.route.navigate(['/animal-view/' + a.id]);
     }
   }

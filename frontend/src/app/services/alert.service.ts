@@ -109,7 +109,7 @@ export class AlertService {
    */
   alertFromError(error: any, options?: any, sourceFn: string = 'No sourceFn given') {
     DEBUG_LOG('Alerting for Error of component: ' + options.componentId + ' from sourceFn: ' + sourceFn);
-    console.log(error);
+    DEBUG_LOG(error);
     let type = AlertType.Error;
     let message: string = 'Sorry, something went wrong on our end. We will try to fix it as soon as possible. If you want to help us tell us' +
       'what you did before this message appeared.';
