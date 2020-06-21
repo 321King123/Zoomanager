@@ -2,6 +2,7 @@ package at.ac.tuwien.sepm.groupphase.backend.unittests.repository;
 
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
 import at.ac.tuwien.sepm.groupphase.backend.repository.*;
+import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import java.util.List;
 
 import static at.ac.tuwien.sepm.groupphase.backend.basetest.TestData.*;
 import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
 // This test slice annotation is used instead of @SpringBootTest to load only repository beans instead of
@@ -53,6 +55,22 @@ public class EnclosureTaskRepositoryTest {
         .name(NAME_ANIMAL_CARE_EMPLOYEE)
         .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
         .type(TYPE_ANIMAL_CARE_EMPLOYEE)
+        .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
+        .workTimeStart(TEST_LOCAL_TIME_START)
+        .workTimeEnd(TEST_LOCAL_TIME_END)
+        .build();
+
+    private final UserLogin doctor_login = UserLogin.builder()
+        .isAdmin(false)
+        .username(USERNAME_DOCTOR_EMPLOYEE)
+        .password(passwordEncoder.encode(VALID_TEST_PASSWORD))
+        .build();
+
+    private final Employee doctor = Employee.builder()
+        .username(USERNAME_DOCTOR_EMPLOYEE)
+        .name(NAME_ANIMAL_CARE_EMPLOYEE)
+        .birthday(BIRTHDAY_ANIMAL_CARE_EMPLOYEE)
+        .type(TYPE_DOCTOR_EMPLOYEE)
         .email(EMAIL_ANIMAL_CARE_EMPLOYEE)
         .workTimeStart(TEST_LOCAL_TIME_START)
         .workTimeEnd(TEST_LOCAL_TIME_END)
@@ -461,5 +479,151 @@ public class EnclosureTaskRepositoryTest {
 
         assertEquals(false, taskRepository.findById(createdTask.getId()).isEmpty());
 
+    }
+
+    @Test
+    public void taskSearch_allSearchParametersNullReturnAll() {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        Enclosure enclosure = enclosureRepository.save(barn);
+
+        Employee caretaker = employeeRepository.findAll().get(0);
+
+        task_assigned.setAssignedEmployee(caretaker);
+
+        Task createdTask = taskRepository.save(task_assigned);
+        EnclosureTask ec1 = EnclosureTask.builder()
+            .id(createdTask.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec1);
+
+        Task createdTask2 = taskRepository.save(task_assigned2);
+        EnclosureTask ec2 = EnclosureTask.builder()
+            .id(createdTask2.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec2);
+
+        Task createdTask3 = taskRepository.save(task_assigned3);
+        EnclosureTask ec3 = EnclosureTask.builder()
+            .id(createdTask3.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec3);
+        Employee nullEmployee = Employee.builder().build();
+        List<EnclosureTask> enclosureTasks = enclosureTaskRepository.findFilteredTasks(null, Task.builder().assignedEmployee(nullEmployee).build());
+        assertEquals(enclosureTasks.size(), 3);
+    }
+
+    @Test
+    public void taskSearch_searchUsername() {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        userLoginRepository.save(doctor_login);
+        employeeRepository.save(doctor);
+        Enclosure enclosure = enclosureRepository.save(barn);
+
+        Employee caretaker = employeeRepository.findEmployeeByUsername(USERNAME_DOCTOR_EMPLOYEE);
+
+        task_assigned.setAssignedEmployee(caretaker);
+
+        Task createdTask = taskRepository.save(task_assigned);
+        EnclosureTask ec1 = EnclosureTask.builder()
+            .id(createdTask.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec1);
+
+        Task createdTask2 = taskRepository.save(task_assigned2);
+        EnclosureTask ec2 = EnclosureTask.builder()
+            .id(createdTask2.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec2);
+
+        Task createdTask3 = taskRepository.save(task_assigned3);
+        EnclosureTask ec3 = EnclosureTask.builder()
+            .id(createdTask3.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec3);
+        List<EnclosureTask> enclosureTasks = enclosureTaskRepository.findFilteredTasks(null, Task.builder().assignedEmployee(caretaker).build());
+        assertEquals(enclosureTasks.size(), 1);
+    }
+
+    @Test
+    public void taskSearch_searchUsernameAndTitle() {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        userLoginRepository.save(doctor_login);
+        employeeRepository.save(doctor);
+        Enclosure enclosure = enclosureRepository.save(barn);
+
+        Employee caretaker = employeeRepository.findEmployeeByUsername(USERNAME_DOCTOR_EMPLOYEE);
+
+        task_assigned.setAssignedEmployee(caretaker);
+
+        Task createdTask = taskRepository.save(task_assigned);
+        EnclosureTask ec1 = EnclosureTask.builder()
+            .id(createdTask.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec1);
+
+        Task createdTask2 = taskRepository.save(task_assigned2);
+        EnclosureTask ec2 = EnclosureTask.builder()
+            .id(createdTask2.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec2);
+
+        Task createdTask3 = taskRepository.save(task_assigned3);
+        EnclosureTask ec3 = EnclosureTask.builder()
+            .id(createdTask3.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec3);
+        Task searchTask = Task.builder().title(createdTask.getTitle().substring(2, 5)).assignedEmployee(caretaker).build();
+        List<EnclosureTask> enclosureTasks = enclosureTaskRepository.findFilteredTasks(null, Task.builder().assignedEmployee(caretaker).build());
+        assertEquals(enclosureTasks.size(), 1);
+    }
+
+    @Test
+    public void taskSearch_searchEmployeeType() {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        userLoginRepository.save(doctor_login);
+        employeeRepository.save(doctor);
+        Enclosure enclosure = enclosureRepository.save(barn);
+
+        Employee caretaker = employeeRepository.findEmployeeByUsername(USERNAME_DOCTOR_EMPLOYEE);
+
+        task_assigned.setAssignedEmployee(caretaker);
+
+        Task createdTask = taskRepository.save(task_assigned);
+        EnclosureTask ec1 = EnclosureTask.builder()
+            .id(createdTask.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec1);
+
+        Task createdTask2 = taskRepository.save(task_assigned2);
+        EnclosureTask ec2 = EnclosureTask.builder()
+            .id(createdTask2.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec2);
+
+        Task createdTask3 = taskRepository.save(task_assigned3);
+        EnclosureTask ec3 = EnclosureTask.builder()
+            .id(createdTask3.getId())
+            .subject(enclosure)
+            .build();
+        enclosureTaskRepository.save(ec3);
+        Employee nullEmployee = Employee.builder().build();
+        Task searchTask = Task.builder().assignedEmployee(nullEmployee).build();
+        List<EnclosureTask> enclosureTasks = enclosureTaskRepository.findFilteredTasks(EmployeeType.DOCTOR, Task.builder().assignedEmployee(caretaker).build());
+        assertEquals(enclosureTasks.size(), 1);
     }
 }
