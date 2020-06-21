@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Task} from '../../dtos/task';
 import {type, Utilities} from '../../global/globals';
 import {AuthService} from '../../services/auth.service';
@@ -12,6 +12,10 @@ import DEBUG_LOG = Utilities.DEBUG_LOG;
   styleUrls: ['./event-list.component.css']
 })
 export class EventListComponent implements OnInit {
+  componentId = 'event-list';
+
+  selected: Task;
+
   tasks: Task[];
   filterTask: Task;
 
@@ -43,6 +47,9 @@ export class EventListComponent implements OnInit {
       return null;
     }
     const parsed = new Date(dateUnparsed);
+    if (Number.isNaN(parsed.getFullYear()) || Number.isNaN(parsed.getMonth()) || Number.isNaN(parsed.getDate())) {
+      return null;
+    }
     const year = parsed.getFullYear();
     const month = parsed.getMonth() + 1;
     const day = parsed.getDate();
@@ -51,5 +58,13 @@ export class EventListComponent implements OnInit {
     const date = year + '-' + monthZero + month + '-' + dayZero + day;
 
     return date;
+  }
+
+  display(task: Task) {
+    if(this.selected === task) {
+      this.selected = null;
+    } else {
+      this.selected = task;
+    }
   }
 }
