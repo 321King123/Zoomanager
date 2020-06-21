@@ -280,4 +280,130 @@ public class AnimalTaskRepositoryTest {
         List<AnimalTask> animalTasks = animalTaskRepository.findFilteredTasks(EmployeeType.DOCTOR, searchTask);
         assertEquals(animalTasks.size(), 1);
     }
+
+
+    @Test
+    public void eventSearch_allSearchParametersNullReturnAll() {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        Animal animal = animalRepository.save(animal_basic);
+
+        Employee caretaker = employeeRepository.findAll().get(0);
+
+        task_assigned.setAssignedEmployee(caretaker);
+        task_assigned.setEvent(true);
+        task_assigned2.setEvent(true);
+        task_assigned3.setEvent(true);
+
+        Task createdTask = taskRepository.save(task_assigned);
+        AnimalTask ec1 = AnimalTask.builder()
+            .id(createdTask.getId())
+            .subject(animal_basic)
+            .build();
+        animalTaskRepository.save(ec1);
+
+        Task createdTask2 = taskRepository.save(task_assigned2);
+        AnimalTask ec2 = AnimalTask.builder()
+            .id(createdTask2.getId())
+            .subject(animal_basic)
+            .build();
+        animalTaskRepository.save(ec2);
+
+        Task createdTask3 = taskRepository.save(task_assigned3);
+        AnimalTask ec3 = AnimalTask.builder()
+            .id(createdTask3.getId())
+            .subject(animal_basic)
+            .build();
+        animalTaskRepository.save(ec3);
+        List<AnimalTask> animalTasks = animalTaskRepository.findFilteredEvents(Task.builder().build());
+        assertEquals(animalTasks.size(), 3);
+
+        task_assigned.setEvent(false);
+        task_assigned2.setEvent(false);
+        task_assigned3.setEvent(false);
+    }
+
+    @Test
+    public void eventSearch_noEvents() {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        userLoginRepository.save(doctor_login);
+        employeeRepository.save(doctor);
+        Animal animal = animalRepository.save(animal_basic);
+
+        Employee caretaker = employeeRepository.findEmployeeByUsername(USERNAME_DOCTOR_EMPLOYEE);
+
+        task_assigned.setAssignedEmployee(caretaker);
+
+        Task createdTask = taskRepository.save(task_assigned);
+        AnimalTask ec1 = AnimalTask.builder()
+            .id(createdTask.getId())
+            .subject(animal_basic)
+            .build();
+        animalTaskRepository.save(ec1);
+
+        Task createdTask2 = taskRepository.save(task_assigned2);
+        AnimalTask ec2 = AnimalTask.builder()
+            .id(createdTask2.getId())
+            .subject(animal_basic)
+            .build();
+        animalTaskRepository.save(ec2);
+
+        Task createdTask3 = taskRepository.save(task_assigned3);
+        AnimalTask ec3 = AnimalTask.builder()
+            .id(createdTask3.getId())
+            .subject(animal_basic)
+            .build();
+        animalTaskRepository.save(ec3);
+        List<AnimalTask> animalTasks = animalTaskRepository.findFilteredEvents(Task.builder().build());
+        assertEquals(animalTasks.size(), 0);
+
+    }
+
+    @Test
+    public void eventSearch_searchDescriptionAndTitle() {
+        userLoginRepository.save(animal_caretaker_login);
+        employeeRepository.save(anmial_caretaker);
+        userLoginRepository.save(doctor_login);
+        employeeRepository.save(doctor);
+        Animal animal = animalRepository.save(animal_basic);
+        task_assigned.setEvent(true);
+        task_assigned.setTitle("AAAAAAAABBAAAAA");
+        task_assigned.setDescription("AAAAAAAABBAAAAA");
+        task_assigned2.setEvent(true);
+        task_assigned3.setEvent(true);
+
+        Employee caretaker = employeeRepository.findEmployeeByUsername(USERNAME_DOCTOR_EMPLOYEE);
+
+        task_assigned.setAssignedEmployee(caretaker);
+
+        Task createdTask = taskRepository.save(task_assigned);
+        AnimalTask ec1 = AnimalTask.builder()
+            .id(createdTask.getId())
+            .subject(animal_basic)
+            .build();
+        animalTaskRepository.save(ec1);
+
+        Task createdTask2 = taskRepository.save(task_assigned2);
+        AnimalTask ec2 = AnimalTask.builder()
+            .id(createdTask2.getId())
+            .subject(animal_basic)
+            .build();
+        animalTaskRepository.save(ec2);
+
+        Task createdTask3 = taskRepository.save(task_assigned3);
+        AnimalTask ec3 = AnimalTask.builder()
+            .id(createdTask3.getId())
+            .subject(animal_basic)
+            .build();
+        animalTaskRepository.save(ec3);
+        Task searchTask = Task.builder().title("aaaa").description("bA").build();
+        List<AnimalTask> animalTasks = animalTaskRepository.findFilteredEvents(searchTask);
+        assertEquals(animalTasks.size(), 1);
+
+        task_assigned.setEvent(false);
+        task_assigned2.setEvent(false);
+        task_assigned3.setEvent(false);
+    }
+
 }
