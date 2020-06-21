@@ -20,13 +20,14 @@
         <a class="nav-link" *ngIf="isAdmin() && authService.isLoggedIn()" routerLink="/animal" routerLinkActive="active">Animals</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" *ngIf="isAdmin()" routerLink="/tasks" routerLinkActive="active">Tasks</a>
-      </li>
         <a class="nav-link" *ngIf="isAdmin() && authService.isLoggedIn()" routerLink="/enclosure" routerLinkActive="active">Enclosures</a>
       </li>
       <li class="nav-item">
-      <a class="nav-link" *ngIf="isAdmin() && authService.isLoggedIn()" routerLink="/admin" routerLinkActive="active">Create Admin</a>
-    </li>
+        <a class="nav-link" *ngIf="isAdmin() && authService.isLoggedIn()" routerLink="/tasks" routerLinkActive="active">Tasks</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" *ngIf="isAdmin() && authService.isLoggedIn()" routerLink="/admin" routerLinkActive="active">Create Admin</a>
+      </li>
     </ul>
 
     <ul class="navbar-nav mr-5">
