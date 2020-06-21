@@ -171,4 +171,20 @@ export class TaskService {
     query = query.substring(0, query.length - 1);
     return this.httpClient.get<Task[]>(this.taskBaseUri + query);
   }
+
+  searchEvents(task: Task): Observable<Task[]> {
+    DEBUG_LOG('Getting filtered list of events');
+    let query = '/search?';
+    if (task.title != null && task.title !== '') {
+      query = query + 'title=' + task.title + '&';
+    }
+    if (task.description != null && task.description !== '') {
+      query = query + 'description=' + task.description + '&';
+    }
+    if (task.startTime != null && task.startTime !== '') {
+      query = query + 'date=' + task.startTime + '&';
+    }
+    query = query.substring(0, query.length - 1);
+    return this.httpClient.get<Task[]>(this.taskBaseUri + '/events' + query);
+  }
 }
