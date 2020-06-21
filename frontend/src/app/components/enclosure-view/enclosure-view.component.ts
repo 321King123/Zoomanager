@@ -51,6 +51,9 @@ export class EnclosureViewComponent implements OnInit {
     }
     this.loadEnclosureToView(enclsureToViewId);
     this.editing = false;
+    if (this.isUser()) {
+      this.toTaskMode();
+    }
   }
 
   loadAnimals() {
