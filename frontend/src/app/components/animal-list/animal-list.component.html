@@ -60,9 +60,9 @@
 
     <ng-container *ngFor="let animal of animals">
       <tr class="d-flex animal-list-item">
-          <td class="col" (click)= "!(stopClickPropagation) ? isAdmin() && showInfo(animal) : null">{{animal.name}}</td>
-          <td class="col" (click)="!(stopClickPropagation) ? isAdmin() && showInfo(animal) : null">{{animal.species}}</td>
-          <td class="col" (click)="!(stopClickPropagation) ? isAdmin() && showInfo(animal) : null">{{animal.description}}</td>
+          <td (click)= "showInfo(animal)" class="col">{{animal.name}}</td>
+          <td (click)= "showInfo(animal)" class="col">{{animal.species}}</td>
+          <td (click)= "showInfo(animal)" class="col">{{animal.description}}</td>
           <td class="col" *ngIf="animalPage">
             <app-delete-warning
               *ngIf="enableDelete&&animalPage"

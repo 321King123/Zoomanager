@@ -7,6 +7,7 @@ import lombok.*;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 
 @Getter
@@ -44,5 +45,14 @@ public class TaskDto {
 
     @NotNull
     private boolean priority;
+
+    @NotNull
+    private boolean event;
+
+    private String publicInfo;
+
+    @Pattern(regexp = "^data:image/(jpeg|png);base64,([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$",
+        message = "Event Picture needs to be a valid jpg or png image")
+    private String eventPicture;
 
 }

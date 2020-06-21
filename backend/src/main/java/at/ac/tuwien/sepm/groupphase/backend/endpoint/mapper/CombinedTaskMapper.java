@@ -45,6 +45,9 @@ public class CombinedTaskMapper {
             .subjectId(animalTask.getSubject().getId())
             .animalTask(true)
             .priority(animalTask.getTask().isPriority())
+            .event(animalTask.getTask().isEvent())
+            .eventPicture(pictureByteToString(animalTask.getTask().getEventPicture()))
+            .publicInfo(animalTask.getTask().getPublicInfo())
             .build();
     }
 
@@ -71,6 +74,9 @@ public class CombinedTaskMapper {
             .subjectId(enclosureTask.getSubject() != null ? enclosureTask.getSubject().getId() : null)
             .animalTask(false)
             .priority(enclosureTask.getTask().isPriority())
+            .event(enclosureTask.getTask().isEvent())
+            .eventPicture(pictureByteToString(enclosureTask.getTask().getEventPicture()))
+            .publicInfo(enclosureTask.getTask().getPublicInfo())
             .build();
     }
 
@@ -147,18 +153,7 @@ public class CombinedTaskMapper {
         if(animal == null){
             throw new NotFoundException("No such animal exists.");
         }
-        Employee employee = employeeService.findByUsername(combinedTaskDto.getAssignedEmployeeUsername());
-
-        Task task = Task.builder()
-            .id(combinedTaskDto.getId())
-            .assignedEmployee(employee)
-            .description(combinedTaskDto.getDescription())
-            .startTime(combinedTaskDto.getStartTime())
-            .endTime(combinedTaskDto.getEndTime())
-            .priority(combinedTaskDto.isPriority())
-            .status(combinedTaskDto.getStatus())
-            .title(combinedTaskDto.getTitle())
-            .build();
+        Task task = getTaskFromCombinedTaskDto(combinedTaskDto);;
 
         AnimalTask animalTask = AnimalTask.builder()
             .id(combinedTaskDto.getId())
@@ -179,18 +174,7 @@ public class CombinedTaskMapper {
         if(enclosure == null){
             throw new NotFoundException("No such enclosure exists.");
         }
-        Employee employee = employeeService.findByUsername(combinedTaskDto.getAssignedEmployeeUsername());
-
-        Task task = Task.builder()
-            .id(combinedTaskDto.getId())
-            .assignedEmployee(employee)
-            .description(combinedTaskDto.getDescription())
-            .startTime(combinedTaskDto.getStartTime())
-            .endTime(combinedTaskDto.getEndTime())
-            .priority(combinedTaskDto.isPriority())
-            .status(combinedTaskDto.getStatus())
-            .title(combinedTaskDto.getTitle())
-            .build();
+        Task task = getTaskFromCombinedTaskDto(combinedTaskDto);
 
         EnclosureTask enclosureTask = EnclosureTask.builder()
             .task(task)
@@ -199,5 +183,31 @@ public class CombinedTaskMapper {
             .build();
 
         return enclosureTask;
+    }
+
+    private Task getTaskFromCombinedTaskDto(CombinedTaskDto combinedTaskDto) {
+        Employee employee = employeeService.findByUsername(combinedTaskDto.getAssignedEmployeeUsername());
+
+        return Task.builder()
+            .id(combinedTaskDto.getId())
+            .assignedEmployee(employee)
+            .description(combinedTaskDto.getDescription())
+            .startTime(combinedTaskDto.getStartTime())
+            .endTime(combinedTaskDto.getEndTime())
+            .priority(combinedTaskDto.isPriority())
+            .status(combinedTaskDto.getStatus())
+            .title(combinedTaskDto.getTitle())
+            .event(combinedTaskDto.isEvent())
+            .eventPicture(pictureStringToByte(combinedTaskDto.getEventPicture()))
+            .publicInfo(combinedTaskDto.getPublicInfo())
+            .build();
+    }
+
+    byte[] pictureStringToByte(String pictueString) {
+        return pictueString==null?null:pictueString.getBytes();
+    }
+
+    String pictureByteToString(byte[] pictueByte) {
+        return pictueByte==null?null:new String(pictueByte);
     }
 }

@@ -8,18 +8,31 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a class="nav-link" *ngIf="!isAdmin()" routerLink="/personal-info" routerLinkActive="active">Info</a>
+        <a class="nav-link" *ngIf="!isAdmin() && authService.isLoggedIn()" routerLink="/personal-info" routerLinkActive="active">Info</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" *ngIf="isAdmin()" routerLink="/employee" routerLinkActive="active">Employees</a>
+        <a class="nav-link" *ngIf="!isAdmin() && authService.isLoggedIn()" routerLink="/calendar" routerLinkActive="active">Calendar</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" *ngIf="isAdmin()" routerLink="/animal" routerLinkActive="active">Animals</a>
+        <a class="nav-link" *ngIf="isAdmin() && authService.isLoggedIn()" routerLink="/employee" routerLinkActive="active">Employees</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" *ngIf="isAdmin()" routerLink="/enclosure" routerLinkActive="active">Enclosures</a>
+        <a class="nav-link" *ngIf="isAdmin() && authService.isLoggedIn()" routerLink="/animal" routerLinkActive="active">Animals</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" *ngIf="isAdmin() && authService.isLoggedIn()" routerLink="/enclosure" routerLinkActive="active">Enclosures</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" *ngIf="isAdmin() && authService.isLoggedIn()" routerLink="/tasks" routerLinkActive="active">Tasks</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/event" routerLinkActive="active">Events</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" *ngIf="isAdmin() && authService.isLoggedIn()" routerLink="/admin" routerLinkActive="active">Create Admin</a>
       </li>
     </ul>
+
     <ul class="navbar-nav mr-5">
       <a class="nav-link" *ngIf="!authService.isLoggedIn()" routerLink="/login" routerLinkActive="active">Login</a>
       <a class="nav-link" *ngIf="authService.isLoggedIn()" routerLink="/" (click)="authService.logoutUser()">Logout</a>

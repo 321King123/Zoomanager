@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Globals, Utilities} from '../global/globals';
+import {Globals, type, Utilities} from '../global/globals';
 import {AnimalTask} from '../dtos/animalTask';
 import {Observable} from 'rxjs';
 import {EnclosureTask} from '../dtos/enclosureTask';
@@ -8,6 +8,7 @@ import {Employee} from '../dtos/employee';
 import {Task} from '../dtos/task';
 import DEBUG_LOG = Utilities.DEBUG_LOG;
 import {RepeatableTask} from '../dtos/RepeatableTask';
+import {Comment} from '../dtos/comment';
 
 @Injectable({
   providedIn: 'root'
@@ -86,6 +87,11 @@ export class TaskService {
     return this.httpClient.get<Task[]>(this.taskBaseUri + '/employee/' + username);
   }
 
+  getAllEvents(): Observable<Task[]> {
+    DEBUG_LOG('Get all events');
+    return this.httpClient.get<Task[]>(this.taskBaseUri + '/events');
+  }
+
   autoAssignAnimalTaskToDoctor(taskId) {
     DEBUG_LOG('Auto-assign animal task to a doctor ' + taskId);
     return this.httpClient.post(this.taskBaseUri + '/auto/animal/doctor/' + taskId, {});
@@ -134,5 +140,51 @@ export class TaskService {
   updateTaskInformationRepeat(task: Task): Observable<any> {
     DEBUG_LOG('Update task information and following tasks ' + JSON.stringify(task));
     return this.httpClient.put(this.taskBaseUri + '/update/repeat', task);
+  }
+
+
+  searchTasks(employeetype: type, task: Task): Observable<Task[]> {
+    DEBUG_LOG('Getting filtered list of tasks');
+    DEBUG_LOG('Getting filtered list of tasks with status: ' + task.status);
+    let query = '/search?';
+    if (task.assignedEmployeeUsername != null && task.assignedEmployeeUsername !== '') {
+      query = query + 'username=' + task.assignedEmployeeUsername + '&';
+    }
+    if (task.title != null && task.title !== '') {
+      query = query + 'title=' + task.title + '&';
+    }
+    if (task.description != null && task.description !== '') {
+      query = query + 'description=' + task.description + '&';
+    }
+    if (task.startTime != null && task.startTime !== '') {
+      query = query + 'starttime=' + task.startTime + '&';
+    }
+    if (task.endTime != null && task.endTime !== '') {
+      query = query + 'endtime=' + task.endTime + '&';
+    }
+    if (task.status != null) {
+      query = query + 'taskStatus=' + task.status + '&';
+    }
+    if (employeetype != null) {
+      query = query + 'employeeType=' + employeetype + '&';
+    }
+    query = query.substring(0, query.length - 1);
+    return this.httpClient.get<Task[]>(this.taskBaseUri + query);
+  }
+
+  searchEvents(task: Task): Observable<Task[]> {
+    DEBUG_LOG('Getting filtered list of events');
+    let query = '/search?';
+    if (task.title != null && task.title !== '') {
+      query = query + 'title=' + task.title + '&';
+    }
+    if (task.description != null && task.description !== '') {
+      query = query + 'description=' + task.description + '&';
+    }
+    if (task.startTime != null && task.startTime !== '') {
+      query = query + 'date=' + task.startTime + '&';
+    }
+    query = query.substring(0, query.length - 1);
+    return this.httpClient.get<Task[]>(this.taskBaseUri + '/events' + query);
   }
 }

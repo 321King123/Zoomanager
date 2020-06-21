@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import javax.validation.ValidationException;
 import java.lang.invoke.MethodHandles;
+import java.util.InputMismatchException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +82,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         LOGGER.warn(ex.getMessage());
         return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.FORBIDDEN, request);
     }
+
 
     /**
      * Override methods from ResponseEntityExceptionHandler to send a customized HTTP response for a know exception

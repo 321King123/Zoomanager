@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepm.groupphase.backend.repository;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Animal;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Employee;
-import at.ac.tuwien.sepm.groupphase.backend.entity.Enclosure;
+import at.ac.tuwien.sepm.groupphase.backend.entity.*;
+import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

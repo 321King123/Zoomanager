@@ -183,7 +183,7 @@ public class RepeatableTaskServiceTest implements TestData {
     }
 
     @Test
-    public void repeatDeleteTask_thenAllTasksDeleted() {
+    public void repeatDeleteFirstTask_thenAllTasksDeleted() {
         List<AnimalTask> animalTaskList = taskService.createRepeatableAnimalTask(task_assigned, animal, 4, ChronoUnit.DAYS, 2);
 
         RepeatableTask firstTaskRepeatable = repeatableTaskRepository.findById(animalTaskList.get(3).getId()).get();

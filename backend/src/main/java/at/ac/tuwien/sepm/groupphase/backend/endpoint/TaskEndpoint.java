@@ -3,6 +3,7 @@ package at.ac.tuwien.sepm.groupphase.backend.endpoint;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.*;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.*;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
+import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
@@ -10,11 +11,13 @@ import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
+import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
@@ -27,11 +30,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping(value = "/api/v1/tasks")
 public class TaskEndpoint {
@@ -254,7 +260,7 @@ public class TaskEndpoint {
     @PostMapping(value = "auto/enclosure/caretaker/repeat/{id}")
     @ApiOperation(value = "Automatically assign Enclosure Tasks to Animal Caretaker", authorizations = {@Authorization(value = "apiKey")})
     public void autoAssignEnclosureTaskCaretakerRepeat(@PathVariable Long id, Authentication authentication) {
-        LOGGER.info("POST /api/v1/tasks/auto/enclosure/repeat/{}", id);
+        LOGGER.info("POST /api/v1/tasks/auto/enclosure/caretaker/repeat/{}", id);
 
         //Only Admin and Employees that are assigned to the enclosure can create it
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
@@ -396,6 +402,85 @@ public class TaskEndpoint {
         }
     }
 
+
+    /**
+     * Search function for tasks
+     * Title and Description have substring searach
+     * Tasks entirely between specified Start and Endtime
+     * username, employeeType, priority, taskStatus either exact or null for all
+     */
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/search")
+    @ApiOperation(value = "Get filtered list of all tasks", authorizations = {@Authorization(value = "apiKey")})
+    public List<CombinedTaskDto> getAllTasksFiltered(@RequestParam(value = "employeeType", required = false) String employeeTypeString,
+                                                     @RequestParam(value = "title", required = false) String title,
+                                                     @RequestParam(value = "description", required = false) String description,
+                                                     @RequestParam(value = "starttime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime starttime,
+                                                     @RequestParam(value = "endtime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endtime,
+                                                     @RequestParam(value = "username", required = false) String username,
+                                                     @RequestParam(value = "taskStatus", required = false) String taskStatusString){
+        LOGGER.info("GET /api/v1/tasks/search?employeeType={}&title={}&description={}&starttime={}&endtime={}&username={}&taskStatus={}",
+            employeeTypeString, title, description, starttime, endtime, username, taskStatusString);
+
+        TaskStatus taskStatus = null;
+        EmployeeType employeeType = null;
+        try {
+            if(taskStatusString != null) {
+                taskStatus = TaskStatus.valueOf(taskStatusString);
+            }
+            if(employeeTypeString != null) {
+                employeeType = EmployeeType.valueOf(employeeTypeString);
+            }
+        }catch(Exception e){
+            throw new IncorrectTypeException("The given enums are not supported");
+        }
+
+        Employee searchedEmployee;
+        if(username == null){
+            searchedEmployee = Employee.builder().build();
+        }else{
+            searchedEmployee = employeeService.findByUsername(username);
+        }
+
+        if(username != null && searchedEmployee == null){
+            throw new NotFoundException("Employee with specified username not found");
+        }
+
+        Task searchTask = Task.builder().title(title).description(description).startTime(starttime).endTime(endtime)
+            .assignedEmployee(searchedEmployee).status(taskStatus).build();
+
+        List<AnimalTask> animalTasks = taskService.searchAnimalTasks(employeeType, searchTask);
+        List<EnclosureTask> enclosureTasks = taskService.searchEnclosureTasks(employeeType, searchTask);
+
+        return combinedTaskMapper.sortedEnclosureTaskListAndAnimalTaskListToSortedCombinedTaskDtoList(enclosureTasks, animalTasks);
+    }
+
+    /**
+     * Search function for events
+     * Title and Description have substring searach
+     * Tasks on speciefied date
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/events/search")
+    @ApiOperation(value = "Get filtered list of all events", authorizations = {@Authorization(value = "apiKey")})
+    public List<CombinedTaskDto> getAllEventsFiltered(@RequestParam(value = "title", required = false) String title,
+                                                     @RequestParam(value = "description", required = false) String description,
+                                                     @RequestParam(value = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
+        LOGGER.info("GET /api/v1/tasks/search?&title={}&description={}&date={}", title, description, date);
+
+
+        Task searchTask = Task.builder().title(title).description(description)
+            .startTime(date==null?null:date.atTime(0, 0))
+            .endTime(date==null?null:date.atTime(23, 59, 59))
+            .build();
+
+        List<AnimalTask> animalTasks = taskService.searchAnimalEvents(searchTask);
+        List<EnclosureTask> enclosureTasks = taskService.searchEnclosureEvents(searchTask);
+
+        return combinedTaskMapper.sortedEnclosureTaskListAndAnimalTaskListToSortedCombinedTaskDtoList(enclosureTasks, animalTasks);
+    }
+
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/animal/{animalId}")
@@ -412,6 +497,38 @@ public class TaskEndpoint {
         }
         List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllTasksOfAnimal(animalId));
         return combinedTaskMapper.animalTaskListToCombinedTaskDtoList(animalTasks);
+    }
+
+
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "events/animal/{animalId}")
+    @ApiOperation(value = "Get list of event animal tasks belonging to an animal", authorizations = {@Authorization(value = "apiKey")})
+    public List<CombinedTaskDto> getAllAnimalEventsBelongingToAnimal(@PathVariable Long animalId, Authentication authentication){
+        LOGGER.info("GET /api/v1/events/animal/ {}", animalId);
+        List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllEventsOfAnimal(animalId));
+        return combinedTaskMapper.animalTaskListToCombinedTaskDtoList(animalTasks);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "events/{eventId}")
+    @ApiOperation(value = "Get event byId", authorizations = {@Authorization(value = "apiKey")})
+    public CombinedTaskDto getEventbyId(@PathVariable Long eventId, Authentication authentication){
+        LOGGER.info("GET /api/v1/events/ {}", eventId);
+        try{
+            AnimalTask animalTask = taskService.getAnimalEventById(eventId);
+            if(animalTask != null)
+                return combinedTaskMapper.animalTaskToCombinedTaskDto(animalTask);
+
+
+        } catch (NotFoundException e) {
+            EnclosureTask enclosureTask = taskService.getEnclosureEventById(eventId);
+            if(enclosureTask != null)
+                return combinedTaskMapper.enclosureTaskToCombinedTaskDto(enclosureTask);
+
+            throw new NotFoundException("No Event with given Id was found.");
+        }
+        throw new NotFoundException("No Event with given Id was found.");
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -492,6 +609,26 @@ public class TaskEndpoint {
         List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllTasksOfEnclosure(enclosureId));
         return combinedTaskMapper.enclosureTaskListToCombinedTaskDtoList(enclosureTasks);
     }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "events/enclosure/{enclosureId}")
+    @ApiOperation(value = "Get list of event enclosure tasks belonging to an enclosure", authorizations = {@Authorization(value = "apiKey")})
+    public List<CombinedTaskDto> getAllEnclosureEventsBelongingToEnclosure(@PathVariable Long enclosureId, Authentication authentication){
+        LOGGER.info("GET /api/v1/tasks/events/enclosure/ {}", enclosureId);
+        List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllEventsOfEnclosure(enclosureId));
+        return combinedTaskMapper.enclosureTaskListToCombinedTaskDtoList(enclosureTasks);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "events")
+    @ApiOperation(value = "Get list of all events", authorizations = {@Authorization(value = "apiKey")})
+    public List<CombinedTaskDto> getAllEvents(Authentication authentication){
+        LOGGER.info("GET /api/v1/tasks/events");
+        List<EnclosureTask> enclosureTasks = new LinkedList<>(taskService.getAllEnclosureEvents());
+        List<AnimalTask> animalTasks = new LinkedList<>(taskService.getAllAnimalEvents());
+        return combinedTaskMapper.sortedEnclosureTaskListAndAnimalTaskListToSortedCombinedTaskDtoList(enclosureTasks, animalTasks);
+    }
+
 
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
