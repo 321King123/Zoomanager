@@ -20,20 +20,20 @@
     </thead>
     <tbody *ngIf="tasks!=null">
     <ng-container *ngFor="let task of tasks; index as i;">
-      <tr class="row animal-list-item" [class.alert-warning]="task.priority"
-          (click)="toggleTaskInfoModal(task.id+task.title)">
-        <td class="col" >{{task.title}}</td>
+      <tr class="row animal-list-item" [class.alert-warning]="task.priority">
+        <!--  (click)="toggleTaskInfoModal(task.id+task.title)"-->
+        <td class="col" (click)="toggleTaskInfoModal(task.id+task.title)" >{{task.title}}</td>
       <!--  <td class="col">
 
           <p *ngIf="!task.priority">Normal</p>
         </td> -->
-        <td class="col">{{task.startTime}}</td>
-        <td class="col">{{task.endTime}}</td>
+        <td class="col" (click)="toggleTaskInfoModal(task.id+task.title)">{{task.startTime}}</td>
+        <td class="col" (click)="toggleTaskInfoModal(task.id+task.title)">{{task.endTime}}</td>
         <ng-container *ngIf="task.assignedEmployeeUsername!=null">
-          <td class="col">{{task.assignedEmployeeUsername}}</td>
+          <td class="col" (click)="toggleTaskInfoModal(task.id+task.title)">{{task.assignedEmployeeUsername}}</td>
         </ng-container>
         <ng-container *ngIf="task.assignedEmployeeUsername==null">
-          <td class="col">
+          <td class="col" >
             <app-assign-task (assignmentSuccessful)="reloadTasks.emit()" [index]="i"
                              [employees]="employees" [doctors]="doctors" [janitors]="janitors" [task]="task"></app-assign-task>
           </td>
@@ -87,13 +87,11 @@
 
           <app-task-info-update *ngIf="!isEventList"
                                 [stringId]="task.id+task.title"
-                                (toggleClickPropagationEvent)="toggleClickPropagation()"
                                 (reloadTasks)="reloadTasks.emit()" [editModeAlloved]="currentUserType!=='DOCTOR' && currentUserType!=='JANITOR'"
                                 [animalsOfEmployee]="animalsOfEmployee" [enclosuresOfEmployee]="enclosuresOfEmployee"
             [task]="task" [index]="i" [currentEmployee]="currentUser"></app-task-info-update>
           <app-event-info-view *ngIf="isEventList"
                                [stringId]="task.id+task.title"
-                               (toggleClickPropagationEvent)="toggleClickPropagation()"
                                (reloadTasks)="reloadTasks.emit()"
                                [task]="task" [index]="i"></app-event-info-view>
 

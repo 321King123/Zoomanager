@@ -23,14 +23,16 @@
     </div>
   </div>
   <div *ngIf="employee!=null" class="col-12 my-2">
-    <div *ngIf="employee!=null && employee.type=='ANIMAL_CARE'"
-      class="row d-flex justify-content-start mx-0 ">
-      <app-task-creation (reloadTasks)="loadTasksOfEmployee()" [currentEmployee]="employee"
-                         [animalsOfEmployee]="assignedAnimals"
-                         [enclosuresOfEmployee]="enclosuresOfEmployee"></app-task-creation>
+    <div class="row d-flex justify-content-between mx-0 ">
+      <ng-container  *ngIf="employee!=null && employee.type=='ANIMAL_CARE'">
+        <app-task-creation (reloadTasks)="loadTasksOfEmployee()" [currentEmployee]="employee"
+                           [animalsOfEmployee]="assignedAnimals"
+                           [enclosuresOfEmployee]="enclosuresOfEmployee"></app-task-creation>
+      </ng-container>
+
+      <button *ngIf="!isAdmin()" type="button" (click)="toChangePassword()" class="btn btn-success">Change Password
+      </button>
     </div>
-    <button *ngIf="!isAdmin()" type="button" (click)="toChangePassword()" class="btn btn-success m-1 ">Change Password
-    </button>
   </div>
 </div>
 
@@ -48,10 +50,13 @@
 <div class="row">
   <div class="col">
     <div class="btn-group" role="group" aria-label="Basic example">
+      <button (click)="toTaskMode()" type="button" class="btn btn-dark">Assigned Tasks</button>
       <button (click)="toAnimalMode()" *ngIf="this.employee!=null && this.employee.type=='ANIMAL_CARE'" type="button"
               class="btn btn-dark">Assigned Animals
       </button>
-      <button (click)="toTaskMode()" type="button" class="btn btn-dark">Assigned Tasks</button>
+      <button (click)="toEnclosureMode()" *ngIf="this.employee!=null && this.employee.type=='ANIMAL_CARE'" type="button"
+              class="btn btn-dark">Assigned Enclosures
+      </button>
     </div>
   </div>
 </div>
@@ -60,7 +65,8 @@
   <ng-container *ngIf=" employee!=null && employee.type=='ANIMAL_CARE' && animalListMode">
     <div class="row">
       <div class="col-lg-12" *ngIf=" isAdmin() && assignedAnimals != null && assignedAnimals.length != 0">
-        <app-animal-list (unassignAnimal)="removeAssignedAnimal($event)" [employeePage]="true" [animals]="assignedAnimals"></app-animal-list>
+        <app-animal-list (unassignAnimal)="removeAssignedAnimal($event)" [employeePage]="true"
+                         [animals]="assignedAnimals"></app-animal-list>
       </div>
       <div class="col-lg-12" *ngIf=" !isAdmin() && assignedAnimals != null && assignedAnimals.length != 0">
         <app-animal-list [employeePage]="true" [animals]="assignedAnimals"></app-animal-list>
@@ -94,6 +100,14 @@
         <app-task-list-common [enclosuresOfEmployee]="enclosuresOfEmployee" [animalsOfEmployee]="assignedAnimals"
                               [currentUserType]="currentUserType" (reloadTasks)="loadTasksOfEmployee()"
                               [tasks]="tasks"></app-task-list-common>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="enclosureListMode && employee!=null">
+    <div class="row mb-4">
+      <div class="col-lg-12">
+        <app-enclosure-list [enclosures]="enclosuresOfEmployee"></app-enclosure-list>
       </div>
     </div>
   </ng-container>
