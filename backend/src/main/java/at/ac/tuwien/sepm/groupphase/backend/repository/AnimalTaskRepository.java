@@ -27,6 +27,9 @@ public interface AnimalTaskRepository extends JpaRepository<AnimalTask, Long> {
     List<AnimalTask> findAllAnimalTasksBySubject_Id(@Param("animalId") long animalId);
 
 
+    /**
+     *Search for animalTasks with different Parameters
+     */
     @Query("SELECT animaltask " +
         "FROM AnimalTask animaltask " +
         "WHERE animaltask.id IN " +
@@ -58,7 +61,8 @@ public interface AnimalTaskRepository extends JpaRepository<AnimalTask, Long> {
      * @return The events associated with the given animal
      */
     @Query("SELECT new AnimalTask(animT.id, t, animT.subject) " +
-        "FROM AnimalTask animT JOIN Task t ON animT.id=t.id WHERE animT.subject.id=:animalId AND t.event = true ORDER BY t.startTime")
+        "FROM AnimalTask animT JOIN Task t ON animT.id=t.id WHERE animT.subject.id=:animalId AND t.event = true " +
+        "ORDER BY t.startTime")
     List<AnimalTask> findAllAnimalEventsBySubject_Id(@Param("animalId") long animalId);
 
     /**
@@ -72,6 +76,22 @@ public interface AnimalTaskRepository extends JpaRepository<AnimalTask, Long> {
 
 
     /**
+     *Finds filtered animal task Events
+     *
+     * @return All the animal events currently in the Database
+     */
+    @Query("SELECT animT " +
+        "FROM AnimalTask animT JOIN Task t ON animT.id=t.id " +
+        "WHERE t.event = true " +
+        "AND (:#{#filterTask.title} IS NULL OR " +
+        "UPPER(t.title) LIKE CONCAT('%', UPPER(:#{#filterTask.title}), '%')) " +
+        "AND (:#{#filterTask.description} IS NULL OR " +
+        "UPPER(t.description) LIKE CONCAT('%', UPPER(:#{#filterTask.description}), '%')) " +
+        "ORDER BY t.startTime")
+    List<AnimalTask> findFilteredEvents(@Param("filterTask") Task filterTask);
+
+
+    /**
      * Finds Animal Event by id
      *
      * @param id identifies the event
@@ -80,6 +100,6 @@ public interface AnimalTaskRepository extends JpaRepository<AnimalTask, Long> {
     @Query("SELECT new AnimalTask(animT.id, t, animT.subject) " +
             "FROM AnimalTask animT JOIN Task t ON animT.id=t.id WHERE t.event = true AND animT.id =:id")
     Optional<AnimalTask> findAnimalEventById(@Param("id")long id);
-    
+
 
 }

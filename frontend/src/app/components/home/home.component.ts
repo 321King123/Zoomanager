@@ -14,17 +14,19 @@ import {Router} from '@angular/router';
 })
 export class HomeComponent implements OnInit {
 
-  constructor(public authService: AuthService, public zooInfoService: ZooInfoService,
-              private router: Router, private alertService: AlertService) { }
   zooInformation: ZooInfo;
   ready: boolean = false;
+
+  constructor(public authService: AuthService, public zooInfoService: ZooInfoService,
+              private router: Router, private alertService: AlertService) {
+    this.getZooInformation();
+  }
 
   ngOnInit() {
     this.getZooInformation();
   }
 
   getZooInformation() {
-
     this.zooInfoService.displayZooInfo().subscribe(
       zooInfo => {
         this.zooInformation = zooInfo;

@@ -605,7 +605,7 @@ public class CustomTaskService implements TaskService {
 
 
     public List<AnimalTask> searchAnimalTasks(EmployeeType employeeType, Task filterTask) {
-        LOGGER.debug("Getting filtered List of Tasks.");
+        LOGGER.debug("Getting filtered List of Animal Tasks.");
         if(filterTask.getStartTime()==null) filterTask.setStartTime(LocalDateTime.MIN);
         if(filterTask.getEndTime()==null) filterTask.setEndTime(LocalDateTime.MAX);
         validateStartAndEndTime(filterTask);
@@ -616,8 +616,20 @@ public class CustomTaskService implements TaskService {
                 e.getTask().getEndTime().isBefore(filterTask.getEndTime()))).collect(Collectors.toList());
     }
 
+    public List<AnimalTask> searchAnimalEvents(Task filterTask) {
+        LOGGER.debug("Getting filtered List of Animal Events.");
+        if(filterTask.getStartTime()==null) filterTask.setStartTime(LocalDateTime.MIN);
+        if(filterTask.getEndTime()==null) filterTask.setEndTime(LocalDateTime.MAX);
+        validateStartAndEndTime(filterTask);
+        List<AnimalTask> animalTasks = animalTaskRepository.findFilteredEvents(filterTask);
+
+        return animalTasks.stream()
+            .filter(e -> (e.getTask().getStartTime().isAfter(filterTask.getStartTime()) &&
+                e.getTask().getEndTime().isBefore(filterTask.getEndTime()))).collect(Collectors.toList());
+    }
+
     public List<EnclosureTask> searchEnclosureTasks(EmployeeType employeeType, Task filterTask) {
-        LOGGER.debug("Getting filtered List of Tasks.");
+        LOGGER.debug("Getting filtered List of Enclosure Tasks.");
         if(filterTask.getStartTime()==null) filterTask.setStartTime(LocalDateTime.MIN);
         if(filterTask.getEndTime()==null) filterTask.setEndTime(LocalDateTime.MAX);
         validateStartAndEndTime(filterTask);
@@ -626,6 +638,18 @@ public class CustomTaskService implements TaskService {
         return enclosureTasks.stream()
             .filter(e -> (e.getTask().getStartTime().isAfter(filterTask.getStartTime()) &&
             e.getTask().getEndTime().isBefore(filterTask.getEndTime()))).collect(Collectors.toList());
+    }
+
+    public List<EnclosureTask> searchEnclosureEvents(Task filterTask) {
+        LOGGER.debug("Getting filtered List of Enclosure Events.");
+        if(filterTask.getStartTime()==null) filterTask.setStartTime(LocalDateTime.MIN);
+        if(filterTask.getEndTime()==null) filterTask.setEndTime(LocalDateTime.MAX);
+        validateStartAndEndTime(filterTask);
+        List<EnclosureTask> enclosureTasks = enclosureTaskRepository.findFilteredEvents(filterTask);
+
+        return enclosureTasks.stream()
+            .filter(e -> (e.getTask().getStartTime().isAfter(filterTask.getStartTime()) &&
+                e.getTask().getEndTime().isBefore(filterTask.getEndTime()))).collect(Collectors.toList());
     }
 
 

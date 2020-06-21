@@ -160,5 +160,20 @@ public interface EnclosureTaskRepository extends JpaRepository<EnclosureTask, Lo
         "ORDER BY enclosureTask.task.startTime")
     List<EnclosureTask> findFilteredTasks(@Param("employeeType") EmployeeType employeeType, @Param("filterTask") Task filterTask);
 
+    /**
+     *Finds filtered animal task Events
+     *
+     * @return All the animal events currently in the Database
+     */
+    @Query("SELECT enclT " +
+        "FROM EnclosureTask enclT JOIN Task t ON enclT.id=t.id " +
+        "WHERE t.event = true " +
+        "AND (:#{#filterTask.title} IS NULL OR " +
+        "UPPER(t.title) LIKE CONCAT('%', UPPER(:#{#filterTask.title}), '%')) " +
+        "AND (:#{#filterTask.description} IS NULL OR " +
+        "UPPER(t.description) LIKE CONCAT('%', UPPER(:#{#filterTask.description}), '%')) " +
+        "ORDER BY t.startTime")
+    List<EnclosureTask> findFilteredEvents(@Param("filterTask") Task filterTask);
+
 
 }
