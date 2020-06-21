@@ -10,11 +10,15 @@ import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.ValidationException;
 import java.lang.invoke.MethodHandles;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import java.time.temporal.ChronoUnit;
@@ -22,6 +26,7 @@ import java.util.InputMismatchException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomTaskService implements TaskService {
@@ -598,6 +603,32 @@ public class CustomTaskService implements TaskService {
         }
     }
 
+
+    public List<AnimalTask> searchAnimalTasks(EmployeeType employeeType, Task filterTask) {
+        LOGGER.debug("Getting filtered List of Tasks.");
+        if(filterTask.getStartTime()==null) filterTask.setStartTime(LocalDateTime.MIN);
+        if(filterTask.getEndTime()==null) filterTask.setEndTime(LocalDateTime.MAX);
+        validateStartAndEndTime(filterTask);
+        List<AnimalTask> animalTasks = animalTaskRepository.findFilteredTasks(employeeType, filterTask);
+
+        return animalTasks.stream()
+            .filter(e -> (e.getTask().getStartTime().isAfter(filterTask.getStartTime()) &&
+                e.getTask().getEndTime().isBefore(filterTask.getEndTime()))).collect(Collectors.toList());
+    }
+
+    public List<EnclosureTask> searchEnclosureTasks(EmployeeType employeeType, Task filterTask) {
+        LOGGER.debug("Getting filtered List of Tasks.");
+        if(filterTask.getStartTime()==null) filterTask.setStartTime(LocalDateTime.MIN);
+        if(filterTask.getEndTime()==null) filterTask.setEndTime(LocalDateTime.MAX);
+        validateStartAndEndTime(filterTask);
+        List<EnclosureTask> enclosureTasks = enclosureTaskRepository.findFilteredTasks(employeeType, filterTask);
+
+        return enclosureTasks.stream()
+            .filter(e -> (e.getTask().getStartTime().isAfter(filterTask.getStartTime()) &&
+            e.getTask().getEndTime().isBefore(filterTask.getEndTime()))).collect(Collectors.toList());
+    }
+
+
     @Override
     public boolean isAnimalTask(Long taskId) {
         Optional<Task> task = taskRepository.findById(taskId);
@@ -613,4 +644,5 @@ public class CustomTaskService implements TaskService {
         if(task.isPriority() && task.isEvent())
             throw new ValidationException("A priority Task can not be an Event.");
     }
+
 }

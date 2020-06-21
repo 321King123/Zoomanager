@@ -6,6 +6,7 @@ import {LoginComponent} from './components/login/login.component';
 import {AuthGuard} from './guards/auth.guard';
 import {MessageComponent} from './components/message/message.component';
 import {EmployeeComponent} from './components/employee/employee.component';
+import {TaskOverviewComponent} from './components/task-overview/task-overview.component';
 import {AnimalComponent} from './components/animal/animal.component';
 import {EmployeeViewComponent} from './components/employee-view/employee-view.component';
 import {EnclosureComponent} from './components/enclosure/enclosure.component';
@@ -23,6 +24,7 @@ const routes: Routes = [
   {path: 'edit', component: HomeEditComponent},
   {path: 'login', component: LoginComponent},
   {path: 'message', canActivate: [AuthGuard], component: MessageComponent},
+  {path: 'tasks', canActivate: [AuthGuard], component: TaskOverviewComponent},
   {path: 'employee', canActivate: [AuthGuard], component: EmployeeComponent},
   {path: 'animal', canActivate: [AuthGuard], component: AnimalComponent},
   {path: 'employee-view/:username', canActivate: [AuthGuard], component: EmployeeViewComponent},

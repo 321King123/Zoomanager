@@ -3,6 +3,7 @@ package at.ac.tuwien.sepm.groupphase.backend.endpoint;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.dto.*;
 import at.ac.tuwien.sepm.groupphase.backend.endpoint.mapper.*;
 import at.ac.tuwien.sepm.groupphase.backend.entity.*;
+import at.ac.tuwien.sepm.groupphase.backend.exception.IncorrectTypeException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotAuthorisedException;
 import at.ac.tuwien.sepm.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepm.groupphase.backend.service.AnimalService;
@@ -10,11 +11,13 @@ import at.ac.tuwien.sepm.groupphase.backend.service.EmployeeService;
 import at.ac.tuwien.sepm.groupphase.backend.service.EnclosureService;
 import at.ac.tuwien.sepm.groupphase.backend.service.TaskService;
 import at.ac.tuwien.sepm.groupphase.backend.types.EmployeeType;
+import at.ac.tuwien.sepm.groupphase.backend.types.TaskStatus;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -394,6 +398,60 @@ public class TaskEndpoint {
             }
 
         }
+    }
+
+
+    /**
+     * Search function for tasks
+     * Title and Description have substring searach
+     * Tasks entirely between specified Start and Endtime
+     * username, employeeType, priority, taskStatus either exact or null for all
+     */
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/search")
+    @ApiOperation(value = "Get filtered list of all tasks", authorizations = {@Authorization(value = "apiKey")})
+    public List<CombinedTaskDto> getAllTasksFiltered(@RequestParam(value = "employeeType", required = false) String employeeTypeString,
+                                                     @RequestParam(value = "title", required = false) String title,
+                                                     @RequestParam(value = "description", required = false) String description,
+                                                     @RequestParam(value = "starttime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime starttime,
+                                                     @RequestParam(value = "endtime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endtime,
+                                                     @RequestParam(value = "username", required = false) String username,
+                                                     @RequestParam(value = "taskStatus", required = false) String taskStatusString){
+        LOGGER.info("GET /api/v1/tasks/search?employeeType={}&title={}&description={}&starttime={}&endtime={}&username={}&taskStatus={}",
+            employeeTypeString, title, description, starttime, endtime, username, taskStatusString);
+
+        TaskStatus taskStatus = null;
+        EmployeeType employeeType = null;
+        try {
+            if(taskStatusString != null) {
+                taskStatus = TaskStatus.valueOf(taskStatusString);
+            }
+            if(employeeTypeString != null) {
+                employeeType = EmployeeType.valueOf(employeeTypeString);
+            }
+        }catch(Exception e){
+            throw new IncorrectTypeException("The given enums are not supported");
+        }
+
+        Employee searchedEmployee;
+        if(username == null){
+            searchedEmployee = Employee.builder().build();
+        }else{
+            searchedEmployee = employeeService.findByUsername(username);
+        }
+
+        if(username != null && searchedEmployee == null){
+            throw new NotFoundException("Employee with specified username not found");
+        }
+
+        Task searchTask = Task.builder().title(title).description(description).startTime(starttime).endTime(endtime)
+            .assignedEmployee(searchedEmployee).status(taskStatus).build();
+
+        List<AnimalTask> animalTasks = taskService.searchAnimalTasks(employeeType, searchTask);
+        List<EnclosureTask> enclosureTasks = taskService.searchEnclosureTasks(employeeType, searchTask);
+
+        return combinedTaskMapper.sortedEnclosureTaskListAndAnimalTaskListToSortedCombinedTaskDtoList(enclosureTasks, animalTasks);
     }
 
     @Secured("ROLE_USER")
