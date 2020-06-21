@@ -18,6 +18,7 @@ import {EmployeeEditViewComponent} from './components/employee-edit-view/employe
 import {EmployeePasswordChangeComponent} from './components/employee-password-change/employee-password-change.component';
 import {AdminCreatePageComponent} from './components/admin-create-page/admin-create-page.component';
 import {CalenderComponent} from './components/calender/calender.component';
+import {EventListComponent} from './components/event-list/event-list.component';
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -38,6 +39,7 @@ const routes: Routes = [
   {path: 'calendar', canActivate: [AuthGuard], component: CalenderComponent},
   {path: 'employee-password-change/:username', canActivate: [AuthGuard], component: EmployeePasswordChangeComponent},
   {path: 'admin', canActivate: [AuthGuard], component: AdminCreatePageComponent},
+  {path: 'event', component: EventListComponent},
 ];
 
 @NgModule({
