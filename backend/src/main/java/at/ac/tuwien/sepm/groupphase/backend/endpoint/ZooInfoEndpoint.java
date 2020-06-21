@@ -14,10 +14,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 import java.lang.invoke.MethodHandles;
 
 @RestController
+@CrossOrigin("*")
 @RequestMapping("/api/v1/zoo")
 public class ZooInfoEndpoint {
 
@@ -35,6 +37,8 @@ public class ZooInfoEndpoint {
         this.userService = userService;
     }
 
+
+    @PermitAll
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "")
     @ApiOperation(value = "Display zooInfo")
