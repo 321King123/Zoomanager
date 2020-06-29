@@ -5,6 +5,8 @@ import {NgbPaginationConfig} from '@ng-bootstrap/ng-bootstrap';
 import * as _ from 'lodash';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AuthService} from '../../services/auth.service';
+import {Utilities} from '../../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 @Component({
   selector: 'app-message',

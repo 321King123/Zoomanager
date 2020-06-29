@@ -8,6 +8,8 @@ import {EmployeeService} from '../../services/employee.service';
 import {Animal} from '../../dtos/animal';
 import {EnclosureTask} from '../../dtos/enclosureTask';
 import {AuthService} from '../../services/auth.service';
+import {Utilities} from '../../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 @Component({
   selector: 'app-task-list',

@@ -3,6 +3,8 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {AuthService} from '../../services/auth.service';
 import {AuthRequest} from '../../dtos/auth-request';
+import {Utilities} from '../../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 
 @Component({

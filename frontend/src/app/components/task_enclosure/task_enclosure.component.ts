@@ -9,6 +9,8 @@ import {AnimalService} from '../../services/animal.service';
 import {EmployeeService} from '../../services/employee.service';
 import {EnclosureService} from '../../services/enclosure.service';
 import {AnimalTask} from '../../dtos/animalTask';
+import {Utilities} from '../../global/globals';
+import DEBUG_LOG = Utilities.DEBUG_LOG;
 
 // noinspection AngularMissingOrInvalidDeclarationInModule
 @Component({
