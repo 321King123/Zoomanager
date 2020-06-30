@@ -121,13 +121,14 @@ public class TaskCommentEndpoint {
             if(employee.getType() == EmployeeType.DOCTOR) {
                 return true;
             } else if(employee.getType() == EmployeeType.ANIMAL_CARE) {
-                return employeeService.canBeAssignedToTask(employee, task);
+                return employeeService.hasTaskAssignmentPermissions(username,taskId);
             }
         } else {
             if(employee.getType() == EmployeeType.JANITOR) {
                 return true;
             } else if(employee.getType() == EmployeeType.ANIMAL_CARE) {
-                return employeeService.canBeAssignedToTask(employee, task);
+
+                return employeeService.hasTaskAssignmentPermissions(username,taskId);
             }
         }
         return false;
