@@ -24,6 +24,6 @@ public class AnimalTask {
     private Task task;
 
     @NonNull
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne(fetch=FetchType.LAZY)
     private Animal subject;
 }

@@ -51,7 +51,7 @@ public interface AnimalTaskRepository extends JpaRepository<AnimalTask, Long> {
         "AND ((:#{#employeeType} IS NULL) OR " +
         "(a.task.assignedEmployee.type = :#{#employeeType}))) " +
         "AND ((:#{#filterTask.status} IS NULL) OR " +
-        "(a.task.status = :#{#filterTask.status})))" +
+        "(a.task.status = :#{#filterTask.status}))" +
         "ORDER BY animaltask.task.startTime")
     List<AnimalTask> findFilteredTasks(@Param("employeeType") EmployeeType employeeType, @Param("filterTask") Task filterTask);
 
@@ -86,7 +86,7 @@ public interface AnimalTaskRepository extends JpaRepository<AnimalTask, Long> {
         "AND (:#{#filterTask.title} IS NULL OR " +
         "UPPER(t.title) LIKE CONCAT('%', UPPER(:#{#filterTask.title}), '%')) " +
         "AND (:#{#filterTask.description} IS NULL OR " +
-        "UPPER(t.description) LIKE CONCAT('%', UPPER(:#{#filterTask.description}), '%')) " +
+        "UPPER(t.description) LIKE CONCAT('%', UPPER(:#{#filterTask.description}), '%')) AND animT.task.assignedEmployee.userLogin.username = :#{#filterTask.assignedEmployee.userLogin.username} " +
         "ORDER BY t.startTime")
     List<AnimalTask> findFilteredEvents(@Param("filterTask") Task filterTask);
 
